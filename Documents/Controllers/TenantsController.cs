@@ -1,7 +1,8 @@
+﻿using Documents.Models;
 ﻿using Auth.Utils;
-using Documents.Extensions;
 using Documents.Models;
 using Documents.Services.AzureBlobStorage;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -11,16 +12,16 @@ namespace Tenants.Controllers
     [Route("api/dms")]
     public class TenantsController : Controller
     {
-        private readonly IConfiguration _config;
         private readonly IAzureBlobStorage _azureBlobStorage;
+        private readonly IValidator<Tenant> _tenantValidator;
 
-        public TenantsController(IConfiguration config, IAzureBlobStorage azureBlobStorage)
+        public TenantsController(IAzureBlobStorage azureBlobStorage, IValidator<Tenant> tenantValidator)
         {
-            _config = config;
             _azureBlobStorage = azureBlobStorage;
+            _tenantValidator = tenantValidator;
         }
 
-        // Create tenant
+        // POST: Create tenant
         [HttpPost]
         [Route("tenants")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -30,13 +31,12 @@ namespace Tenants.Controllers
         {
             try
             {
-                // tenant name validation
-                if (string.IsNullOrEmpty(tenant.Name)) return BadRequest("Tenant name is empty");
+                if (tenant == null) return BadRequest("Incorrect body format");
 
-                // special characters and empty spaces validation
-                if(tenant.Name.HasSpecialCharacters()) return BadRequest("Tenant cannot have special characters");
+                await _tenantValidator.ValidateAndThrowAsync(tenant);
 
                 await _azureBlobStorage.CreateBlobContainerAsync(tenant.Name);
+
                 return Ok();
             }
             catch (Exception e)
@@ -45,7 +45,7 @@ namespace Tenants.Controllers
             }
         }
 
-        // Get tenant(s)
+        // GET: Get tenant(s)
         [HttpGet]
         [Route("tenants")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -64,7 +64,7 @@ namespace Tenants.Controllers
             }
         }
 
-        // Delete tenant
+        // DELETE: Delete tenant
         [HttpDelete]
         [Route("tenants/{tenantName}")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -83,7 +83,7 @@ namespace Tenants.Controllers
             }
         }
 
-        // Undelete tenant
+        // POST: Undelete tenant
         [HttpPost]
         [Route("tenants/{tenantName}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]

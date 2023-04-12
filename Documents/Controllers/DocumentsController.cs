@@ -19,7 +19,7 @@ namespace Documents.Controllers
             _azureBlobStorage = azureBlobStorage;
         }
 
-        // Create document
+        // POST: Create document
         [HttpPost]
         [Route("{tenantName}/documents")]
         [ProducesResponseType((int)HttpStatusCode.MultiStatus)]
@@ -52,7 +52,7 @@ namespace Documents.Controllers
             }
         }
 
-        // Get document(s)
+        // GET: Get document(s)
         [HttpGet]
         [Route("{tenantName}/documents")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -71,7 +71,7 @@ namespace Documents.Controllers
             }
         }
 
-        // Download document
+        // GET: Download document
         [HttpGet]
         [Route("{tenantName}/documents/{documentId}")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -90,7 +90,7 @@ namespace Documents.Controllers
             }
         }
 
-        // Delete document
+        // DELETE: Delete document
         [HttpDelete]
         [Route("{tenantName}/documents/{documentId}")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -109,7 +109,7 @@ namespace Documents.Controllers
             }
         }
 
-        // Undelete document
+        // POST: Undelete document
         [HttpPost]
         [Route("{tenantName}/documents/{documentId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -128,7 +128,7 @@ namespace Documents.Controllers
             }
         }
 
-        // Rename document
+        // POST: Rename document
         [HttpPost]
         [Route("{tenantName}/documents/{documentId}/rename")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -147,7 +147,7 @@ namespace Documents.Controllers
             }
         }
 
-        // Copy document
+        // POST: Copy document
         [HttpPost]
         [Route("{tenantName}/documents/{documentId}/copy")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]

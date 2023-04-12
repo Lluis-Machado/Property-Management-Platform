@@ -25,6 +25,9 @@ namespace TaxManagement.Models
         public DateTime UpdateDate { get; set; }
 
         [JsonConstructor]
-        public Declaration() { }
+        public Declaration() {
+            CreateUser = String.Empty;
+            UpdateUser = String.Empty;
+        }
     }
 }

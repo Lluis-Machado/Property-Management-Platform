@@ -9,7 +9,9 @@ namespace TaxManagement.Models
         public bool Deleted { get; set; }
 
         [JsonConstructor]
-        public Declarant() { }
+        public Declarant() {
+            Name = String.Empty;
+        }
     }
 
 }

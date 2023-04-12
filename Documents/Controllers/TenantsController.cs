@@ -1,4 +1,5 @@
-﻿using Documents.Extensions;
+﻿using Auth.Utils;
+using Documents.Extensions;
 using Documents.Models;
 using Documents.Services.AzureBlobStorage;
 using Microsoft.AspNetCore.Mvc;
@@ -24,6 +25,7 @@ namespace Tenants.Controllers
         [Route("tenants")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
+        [SecurityControl]
         public async Task<IActionResult> Create([FromBody] Tenant tenant)
         {
             try
@@ -48,6 +50,7 @@ namespace Tenants.Controllers
         [Route("tenants")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(List<Tenant>), (int)HttpStatusCode.OK)]
+        [SecurityControl]
         public async Task<IActionResult> GetAsync([FromQuery] bool includeDeleted = false)
         {
             try
@@ -66,6 +69,7 @@ namespace Tenants.Controllers
         [Route("tenants/{tenantName}")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
+        [SecurityControl]
         public async Task<IActionResult> DeleteAsync(string tenantName)
         {
             try
@@ -84,6 +88,7 @@ namespace Tenants.Controllers
         [Route("tenants/{tenantName}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
+        [SecurityControl]
         public async Task<IActionResult> UndeleteAsync(string tenantName)
         {
             try

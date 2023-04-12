@@ -10,10 +10,65 @@
         }
       ],
       "UpstreamPathTemplate": "/{everything}",
-      "UpstreamHttpMethod": [ "Get", "Post", "Delete" ]
+      "UpstreamHttpMethod": [ "Get", "Post", "Delete" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/WeatherForecast",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7057
+        }
+      ],
+      "FileCacheOptions": {
+        "TtlSeconds": 30,
+        "Region": "testcaching"
+      },
+      "RateLimitOptions": {
+        "ClientWhitelist": [
+        ],
+        "EnableRateLimiting": false,
+        "Period": "60s",
+        "PeriodTimespan": 60,
+        "Limit": 100,
+        "HttpStatusCode": 429
+      },
+      "UpstreamPathTemplate": "/WeatherForecast",
+      "UpstreamHttpMethod": [ "Get" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/Auth",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7000
+        }
+      ],
+      "RateLimitOptions": {
+        "ClientWhitelist": [
+        ],
+        "EnableRateLimiting": false,
+        "Period": "60s",
+        "PeriodTimespan": 60,
+        "Limit": 1,
+        "HttpStatusCode": 429
+      },
+      "UpstreamPathTemplate": "/Auth",
+      "UpstreamHttpMethod": [ "Get" ]
     }
   ],
   "GlobalConfiguration": {
+    "RequestIdKey": "X-Correlation-Id",
     "BaseUrl": "https://localhost:5000"
   }
 }

@@ -34,6 +34,8 @@ namespace Tenants.Controllers
 
                 await _tenantValidator.ValidateAndThrowAsync(tenant);
 
+                if(tenant.Name == null) return BadRequest("Tenant Name is empty");
+
                 await _azureBlobStorage.CreateBlobContainerAsync(tenant.Name);
 
                 return Ok();

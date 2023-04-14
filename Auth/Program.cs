@@ -1,11 +1,21 @@
+using Auth.Services.Auth0;
+using Microsoft.Extensions.Options;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Add Auth0 configuration and services
+builder.Services.Configure<Auth0Settings>(builder.Configuration.GetSection("Auth0"));
+builder.Services.AddHttpClient<Auth0Api>();
+builder.Services.AddSingleton(provider =>
+{
+    var auth0Settings = provider.GetRequiredService<IOptions<Auth0Settings>>().Value;
+    return auth0Settings;
+});
 
 var app = builder.Build();
 

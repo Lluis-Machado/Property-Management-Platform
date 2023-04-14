@@ -65,6 +65,38 @@
       },
       "UpstreamPathTemplate": "/Auth",
       "UpstreamHttpMethod": [ "Get" ]
+    },
+    {
+      "DownstreamPathTemplate": "/Users",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7000
+        }
+      ],
+      "UpstreamPathTemplate": "/Users",
+      "UpstreamHttpMethod": [ "Get", "Post"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/Users/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7000
+        }
+      ],
+      "UpstreamPathTemplate": "/Users/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Patch", "Delete" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
     }
   ],
   "GlobalConfiguration": {

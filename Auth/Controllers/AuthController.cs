@@ -7,11 +7,11 @@ namespace Auth.Controllers
     [Route("[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly Auth0Api _auth0Api;
+        private readonly PublicTokenAPI _publicTokenApi;
 
-        public AuthController(Auth0Api auth0Api)
+        public AuthController(PublicTokenAPI auth0Api, UsersAPI usersAPI)
         {
-            _auth0Api = auth0Api;
+            _publicTokenApi = auth0Api;
         }
 
         [HttpGet]
@@ -19,7 +19,7 @@ namespace Auth.Controllers
         {
             try
             {
-                var token = await _auth0Api.GetTokenAsync(username, password);
+                var token = await _publicTokenApi.GetTokenAsync(username, password);
                 return Ok(token);
             }
             catch (UnauthorizedAccessException)

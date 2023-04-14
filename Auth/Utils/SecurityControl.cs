@@ -20,7 +20,7 @@ namespace Auth.Utils
         /// <param name="permissions">Permissions for this instance of SecurityControl</param>
         public SecurityControl(params string[] permissions)
         {
-            _permissions = permissions ?? DefaultPermissions;
+            _permissions = permissions.Any() ? permissions: DefaultPermissions;
         }
 
         public void OnAuthorization(AuthorizationFilterContext actionContext)

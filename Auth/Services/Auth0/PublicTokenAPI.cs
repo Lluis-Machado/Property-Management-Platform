@@ -1,4 +1,5 @@
 ﻿using Auth.Models;
+using Auth.Utils;
 using System.Text.Json;
 
 namespace Auth.Services.Auth0
@@ -29,13 +30,11 @@ namespace Auth.Services.Auth0
             };
 
             var response = await _httpClient.SendAsync(request);
-
-            response.EnsureSuccessStatusCode();
-
             var responseContent = await response.Content.ReadAsStringAsync();
 
-            // Deserialize the response content into a JSON object
-            return JsonSerializer.Deserialize<object>(responseContent);
+            if (response.IsSuccessStatusCode) return JsonSerializer.Deserialize<object>(responseContent);
+
+            throw new ApiException(response.StatusCode, responseContent);
         }
     }
 }

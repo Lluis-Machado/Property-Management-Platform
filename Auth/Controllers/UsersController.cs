@@ -25,6 +25,10 @@ namespace Auth.Controllers
                 var users = await _usersAPI.GetUserListAsync();
                 return Ok(users);
             }
+            catch (ApiException ex)
+            {
+                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
+            }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
@@ -39,6 +43,10 @@ namespace Auth.Controllers
             {
                 var user = await _usersAPI.GetUserAsync(userId);
                 return Ok(user);
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
             }
             catch (Exception ex)
             {
@@ -55,6 +63,10 @@ namespace Auth.Controllers
                 var user = await _usersAPI.CreateUserAsync(auth0User);
                 return Created($"users/{user}", user);
             }
+            catch (ApiException ex)
+            {
+                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
+            }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
@@ -70,6 +82,10 @@ namespace Auth.Controllers
                 var result = await _usersAPI.UpdateUserAsync(userId, updatedUser);
                 return Ok(result);
             }
+            catch (ApiException ex)
+            {
+                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
+            }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
@@ -84,6 +100,10 @@ namespace Auth.Controllers
             {
                 await _usersAPI.DeleteUserAsync(userId);
                 return NoContent();
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
             }
             catch (Exception ex)
             {

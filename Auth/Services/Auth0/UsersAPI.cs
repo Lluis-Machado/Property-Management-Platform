@@ -1,4 +1,5 @@
 ﻿using Auth.Models;
+using Auth.Utils;
 using System.Text.Json;
 
 namespace Auth.Services.Auth0
@@ -23,7 +24,7 @@ namespace Auth.Services.Auth0
 
             if (response.IsSuccessStatusCode) return JsonSerializer.Deserialize<List<object>>(responseContent);
 
-            throw new Exception(responseContent);
+            throw new ApiException(response.StatusCode, responseContent);
         }
 
         public async Task<object> GetUserAsync(string userId)
@@ -36,7 +37,7 @@ namespace Auth.Services.Auth0
 
             if (response.IsSuccessStatusCode) return JsonSerializer.Deserialize<object>(responseContent);
 
-            throw new Exception(responseContent);
+            throw new ApiException(response.StatusCode, responseContent);
         }
 
         public async Task<object> CreateUserAsync(Auth0User auth0User)
@@ -54,7 +55,7 @@ namespace Auth.Services.Auth0
 
             if (response.IsSuccessStatusCode) return JsonSerializer.Deserialize<object>(responseContent);
 
-            throw new Exception(responseContent);
+            throw new ApiException(response.StatusCode, responseContent);
         }
 
         public async Task<object> UpdateUserAsync(string userId, object userUpdate)
@@ -71,7 +72,7 @@ namespace Auth.Services.Auth0
 
             if (response.IsSuccessStatusCode) return JsonSerializer.Deserialize<object>(responseContent);
 
-            throw new Exception(responseContent);
+            throw new ApiException(response.StatusCode, responseContent);
         }
 
         public async Task DeleteUserAsync(string userId)
@@ -84,7 +85,7 @@ namespace Auth.Services.Auth0
             if (!response.IsSuccessStatusCode)
             {
                 var responseContent = await response.Content.ReadAsStringAsync();
-                throw new Exception(responseContent);
+                throw new ApiException(response.StatusCode, responseContent);
             }
         }
     }

@@ -1,4 +1,5 @@
 using Auth.Services.Auth0;
+using Auth.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Auth.Controllers
@@ -22,9 +23,9 @@ namespace Auth.Controllers
                 var token = await _publicTokenApi.GetTokenAsync(username, password);
                 return Ok(token);
             }
-            catch (UnauthorizedAccessException)
+            catch (ApiException ex)
             {
-                return Unauthorized();
+                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
             }
             catch (Exception ex)
             {

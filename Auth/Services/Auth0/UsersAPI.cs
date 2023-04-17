@@ -1,8 +1,8 @@
-﻿using Auth.Models;
-using Auth.Utils;
+﻿using Authentication.Models;
+using Authentication.Utils;
 using System.Text.Json;
 
-namespace Auth.Services.Auth0
+namespace Authentication.Services.Auth0
 {
     public class UsersAPI
     {
@@ -107,28 +107,29 @@ namespace Auth.Services.Auth0
             throw new ApiException(response.StatusCode, responseContent);
         }
 
-        public async Task<object> AssignUserRolesAsync(string userId, List<string> roles)
+        public async Task AssignUserRolesAsync(string userId, List<string> roles)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, $"{_auth0Settings.BaseUrl}{API_SUFFIX}/{userId}/roles")
             {
-                Content = JsonContent.Create(roles)
+                Content = JsonContent.Create(new { roles })
             };
 
             request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
 
             var response = await _httpClient.SendAsync(request);
-            var responseContent = await response.Content.ReadAsStringAsync();
 
-            if (response.IsSuccessStatusCode) return JsonSerializer.Deserialize<object>(responseContent);
-
-            throw new ApiException(response.StatusCode, responseContent);
+            if (!response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                throw new ApiException(response.StatusCode, responseContent);
+            }
         }
 
         public async Task DeleteUserRolesAsync(string userId, List<string> roles)
         {
             var request = new HttpRequestMessage(HttpMethod.Delete, $"{_auth0Settings.BaseUrl}{API_SUFFIX}/{userId}/roles")
             {
-                Content = JsonContent.Create(roles)
+                Content = JsonContent.Create(new { roles })
             };
 
             request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
@@ -157,28 +158,29 @@ namespace Auth.Services.Auth0
             throw new ApiException(response.StatusCode, responseContent);
         }
 
-        public async Task<object> AssignUserPermissionsAsync(string userId, List<string> roles)
+        public async Task AssignPermissionsToUserAsync(string userId, List<Auth0Permission> permissions)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, $"{_auth0Settings.BaseUrl}{API_SUFFIX}/{userId}/permissions")
             {
-                Content = JsonContent.Create(roles)
+                Content = JsonContent.Create(new { permissions })
             };
 
             request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
 
             var response = await _httpClient.SendAsync(request);
-            var responseContent = await response.Content.ReadAsStringAsync();
 
-            if (response.IsSuccessStatusCode) return JsonSerializer.Deserialize<object>(responseContent);
-
-            throw new ApiException(response.StatusCode, responseContent);
+            if (!response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                throw new ApiException(response.StatusCode, responseContent);
+            }
         }
 
-        public async Task DeleteUserPermissionsAsync(string userId, List<string> roles)
+        public async Task DeletePermissionsFromUserAsync(string userId, List<Auth0Permission> permissions)
         {
             var request = new HttpRequestMessage(HttpMethod.Delete, $"{_auth0Settings.BaseUrl}{API_SUFFIX}/{userId}/permissions")
             {
-                Content = JsonContent.Create(roles)
+                Content = JsonContent.Create(new { permissions })
             };
 
             request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);

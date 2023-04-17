@@ -1,16 +1,16 @@
-using Auth.Services.Auth0;
-using Auth.Utils;
+using Authentication.Services.Auth0;
+using Authentication.Utils;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Auth.Controllers
+namespace Authentication.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class AuthController : ControllerBase
+    public class TokenController : ControllerBase
     {
         private readonly PublicTokenAPI _publicTokenApi;
 
-        public AuthController(PublicTokenAPI auth0Api, UsersAPI usersAPI)
+        public TokenController(PublicTokenAPI auth0Api, UsersAPI usersAPI)
         {
             _publicTokenApi = auth0Api;
         }

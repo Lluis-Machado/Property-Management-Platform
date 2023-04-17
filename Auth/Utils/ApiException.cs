@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Auth.Utils
+namespace Authentication.Utils
 {
     public class ApiException : Exception
     {

@@ -1,5 +1,5 @@
 ﻿using Documents.Models;
-﻿using Auth.Utils;
+﻿using Authentication.Utils;
 using Documents.Services.AzureBlobStorage;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;

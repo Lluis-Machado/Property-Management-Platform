@@ -1,4 +1,4 @@
-using Auth.Utils;
+using Authentication.Utils;
 using Documents.Models;
 using Documents.Services.AzureBlobStorage;
 using Microsoft.AspNetCore.Mvc;

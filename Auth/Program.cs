@@ -1,5 +1,5 @@
-using Auth.Models;
-using Auth.Services.Auth0;
+using Authentication.Models;
+using Authentication.Services.Auth0;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +13,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.Configure<Auth0Settings>(builder.Configuration.GetSection("Auth0"));
 builder.Services.AddHttpClient<PublicTokenAPI>();
 builder.Services.AddHttpClient<UsersAPI>();
+builder.Services.AddHttpClient<RolesAPI>();
 builder.Services.AddSingleton(provider =>
 {
     var auth0Settings = provider.GetRequiredService<IOptions<Auth0Settings>>().Value;

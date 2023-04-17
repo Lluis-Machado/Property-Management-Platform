@@ -4,10 +4,10 @@ using Microsoft.Extensions.Primitives;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 
-namespace Auth.Utils
+namespace Authentication.Security
 {
     [AttributeUsage(AttributeTargets.All)]
-    public class SecurityControl : Attribute, IAuthorizationFilter
+    public class Authorize : Attribute, IAuthorizationFilter
     {
         // IMPORTANT: These are the default permissions. If no permission are setted, then only admin can access
         public string[] DefaultPermissions = { "admin" };
@@ -15,12 +15,12 @@ namespace Auth.Utils
         private readonly IList<string> _permissions;
 
         /// <summary>
-        /// Constructor for SecurityControl
+        /// Constructor for Authorize
         /// </summary>
-        /// <param name="permissions">Permissions for this instance of SecurityControl</param>
-        public SecurityControl(params string[] permissions)
+        /// <param name="permissions">Permissions for this instance of Authorize</param>
+        public Authorize(params string[] permissions)
         {
-            _permissions = permissions.Any() ? permissions: DefaultPermissions;
+            _permissions = permissions.Any() ? permissions : DefaultPermissions;
         }
 
         public void OnAuthorization(AuthorizationFilterContext actionContext)

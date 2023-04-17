@@ -1,8 +1,8 @@
-﻿using Auth.Models;
-using Auth.Utils;
+﻿using Authentication.Models;
+using Authentication.Utils;
 using System.Text.Json;
 
-namespace Auth.Services.Auth0
+namespace Authentication.Services.Auth0
 {
     public class RolesAPI
     {
@@ -15,6 +15,8 @@ namespace Auth.Services.Auth0
             _httpClient = httpClient;
             _auth0Settings = auth0Settings;
         }
+
+        #region BASIC_CRUD
         public async Task<List<object>> GetRolesListAsync()
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"{_auth0Settings.BaseUrl}{API_SUFFIX}");
@@ -89,5 +91,57 @@ namespace Auth.Services.Auth0
                 throw new ApiException(response.StatusCode, responseContent);
             }
         }
+        #endregion
+
+        #region ROLE_PERMISSIONS
+        public async Task<List<object>> GetRolePermissionsAsync(string roleId)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{_auth0Settings.BaseUrl}{API_SUFFIX}/{roleId}/permissions");
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
+
+            var response = await _httpClient.SendAsync(request);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode) return JsonSerializer.Deserialize<List<object>>(responseContent);
+
+            throw new ApiException(response.StatusCode, responseContent);
+        }
+
+        public async Task AssignPermissionsToRoleAsync(string roleId, List<Auth0Permission> permissions)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, $"{_auth0Settings.BaseUrl}{API_SUFFIX}/{roleId}/permissions")
+            {
+                Content = JsonContent.Create(new { permissions })
+            };
+
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
+
+            var response = await _httpClient.SendAsync(request);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                throw new ApiException(response.StatusCode, responseContent);
+            }
+        }
+
+        public async Task DeletePermissionsFromRoleAsync(string roleId, List<Auth0Permission> permissions)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"{_auth0Settings.BaseUrl}{API_SUFFIX}/{roleId}/permissions")
+            {
+                Content = JsonContent.Create(new { permissions })
+            };
+
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
+
+            var response = await _httpClient.SendAsync(request);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                throw new ApiException(response.StatusCode, responseContent);
+            }
+        }
+        #endregion
     }
 }

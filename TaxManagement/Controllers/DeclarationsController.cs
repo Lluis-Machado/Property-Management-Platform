@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using TaxManagement.Models;
 using TaxManagement.Repositories;
+using TaxManagement.Security;
 
 namespace TaxManagement.Controllers
 {
@@ -19,6 +20,7 @@ namespace TaxManagement.Controllers
         }
 
         // POST: Create declaration
+        [Authorize]
         [HttpPost]
         [Route("{declarantId}/declarations")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -52,6 +54,7 @@ namespace TaxManagement.Controllers
         }
 
         // GET: Get declaration(s)
+        [Authorize]
         [HttpGet]
         [Route("{declarantId}/declarations")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -70,6 +73,7 @@ namespace TaxManagement.Controllers
         }
 
         // POST: update declarantion
+        [Authorize]
         [HttpPost]
         [Route("{declarantId}/declarations/{declarationId}")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -97,6 +101,7 @@ namespace TaxManagement.Controllers
         }
 
         // DELETE: delete declarantion
+        [Authorize]
         [HttpDelete]
         [Route("{declarantId}/declarations/{declarationId}")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -117,6 +122,7 @@ namespace TaxManagement.Controllers
         }
 
         // POST: undelete declarant
+        [Authorize]
         [HttpPost]
         [Route("{declarantId}/declarations/{declarationId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]

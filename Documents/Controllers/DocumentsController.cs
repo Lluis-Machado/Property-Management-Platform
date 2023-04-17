@@ -1,8 +1,8 @@
-using Authentication.Utils;
 using Documents.Models;
 using Documents.Services.AzureBlobStorage;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using TaxManagement.Security;
 
 namespace Documents.Controllers
 {
@@ -20,12 +20,12 @@ namespace Documents.Controllers
         }
 
         // POST: Create document
+        [Authorize]
         [HttpPost]
         [Route("{tenantName}/documents")]
         [ProducesResponseType((int)HttpStatusCode.MultiStatus)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(List<string>),(int)HttpStatusCode.OK)]
-        [SecurityControl]
         public async Task<IActionResult> UploadAsync(string tenantName, IFormFile[] files)
         {
             try
@@ -53,11 +53,11 @@ namespace Documents.Controllers
         }
 
         // GET: Get document(s)
+        [Authorize]
         [HttpGet]
         [Route("{tenantName}/documents")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(List<Document>),(int)HttpStatusCode.OK)]
-        [SecurityControl]
         public async Task<IActionResult> GetAsync(string tenantName,[FromQuery] bool includeDeleted = false)
         {
             try
@@ -72,11 +72,11 @@ namespace Documents.Controllers
         }
 
         // GET: Download document
+        [Authorize]
         [HttpGet]
         [Route("{tenantName}/documents/{documentId}")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(byte[]), (int)HttpStatusCode.OK)]
-        [SecurityControl]
         public async Task<IActionResult> DownloadAsync(string tenantName, string documentId)
         {
             try
@@ -91,11 +91,11 @@ namespace Documents.Controllers
         }
 
         // DELETE: Delete document
+        [Authorize]
         [HttpDelete]
         [Route("{tenantName}/documents/{documentId}")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        [SecurityControl]
         public async Task<IActionResult> DeleteAsync(string tenantName, string documentId)
         {
             try
@@ -110,11 +110,11 @@ namespace Documents.Controllers
         }
 
         // POST: Undelete document
+        [Authorize]
         [HttpPost]
         [Route("{tenantName}/documents/{documentId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        [SecurityControl]
         public async Task<IActionResult> UndeleteAsync(string tenantName, string documentId)
         {
             try
@@ -129,11 +129,11 @@ namespace Documents.Controllers
         }
 
         // POST: Rename document
+        [Authorize]
         [HttpPost]
         [Route("{tenantName}/documents/{documentId}/rename")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        [SecurityControl]
         public async Task<IActionResult> RenameAsync(string tenantName, string documentId, [FromForm] string name)
         {
             try
@@ -148,11 +148,11 @@ namespace Documents.Controllers
         }
 
         // POST: Copy document
+        [Authorize]
         [HttpPost]
         [Route("{tenantName}/documents/{documentId}/copy")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        [SecurityControl]
         public async Task<IActionResult> CopyAsync(string tenantName, string documentId, [FromForm] string name)
         {
             try

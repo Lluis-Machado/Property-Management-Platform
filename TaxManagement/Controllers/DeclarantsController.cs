@@ -3,6 +3,7 @@ using System.Net;
 using TaxManagement.Models;
 using TaxManagement.Repositories;
 using FluentValidation;
+using TaxManagement.Security;
 
 namespace TaxManagement.Controllers
 {
@@ -17,6 +18,7 @@ namespace TaxManagement.Controllers
         }
 
         // POST: Create declarant
+        [Authorize]
         [HttpPost]
         [Route("declarants")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -41,6 +43,7 @@ namespace TaxManagement.Controllers
         }
 
         // GET: Get declarants(s)
+        [Authorize]
         [HttpGet]
         [Route("declarants")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -59,6 +62,7 @@ namespace TaxManagement.Controllers
         }
 
         // POST: update declarant
+        [Authorize]
         [HttpPost]
         [Route("declarants/{declarantId}")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -84,6 +88,7 @@ namespace TaxManagement.Controllers
         }
 
         // DELETE: delete declarant
+        [Authorize]
         [HttpDelete]
         [Route("declarants/{declarantId}")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -104,6 +109,7 @@ namespace TaxManagement.Controllers
         }
 
         // POST: undelete declarant
+        [Authorize]
         [HttpPost]
         [Route("declarants/{declarantId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]

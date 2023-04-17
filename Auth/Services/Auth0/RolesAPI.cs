@@ -43,7 +43,7 @@ namespace Authentication.Services.Auth0
 
             if (response.IsSuccessStatusCode)
             {
-                return JsonSerializer.Deserialize<List<object>>(responseContent) ?? new List<object>();
+                return JsonSerializer.Deserialize<object>(responseContent) ?? new object();
             }
 
             throw new ApiException(response.StatusCode, responseContent);
@@ -64,7 +64,7 @@ namespace Authentication.Services.Auth0
 
             if (response.IsSuccessStatusCode)
             {
-                return JsonSerializer.Deserialize<List<object>>(responseContent) ?? new List<object>();
+                return JsonSerializer.Deserialize<object>(responseContent) ?? new object();
             }
 
             throw new ApiException(response.StatusCode, responseContent);
@@ -84,7 +84,7 @@ namespace Authentication.Services.Auth0
 
             if (response.IsSuccessStatusCode)
             {
-                return JsonSerializer.Deserialize<List<object>>(responseContent) ?? new List<object>();
+                return JsonSerializer.Deserialize<object>(responseContent) ?? new object();
             }
 
             throw new ApiException(response.StatusCode, responseContent);

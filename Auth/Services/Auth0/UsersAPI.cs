@@ -25,7 +25,10 @@ namespace Authentication.Services.Auth0
             var response = await _httpClient.SendAsync(request);
             var responseContent = await response.Content.ReadAsStringAsync();
 
-            if (response.IsSuccessStatusCode) return JsonSerializer.Deserialize<List<object>>(responseContent);
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonSerializer.Deserialize<List<object>>(responseContent) ?? new List<object>();
+            }
 
             throw new ApiException(response.StatusCode, responseContent);
         }
@@ -38,7 +41,10 @@ namespace Authentication.Services.Auth0
             var response = await _httpClient.SendAsync(request);
             var responseContent = await response.Content.ReadAsStringAsync();
 
-            if (response.IsSuccessStatusCode) return JsonSerializer.Deserialize<object>(responseContent);
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonSerializer.Deserialize<List<object>>(responseContent) ?? new List<object>();
+            }
 
             throw new ApiException(response.StatusCode, responseContent);
         }
@@ -56,7 +62,10 @@ namespace Authentication.Services.Auth0
             var response = await _httpClient.SendAsync(request);
             var responseContent = await response.Content.ReadAsStringAsync();
 
-            if (response.IsSuccessStatusCode) return JsonSerializer.Deserialize<object>(responseContent);
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonSerializer.Deserialize<List<object>>(responseContent) ?? new List<object>();
+            }
 
             throw new ApiException(response.StatusCode, responseContent);
         }
@@ -73,7 +82,10 @@ namespace Authentication.Services.Auth0
             var response = await _httpClient.SendAsync(request);
             var responseContent = await response.Content.ReadAsStringAsync();
 
-            if (response.IsSuccessStatusCode) return JsonSerializer.Deserialize<object>(responseContent);
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonSerializer.Deserialize<List<object>>(responseContent) ?? new List<object>();
+            }
 
             throw new ApiException(response.StatusCode, responseContent);
         }
@@ -102,7 +114,10 @@ namespace Authentication.Services.Auth0
             var response = await _httpClient.SendAsync(request);
             var responseContent = await response.Content.ReadAsStringAsync();
 
-            if (response.IsSuccessStatusCode) return JsonSerializer.Deserialize<List<object>>(responseContent);
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonSerializer.Deserialize<List<object>>(responseContent) ?? new List<object>();
+            }
 
             throw new ApiException(response.StatusCode, responseContent);
         }
@@ -153,7 +168,10 @@ namespace Authentication.Services.Auth0
             var response = await _httpClient.SendAsync(request);
             var responseContent = await response.Content.ReadAsStringAsync();
 
-            if (response.IsSuccessStatusCode) return JsonSerializer.Deserialize<List<object>>(responseContent);
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonSerializer.Deserialize<List<object>>(responseContent) ?? new List<object>();
+            }
 
             throw new ApiException(response.StatusCode, responseContent);
         }

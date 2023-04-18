@@ -3,6 +3,7 @@ using Authentication.Security;
 using Authentication.Services.Auth0;
 using Authentication.Utils;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http;
 
 namespace Authentication.Controllers
 {
@@ -220,6 +221,27 @@ namespace Authentication.Controllers
             {
                 await _usersAPI.DeletePermissionsFromUserAsync(userId, permissions);
                 return NoContent();
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        #endregion
+
+        #region USER_LOGS
+        [HttpGet("{userId}/logs")]
+        [Authorize]
+        public async Task<IActionResult> GetUserLogs(string userId)
+        {
+            try
+            {
+                var logs = await _usersAPI.GetUserLogsAsync(userId);
+                return Ok(logs);
             }
             catch (ApiException ex)
             {

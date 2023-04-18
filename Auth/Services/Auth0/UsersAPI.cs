@@ -212,5 +212,23 @@ namespace Authentication.Services.Auth0
             }
         }
         #endregion
+
+        #region USER_LOGS
+        public async Task<List<object>> GetUserLogsAsync(string userId)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{_auth0Settings.BaseUrl}{API_SUFFIX}/{userId}/logs");
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
+
+            var response = await _httpClient.SendAsync(request);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonSerializer.Deserialize<List<object>>(responseContent) ?? new List<object>();
+            }
+
+            throw new ApiException(response.StatusCode, responseContent);
+        }
+        #endregion
     }
 }

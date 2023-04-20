@@ -9,7 +9,8 @@ namespace Accounting.Models
         public string Name { get; set; }
         public DateTime ActivationDate { get; set; }
         public double ActivationAmount { get; set; }
-        public Guid AmortizationConfigId { get; set; }
+        public Guid DepreciationConfigId { get; set; }
+        public double DepreciationAmount { get; set; } // Taken from the DepreciationConfig, or custom set
 
         public Guid Id { get; set; }
         public bool Deleted { get; set; }

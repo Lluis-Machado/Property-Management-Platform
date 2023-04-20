@@ -5,52 +5,52 @@ using System.Text;
 
 namespace Accounting.Repositories
 {
-    public class AmortizationRepository  : IAmortizationRepository
+    public class DepreciationRepository  : IDepreciationRepository
     {
         private readonly DapperContext _context;
-        public AmortizationRepository(DapperContext context) 
+        public DepreciationRepository(DapperContext context) 
         {
             _context = context;
         }
 
-        public async Task<Amortization> GetAmortizationByIdAsync(Guid amortizationId)
+        public async Task<Depreciation> GetDepreciationByIdAsync(Guid DepreciationId)
         {
             var parameters = new
             {
-                amortizationId
+                DepreciationId
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT * FROM Amortizations");
-            queryBuilder.Append(" WHERE Id = @amortizationId");
+            queryBuilder.Append("SELECT * FROM Depreciations");
+            queryBuilder.Append(" WHERE Id = @DepreciationId");
 
             using var connection = _context.CreateConnection();
 
-            Amortization amortization = await connection.QuerySingleAsync<Amortization>(queryBuilder.ToString(), parameters);
-            return amortization;
+            Depreciation Depreciation = await connection.QuerySingleAsync<Depreciation>(queryBuilder.ToString(), parameters);
+            return Depreciation;
         }
 
-        public async Task<IEnumerable<Amortization>> GetAmortizationsAsync()
+        public async Task<IEnumerable<Depreciation>> GetDepreciationsAsync()
         {
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT * FROM Amortizations");
+            queryBuilder.Append("SELECT * FROM Depreciations");
 
             using var connection = _context.CreateConnection();
 
-            IEnumerable<Amortization> amortizations = await connection.QueryAsync<Amortization>(queryBuilder.ToString());
-            return amortizations;
+            IEnumerable<Depreciation> Depreciations = await connection.QueryAsync<Depreciation>(queryBuilder.ToString());
+            return Depreciations;
         }
 
-        public async Task<Guid> InsertAmortizationAsync(Amortization amortization)
+        public async Task<Guid> InsertDepreciationAsync(Depreciation Depreciation)
         {
             var parameters = new
             {
-                amortization.FixedAssetId,
-                amortization.Period,
-                amortization.Amount,
-                amortization.LastModificationByUser,
+                Depreciation.FixedAssetId,
+                Depreciation.Period,
+                Depreciation.Amount,
+                Depreciation.LastModificationByUser,
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("INSERT INTO Amortizations (");
+            queryBuilder.Append("INSERT INTO Depreciations (");
             queryBuilder.Append(" FixedAssetId");
             queryBuilder.Append(" ,Period");
             queryBuilder.Append(" ,Amount");
@@ -64,24 +64,24 @@ namespace Accounting.Repositories
 
             using var connection = _context.CreateConnection();
 
-            Guid amortizationId = await connection.QuerySingleAsync<Guid>(queryBuilder.ToString(), parameters);
-            return amortizationId;
+            Guid DepreciationId = await connection.QuerySingleAsync<Guid>(queryBuilder.ToString(), parameters);
+            return DepreciationId;
         }
 
-        public async Task<int> UpdateAmortizationAsync(Amortization amortization)
+        public async Task<int> UpdateDepreciationAsync(Depreciation Depreciation)
         {
             var parameters = new
             {
-                amortization.Id,
-                amortization.FixedAssetId,
-                amortization.Period,
-                amortization.Amount,
-                amortization.Deleted,
-                amortization.LastModificationByUser,
+                Depreciation.Id,
+                Depreciation.FixedAssetId,
+                Depreciation.Period,
+                Depreciation.Amount,
+                Depreciation.Deleted,
+                Depreciation.LastModificationByUser,
                 LastModificationDate = DateTime.Now,
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE Amortizations ");
+            queryBuilder.Append("UPDATE Depreciations ");
             queryBuilder.Append("SET FixedAssetId = @FixedAssetId ");
             queryBuilder.Append(" ,Period = @Period ");
             queryBuilder.Append(" ,Amount = @Amount ");

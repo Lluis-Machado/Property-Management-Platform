@@ -30,11 +30,11 @@ builder.Services.AddScoped<IValidator<ExpenseType>, ExpenseTypeValidator>();
 builder.Services.AddScoped<IFixedAssetRepository, FixedAssetRepository>();
 builder.Services.AddScoped<IValidator<FixedAsset>, FixedAssetValidator>();
 
-builder.Services.AddScoped<IAmortizationRepository, AmortizationRepository>();
-builder.Services.AddScoped<IValidator<Amortization>, AmortizationValidator>();
+builder.Services.AddScoped<IDepreciationRepository, DepreciationRepository>();
+builder.Services.AddScoped<IValidator<Depreciation>, DepreciationValidator>();
 
-builder.Services.AddScoped<IAmortizationCongifRepository, AmortizationConfigRepository>();
-builder.Services.AddScoped<IValidator<AmortizationConfig>, AmortizationConfigValidator>();
+builder.Services.AddScoped<IDepreciationCongifRepository, DepreciationConfigRepository>();
+builder.Services.AddScoped<IValidator<DepreciationConfig>, DepreciationConfigValidator>();
 
 builder.Services.AddControllers();
 

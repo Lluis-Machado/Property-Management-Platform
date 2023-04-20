@@ -26,7 +26,7 @@ namespace Accounting.Validators
                 .GreaterThan(0).WithMessage("{PropertyName} has to be greater than 0");
 
 
-            RuleFor(Asset => Asset.AmortizationConfigId).Cascade(CascadeMode.Stop)
+            RuleFor(Asset => Asset.DepreciationConfigId).Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty");
         }
     }

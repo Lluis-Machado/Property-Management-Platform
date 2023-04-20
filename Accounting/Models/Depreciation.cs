@@ -1,12 +1,10 @@
-﻿using System.Text.Json.Serialization;
-
-namespace Accounting.Models
+﻿namespace Accounting.Models
 {
-    public class AmortizationConfig
+    public class Depreciation
     {
-        public string Type { get; set; }
-        public double AmortizationPercent { get; set; }
-
+        public Guid FixedAssetId { get; set; }
+        public string Period { get; set; }
+        public double Amount { get; set; }
 
         public Guid Id { get; set; }
         public bool Deleted { get; set; }
@@ -14,10 +12,9 @@ namespace Accounting.Models
         public DateTime LastModificationDate { get; set; }
         public string LastModificationByUser { get; set; }
 
-        [JsonConstructor]
-        public AmortizationConfig()
+        public Depreciation()
         {
-            Type = string.Empty;
+            Period = string.Empty;
             LastModificationByUser = string.Empty;
         }
     }

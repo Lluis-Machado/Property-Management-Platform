@@ -9,7 +9,7 @@ namespace Documents.Validators
         {
             RuleFor(tenant => tenant.Name)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty")
-                .Matches("^(?!-)[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?$(?<!-)");
+                .Matches(@"^[a-z0-9]+(-[a-z0-9]+)*$").WithMessage("Invalid {PropertyName}");
         }
     }
 }

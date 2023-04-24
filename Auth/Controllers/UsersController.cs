@@ -1,9 +1,11 @@
-﻿using Auth.Models;
-using Auth.Services.Auth0;
-using Auth.Utils;
+﻿using Authentication.Models;
+using Authentication.Security;
+using Authentication.Services.Auth0;
+using Authentication.Utils;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http;
 
-namespace Auth.Controllers
+namespace Authentication.Controllers
 {
     [ApiController]
     [Route("[controller]")]
@@ -16,8 +18,9 @@ namespace Auth.Controllers
             _usersAPI = usersAPI;
         }
 
+        #region BASIC_CRUD
         [HttpGet]
-        [SecurityControl]
+        [Authorize]
         public async Task<IActionResult> GetUsers()
         {
             try
@@ -36,7 +39,7 @@ namespace Auth.Controllers
         }
 
         [HttpGet("{userId}")]
-        [SecurityControl]
+        [Authorize]
         public async Task<IActionResult> GetUser(string userId)
         {
             try
@@ -55,7 +58,7 @@ namespace Auth.Controllers
         }
 
         [HttpPost]
-        [SecurityControl]
+        [Authorize]
         public async Task<IActionResult> CreateUser([FromBody] Auth0User auth0User)
         {
             try
@@ -74,7 +77,7 @@ namespace Auth.Controllers
         }
 
         [HttpPatch("{userId}")]
-        [SecurityControl]
+        [Authorize]
         public async Task<IActionResult> UpdateUser(string userId, [FromBody] object updatedUser)
         {
             try
@@ -93,7 +96,7 @@ namespace Auth.Controllers
         }
 
         [HttpDelete("{userId}")]
-        [SecurityControl]
+        [Authorize]
         public async Task<IActionResult> DeleteUser(string userId)
         {
             try
@@ -110,5 +113,145 @@ namespace Auth.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        #endregion
+
+        #region USER_ROLES
+        [HttpGet("{userId}/roles")]
+        [Authorize]
+        public async Task<IActionResult> GetUserRoles(string userId)
+        {
+            try
+            {
+                var roles = await _usersAPI.GetUserRolesAsync(userId);
+                return Ok(roles);
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("{userId}/roles")]
+        [Authorize]
+        public async Task<IActionResult> AssignUserRoles(string userId, [FromBody] List<string> roles)
+        {
+            try
+            {
+                await _usersAPI.AssignUserRolesAsync(userId, roles);
+                return Ok();
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete("{userId}/roles")]
+        [Authorize]
+        public async Task<IActionResult> DeleteUserRoles(string userId, [FromBody] List<string> roles)
+        {
+            try
+            {
+                await _usersAPI.DeleteUserRolesAsync(userId, roles);
+                return NoContent();
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        #endregion
+
+        #region USER_PERMISSIONS
+        [HttpGet("{userId}/permissions")]
+        [Authorize]
+        public async Task<IActionResult> GetUserPermissions(string userId)
+        {
+            try
+            {
+                var permissions = await _usersAPI.GetUserPermissionsAsync(userId);
+                return Ok(permissions);
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("{userId}/permissions")]
+        [Authorize]
+        public async Task<IActionResult> AssignPermissionsToUser(string userId, [FromBody] List<Auth0Permission> permissions)
+        {
+            try
+            {
+                await _usersAPI.AssignPermissionsToUserAsync(userId, permissions);
+                return Ok();
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete("{userId}/permissions")]
+        [Authorize]
+        public async Task<IActionResult> DeletePermissionsFromUser(string userId, [FromBody] List<Auth0Permission> permissions)
+        {
+            try
+            {
+                await _usersAPI.DeletePermissionsFromUserAsync(userId, permissions);
+                return NoContent();
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        #endregion
+
+        #region USER_LOGS
+        [HttpGet("{userId}/logs")]
+        [Authorize]
+        public async Task<IActionResult> GetUserLogs(string userId)
+        {
+            try
+            {
+                var logs = await _usersAPI.GetUserLogsAsync(userId);
+                return Ok(logs);
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        #endregion
     }
 }

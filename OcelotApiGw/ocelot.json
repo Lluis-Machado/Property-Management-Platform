@@ -46,7 +46,7 @@
       }
     },
     {
-      "DownstreamPathTemplate": "/Auth",
+      "DownstreamPathTemplate": "/Token",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -63,7 +63,7 @@
         "Limit": 1,
         "HttpStatusCode": 429
       },
-      "UpstreamPathTemplate": "/Auth",
+      "UpstreamPathTemplate": "/Token",
       "UpstreamHttpMethod": [ "Get" ]
     },
     {
@@ -76,7 +76,7 @@
         }
       ],
       "UpstreamPathTemplate": "/Users",
-      "UpstreamHttpMethod": [ "Get", "Post"],
+      "UpstreamHttpMethod": [ "Get", "Post" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer",
         "AllowedScopes": []
@@ -92,7 +92,39 @@
         }
       ],
       "UpstreamPathTemplate": "/Users/{everything}",
-      "UpstreamHttpMethod": [ "Get", "Patch", "Delete" ],
+      "UpstreamHttpMethod": [ "Get", "Post", "Patch", "Delete" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/Roles",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7000
+        }
+      ],
+      "UpstreamPathTemplate": "/Roles",
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/Roles/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7000
+        }
+      ],
+      "UpstreamPathTemplate": "/Roles/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Patch", "Delete" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer",
         "AllowedScopes": []

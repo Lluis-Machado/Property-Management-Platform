@@ -1,4 +1,4 @@
-using Auth.Utils;
+using Authentication.Security;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WeatherForecast.Controllers
@@ -17,7 +17,7 @@ namespace WeatherForecast.Controllers
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
-        [SecurityControl(permissions: new string[] { "admin" })]
+        [Authorize(permissions: new string[] { "admin" })]
         public IEnumerable<WeatherForecast> Get()
         {
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast

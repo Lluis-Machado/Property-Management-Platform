@@ -1,8 +1,8 @@
-﻿using Auth.Models;
-using Auth.Utils;
+﻿using Authentication.Models;
+using Authentication.Utils;
 using System.Text.Json;
 
-namespace Auth.Services.Auth0
+namespace Authentication.Services.Auth0
 {
     public class PublicTokenAPI
     {
@@ -32,7 +32,10 @@ namespace Auth.Services.Auth0
             var response = await _httpClient.SendAsync(request);
             var responseContent = await response.Content.ReadAsStringAsync();
 
-            if (response.IsSuccessStatusCode) return JsonSerializer.Deserialize<object>(responseContent);
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonSerializer.Deserialize<object>(responseContent) ?? new object();
+            }
 
             throw new ApiException(response.StatusCode, responseContent);
         }

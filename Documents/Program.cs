@@ -1,3 +1,4 @@
+using Documents.Middelwares;
 using Documents.Models;
 using Documents.Services.AzureBlobStorage;
 using Documents.Validators;
@@ -15,6 +16,9 @@ var logger = new LoggerConfiguration()
   .CreateLogger();
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);
+
+// Global error handling
+builder.Services.AddTransient<GlobalErrorHandlingMiddelware>();
 
 // Azure Blob Storage
 builder.Services.AddTransient<IAzureBlobStorage>(s => 
@@ -75,6 +79,8 @@ var app = builder.Build();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseMiddleware<GlobalErrorHandlingMiddelware>();
 
 app.MapControllers();
 

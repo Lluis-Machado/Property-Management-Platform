@@ -86,5 +86,24 @@ namespace TaxManagement.Repositories
             int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
             return rowsAffected;
         }
+
+        public async Task<int> SetDeleteDeclarantAsync(Guid id, bool deleted)
+        {
+            var parameters = new
+            {
+                id,
+                deleted
+            };
+
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("UPDATE Declarants ");
+            queryBuilder.Append("SET Deleted = @deleted ");
+            queryBuilder.Append(" WHERE Id = @id ");
+
+            using var connection = _context.CreateConnection();
+
+            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
+            return rowsAffected;
+        }
     }
 }

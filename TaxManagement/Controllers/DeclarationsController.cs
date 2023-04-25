@@ -95,17 +95,9 @@ namespace TaxManagement.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteAsync(Guid declarantId, Guid declarationId, string user)
         {
-            try
-            {
-                // toDo --> check declarantId
-                int result = await _declarationRepo.SetDeletedDeclarationAsync(declarationId, user, true);
-                if (result == 0) return NotFound("Declaration not found");
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            int result = await _declarationRepo.SetDeletedDeclarationAsync(declarationId, user, true);
+            if (result == 0) return NotFound("Declaration not found");
+            return Ok();
         }
 
         // POST: undelete declarant
@@ -116,17 +108,9 @@ namespace TaxManagement.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UndeleteAsync(Guid declarantId, Guid declarationId, string user)
         {
-            try
-            {
-                // toDo --> check declarantId
-                int result = await _declarationRepo.SetDeletedDeclarationAsync(declarationId, user, false);
-                if (result == 0) return NotFound("Declaration not found");
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            int result = await _declarationRepo.SetDeletedDeclarationAsync(declarationId, user, false);
+            if (result == 0) return NotFound("Declaration not found");
+            return Ok();
         }
 
         private async Task<bool> DeclarantExists(Guid declarantId)

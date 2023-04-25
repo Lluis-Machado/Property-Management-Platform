@@ -93,7 +93,7 @@ namespace TaxManagement.Repositories
                 declaration.Deleted,
                 declaration.UpdateUser,
                 UpdateDate = DateTime.Now,
-        };
+            };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("UPDATE Declarations ");
             queryBuilder.Append("SET Status = @Status ");
@@ -108,6 +108,28 @@ namespace TaxManagement.Repositories
             return rowsAffected;
         }
 
-       
+        public async Task<int> SetDeletedDeclarationAsync(Guid id, string user, bool deleted)
+        {
+            var parameters = new
+            {
+                id,
+                deleted,
+                user,
+                UpdateDate = DateTime.Now,
+            };
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("UPDATE Declarations ");
+            queryBuilder.Append("SET Deleted = @deleted ");
+            queryBuilder.Append(" ,UpdateUser = @user ");
+            queryBuilder.Append(" ,UpdateDate = @UpdateDate ");
+            queryBuilder.Append(" WHERE Id = @id ");
+
+            using var connection = _context.CreateConnection();
+
+            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
+            return rowsAffected;
+        }
+
+
     }
 }

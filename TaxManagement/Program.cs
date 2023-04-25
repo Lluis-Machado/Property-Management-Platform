@@ -1,12 +1,24 @@
 using FluentValidation;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using TaxManagement.Context;
+using TaxManagement.Middelwares;
 using TaxManagement.Models;
 using TaxManagement.Repositories;
 using TaxManagement.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Serilog
+var logger = new LoggerConfiguration()
+  .ReadFrom.Configuration(builder.Configuration)
+  .Enrich.FromLogContext()
+  .CreateLogger();
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog(logger);
+
+// Global error handling
+builder.Services.AddTransient<GlobalErrorHandlingMiddelware>();
 
 // Add services to the container.
 builder.Services.AddSingleton<DapperContext>();
@@ -15,7 +27,6 @@ builder.Services.AddScoped<IDeclarantRepository, DeclarantRepository>();
 builder.Services.AddScoped<IValidator<Declarant>, DeclarantValidator>();
 builder.Services.AddScoped<IValidator<Declaration>, DeclarationValidator>();
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opt =>
 {
@@ -57,6 +68,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseMiddleware<GlobalErrorHandlingMiddelware>();
 
 app.MapControllers();
 

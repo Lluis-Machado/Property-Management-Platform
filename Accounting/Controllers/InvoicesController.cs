@@ -1,7 +1,8 @@
 ﻿using Accounting.Models;
 using Accounting.Repositories;
-using Accounting.Validators;
+using Accounting.Security;
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -11,118 +12,94 @@ namespace Accounting.Controllers
     {
         private readonly IInvoiceRepository _invoiceRepo;
         private readonly IValidator<Invoice> _invoiceValidator;
+        private readonly ILogger<InvoicesController> _logger;
 
-        public InvoicesController(IInvoiceRepository invoiceRepo, IValidator<Invoice> invoiceValidator) 
+        public InvoicesController(IInvoiceRepository invoiceRepo, IValidator<Invoice> invoiceValidator, ILogger<InvoicesController> logger)
         {
-            _invoiceValidator = invoiceValidator;    
+            _invoiceValidator = invoiceValidator;
             _invoiceRepo = invoiceRepo;
+            _logger = logger;
         }
 
         // POST: Create Invoice
+        [Authorize]
         [HttpPost]
         [Route("invoices")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> CreateAsync([FromBody] Invoice invoice)
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<Guid>> CreateAsync([FromBody] Invoice invoice)
         {
-            try
-            {
-                // validations
-                if (invoice == null) return BadRequest("Incorrect body format");
-                if (invoice.Id != Guid.Empty) return BadRequest("Id field must be empty");
+            // request validations
+            if (invoice == null) return BadRequest("Incorrect body format");
+            if (invoice.Id != Guid.Empty) return BadRequest("Id field must be empty");
 
-                await _invoiceValidator.ValidateAndThrowAsync(invoice);
+            // invoice validation
+            ValidationResult validationResult = await _invoiceValidator.ValidateAsync(invoice);
+            if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
-                Guid invoiceId = await _invoiceRepo.InsertInvoiceAsync(invoice);
-                return Ok(invoiceId);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            return Ok(await _invoiceRepo.InsertInvoiceAsync(invoice));
         }
 
         // GET: Get invoice(s)
+        [Authorize]
         [HttpGet]
         [Route("invoices")]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(List<Invoice>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAsync()
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<IEnumerable<Invoice>>> GetAsync()
         {
-            try
-            {
-                IEnumerable<Invoice> invoices = await _invoiceRepo.GetInvoicesAsync();
-                return Ok(invoices.ToList());
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            return Ok(await _invoiceRepo.GetInvoicesAsync());
         }
 
         // POST: update invoice
+        [Authorize]
         [HttpPost]
         [Route("invoices/{invoiceId}")]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        public async Task<IActionResult> UpdateAsync([FromBody] Invoice invoice, Guid invoiceId)
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult> UpdateAsync([FromBody] Invoice invoice, Guid invoiceId)
         {
-            try
-            {
-                // validations
-                if (invoice == null) return BadRequest("Incorrect body format");
-                if (invoice.Id != invoiceId) return BadRequest("id from body incorrect");
-                invoice.Id = invoiceId;
+            // request validations
+            if (invoice == null) return BadRequest("Incorrect body format");
+            if (invoice.Id != invoiceId) return BadRequest("id from body incorrect");
 
-                await _invoiceValidator.ValidateAndThrowAsync(invoice);
+            // invoice validation
+            ValidationResult validationResult = await _invoiceValidator.ValidateAsync(invoice);
+            if (!validationResult.IsValid) return BadRequest("~");
 
-                int result = await _invoiceRepo.UpdateInvoiceAsync(invoice);
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            invoice.Id = invoiceId; // copy id to invoice object
+
+            int result = await _invoiceRepo.UpdateInvoiceAsync(invoice);
+            if (result == 0) return NotFound("Invoice not found");
+            return Ok();
         }
 
         // DELETE: delete invoice
+        [Authorize]
         [HttpDelete]
         [Route("invoices/{invoiceId}")]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteAsync(Guid invoiceId)
         {
-            try
-            {
-                Invoice invoice = await _invoiceRepo.GetInvoiceByIdAsync(invoiceId);
-                invoice.Deleted = true;
-                int result = await _invoiceRepo.UpdateInvoiceAsync(invoice);
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            int result = await _invoiceRepo.SetDeleteInvoiceAsync(invoiceId, true);
+            if (result == 0) return NotFound("Invoice not found");
+            return Ok();
         }
 
         // POST: undelete invoice
+        [Authorize]
         [HttpPost]
         [Route("invoices/{invoiceId}/undelete")]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UndeleteAsync(Guid invoiceId)
         {
-            try
-            {
-                Invoice invoice = await _invoiceRepo.GetInvoiceByIdAsync(invoiceId);
-                invoice.Deleted = false;
-                int result = await _invoiceRepo.UpdateInvoiceAsync(invoice);
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            int result = await _invoiceRepo.SetDeleteInvoiceAsync(invoiceId, false);
+            if (result == 0) return NotFound("Invoice not found");
+            return Ok();
         }
     }
 }

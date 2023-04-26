@@ -8,5 +8,6 @@ namespace Accounting.Repositories
         Task<IEnumerable<FixedAsset>> GetFixedAssetsAsync();
         Task<FixedAsset> GetFixedAssetByIdAsync(Guid fixedAssetId);
         Task<int> UpdateFixedAssetAsync(FixedAsset fixedAsset);
+        Task<int> SetDeleteFixedAssetAsync(Guid id, bool deleted);
     }
 }

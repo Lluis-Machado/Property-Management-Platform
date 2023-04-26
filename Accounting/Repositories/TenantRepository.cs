@@ -62,6 +62,25 @@ namespace Accounting.Repositories
             return tenantId;
         }
 
+        public async Task<int> SetDeleteTenantAsync(Guid id, bool deleted)
+        {
+            var parameters = new
+            {
+                id,
+                deleted
+            };
+
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("UPDATE Tenants ");
+            queryBuilder.Append("SET Deleted = @deleted ");
+            queryBuilder.Append(" WHERE Id = @id ");
+
+            using var connection = _context.CreateConnection();
+
+            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
+            return rowsAffected;
+        }
+
         public async Task<int> UpdateTenantAsync(Tenant tenant)
         {
             var parameters = new

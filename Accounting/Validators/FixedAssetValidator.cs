@@ -5,7 +5,7 @@ namespace Accounting.Validators
 {
     public class FixedAssetValidator : AbstractValidator<FixedAsset>
     {
-        public FixedAssetValidator() 
+        public FixedAssetValidator()
         {
             RuleFor(Asset => Asset.InvoiceId).Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty");

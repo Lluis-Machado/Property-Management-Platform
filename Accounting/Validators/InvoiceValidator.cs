@@ -5,7 +5,7 @@ namespace Accounting.Validators
 {
     public class InvoiceValidator : AbstractValidator<Invoice>
     {
-        public InvoiceValidator() 
+        public InvoiceValidator()
         {
             RuleFor(Invoice => Invoice.BusinessPartnerId).Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty");

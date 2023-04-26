@@ -5,39 +5,39 @@ using System.Text;
 
 namespace Accounting.Repositories
 {
-    public class DepreciationConfigRepository : IDepreciationCongifRepository
+    public class DepreciationConfigRepository : IDepreciationConfigRepository
     {
         private readonly DapperContext _context;
-        public DepreciationConfigRepository(DapperContext context) 
+        public DepreciationConfigRepository(DapperContext context)
         {
             _context = context;
         }
 
-        public async Task<DepreciationConfig> GetDepreciationConfigByIdAsync(Guid DepreciationConfigId)
+        public async Task<DepreciationConfig> GetDepreciationConfigByIdAsync(Guid depreciationConfigId)
         {
             var parameters = new
             {
-                DepreciationConfigId
+                depreciationConfigId
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT * FROM DepreciationConfigs");
-            queryBuilder.Append(" WHERE Id = @DepreciationConfigId");
+            queryBuilder.Append("SELECT * FROM depreciationConfigs");
+            queryBuilder.Append(" WHERE Id = @depreciationConfigId");
 
             using var connection = _context.CreateConnection();
 
-            DepreciationConfig DepreciationConfig = await connection.QuerySingleAsync<DepreciationConfig>(queryBuilder.ToString(), parameters);
-            return DepreciationConfig;
+            DepreciationConfig depreciationConfig = await connection.QuerySingleAsync<DepreciationConfig>(queryBuilder.ToString(), parameters);
+            return depreciationConfig;
         }
 
         public async Task<IEnumerable<DepreciationConfig>> GetDepreciationConfigsAsync()
         {
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT * FROM DepreciationConfigs");
+            queryBuilder.Append("SELECT * FROM depreciationConfigs");
 
             using var connection = _context.CreateConnection();
 
-            IEnumerable<DepreciationConfig> DepreciationConfigs = await connection.QueryAsync<DepreciationConfig>(queryBuilder.ToString());
-            return DepreciationConfigs;
+            IEnumerable<DepreciationConfig> depreciationConfigs = await connection.QueryAsync<DepreciationConfig>(queryBuilder.ToString());
+            return depreciationConfigs;
         }
 
         public async Task<Guid> InsertDepreciationConfigAsync(DepreciationConfig DepreciationConfig)
@@ -49,7 +49,7 @@ namespace Accounting.Repositories
                 DepreciationConfig.LastModificationByUser,
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("INSERT INTO DepreciationConfigs (");
+            queryBuilder.Append("INSERT INTO depreciationConfigs (");
             queryBuilder.Append(" Type");
             queryBuilder.Append(" ,DepreciationPercent");
             queryBuilder.Append(" ,LastModificationByUser");
@@ -65,19 +65,38 @@ namespace Accounting.Repositories
             return DepreciationConfigId;
         }
 
-        public async Task<int> UpdateDepreciationConfigAsync(DepreciationConfig DepreciationConfig)
+        public async Task<int> SetDeleteDepereciationConfigAsync(Guid id, bool deleted)
         {
             var parameters = new
             {
-                DepreciationConfig.Id,
-                DepreciationConfig.Type,
-                DepreciationConfig.DepreciationPercent,
-                DepreciationConfig.Deleted,
-                DepreciationConfig.LastModificationByUser,
+                id,
+                deleted
+            };
+
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("UPDATE depreciationConfigs ");
+            queryBuilder.Append("SET Deleted = @deleted ");
+            queryBuilder.Append(" WHERE Id = @id ");
+
+            using var connection = _context.CreateConnection();
+
+            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
+            return rowsAffected;
+        }
+
+        public async Task<int> UpdateDepreciationConfigAsync(DepreciationConfig depreciationConfig)
+        {
+            var parameters = new
+            {
+                depreciationConfig.Id,
+                depreciationConfig.Type,
+                depreciationConfig.DepreciationPercent,
+                depreciationConfig.Deleted,
+                depreciationConfig.LastModificationByUser,
                 LastModificationDate = DateTime.Now,
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE DepreciationConfigs ");
+            queryBuilder.Append("UPDATE depreciationConfigs ");
             queryBuilder.Append("SET Type = @Type ");
             queryBuilder.Append(" ,DepreciationPercent = @DepreciationPercent ");
             queryBuilder.Append(" ,Deleted = @Deleted ");
@@ -90,5 +109,6 @@ namespace Accounting.Repositories
             int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
             return rowsAffected;
         }
+
     }
 }

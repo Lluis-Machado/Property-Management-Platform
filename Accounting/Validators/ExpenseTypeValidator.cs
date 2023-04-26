@@ -5,7 +5,7 @@ namespace Accounting.Validators
 {
     public class ExpenseTypeValidator : AbstractValidator<ExpenseType>
     {
-        public ExpenseTypeValidator() 
+        public ExpenseTypeValidator()
         {
             RuleFor(Type => Type.Code).Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty");

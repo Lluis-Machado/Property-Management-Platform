@@ -1,9 +1,10 @@
-﻿using Accounting.Repositories;
-using Accounting.Models;
+﻿using Accounting.Models;
+using Accounting.Repositories;
+using Accounting.Security;
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using Accounting.Validators;
 
 namespace Accounting.Controllers
 {
@@ -11,117 +12,94 @@ namespace Accounting.Controllers
     {
         private readonly ILoanRepository _loanRepo;
         private readonly IValidator<Loan> _loanValidator;
-        public LoansController(ILoanRepository loanRepo, IValidator<Loan> loanValidator) 
+        private readonly ILogger<LoansController> _logger;
+
+        public LoansController(ILoanRepository loanRepo, IValidator<Loan> loanValidator, ILogger<LoansController> logger)
         {
             _loanRepo = loanRepo;
             _loanValidator = loanValidator;
+            _logger = logger;
         }
 
         // POST: Create Loan
+        [Authorize]
         [HttpPost]
         [Route("loans")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> CreateAsync([FromBody] Loan loan)
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<Guid>> CreateAsync([FromBody] Loan loan)
         {
-            try
-            {
-                // validations
-                if (loan == null) return BadRequest("Incorrect body format");
-                if (loan.Id != Guid.Empty) return BadRequest("Id field must be empty");
+            // request validations
+            if (loan == null) return BadRequest("Incorrect body format");
+            if (loan.Id != Guid.Empty) return BadRequest("loan Id field must be empty");
 
-                await _loanValidator.ValidateAndThrowAsync(loan);
+            // loan validator
+            ValidationResult validationResult = await _loanValidator.ValidateAsync(loan);
+            if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
-                Guid loanId = await _loanRepo.InsertLoanAsync(loan);
-                return Ok(loanId);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            return Ok(await _loanRepo.InsertLoanAsync(loan));
         }
 
         // GET: Get loan(s)
+        [Authorize]
         [HttpGet]
         [Route("loans")]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(List<Loan>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAsync()
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<IEnumerable<Loan>>> GetAsync()
         {
-            try
-            {
-                IEnumerable<Loan> loans = await _loanRepo.GetLoansAsync();
-                return Ok(loans.ToList());
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            return Ok(await _loanRepo.GetLoansAsync());
         }
 
         // POST: update loan
+        [Authorize]
         [HttpPost]
         [Route("loans/{loanId}")]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        public async Task<IActionResult> UpdateAsync([FromBody] Loan loan, Guid loanId)
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult> UpdateAsync([FromBody] Loan loan, Guid loanId)
         {
-            try
-            {
-                // validations
-                if (loan == null) return BadRequest("Incorrect body format");
-                if (loan.Id != loanId) return BadRequest("businessPartner Id from body incorrect");
-                loan.Id = loanId;
+            // request validations
+            if (loan == null) return BadRequest("Incorrect body format");
+            if (loan.Id != loanId) return BadRequest("businessPartner Id from body incorrect");
 
-                await _loanValidator.ValidateAndThrowAsync(loan);
+            // loan validation
+            ValidationResult validationResult = await _loanValidator.ValidateAsync(loan);
+            if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
-                int result = await _loanRepo.UpdateLoanAsync(loan);
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            loan.Id = loanId; // copy id to loan object
+
+            int result = await _loanRepo.UpdateLoanAsync(loan);
+            if (result == 0) return NotFound("Loan not found");
+            return Ok();
         }
 
         // DELETE: delete loan
+        [Authorize]
         [HttpDelete]
         [Route("loans/{loanId}")]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteAsync(Guid loanId)
         {
-            try
-            {
-                Loan loan= await _loanRepo.GetLoanByIdAsync(loanId);
-                loan.Deleted = true;
-                int result = await _loanRepo.UpdateLoanAsync(loan);
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            int result = await _loanRepo.SetDeleteLoanAsync(loanId, true);
+            if (result == 0) return NotFound("Loan not found");
+            return Ok();
         }
 
         // POST: undelete loan
+        [Authorize]
         [HttpPost]
         [Route("loans/{loanId}/undelete")]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UndeleteAsync(Guid loanId)
         {
-            try
-            {
-                Loan loan= await _loanRepo.GetLoanByIdAsync(loanId);
-                loan.Deleted = false;
-                int result = await _loanRepo.UpdateLoanAsync(loan);
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            int result = await _loanRepo.SetDeleteLoanAsync(loanId, false);
+            if (result == 0) return NotFound("Loan not found");
+            return Ok();
         }
     }
 }

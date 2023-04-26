@@ -8,7 +8,7 @@ namespace Accounting.Repositories
     public class ExpenseTypeRepository : IExpenseTypeRepository
     {
         private readonly DapperContext _context;
-        public ExpenseTypeRepository(DapperContext context) 
+        public ExpenseTypeRepository(DapperContext context)
         {
             _context = context;
         }
@@ -63,6 +63,25 @@ namespace Accounting.Repositories
 
             Guid expenseTypeId = await connection.QuerySingleAsync<Guid>(queryBuilder.ToString(), parameters);
             return expenseTypeId;
+        }
+
+        public async Task<int> SetDeleteExpenseTypeAsync(Guid id, bool deleted)
+        {
+            var parameters = new
+            {
+                id,
+                deleted
+            };
+
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("UPDATE ExpenseTypes ");
+            queryBuilder.Append("SET Deleted = @deleted ");
+            queryBuilder.Append(" WHERE Id = @id ");
+
+            using var connection = _context.CreateConnection();
+
+            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
+            return rowsAffected;
         }
 
         public async Task<int> UpdateExpenseTypeAsync(ExpenseType expenseType)

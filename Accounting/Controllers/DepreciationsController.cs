@@ -1,7 +1,8 @@
 ﻿using Accounting.Models;
 using Accounting.Repositories;
-using Accounting.Validators;
+using Accounting.Security;
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -9,119 +10,96 @@ namespace Accounting.Controllers
 {
     public class DepreciationsController : Controller
     {
-        private readonly IDepreciationRepository _DepreciationRepo;
-        private readonly IValidator<Depreciation> _DepreciationValidator;
-        public DepreciationsController(IDepreciationRepository DepreciationRepo, IValidator<Depreciation> DepreciationValidator)
+        private readonly IDepreciationRepository _depreciationRepo;
+        private readonly IValidator<Depreciation> _depreciationValidator;
+        private readonly ILogger<DepreciationsController> _logger;
+        public DepreciationsController(IDepreciationRepository depreciationRepo, IValidator<Depreciation> depreciationValidator, ILogger<DepreciationsController> logger)
         {
-            _DepreciationRepo = DepreciationRepo;
-            _DepreciationValidator = DepreciationValidator;
+            _depreciationRepo = depreciationRepo;
+            _depreciationValidator = depreciationValidator;
+            _logger = logger;
         }
 
-        // POST: Create Depreciation
+        // POST: Create depreciation
+        [Authorize]
         [HttpPost]
-        [Route("Depreciations")]
+        [Route("depreciations")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> CreateAsync([FromBody] Depreciation Depreciation)
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<Guid>> CreateAsync([FromBody] Depreciation depreciation)
         {
-            try
-            {
-                // validations
-                if (Depreciation == null) return BadRequest("Incorrect body format");
-                if (Depreciation.Id != Guid.Empty) return BadRequest("Id field must be empty");
+            // request validations
+            if (depreciation == null) return BadRequest("Incorrect body format");
+            if (depreciation.Id != Guid.Empty) return BadRequest("depreciation Id field must be empty");
 
-                await _DepreciationValidator.ValidateAndThrowAsync(Depreciation);
+            // depreciation validation
+            ValidationResult validationResult = await _depreciationValidator.ValidateAsync(depreciation);
+            if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
-                Guid DepreciationId = await _DepreciationRepo.InsertDepreciationAsync(Depreciation);
-                return Ok(DepreciationId);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+
+            await _depreciationValidator.ValidateAndThrowAsync(depreciation);
+
+            return Ok(await _depreciationRepo.InsertDepreciationAsync(depreciation));
         }
 
-        // GET: Get Depreciation(s)
+        // GET: Get depreciation(s)
+        [Authorize]
         [HttpGet]
-        [Route("Depreciations")]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(List<Depreciation>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAsync()
-        {
-            try
-            {
-                IEnumerable<Depreciation> Depreciations = await _DepreciationRepo.GetDepreciationsAsync();
-                return Ok(Depreciations.ToList());
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-
-        // POST: update Depreciation
-        [HttpPost]
-        [Route("Depreciations/{DepreciationId}")]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [Route("depreciations")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        public async Task<IActionResult> UpdateAsync([FromBody] Depreciation Depreciation, Guid DepreciationId)
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<IEnumerable<Depreciation>>> GetAsync()
         {
-            try
-            {
-                // validations
-                if (Depreciation == null) return BadRequest("Incorrect body format");
-                if (Depreciation.Id != DepreciationId) return BadRequest("DepreciationId from body incorrect");
-                Depreciation.Id = DepreciationId;
-
-                await _DepreciationValidator.ValidateAndThrowAsync(Depreciation);
-
-                int result = await _DepreciationRepo.UpdateDepreciationAsync(Depreciation);
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            return Ok(await _depreciationRepo.GetDepreciationsAsync());
         }
 
-        // DELETE: delete Depreciation
+        // POST: update depreciation
+        [Authorize]
+        [HttpPost]
+        [Route("depreciations/{depreciationId}")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult> UpdateAsync([FromBody] Depreciation depreciation, Guid depreciationId)
+        {
+            // request validations
+            if (depreciation == null) return BadRequest("Incorrect body format");
+            if (depreciation.Id != depreciationId) return BadRequest("depreciation Id from body incorrect");
+
+            // depreciation validation
+            ValidationResult validationResult = await _depreciationValidator.ValidateAsync(depreciation);
+            if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
+
+            depreciation.Id = depreciationId; // copy id to depreciation object
+
+            int result = await _depreciationRepo.UpdateDepreciationAsync(depreciation);
+            if (result == 0) return NotFound("Depreciation not found");
+            return Ok();
+        }
+
+        // DELETE: delete depreciation
         [HttpDelete]
-        [Route("Depreciations/{DepreciationId}")]
+        [Route("depreciations/{depreciationId}")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        public async Task<IActionResult> DeleteAsync(Guid DepreciationId)
+        public async Task<IActionResult> DeleteAsync(Guid depreciationId)
         {
-            try
-            {
-                Depreciation Depreciation = await _DepreciationRepo.GetDepreciationByIdAsync(DepreciationId);
-                Depreciation.Deleted = true;
-                int result = await _DepreciationRepo.UpdateDepreciationAsync(Depreciation);
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            int result = await _depreciationRepo.SetDeleteDepreciationAsync(depreciationId, true);
+            if (result == 0) return NotFound("Depreciation not found");
+            return Ok();
         }
 
-        // POST: undelete Depreciation
+        // POST: undelete depreciation
         [HttpPost]
-        [Route("Depreciations/{DepreciationId}/undelete")]
+        [Route("depreciations/{depreciationId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        public async Task<IActionResult> UndeleteAsync(Guid DepreciationId)
+        public async Task<IActionResult> UndeleteAsync(Guid depreciationId)
         {
-            try
-            {
-                Depreciation Depreciation = await _DepreciationRepo.GetDepreciationByIdAsync(DepreciationId);
-                Depreciation.Deleted = false;
-                int result = await _DepreciationRepo.UpdateDepreciationAsync(Depreciation);
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            int result = await _depreciationRepo.SetDeleteDepreciationAsync(depreciationId, false);
+            if (result == 0) return NotFound("Depreciation not found");
+            return Ok();
         }
     }
 }

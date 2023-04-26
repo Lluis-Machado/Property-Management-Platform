@@ -8,7 +8,7 @@ namespace Accounting.Repositories
     public class InvoiceLineRepository : IInvoiceLineRepository
     {
         private readonly DapperContext _context;
-        public InvoiceLineRepository(DapperContext context) 
+        public InvoiceLineRepository(DapperContext context)
         {
             _context = context;
         }
@@ -87,6 +87,25 @@ namespace Accounting.Repositories
 
             Guid loanId = await connection.QuerySingleAsync<Guid>(queryBuilder.ToString(), parameters);
             return loanId;
+        }
+
+        public async Task<int> SetDeleteInvoiceLineAsync(Guid id, bool deleted)
+        {
+            var parameters = new
+            {
+                id,
+                deleted
+            };
+
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("UPDATE InvoiceLines ");
+            queryBuilder.Append("SET Deleted = @deleted ");
+            queryBuilder.Append(" WHERE Id = @id ");
+
+            using var connection = _context.CreateConnection();
+
+            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
+            return rowsAffected;
         }
 
         public async Task<int> UpdateInvoiceLineAsync(InvoiceLine invoiceLine)

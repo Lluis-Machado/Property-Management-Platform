@@ -8,5 +8,6 @@ namespace Accounting.Repositories
         Task<IEnumerable<Tenant>> GetTenantsAsync();
         Task<Tenant> GetTenantByIdAsync(Guid tenantId);
         Task<int> UpdateTenantAsync(Tenant tenant);
+        Task<int> SetDeleteTenantAsync(Guid id, bool deleted);
     }
 }

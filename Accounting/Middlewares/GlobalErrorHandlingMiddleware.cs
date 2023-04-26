@@ -6,9 +6,9 @@ namespace Accounting.Middlewares
     {
         private readonly ILogger<GlobalErrorHandlingMiddleware> _logger;
 
-        public GlobalErrorHandlingMiddleware(ILogger<GlobalErrorHandlingMiddleware> logger) 
-        { 
-        _logger = logger;
+        public GlobalErrorHandlingMiddleware(ILogger<GlobalErrorHandlingMiddleware> logger)
+        {
+            _logger = logger;
         }
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)

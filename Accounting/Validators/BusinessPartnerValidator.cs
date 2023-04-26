@@ -5,7 +5,7 @@ namespace Accounting.Validators
 {
     public class BusinessPartnerValidator : AbstractValidator<BusinessPartner>
     {
-        public BusinessPartnerValidator() 
+        public BusinessPartnerValidator()
         {
             RuleFor(businessPartner => businessPartner.Name).Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty")

@@ -1,7 +1,8 @@
-﻿using Dapper;
-using System.Text;
-using Accounting.Context;
+﻿using Accounting.Context;
 using Accounting.Models;
+using Dapper;
+using System.Text;
+
 
 namespace Accounting.Repositories
 {
@@ -70,6 +71,25 @@ namespace Accounting.Repositories
 
             Guid businessPartnerId = await connection.QuerySingleAsync<Guid>(queryBuilder.ToString(), parameters);
             return businessPartnerId;
+        }
+
+        public async Task<int> SetDeleteBusinessPartnerAsync(Guid id, bool deleted)
+        {
+            var parameters = new
+            {
+                id,
+                deleted
+            };
+
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("UPDATE BusinessPartners ");
+            queryBuilder.Append("SET Deleted = @deleted ");
+            queryBuilder.Append(" WHERE Id = @id ");
+
+            using var connection = _context.CreateConnection();
+
+            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
+            return rowsAffected;
         }
 
         public async Task<int> UpdateBusinessPartnerAsync(BusinessPartner businessPartner)

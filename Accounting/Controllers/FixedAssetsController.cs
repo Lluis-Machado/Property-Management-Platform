@@ -1,7 +1,8 @@
 ﻿using Accounting.Models;
 using Accounting.Repositories;
-using Accounting.Validators;
+using Accounting.Security;
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -10,118 +11,97 @@ namespace Accounting.Controllers
     public class FixedAssetsController : Controller
     {
         private readonly IFixedAssetRepository _fixedAssetRepo;
-        private readonly IValidator<FixedAsset> _fixedAssetValidator; 
-        public FixedAssetsController(IFixedAssetRepository fixedAssetRepo, IValidator<FixedAsset> fixedAssetValidator) 
+        private readonly IValidator<FixedAsset> _fixedAssetValidator;
+        private readonly ILogger<FixedAssetsController> _logger;
+
+        public FixedAssetsController(IFixedAssetRepository fixedAssetRepo, IValidator<FixedAsset> fixedAssetValidator, ILogger<FixedAssetsController> logger)
         {
             _fixedAssetRepo = fixedAssetRepo;
             _fixedAssetValidator = fixedAssetValidator;
+            _logger = logger;
         }
 
         // POST: Create fixedAsset
+        [Authorize]
         [HttpPost]
         [Route("fixedAssets")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> CreateAsync([FromBody] FixedAsset fixedAsset)
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<Guid>> CreateAsync([FromBody] FixedAsset fixedAsset)
         {
-            try
-            {
-                // validations
-                if (fixedAsset == null) return BadRequest("Incorrect body format");
-                if (fixedAsset.Id != Guid.Empty) return BadRequest("Id field must be empty");
+            // request validations
+            if (fixedAsset == null) return BadRequest("Incorrect body format");
+            if (fixedAsset.Id != Guid.Empty) return BadRequest("FixedAsset Id field must be empty");
 
-                await _fixedAssetValidator.ValidateAndThrowAsync(fixedAsset);
+            // fixedAsset validation
+            ValidationResult validationResult = await _fixedAssetValidator.ValidateAsync(fixedAsset);
+            if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
-                Guid fixedAssetId = await _fixedAssetRepo.InsertFixedAssetAsync(fixedAsset);
-                return Ok(fixedAssetId);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            return Ok(await _fixedAssetRepo.InsertFixedAssetAsync(fixedAsset));
         }
 
         // GET: Get fixedAsset(s)
+        [Authorize]
         [HttpGet]
         [Route("fixedAssets")]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(List<FixedAsset>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAsync()
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<IEnumerable<FixedAsset>>> GetAsync()
         {
-            try
-            {
-                IEnumerable<FixedAsset> fixedAssets = await _fixedAssetRepo.GetFixedAssetsAsync();
-                return Ok(fixedAssets.ToList());
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            return Ok(await _fixedAssetRepo.GetFixedAssetsAsync());
         }
 
         // POST: update fixedAsset
+        [Authorize]
         [HttpPost]
         [Route("fixedAssets/{fixedAssetId}")]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        public async Task<IActionResult> UpdateAsync([FromBody] FixedAsset fixedAsset, Guid fixedAssetId)
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult> UpdateAsync([FromBody] FixedAsset fixedAsset, Guid fixedAssetId)
         {
-            try
-            {
-                // validations
-                if (fixedAsset == null) return BadRequest("Incorrect body format");
-                if (fixedAsset.Id != fixedAssetId) return BadRequest("fixedAssetId from body incorrect");
-                fixedAsset.Id = fixedAssetId;
+            // request validations
+            if (fixedAsset == null) return BadRequest("Incorrect body format");
+            if (fixedAsset.Id != fixedAssetId) return BadRequest("fixedAsset Id from body incorrect");
 
-                await _fixedAssetValidator.ValidateAndThrowAsync(fixedAsset);
+            // fixedAsset validation
+            ValidationResult validationResult = await _fixedAssetValidator.ValidateAsync(fixedAsset);
+            if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
-                int result = await _fixedAssetRepo.UpdateFixedAssetAsync(fixedAsset);
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            fixedAsset.Id = fixedAssetId; // copy id to fixedAsset object
+
+            await _fixedAssetValidator.ValidateAndThrowAsync(fixedAsset);
+
+            int result = await _fixedAssetRepo.UpdateFixedAssetAsync(fixedAsset);
+            if (result == 0) return BadRequest("fixedAsset not found");
+            return Ok();
         }
 
         // DELETE: delete fixedAsset
         [HttpDelete]
+        [Authorize]
         [Route("fixedAssets/{fixedAssetId}")]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteAsync(Guid fixedAssetId)
         {
-            try
-            {
-                FixedAsset fixedAsset = await _fixedAssetRepo.GetFixedAssetByIdAsync(fixedAssetId);
-                fixedAsset.Deleted = true;
-                int result = await _fixedAssetRepo.UpdateFixedAssetAsync(fixedAsset);
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            int result = await _fixedAssetRepo.SetDeleteFixedAssetAsync(fixedAssetId, true);
+            if (result == 0) return NotFound("fixedAsset not found");
+            return Ok();
         }
 
         // POST: undelete fixedAsset
+        [Authorize]
         [HttpPost]
         [Route("fixedAssets/{fixedAssetId}/undelete")]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UndeleteAsync(Guid fixedAssetId)
         {
-            try
-            {
-                FixedAsset fixedAsset = await _fixedAssetRepo.GetFixedAssetByIdAsync(fixedAssetId);
-                fixedAsset.Deleted = false;
-                int result = await _fixedAssetRepo.UpdateFixedAssetAsync(fixedAsset);
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            int result = await _fixedAssetRepo.SetDeleteFixedAssetAsync(fixedAssetId, false);
+            if (result == 0) return NotFound("fixedAsset not found");
+            return Ok();
         }
     }
 }

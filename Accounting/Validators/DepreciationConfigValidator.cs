@@ -5,7 +5,7 @@ namespace Accounting.Validators
 {
     public class DepreciationConfigValidator : AbstractValidator<DepreciationConfig>
     {
-        public DepreciationConfigValidator() 
+        public DepreciationConfigValidator()
         {
             RuleFor(config => config.Type).Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty");

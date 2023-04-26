@@ -4,9 +4,10 @@ namespace Accounting.Repositories
 {
     public interface IDepreciationRepository
     {
-        Task<Guid> InsertDepreciationAsync(Depreciation Depreciation);
+        Task<Guid> InsertDepreciationAsync(Depreciation depreciation);
         Task<IEnumerable<Depreciation>> GetDepreciationsAsync();
-        Task<Depreciation> GetDepreciationByIdAsync(Guid DepreciationId);
-        Task<int> UpdateDepreciationAsync(Depreciation Depreciation);
+        Task<Depreciation> GetDepreciationByIdAsync(Guid depreciationId);
+        Task<int> UpdateDepreciationAsync(Depreciation depreciation);
+        Task<int> SetDeleteDepreciationAsync(Guid id, bool deleted);
     }
 }

@@ -5,28 +5,28 @@ using System.Text;
 
 namespace Accounting.Repositories
 {
-    public class DepreciationRepository  : IDepreciationRepository
+    public class DepreciationRepository : IDepreciationRepository
     {
         private readonly DapperContext _context;
-        public DepreciationRepository(DapperContext context) 
+        public DepreciationRepository(DapperContext context)
         {
             _context = context;
         }
 
-        public async Task<Depreciation> GetDepreciationByIdAsync(Guid DepreciationId)
+        public async Task<Depreciation> GetDepreciationByIdAsync(Guid depreciationId)
         {
             var parameters = new
             {
-                DepreciationId
+                depreciationId
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT * FROM Depreciations");
-            queryBuilder.Append(" WHERE Id = @DepreciationId");
+            queryBuilder.Append(" WHERE Id = @depreciationId");
 
             using var connection = _context.CreateConnection();
 
-            Depreciation Depreciation = await connection.QuerySingleAsync<Depreciation>(queryBuilder.ToString(), parameters);
-            return Depreciation;
+            Depreciation depreciation = await connection.QuerySingleAsync<Depreciation>(queryBuilder.ToString(), parameters);
+            return depreciation;
         }
 
         public async Task<IEnumerable<Depreciation>> GetDepreciationsAsync()
@@ -36,18 +36,18 @@ namespace Accounting.Repositories
 
             using var connection = _context.CreateConnection();
 
-            IEnumerable<Depreciation> Depreciations = await connection.QueryAsync<Depreciation>(queryBuilder.ToString());
-            return Depreciations;
+            IEnumerable<Depreciation> depreciations = await connection.QueryAsync<Depreciation>(queryBuilder.ToString());
+            return depreciations;
         }
 
-        public async Task<Guid> InsertDepreciationAsync(Depreciation Depreciation)
+        public async Task<Guid> InsertDepreciationAsync(Depreciation depreciation)
         {
             var parameters = new
             {
-                Depreciation.FixedAssetId,
-                Depreciation.Period,
-                Depreciation.Amount,
-                Depreciation.LastModificationByUser,
+                depreciation.FixedAssetId,
+                depreciation.Period,
+                depreciation.Amount,
+                depreciation.LastModificationByUser,
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("INSERT INTO Depreciations (");
@@ -64,20 +64,39 @@ namespace Accounting.Repositories
 
             using var connection = _context.CreateConnection();
 
-            Guid DepreciationId = await connection.QuerySingleAsync<Guid>(queryBuilder.ToString(), parameters);
-            return DepreciationId;
+            Guid depreciationId = await connection.QuerySingleAsync<Guid>(queryBuilder.ToString(), parameters);
+            return depreciationId;
         }
 
-        public async Task<int> UpdateDepreciationAsync(Depreciation Depreciation)
+        public async Task<int> SetDeleteDepreciationAsync(Guid id, bool deleted)
         {
             var parameters = new
             {
-                Depreciation.Id,
-                Depreciation.FixedAssetId,
-                Depreciation.Period,
-                Depreciation.Amount,
-                Depreciation.Deleted,
-                Depreciation.LastModificationByUser,
+                id,
+                deleted
+            };
+
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("UPDATE Depreciations ");
+            queryBuilder.Append("SET Deleted = @deleted ");
+            queryBuilder.Append(" WHERE Id = @id ");
+
+            using var connection = _context.CreateConnection();
+
+            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
+            return rowsAffected;
+        }
+
+        public async Task<int> UpdateDepreciationAsync(Depreciation depreciation)
+        {
+            var parameters = new
+            {
+                depreciation.Id,
+                depreciation.FixedAssetId,
+                depreciation.Period,
+                depreciation.Amount,
+                depreciation.Deleted,
+                depreciation.LastModificationByUser,
                 LastModificationDate = DateTime.Now,
             };
             StringBuilder queryBuilder = new();

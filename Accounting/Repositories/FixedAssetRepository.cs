@@ -74,6 +74,25 @@ namespace Accounting.Repositories
             return fixedAssetId;
         }
 
+        public async Task<int> SetDeleteFixedAssetAsync(Guid id, bool deleted)
+        {
+            var parameters = new
+            {
+                id,
+                deleted
+            };
+
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("UPDATE FixedAssets ");
+            queryBuilder.Append("SET Deleted = @deleted ");
+            queryBuilder.Append(" WHERE Id = @id ");
+
+            using var connection = _context.CreateConnection();
+
+            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
+            return rowsAffected;
+        }
+
         public async Task<int> UpdateFixedAssetAsync(FixedAsset fixedAsset)
         {
             var parameters = new

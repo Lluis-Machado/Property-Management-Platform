@@ -8,5 +8,6 @@ namespace Accounting.Repositories
         Task<IEnumerable<InvoiceLine>> GetInvoiceLinesAsync();
         Task<InvoiceLine> GetInvoiceLineByIdAsync(Guid invoiceLineId);
         Task<int> UpdateInvoiceLineAsync(InvoiceLine invoiceLine);
+        Task<int> SetDeleteInvoiceLineAsync(Guid id, bool deleted);
     }
 }

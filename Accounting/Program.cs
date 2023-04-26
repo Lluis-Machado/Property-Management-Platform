@@ -1,10 +1,23 @@
 using Accounting.Context;
+using Accounting.Middlewares;
 using Accounting.Models;
 using Accounting.Repositories;
 using Accounting.Validators;
 using FluentValidation;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Serilog
+var logger = new LoggerConfiguration()
+  .ReadFrom.Configuration(builder.Configuration)
+  .Enrich.FromLogContext()
+  .CreateLogger();
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog(logger);
+
+// Global error handling
+builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
 
 // Add services to the container.
 builder.Services.AddSingleton<DapperContext>();

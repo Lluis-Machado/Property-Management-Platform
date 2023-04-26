@@ -3,15 +3,15 @@ using FluentValidation;
 
 namespace Accounting.Validators
 {
-    public class AmortizationConfigValidator : AbstractValidator<AmortizationConfig>
+    public class DepreciationConfigValidator : AbstractValidator<DepreciationConfig>
     {
-        public AmortizationConfigValidator() 
+        public DepreciationConfigValidator() 
         {
             RuleFor(config => config.Type).Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty");
 
 
-            RuleFor(config => config.AmortizationPercent).Cascade(CascadeMode.Stop)
+            RuleFor(config => config.DepreciationPercent).Cascade(CascadeMode.Stop)
                 .GreaterThanOrEqualTo(0).WithMessage("{PropertyName} cannot be less than 0");
         }
     }

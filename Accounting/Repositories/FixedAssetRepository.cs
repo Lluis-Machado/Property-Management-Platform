@@ -48,7 +48,7 @@ namespace Accounting.Repositories
                 fixedAsset.Name,
                 fixedAsset.ActivationDate,
                 fixedAsset.ActivationAmount,
-                fixedAsset.AmortizationConfigId,
+                fixedAsset.DepreciationConfigId,
                 fixedAsset.LastModificationByUser,
             };
             StringBuilder queryBuilder = new();
@@ -57,14 +57,14 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,Name");
             queryBuilder.Append(" ,ActivationDate");
             queryBuilder.Append(" ,ActivationAmount");
-            queryBuilder.Append(" ,AmortizationConfigId");
+            queryBuilder.Append(" ,DepreciationConfigId");
             queryBuilder.Append(" ,LastModificationByUser");
             queryBuilder.Append(" )OUTPUT INSERTED.Id VALUES(");
             queryBuilder.Append(" @InvoiceId");
             queryBuilder.Append(" ,@Name");
             queryBuilder.Append(" ,@ActivationDate");
             queryBuilder.Append(" ,@ActivationAmount");
-            queryBuilder.Append(" ,@AmortizationConfigId");
+            queryBuilder.Append(" ,@DepreciationConfigId");
             queryBuilder.Append(" ,@LastModificationByUser");
             queryBuilder.Append(" )");
 
@@ -83,7 +83,7 @@ namespace Accounting.Repositories
                 fixedAsset.Name,
                 fixedAsset.ActivationDate,
                 fixedAsset.ActivationAmount,
-                fixedAsset.AmortizationConfigId,
+                fixedAsset.DepreciationConfigId,
                 fixedAsset.Deleted,
                 fixedAsset.LastModificationByUser,
                 LastModificationDate = DateTime.Now,
@@ -94,7 +94,7 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,Name = @Name ");
             queryBuilder.Append(" ,ActivationDate = @ActivationDate ");
             queryBuilder.Append(" ,ActivationAmount = @ActivationAmount ");
-            queryBuilder.Append(" ,AmortizationConfigId = @AmortizationConfigId ");
+            queryBuilder.Append(" ,DepreciationConfigId = @DepreciationConfigId ");
             queryBuilder.Append(" ,Deleted = @Deleted ");
             queryBuilder.Append(" ,LastModificationByUser = @LastModificationByUser ");
             queryBuilder.Append(" ,LastModificationDate = @LastModificationDate ");

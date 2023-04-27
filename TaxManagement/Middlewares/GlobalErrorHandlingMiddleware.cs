@@ -2,13 +2,13 @@
 using System.Net;
 using System.Text.Json;
 
-namespace Documents.Middelwares
+namespace TaxManagement.Middelwares
 {
-    public class GlobalErrorHandlingMiddelware: IMiddleware
+    public class GlobalErrorHandlingMiddleware: IMiddleware
     {
-        private readonly ILogger<GlobalErrorHandlingMiddelware> _logger;
+        private readonly ILogger<GlobalErrorHandlingMiddleware> _logger;
 
-        public GlobalErrorHandlingMiddelware(ILogger<GlobalErrorHandlingMiddelware> logger)
+        public GlobalErrorHandlingMiddleware(ILogger<GlobalErrorHandlingMiddleware> logger)
         {
             _logger = logger;
         }

@@ -18,7 +18,7 @@ builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);
 
 // Global error handling
-builder.Services.AddTransient<GlobalErrorHandlingMiddelware>();
+builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
 
 // Add services to the container.
 builder.Services.AddSingleton<DapperContext>();
@@ -69,7 +69,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.UseMiddleware<GlobalErrorHandlingMiddelware>();
+app.UseMiddleware<GlobalErrorHandlingMiddleware>();
 
 app.MapControllers();
 

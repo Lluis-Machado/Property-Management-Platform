@@ -21,8 +21,8 @@ namespace Documents.Services.AzureBlobStorage
 
         public async Task CreateBlobContainerAsync(string pBlobContainerName)
         {
-            BlobServiceClient blobServiceClient = GetBlobServiceClient();
-            await blobServiceClient.CreateBlobContainerAsync(pBlobContainerName);
+            BlobContainerClient blobContainerClient = GetBlobContainerClient(pBlobContainerName);
+            await blobContainerClient.CreateAsync();
         }
 
         public async Task<IEnumerable<Tenant>> GetBlobContainersAsync(int? segmentSize, bool includeDeleted = false)
@@ -46,42 +46,29 @@ namespace Documents.Services.AzureBlobStorage
 
         public async Task<bool> BlobContainerExistsAsync(string blobContainerName)
         {
-            BlobServiceClient blobServiceClient = GetBlobServiceClient();
-
-            BlobContainerClient blobContainerClient = blobServiceClient.GetBlobContainerClient(blobContainerName);
+            BlobContainerClient blobContainerClient = GetBlobContainerClient(blobContainerName);
 
             return await blobContainerClient.ExistsAsync();
         }
 
-        public async Task<bool> DeleteBlobContainerAsync(string blobContainerName)
+        public async Task DeleteBlobContainerAsync(string blobContainerName)
         {
-            BlobServiceClient blobServiceClient = GetBlobServiceClient();
 
-            BlobContainerClient blobContainerClient = blobServiceClient.GetBlobContainerClient(blobContainerName);
-
-            if (!await blobContainerClient.ExistsAsync()) return false;
+            BlobContainerClient blobContainerClient = GetBlobContainerClient(blobContainerName);
 
             Response response = await blobContainerClient.DeleteAsync();
 
-            if (response.IsError) throw new Exception(response.ReasonPhrase);
-
-            return true;
+            CheckResponse(response);
         }
 
-        public async Task<bool> UndeleteBlobContainerAsync(string blobContainerName)
+        public async Task UndeleteBlobContainerAsync(string blobContainerName)
         {
             BlobServiceClient blobServiceClient = GetBlobServiceClient();
 
-            BlobContainerClient blobContainerClient = blobServiceClient.GetBlobContainerClient(blobContainerName);
-
-            if (!await blobContainerClient.ExistsAsync()) return false;
-
-            Response<BlobContainerClient> blobContainerResponse = await blobServiceClient.UndeleteBlobContainerAsync(blobContainerName, null);
+            Response<BlobContainerClient> blobContainerResponse = await blobServiceClient.UndeleteBlobContainerAsync(blobContainerName,null);
             Response response = blobContainerResponse.GetRawResponse();
 
-            if (response.IsError) throw new Exception(response.ReasonPhrase);
-
-            return true;
+            CheckResponse(response);
         }
 
         #endregion
@@ -130,44 +117,35 @@ namespace Documents.Services.AzureBlobStorage
         {
             BlobClient blobClient = GetBlobClient(blobContainerName, blobName);
 
-            BlobDownloadResult BlobDownloadResult = await blobClient.DownloadContentAsync();
-
-            return BlobDownloadResult.Content.ToArray();
+            Response<BlobDownloadResult> blobDownloadResponse = await blobClient.DownloadContentAsync();
+            Response response = blobDownloadResponse.GetRawResponse();
+            CheckResponse(response);
+            return blobDownloadResponse.Value.Content.ToArray();
         }
 
-        public async Task<bool> DeleteBlobAsync(string blobContainerName, string blobName)
+        public async Task DeleteBlobAsync(string blobContainerName, string blobName)
         {
             BlobClient blobClient = GetBlobClient(blobContainerName, blobName);
-
-            if (!await blobClient.ExistsAsync()) return false;
 
             Response response = await blobClient.DeleteAsync();
-
             if (response.IsError) throw new Exception(response.ReasonPhrase);
-            return true;
         }
 
-        public async Task<bool> UndeleteBlobAsync(string blobContainerName, string blobName)
+        public async Task UndeleteBlobAsync(string blobContainerName, string blobName)
         {
             BlobClient blobClient = GetBlobClient(blobContainerName, blobName);
 
-            if (!await blobClient.ExistsAsync()) return false;
-
             Response response = await blobClient.UndeleteAsync();
-
             if (response.IsError) throw new Exception(response.ReasonPhrase);
-            return true;
         }
 
-        public async Task<bool> RenameBlobAsync(string blobContainerName, string blobName, string newName)
+        public async Task RenameBlobAsync(string blobContainerName, string blobName, string newName)
         {
             // source blob
             BlobClient sourceBlobClient = GetBlobClient(blobContainerName, blobName);
 
-            if (!await sourceBlobClient.ExistsAsync()) return false;
-
             // destination blob
-            DocumentName sourceBlobName = MapDocumentName(blobName);
+            DocumentName sourceBlobName = new(sourceBlobClient.Name);
             string destinationBlobName = $"{sourceBlobName.Code}_{newName}{sourceBlobName.Extension}";
             BlobClient destinationBlobClient = GetBlobClient(blobContainerName, destinationBlobName);
 
@@ -178,31 +156,32 @@ namespace Documents.Services.AzureBlobStorage
             // delete
             Response responseDelete = await sourceBlobClient.DeleteAsync();
             if (responseDelete.IsError) throw new Exception(responseDelete.ReasonPhrase);
-            return true;
         }
 
 
-        public async Task<bool> CopyBlobAsync(string blobContainerName, string blobName, string newName)
+        public async Task CopyBlobAsync(string blobContainerName, string blobName, string newName)
         {
             // source blob
             BlobClient sourceBlobClient = GetBlobClient(blobContainerName, blobName);
 
-            if (!await sourceBlobClient.ExistsAsync()) return false;
-
             // destination blob
-            DocumentName sourceBlobName = MapDocumentName(blobName);
+            DocumentName sourceBlobName = new(blobName);
             string destinationBlobName = $"{Guid.NewGuid()}_{newName}{sourceBlobName.Extension}";
             BlobClient destinationBlobClient = GetBlobClient(blobContainerName, destinationBlobName);
 
             // copy
             CopyFromUriOperation copyFromUriOperation = await destinationBlobClient.StartCopyFromUriAsync(sourceBlobClient.Uri);
             await copyFromUriOperation.WaitForCompletionAsync();
-            return true;
         }
 
         #endregion
 
         #region Helpers
+
+        private static void CheckResponse(Response response)
+        {
+            if(response.IsError) throw new Exception(response.ReasonPhrase);
+        }
 
         private BlobServiceClient GetBlobServiceClient()
         {
@@ -237,7 +216,7 @@ namespace Documents.Services.AzureBlobStorage
 
         private static Document MapDocument(BlobItem pBlobItem)
         {
-            DocumentName documentName = MapDocumentName(pBlobItem.Name);
+            DocumentName documentName = new(pBlobItem.Name);
             Document document = new()
             {
                 Id = pBlobItem.Name,
@@ -251,19 +230,6 @@ namespace Documents.Services.AzureBlobStorage
             };
             return document;
         }
-
-        private static DocumentName MapDocumentName(string pBlobName)
-        {
-            int _idNbOfChars = 36;
-            DocumentName documentName = new()
-            {
-                Code = pBlobName[.._idNbOfChars],
-                Name = pBlobName[(_idNbOfChars + 1)..],
-                Extension = pBlobName.Contains('.') ? pBlobName[pBlobName.LastIndexOf('.')..] : null,
-            };
-            return documentName;
-        }
-
         #endregion
 
     }

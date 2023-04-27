@@ -18,7 +18,8 @@ builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);
 
 // Global error handling
-builder.Services.AddTransient<GlobalErrorHandlingMiddelware>();
+builder.Services.AddTransient<AzureErrorHandlingMiddleware>();
+builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
 
 // Azure Blob Storage
 builder.Services.AddTransient<IAzureBlobStorage>(s => 
@@ -73,14 +74,19 @@ var app = builder.Build();
 //if (app.Environment.IsDevelopment())
 //{
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.ConfigObject.AdditionalItems.Add("persistAuthorization", "true");
+    });
 //}
 
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.UseMiddleware<GlobalErrorHandlingMiddelware>();
+app.UseMiddleware<GlobalErrorHandlingMiddleware>();
+app.UseMiddleware<AzureErrorHandlingMiddleware>();
+
 
 app.MapControllers();
 

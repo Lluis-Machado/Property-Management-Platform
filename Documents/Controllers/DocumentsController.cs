@@ -32,7 +32,7 @@ namespace Documents.Controllers
         public async Task<ActionResult<List<CreateDocumentStatus>>> UploadAsync(string tenantName, IFormFile[] files)
         {
             // empty request validation
-            if (files == null) return BadRequest("Files not found");
+            if (files.Length == 0) return BadRequest("Files not found");
 
             // max nb of files validation
             int maxNbOfFiles = _config.GetValue<int>("Files:MaxNbOfUploadFiles");
@@ -42,7 +42,8 @@ namespace Documents.Controllers
 
             await Parallel.ForEachAsync(files, async (file, CancellationToken) =>
             {
-                HttpStatusCode status = await _azureBlobStorage.UploadAsync(tenantName, file.FileName, file.OpenReadStream());
+                Stream fileStream = file.OpenReadStream();
+                HttpStatusCode status = await _azureBlobStorage.UploadAsync(tenantName, file.FileName, fileStream);
                 documents.Add(new CreateDocumentStatus(file.FileName, status));
             });
 
@@ -75,7 +76,7 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<byte[]>> DownloadAsync(string tenantName, string documentId)
+        public async Task<FileContentResult> DownloadAsync(string tenantName, string documentId)
         {
             byte[] byteArray = await _azureBlobStorage.DownloadBlobAsync(tenantName, documentId);
             return File(byteArray, "application/pdf");

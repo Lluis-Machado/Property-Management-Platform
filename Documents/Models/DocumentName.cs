@@ -3,10 +3,10 @@
     public class DocumentName : IDocumentName
     {
         private readonly int _idNbOfChars = 36;
-        public string Name { get; set; }
-        public string Code { get; set; }
+        public string Name { get; }
+        public string Code { get; }
         public string DocName { get; set; }
-        public string Extension { get; set; }
+        public string Extension { get; }
 
         public DocumentName(string pName)
         {

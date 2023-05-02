@@ -1,8 +1,8 @@
 ﻿using Authentication.Models;
 using Authentication.Security;
 using Authentication.Services.Auth0;
-using Authentication.Utils;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace Authentication.Controllers
 {
@@ -20,124 +20,106 @@ namespace Authentication.Controllers
         #region BASIC_CRUD
         [HttpGet]
         [Authorize]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetRoles()
         {
-            try
-            {
-                var roles = await _rolesAPI.GetRolesListAsync();
-                return Ok(roles);
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
-            }
+            return Ok(await _rolesAPI.GetRolesListAsync());
         }
 
         [HttpGet("{roleId}")]
         [Authorize]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetRole(string roleId)
         {
-            try
-            {
-                var role = await _rolesAPI.GetRoleAsync(roleId);
-                return Ok(role);
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
-            }
+            return Ok(await _rolesAPI.GetRoleAsync(roleId));
         }
 
         [HttpPost]
         [Authorize]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> CreateRole([FromBody] Auth0Role auth0Role)
         {
-            try
-            {
-                var result = await _rolesAPI.CreateRoleAsync(auth0Role);
-                return Ok(result);
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
-            }
+            return Ok(await _rolesAPI.CreateRoleAsync(auth0Role));
         }
 
         [HttpPatch("{roleId}")]
         [Authorize]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UpdateRole(string roleId, [FromBody] object roleUpdate)
         {
-            try
-            {
-                var result = await _rolesAPI.UpdateRoleAsync(roleId, roleUpdate);
-                return Ok(result);
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
-            }
+            return Ok(await _rolesAPI.UpdateRoleAsync(roleId, roleUpdate));
         }
 
         [HttpDelete("{roleId}")]
         [Authorize]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> DeleteRole(string roleId)
         {
-            try
-            {
-                await _rolesAPI.DeleteRoleAsync(roleId);
-                return Ok();
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
-            }
+            await _rolesAPI.DeleteRoleAsync(roleId);
+            return Ok();
         }
         #endregion
 
         #region ROLE_PERMISSIONS
         [HttpGet("{roleId}/permissions")]
         [Authorize]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetRolePermissions(string roleId)
         {
-            try
-            {
-                var permissions = await _rolesAPI.GetRolePermissionsAsync(roleId);
-                return Ok(permissions);
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
-            }
+            return Ok(await _rolesAPI.GetRolePermissionsAsync(roleId));
         }
 
         [HttpPost("{roleId}/permissions")]
         [Authorize]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> AssignPermissionsToRole(string roleId, [FromBody] List<Auth0Permission> permissions)
         {
-            try
-            {
-                await _rolesAPI.AssignPermissionsToRoleAsync(roleId, permissions);
-                return Ok();
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
-            }
+            await _rolesAPI.AssignPermissionsToRoleAsync(roleId, permissions);
+            return Ok();
         }
 
         [HttpDelete("{roleId}/permissions")]
         [Authorize]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> DeletePermissionsFromRole(string roleId, [FromBody] List<Auth0Permission> permissions)
         {
-            try
-            {
-                await _rolesAPI.DeletePermissionsFromRoleAsync(roleId, permissions);
-                return NoContent();
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
-            }
+            await _rolesAPI.DeletePermissionsFromRoleAsync(roleId, permissions);
+            return Ok();
         }
         #endregion
     }

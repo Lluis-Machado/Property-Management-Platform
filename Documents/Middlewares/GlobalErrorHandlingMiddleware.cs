@@ -2,13 +2,13 @@
 using System.Net;
 using System.Text.Json;
 
-namespace TaxManagement.Middelwares
+namespace Documents.Middelwares
 {
-    public class GlobalErrorHandlingMiddelware: IMiddleware
+    public class GlobalErrorHandlingMiddleware: IMiddleware
     {
-        private readonly ILogger<GlobalErrorHandlingMiddelware> _logger;
+        private readonly ILogger<GlobalErrorHandlingMiddleware> _logger;
 
-        public GlobalErrorHandlingMiddelware(ILogger<GlobalErrorHandlingMiddelware> logger)
+        public GlobalErrorHandlingMiddleware(ILogger<GlobalErrorHandlingMiddleware> logger)
         {
             _logger = logger;
         }
@@ -19,7 +19,7 @@ namespace TaxManagement.Middelwares
             {
                 await next(context);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 _logger.LogError("Internal exception ocurred: {@Exception}",e);
 

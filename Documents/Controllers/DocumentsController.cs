@@ -36,10 +36,7 @@ namespace Documents.Controllers
 
             // max nb of files validation
             int maxNbOfFiles = _config.GetValue<int>("Files:MaxNbOfUploadFiles");
-            if (Request.Form.Files.Count > maxNbOfFiles) return BadRequest($"Maximal number of files ({maxNbOfFiles}) exceeded");
-
-            //validate tenant
-            if (!await _azureBlobStorage.BlobContainerExistsAsync(tenantName)) return NotFound("Tenant not found");
+            if (files.Length > maxNbOfFiles) return BadRequest($"Maximal number of files ({maxNbOfFiles}) exceeded");
 
             var documents = new List<CreateDocumentStatus>();
 
@@ -68,9 +65,6 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<IEnumerable<Document>>> GetAsync(string tenantName,[FromQuery] bool includeDeleted = false)
         {
-            //validate tenant
-            if (!await _azureBlobStorage.BlobContainerExistsAsync(tenantName)) return NotFound("Tenant not found");
-
             return Ok(await _azureBlobStorage.ListBlobsFlatListingAsync(tenantName, 100, includeDeleted));
         }
 
@@ -83,9 +77,6 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<byte[]>> DownloadAsync(string tenantName, string documentId)
         {
-            //validate document
-            if (!await _azureBlobStorage.BlobExistsAsync(tenantName, documentId)) return NotFound("Document not found");
-
             byte[] byteArray = await _azureBlobStorage.DownloadBlobAsync(tenantName, documentId);
             return File(byteArray, "application/pdf");
         }
@@ -99,10 +90,7 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> DeleteAsync(string tenantName, string documentId)
         {
-            bool deleted = await _azureBlobStorage.DeleteBlobAsync(tenantName, documentId);
-
-            if(!deleted) return NotFound("Document not found");
-
+            await _azureBlobStorage.DeleteBlobAsync(tenantName, documentId);
             return Ok();
         }
 
@@ -115,10 +103,7 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UndeleteAsync(string tenantName, string documentId)
         {
-            bool undeleted = await _azureBlobStorage.UndeleteBlobAsync(tenantName, documentId);
-
-            if (!undeleted) return NotFound("Document not found");
-
+            await _azureBlobStorage.UndeleteBlobAsync(tenantName, documentId);
             return Ok();
         }
 
@@ -131,10 +116,7 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> RenameAsync(string tenantName, string documentId, [FromForm] string name)
         {
-            bool renamed = await _azureBlobStorage.RenameBlobAsync(tenantName, documentId, name);
-
-            if (!renamed) return NotFound("Document not found");
-
+            await _azureBlobStorage.RenameBlobAsync(tenantName, documentId, name);
             return Ok();
         }
 
@@ -147,10 +129,7 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> CopyAsync(string tenantName, string documentId, [FromForm] string name)
         {
-            bool copied = await _azureBlobStorage.CopyBlobAsync(tenantName, documentId, name);
-
-            if (!copied) return NotFound("Document not found");
-
+            await _azureBlobStorage.CopyBlobAsync(tenantName, documentId, name);
             return Ok();
         }
 

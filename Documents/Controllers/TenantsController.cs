@@ -2,6 +2,7 @@
 using Documents.Models;
 using Documents.Services.AzureBlobStorage;
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using TaxManagement.Security;
@@ -29,14 +30,16 @@ namespace Tenants.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        [ProducesResponseType((int)HttpStatusCode.Conflict)]
         public async Task<IActionResult> Create([FromBody] Tenant tenant)
         {
             //validations
             if (tenant == null) return BadRequest("Incorrect body format");
 
-            await _tenantValidator.ValidateAndThrowAsync(tenant);
+            ValidationResult validationResult = await _tenantValidator.ValidateAsync(tenant);
+            if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
-            if(tenant.Name == null) return BadRequest("Tenant Name is empty");
+            if (tenant.Name == null) return BadRequest("Tenant Name is empty");
 
             //create tenant
             await _azureBlobStorage.CreateBlobContainerAsync(tenant.Name);
@@ -63,8 +66,7 @@ namespace Tenants.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteAsync(string tenantName)
         {
-            bool deleted = await _azureBlobStorage.DeleteBlobContainerAsync(tenantName);
-            if(!deleted) return NotFound("Tenant not found");
+            await _azureBlobStorage.DeleteBlobContainerAsync(tenantName);
             return Ok();
         }
 
@@ -77,8 +79,7 @@ namespace Tenants.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UndeleteAsync(string tenantName)
         {
-            bool undeleted = await _azureBlobStorage.UndeleteBlobContainerAsync(tenantName);
-            if (!undeleted) return NotFound("Tenant not found");
+            await _azureBlobStorage.UndeleteBlobContainerAsync(tenantName);
             return Ok();
         }
     }

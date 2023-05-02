@@ -27,7 +27,7 @@ namespace Tenants.Controllers
         [Authorize]
         [HttpPost]
         [Route("tenants")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> Create([FromBody] Tenant tenant)
@@ -42,7 +42,7 @@ namespace Tenants.Controllers
 
             //create tenant
             await _azureBlobStorage.CreateBlobContainerAsync(tenant.Name);
-            return Ok();
+            return Created($"tenants/{tenant.Name}", tenant);
         }
 
         // GET: Get tenant(s)
@@ -60,26 +60,26 @@ namespace Tenants.Controllers
         [Authorize]
         [HttpDelete]
         [Route("tenants/{tenantName}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteAsync(string tenantName)
         {
             await _azureBlobStorage.DeleteBlobContainerAsync(tenantName);
-            return Ok();
+            return NoContent();
         }
 
         // POST: Undelete tenant
         [Authorize]
         [HttpPost]
         [Route("tenants/{tenantName}/undelete")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UndeleteAsync(string tenantName)
         {
             await _azureBlobStorage.UndeleteBlobContainerAsync(tenantName);
-            return Ok();
+            return NoContent();
         }
     }
 }

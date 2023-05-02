@@ -47,8 +47,8 @@ namespace DocumentsUnitTests
             var result = await _tenantsController.Create(tenant);
 
             //Assert
-            var okResult = Assert.IsType<OkResult>(result);
-            Assert.Equal((int)HttpStatusCode.OK, okResult.StatusCode);
+            var okResult = Assert.IsType<CreatedResult>(result);
+            Assert.Equal((int)HttpStatusCode.Created, okResult.StatusCode);
 
             _mockAzureBlobStorage.Verify(s => s.CreateBlobContainerAsync(tenant.Name), Times.Once);
         }
@@ -154,7 +154,7 @@ namespace DocumentsUnitTests
             var result = await _tenantsController.DeleteAsync(tenantName);
 
             // Assert
-            Assert.IsType<OkResult>(result);
+            Assert.IsType<NoContentResult>(result);
         }
 
         [Fact]
@@ -185,7 +185,7 @@ namespace DocumentsUnitTests
             var result = await _tenantsController.UndeleteAsync(tenantName);
 
             // Assert
-            Assert.IsType<OkResult>(result);
+            Assert.IsType<NoContentResult>(result);
         }
 
         [Fact]

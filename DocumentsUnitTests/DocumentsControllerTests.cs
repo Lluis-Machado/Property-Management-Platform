@@ -300,7 +300,7 @@ namespace DocumentsUnitTests
             var result = await _documentsController.DeleteAsync(tenantName, documentId);
 
             // Assert
-            Assert.IsType<OkResult>(result);
+            Assert.IsType<NoContentResult>(result);
         }
 
         [Fact]
@@ -336,7 +336,7 @@ namespace DocumentsUnitTests
             var result = await _documentsController.UndeleteAsync(tenantName, documentId);
 
             // Assert
-            Assert.IsType<OkResult>(result);
+            Assert.IsType<NoContentResult>(result);
         }
 
         [Fact]
@@ -372,7 +372,7 @@ namespace DocumentsUnitTests
             var result = await _documentsController.RenameAsync(tenantName, documentId, newDocumentId);
 
             // Assert
-            Assert.IsType<OkResult>(result);
+            Assert.IsType<NoContentResult>(result);
         }
 
         [Fact]

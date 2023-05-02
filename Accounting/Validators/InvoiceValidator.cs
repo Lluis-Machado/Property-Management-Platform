@@ -7,23 +7,23 @@ namespace Accounting.Validators
     {
         public InvoiceValidator()
         {
-            RuleFor(Invoice => Invoice.BusinessPartnerId).Cascade(CascadeMode.Stop)
+            RuleFor(Invoice => Invoice.BusinessPartnerId)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty");
 
-            RuleFor(Invoice => Invoice.RefNumber).Cascade(CascadeMode.Stop)
+            RuleFor(Invoice => Invoice.RefNumber)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty");
 
-            RuleFor(Invoice => Invoice.Date).Cascade(CascadeMode.Stop)
+            RuleFor(Invoice => Invoice.Date)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty");
 
-            RuleFor(Invoice => Invoice.Currency).Cascade(CascadeMode.Stop)
+            RuleFor(Invoice => Invoice.Currency)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty")
                 .Matches(@"[A-Z]+").WithMessage("{PropertyName} has to be in uppercase");
 
-            RuleFor(Invoice => Invoice.GrossAmount).Cascade(CascadeMode.Stop)
+            RuleFor(Invoice => Invoice.GrossAmount)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty");
 
-            RuleFor(Invoice => Invoice.NetAmount).Cascade(CascadeMode.Stop)
+            RuleFor(Invoice => Invoice.NetAmount)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty")
                 .LessThan(x => x.GrossAmount);
         }

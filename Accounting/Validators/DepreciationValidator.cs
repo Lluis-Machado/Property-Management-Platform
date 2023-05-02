@@ -7,13 +7,13 @@ namespace Accounting.Validators
     {
         public DepreciationValidator()
         {
-            RuleFor(Depreciation => Depreciation.FixedAssetId).Cascade(CascadeMode.Stop)
+            RuleFor(Depreciation => Depreciation.FixedAssetId)
                 .NotEmpty().WithMessage("{Propertyname} cannot be empty");
 
-            RuleFor(Depreciation => Depreciation.Period).Cascade(CascadeMode.Stop)
+            RuleFor(Depreciation => Depreciation.Period)
                 .NotEmpty().WithMessage("{Propertyname} cannot be empty");
 
-            RuleFor(Depreciation => Depreciation.Amount).Cascade(CascadeMode.Stop)
+            RuleFor(Depreciation => Depreciation.Amount)
                 .NotEmpty().WithMessage("{Propertyname} cannot be empty")
                 .GreaterThan(0).WithMessage("{PropertyName} has to be greater than 0");
         }

@@ -7,40 +7,40 @@ namespace Accounting.Validators
     {
         public InvoiceLineValidator()
         {
-            RuleFor(Line => Line.LineNumber).Cascade(CascadeMode.Stop)
+            RuleFor(Line => Line.LineNumber)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty")
                 .GreaterThanOrEqualTo(1).WithMessage("{PropertyName} cannot be less than 1");
 
-            RuleFor(Line => Line.ArticleRefNumber).Cascade(CascadeMode.Stop)
+            RuleFor(Line => Line.ArticleRefNumber)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty");
 
-            RuleFor(Line => Line.ArticleName).Cascade(CascadeMode.Stop)
+            RuleFor(Line => Line.ArticleName)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty")
                 .Matches(@"^[\p{Ll}\s]+$").WithMessage("{PropertyName} cannot contain special characters")
                 .Matches(@"^[\p{Ll}\s]{2,256}$").WithMessage("{PropertyName} has to be between 2 and 256 characters long");
 
-            RuleFor(Line => Line.Tax).Cascade(CascadeMode.Stop)
+            RuleFor(Line => Line.Tax)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty")
                 .GreaterThanOrEqualTo(0).WithMessage("{PropertyName} cannot be negative");
 
-            RuleFor(Line => Line.Quantity).Cascade(CascadeMode.Stop)
+            RuleFor(Line => Line.Quantity)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty")
                 .GreaterThanOrEqualTo(1).WithMessage("{PropertyName} cannot be less than 1");
 
-            RuleFor(Line => Line.UnitPrice).Cascade(CascadeMode.Stop)
+            RuleFor(Line => Line.UnitPrice)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty")
                 .GreaterThan(0).WithMessage("{PropertyName} has to be greater than 0");
 
-            RuleFor(Line => Line.TotalPrice).Cascade(CascadeMode.Stop)
+            RuleFor(Line => Line.TotalPrice)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty");
 
-            RuleFor(Line => Line.DateRefFrom).Cascade(CascadeMode.Stop)
+            RuleFor(Line => Line.DateRefFrom)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty");
 
-            RuleFor(Line => Line.DateRefTo).Cascade(CascadeMode.Stop)
+            RuleFor(Line => Line.DateRefTo)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty");
 
-            RuleFor(Line => Line.ExpenseTypeId).Cascade(CascadeMode.Stop)
+            RuleFor(Line => Line.ExpenseTypeId)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty");
         }
     }

@@ -3,7 +3,6 @@ using Authentication.Security;
 using Authentication.Services.Auth0;
 using Authentication.Utils;
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Http;
 
 namespace Authentication.Controllers
 {

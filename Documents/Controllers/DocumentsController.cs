@@ -32,7 +32,7 @@ namespace Documents.Controllers
         public async Task<ActionResult<List<CreateDocumentStatus>>> UploadAsync(string tenantName, IFormFile[] files)
         {
             // empty request validation
-            if (files == null) return BadRequest("Files not found");
+            if (files.Length == 0) return BadRequest("Files not found");
 
             // max nb of files validation
             int maxNbOfFiles = _config.GetValue<int>("Files:MaxNbOfUploadFiles");
@@ -42,7 +42,8 @@ namespace Documents.Controllers
 
             await Parallel.ForEachAsync(files, async (file, CancellationToken) =>
             {
-                HttpStatusCode status = await _azureBlobStorage.UploadAsync(tenantName, file.FileName, file.OpenReadStream());
+                Stream fileStream = file.OpenReadStream();
+                HttpStatusCode status = await _azureBlobStorage.UploadAsync(tenantName, file.FileName, fileStream);
                 documents.Add(new CreateDocumentStatus(file.FileName, status));
             });
 
@@ -75,7 +76,7 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<byte[]>> DownloadAsync(string tenantName, string documentId)
+        public async Task<FileContentResult> DownloadAsync(string tenantName, string documentId)
         {
             byte[] byteArray = await _azureBlobStorage.DownloadBlobAsync(tenantName, documentId);
             return File(byteArray, "application/pdf");
@@ -85,52 +86,52 @@ namespace Documents.Controllers
         [Authorize]
         [HttpDelete]
         [Route("{tenantName}/documents/{documentId}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> DeleteAsync(string tenantName, string documentId)
         {
             await _azureBlobStorage.DeleteBlobAsync(tenantName, documentId);
-            return Ok();
+            return NoContent();
         }
 
         // POST: Undelete document
         [Authorize]
         [HttpPost]
         [Route("{tenantName}/documents/{documentId}/undelete")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UndeleteAsync(string tenantName, string documentId)
         {
             await _azureBlobStorage.UndeleteBlobAsync(tenantName, documentId);
-            return Ok();
+            return NoContent();
         }
 
         // POST: Rename document
         [Authorize]
         [HttpPost]
         [Route("{tenantName}/documents/{documentId}/rename")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> RenameAsync(string tenantName, string documentId, [FromForm] string name)
         {
             await _azureBlobStorage.RenameBlobAsync(tenantName, documentId, name);
-            return Ok();
+            return NoContent();
         }
 
         // POST: Copy document
         [Authorize]
         [HttpPost]
         [Route("{tenantName}/documents/{documentId}/copy")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> CopyAsync(string tenantName, string documentId, [FromForm] string name)
         {
             await _azureBlobStorage.CopyBlobAsync(tenantName, documentId, name);
-            return Ok();
+            return NoContent();
         }
 
     }

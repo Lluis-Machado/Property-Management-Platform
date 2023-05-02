@@ -27,7 +27,7 @@ builder.Services.AddScoped<IBusinessPartnerRepository, BusinessPartnerRepository
 builder.Services.AddScoped<IValidator<BusinessPartner>, BusinessPartnerValidator>();
 
 builder.Services.AddScoped<ITenantRepository, TenantRepository>();
-builder.Services.AddScoped<IValidator<Tenant>, AccountValidator>();
+builder.Services.AddScoped<IValidator<Tenant>, TenantValidator>();
 
 builder.Services.AddScoped<ILoanRepository, LoanRepository>();
 builder.Services.AddScoped<IValidator<Loan>, LoanValidator>();
@@ -82,6 +82,10 @@ builder.Services.AddSwaggerGen(opt =>
 });
 
 var app = builder.Build();
+
+// Global FluentValidation CascadeMode
+ValidatorOptions.Global.DefaultClassLevelCascadeMode = CascadeMode.Stop;
+ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Stop;
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

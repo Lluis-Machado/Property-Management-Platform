@@ -7,11 +7,11 @@ namespace Accounting.Validators
     {
         public DepreciationConfigValidator()
         {
-            RuleFor(config => config.Type).Cascade(CascadeMode.Stop)
+            RuleFor(config => config.Type)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty");
 
 
-            RuleFor(config => config.DepreciationPercent).Cascade(CascadeMode.Stop)
+            RuleFor(config => config.DepreciationPercent)
                 .GreaterThanOrEqualTo(0).WithMessage("{PropertyName} cannot be less than 0");
         }
     }

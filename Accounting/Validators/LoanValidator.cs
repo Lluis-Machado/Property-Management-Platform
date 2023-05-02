@@ -7,10 +7,10 @@ namespace Accounting.Validators
     {
         public LoanValidator()
         {
-            RuleFor(loan => loan.BusinessPartnerID).Cascade(CascadeMode.Stop)
+            RuleFor(loan => loan.BusinessPartnerID)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty");
 
-            RuleFor(loan => loan.Concept).Cascade(CascadeMode.Stop)
+            RuleFor(loan => loan.Concept)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty")
                 .Matches(@"^[\p{L}\s]+$").WithMessage("{PropertyName} cannot contain special characters")
                 .Matches(@"^[\p{L}\s]{2,256}$").WithMessage("{PropertyName} has to be between 2 and 256 characters long");

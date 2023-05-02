@@ -13,7 +13,7 @@ namespace TaxManagement.Repositories
             _context = context;
         }
 
-        public async Task<Guid> InsertDeclarationAsync(Declaration declaration)
+        public async Task<Declaration> InsertDeclarationAsync(Declaration declaration)
         {
             var parameters = new {
                 declaration.DeclarantId,
@@ -35,7 +35,8 @@ namespace TaxManagement.Repositories
             using var connection = _context.CreateConnection();
 
             Guid declarationId = await connection.QuerySingleAsync<Guid>(queryBuilder.ToString(), parameters);
-            return declarationId;
+            declaration.Id = declarationId;
+            return declaration;
         }
 
         public async Task<IEnumerable<Declaration>> GetDeclarationsAsync(Guid? declarantId = null)

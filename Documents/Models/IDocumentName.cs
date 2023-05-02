@@ -2,8 +2,8 @@
 {
     public interface IDocumentName
     {
-        public string? Code { get; set; }
-        public string? Name { get; set; }
-        public string? Extension { get; set; }
+        public string? Code { get; }
+        public string? Name { get; }
+        public string? Extension { get; }
     }
 }

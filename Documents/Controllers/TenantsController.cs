@@ -30,7 +30,6 @@ namespace Tenants.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        [ProducesResponseType((int)HttpStatusCode.Conflict)]
         public async Task<IActionResult> Create([FromBody] Tenant tenant)
         {
             //validations

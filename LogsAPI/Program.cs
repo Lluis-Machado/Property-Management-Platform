@@ -1,33 +1,22 @@
-using FluentValidation;
+using LogsAPI.Models;
+using LogsAPI.Services;
 using Microsoft.OpenApi.Models;
-using Serilog;
-using TaxManagement.Context;
 using TaxManagement.Middelwares;
-using TaxManagement.Models;
-using TaxManagement.Repositories;
-using TaxManagement.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Serilog
-var logger = new LoggerConfiguration()
-  .ReadFrom.Configuration(builder.Configuration)
-  .Enrich.FromLogContext()
-  .CreateLogger();
-builder.Logging.ClearProviders();
-builder.Logging.AddSerilog(logger);
+// Add services to the container.
+builder.Services.Configure<LogDatabaseSettings>(
+    builder.Configuration.GetSection("LogsDatabase"));
 
-// Global error handling
+builder.Services.AddSingleton<LogsService>();
+
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
 
-// Add services to the container.
-builder.Services.AddSingleton<DapperContext>();
-builder.Services.AddScoped<IDeclarationRepository, DeclarationRepository>();
-builder.Services.AddScoped<IDeclarantRepository, DeclarantRepository>();
-builder.Services.AddScoped<IValidator<Declarant>, DeclarantValidator>();
-builder.Services.AddScoped<IValidator<Declaration>, DeclarationValidator>();
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opt =>
 {
     opt.SwaggerDoc("v1", new OpenApiInfo { Title = "MyAPI", Version = "v1" });

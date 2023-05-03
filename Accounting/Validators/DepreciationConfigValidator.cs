@@ -7,7 +7,7 @@ namespace Accounting.Validators
     {
         public DepreciationConfigValidator()
         {
-            RuleFor(config => config.Type)
+            RuleFor(config => config.Name)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty");
 
 

@@ -26,7 +26,7 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,ActivationDate");
             queryBuilder.Append(" ,ActivationAmount");
             queryBuilder.Append(" ,DepreciationConfigId");
-            queryBuilder.Append(" ,DepreciationAmount");
+            queryBuilder.Append(" ,DepreciationAmountPercent");
             queryBuilder.Append(" ,Deleted");
             queryBuilder.Append(" ,CreationDate");
             queryBuilder.Append(" ,LastModificationDate");
@@ -49,7 +49,7 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,ActivationDate");
             queryBuilder.Append(" ,ActivationAmount");
             queryBuilder.Append(" ,DepreciationConfigId");
-            queryBuilder.Append(" ,DepreciationAmount");
+            queryBuilder.Append(" ,DepreciationAmountPercent");
             queryBuilder.Append(" ,Deleted");
             queryBuilder.Append(" ,CreationDate");
             queryBuilder.Append(" ,LastModificationDate");

@@ -4,9 +4,14 @@ namespace Accounting.Models
 {
     public class DepreciationConfig
     {
-        public string Type { get; set; }
+        public string Name { get; set; }
+        public string Type { get; set; }    // TODO: Linear, progressive, etc... ? Save as enum?
         public double DepreciationPercent { get; set; }
+        public int MaxYears { get; set; }
 
+        // These two bools indicate whether the % and years can be user-defined
+        public bool CustomSetPercent { get; set; }
+        public bool CustomSetYears { get; set; }
 
         public Guid Id { get; set; }
         public bool Deleted { get; set; }
@@ -17,7 +22,7 @@ namespace Accounting.Models
         [JsonConstructor]
         public DepreciationConfig()
         {
-            Type = string.Empty;
+            Name = string.Empty;
             LastModificationByUser = string.Empty;
         }
     }

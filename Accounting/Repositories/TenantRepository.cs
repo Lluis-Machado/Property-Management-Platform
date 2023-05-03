@@ -29,10 +29,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" FROM Tenants");
             queryBuilder.Append(" WHERE Id = @tenantId");
 
-            using var connection = _context.CreateConnection();
-
-            Tenant account = await connection.QuerySingleAsync<Tenant>(queryBuilder.ToString(), parameters);
-            return account;
+            return await _context
+                .CreateConnection()
+                .QuerySingleAsync<Tenant>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<IEnumerable<Tenant>> GetTenantsAsync()
@@ -46,13 +45,12 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,LastModificationByUser");
             queryBuilder.Append(" FROM Tenants");
 
-            using var connection = _context.CreateConnection();
-
-            IEnumerable<Tenant> tenants = await connection.QueryAsync<Tenant>(queryBuilder.ToString());
-            return tenants;
+            return await _context
+                .CreateConnection()
+                .QueryAsync<Tenant>(queryBuilder.ToString());
         }
 
-        public async Task<Guid> InsertTenantAsync(Tenant tenant)
+        public async Task<Tenant> InsertTenantAsync(Tenant tenant)
         {
             var parameters = new
             {
@@ -63,15 +61,20 @@ namespace Accounting.Repositories
             queryBuilder.Append("INSERT INTO Tenants (");
             queryBuilder.Append(" Name");
             queryBuilder.Append(" ,LastModificationByUser");
-            queryBuilder.Append(" )OUTPUT INSERTED.Id VALUES(");
+            queryBuilder.Append(" )OUTPUT INSERTED.Id");
+            queryBuilder.Append(" ,INSERTED.Name");
+            queryBuilder.Append(" ,INSERTED.Deleted");
+            queryBuilder.Append(" ,INSERTED.CreationDate");
+            queryBuilder.Append(" ,INSERTED.LastModificationDate");
+            queryBuilder.Append(" ,INSERTED.LastModificationByUser");
+            queryBuilder.Append(" VALUES(");
             queryBuilder.Append(" @Name");
             queryBuilder.Append(" ,@LastModificationByUser");
             queryBuilder.Append(" )");
 
-            using var connection = _context.CreateConnection();
-
-            Guid tenantId = await connection.QuerySingleAsync<Guid>(queryBuilder.ToString(), parameters);
-            return tenantId;
+            return await _context
+                .CreateConnection()
+                .QuerySingleAsync<Tenant>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<int> SetDeleteTenantAsync(Guid id, bool deleted)
@@ -87,10 +90,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" SET Deleted = @deleted");
             queryBuilder.Append(" WHERE Id = @id");
 
-            using var connection = _context.CreateConnection();
-
-            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
-            return rowsAffected;
+            return await _context
+                .CreateConnection()
+                .ExecuteAsync(queryBuilder.ToString(), parameters);
         }
 
         public async Task<int> UpdateTenantAsync(Tenant tenant)
@@ -111,10 +113,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,LastModificationByUser = @LastModificationByUser");
             queryBuilder.Append(" WHERE Id = @Id");
 
-            using var connection = _context.CreateConnection();
-
-            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
-            return rowsAffected;
+            return await _context
+                .CreateConnection()
+                .ExecuteAsync(queryBuilder.ToString(), parameters);
         }
     }
 }

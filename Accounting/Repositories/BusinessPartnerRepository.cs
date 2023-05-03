@@ -25,10 +25,9 @@ namespace Accounting.Repositories
             queryBuilder.Append("SELECT * FROM BusinessPartners");
             queryBuilder.Append(" WHERE Id = @businessPartnerId");
 
-            using var connection = _context.CreateConnection();
-
-            BusinessPartner businessPartner = await connection.QuerySingleAsync<BusinessPartner>(queryBuilder.ToString(), parameters);
-            return businessPartner;
+            return await _context
+                .CreateConnection()
+                .QuerySingleAsync<BusinessPartner>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<IEnumerable<BusinessPartner>> GetBusinessPartnersAsync()
@@ -36,13 +35,12 @@ namespace Accounting.Repositories
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT * FROM BusinessPartners");
 
-            using var connection = _context.CreateConnection();
-
-            IEnumerable<BusinessPartner> businessPartners = await connection.QueryAsync<BusinessPartner>(queryBuilder.ToString());
-            return businessPartners;
+            return await _context
+                .CreateConnection()
+                .QueryAsync<BusinessPartner>(queryBuilder.ToString());
         }
 
-        public async Task<Guid> InsertBusinessPartnerAsync(BusinessPartner businessPartner)
+        public async Task<BusinessPartner> InsertBusinessPartnerAsync(BusinessPartner businessPartner)
         {
             var parameters = new
             {
@@ -59,7 +57,16 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,AccountID");
             queryBuilder.Append(" ,Name");
             queryBuilder.Append(" ,LastModificationByUser");
-            queryBuilder.Append(" )OUTPUT INSERTED.Id VALUES(");
+            queryBuilder.Append(" )OUTPUT INSERTED.Id");
+            queryBuilder.Append(" ,INSERTED.Name");
+            queryBuilder.Append(" ,INSERTED.VATNumber");
+            queryBuilder.Append(" ,INSERTED.AccountId");
+            queryBuilder.Append(" ,INSERTED.Type");
+            queryBuilder.Append(" ,INSERTED.Deleted");
+            queryBuilder.Append(" ,INSERTED.CreationDate");
+            queryBuilder.Append(" ,INSERTED.LastModificationDate");
+            queryBuilder.Append(" ,INSERTED.LastModificationByUser");
+            queryBuilder.Append(" VALUES(");
             queryBuilder.Append(" @Name");
             queryBuilder.Append(" ,@VATNumber");
             queryBuilder.Append(" ,@AccountID");
@@ -67,10 +74,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,@LastModificationByUser");
             queryBuilder.Append(" )");
 
-            using var connection = _context.CreateConnection();
-
-            Guid businessPartnerId = await connection.QuerySingleAsync<Guid>(queryBuilder.ToString(), parameters);
-            return businessPartnerId;
+            return await _context
+                .CreateConnection()
+                .QuerySingleAsync<BusinessPartner>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<int> SetDeleteBusinessPartnerAsync(Guid id, bool deleted)
@@ -86,10 +92,9 @@ namespace Accounting.Repositories
             queryBuilder.Append("SET Deleted = @deleted ");
             queryBuilder.Append(" WHERE Id = @id ");
 
-            using var connection = _context.CreateConnection();
-
-            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
-            return rowsAffected;
+            return await _context
+                .CreateConnection()
+                .ExecuteAsync(queryBuilder.ToString(), parameters);
         }
 
         public async Task<int> UpdateBusinessPartnerAsync(BusinessPartner businessPartner)
@@ -116,10 +121,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,LastModificationDate = @LastModificationDate ");
             queryBuilder.Append(" WHERE Id = @Id ");
 
-            using var connection = _context.CreateConnection();
-
-            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
-            return rowsAffected;
+            return await _context
+                .CreateConnection()
+                .ExecuteAsync(queryBuilder.ToString(), parameters);
         }
     }
 }

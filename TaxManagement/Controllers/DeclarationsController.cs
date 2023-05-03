@@ -52,7 +52,7 @@ namespace TaxManagement.Controllers
         [Route("{declarantId}/declarations")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<List<Declaration>>> GetDeclarationsAsync(Guid declarantId)
+        public async Task<ActionResult<List<Declaration>>> GetAsync(Guid declarantId)
         {
             // declarant validation
             if (!await DeclarantExists(declarantId)) return NotFound("Declarant not found");
@@ -115,7 +115,7 @@ namespace TaxManagement.Controllers
 
         private async Task<bool> DeclarantExists(Guid declarantId)
         {
-            Declarant declarant = await _declarantRepo.GetDeclarantByIdAsync(declarantId);
+            Declarant? declarant = await _declarantRepo.GetDeclarantByIdAsync(declarantId);
             return (declarant != null);
         }
     }

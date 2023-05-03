@@ -121,7 +121,7 @@ namespace AuthenticationUnitTests
         {
             // Arrange
             string userId = "test-user-id";
-            List<string> roles = new List<string> { "test-role" };
+            List<string> roles = new() { "test-role" };
             _mockUsersApi.Setup(api => api.DeleteUserRolesAsync(userId, roles)).Returns(Task.CompletedTask);
 
             // Act

@@ -26,7 +26,7 @@ namespace TaxManagement.Controllers
         [Authorize]
         [HttpPost]
         [Route("{declarantId}/declarations")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<Guid>> CreateAsync([FromBody] Declaration declaration, Guid declarantId)
@@ -42,8 +42,8 @@ namespace TaxManagement.Controllers
 
             // declarant validation
             if(!await DeclarantExists(declarantId)) return NotFound("Declarant not found");
-            Guid declarationId = await _declarationRepo.InsertDeclarationAsync(declaration);
-            return Ok(declarationId);
+            declaration = await _declarationRepo.InsertDeclarationAsync(declaration);
+            return Created($"{declaration.DeclarantId}/declarations/{declaration.Id}", declaration);
         }
 
         // GET: Get declaration(s)
@@ -52,7 +52,7 @@ namespace TaxManagement.Controllers
         [Route("{declarantId}/declarations")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<List<Declaration>>> GetDeclarationsAsync(Guid declarantId)
+        public async Task<ActionResult<List<Declaration>>> GetAsync(Guid declarantId)
         {
             // declarant validation
             if (!await DeclarantExists(declarantId)) return NotFound("Declarant not found");
@@ -64,7 +64,7 @@ namespace TaxManagement.Controllers
         [Authorize]
         [HttpPost]
         [Route("{declarantId}/declarations/{declarationId}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UpdateAsync(Guid declarantId, Guid declarationId, [FromBody] Declaration declaration)
@@ -84,38 +84,38 @@ namespace TaxManagement.Controllers
 
             int result = await _declarationRepo.UpdateDeclarationAsync(declaration);
             if (result == 0) return NotFound("Declaration not found");
-            return Ok();
+            return NoContent();
         }
 
         // DELETE: delete declarantion
         [Authorize]
         [HttpDelete]
         [Route("{declarantId}/declarations/{declarationId}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteAsync(Guid declarantId, Guid declarationId, string user)
         {
             int result = await _declarationRepo.SetDeletedDeclarationAsync(declarationId, user, true);
             if (result == 0) return NotFound("Declaration not found");
-            return Ok();
+            return NoContent();
         }
 
         // POST: undelete declarant
         [Authorize]
         [HttpPost]
         [Route("{declarantId}/declarations/{declarationId}/undelete")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UndeleteAsync(Guid declarantId, Guid declarationId, string user)
         {
             int result = await _declarationRepo.SetDeletedDeclarationAsync(declarationId, user, false);
             if (result == 0) return NotFound("Declaration not found");
-            return Ok();
+            return NoContent();
         }
 
         private async Task<bool> DeclarantExists(Guid declarantId)
         {
-            Declarant declarant = await _declarantRepo.GetDeclarantByIdAsync(declarantId);
+            Declarant? declarant = await _declarantRepo.GetDeclarantByIdAsync(declarantId);
             return (declarant != null);
         }
     }

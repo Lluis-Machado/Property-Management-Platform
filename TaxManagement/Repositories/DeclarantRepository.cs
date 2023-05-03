@@ -13,27 +13,26 @@ namespace TaxManagement.Repositories
             _context = context;
         }
 
-        public async Task<Guid> InsertDeclarantAsync(Declarant declarant)
+        public async Task<Declarant> InsertDeclarantAsync(Declarant declarant)
         {
             var parameters = new
             {
-                declarant.Id,
-                declarant.Name,
-                declarant.Deleted
+                declarant.Name
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("INSERT INTO Declarants (");
             queryBuilder.Append(" Name");
-            queryBuilder.Append(" ,Deleted");
-            queryBuilder.Append(" )OUTPUT INSERTED.Id VALUES(");
+            queryBuilder.Append(")OUTPUT INSERTED.Id");
+            queryBuilder.Append(",INSERTED.Name");
+            queryBuilder.Append(",INSERTED.Deleted");
+            queryBuilder.Append(" VALUES(");
             queryBuilder.Append(" @Name");
-            queryBuilder.Append(" ,@Deleted");
             queryBuilder.Append(" )");
 
             using var connection = _context.CreateConnection();
 
-            Guid declarantId = await connection.QuerySingleAsync<Guid>(queryBuilder.ToString(), parameters);
-            return declarantId;
+            declarant = await connection.QuerySingleAsync<Declarant>(queryBuilder.ToString(), parameters);
+            return declarant;
         }
 
         public async Task<IEnumerable<Declarant>> GetDeclarantsAsync()
@@ -49,7 +48,7 @@ namespace TaxManagement.Repositories
             return declarants;
         }
 
-        public async Task<Declarant> GetDeclarantByIdAsync(Guid id)
+        public async Task<Declarant?> GetDeclarantByIdAsync(Guid id)
         {
             var parameters = new
             {
@@ -63,7 +62,7 @@ namespace TaxManagement.Repositories
 
             using var connection = _context.CreateConnection();
 
-            Declarant declarant = await connection.QuerySingleAsync<Declarant>(queryBuilder.ToString(), parameters);
+            Declarant? declarant = await connection.QuerySingleAsync<Declarant?>(queryBuilder.ToString(), parameters);
             return declarant;
         }
 

@@ -24,11 +24,11 @@ namespace TaxManagement.Controllers
         [Authorize]
         [HttpPost]
         [Route("declarants")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
 
-        public async Task<ActionResult<Guid>> CreateAsync([FromBody] Declarant declarant)
+        public async Task<ActionResult<Declarant>> CreateAsync([FromBody] Declarant declarant)
         {
             // request validations
             if (declarant == null) return BadRequest("Incorrect body format");
@@ -38,7 +38,8 @@ namespace TaxManagement.Controllers
             ValidationResult validationResult  = await _declarantValidator.ValidateAsync(declarant);
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
-            return Ok(await _declarantRepo.InsertDeclarantAsync(declarant));
+            declarant = await _declarantRepo.InsertDeclarantAsync(declarant);
+            return Created($"declarants/{declarant.Id}", declarant);
         }
 
         // GET: Get declarants(s)
@@ -57,7 +58,7 @@ namespace TaxManagement.Controllers
         [Authorize]
         [HttpPost]
         [Route("declarants/{declarantId}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
 
@@ -75,33 +76,33 @@ namespace TaxManagement.Controllers
 
             int result = await _declarantRepo.UpdateDeclarantAsync(declarant);
             if(result == 0) return NotFound("Declarant not found");
-            return Ok();
+            return NoContent();
         }
 
         // DELETE: delete declarant
         [Authorize]
         [HttpDelete]
         [Route("declarants/{declarantId}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteAsync(Guid declarantId)
         {
             int result = await _declarantRepo.SetDeleteDeclarantAsync(declarantId, true);
             if (result == 0) return NotFound("Declarant not found");
-            return Ok();
+            return NoContent();
         }
 
         // POST: undelete declarant
         [Authorize]
         [HttpPost]
         [Route("declarants/{declarantId}/undelete")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UndeleteAsync(Guid declarantId)
         {
             int result = await _declarantRepo.SetDeleteDeclarantAsync(declarantId, false);
             if (result == 0) return NotFound("Declarant not found");
-            return Ok();
+            return NoContent();
         }
     }
 }

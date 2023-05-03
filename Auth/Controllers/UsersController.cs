@@ -1,6 +1,6 @@
 ﻿using Authentication.Models;
 using Authentication.Security;
-using Authentication.Services.Auth0;
+using AuthenticationAPI.Services.Auth0.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -10,9 +10,9 @@ namespace Authentication.Controllers
     [Route("[controller]")]
     public class UsersController : ControllerBase
     {
-        private readonly UsersAPI _usersAPI;
+        private readonly IUsersAPI _usersAPI;
 
-        public UsersController(UsersAPI usersAPI)
+        public UsersController(IUsersAPI usersAPI)
         {
             _usersAPI = usersAPI;
         }

@@ -1,6 +1,6 @@
 ﻿using Authentication.Models;
 using Authentication.Security;
-using Authentication.Services.Auth0;
+using AuthenticationAPI.Services.Auth0.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -10,9 +10,9 @@ namespace Authentication.Controllers
     [Route("[controller]")]
     public class RolesController : ControllerBase
     {
-        private readonly RolesAPI _rolesAPI;
+        private readonly IRolesAPI _rolesAPI;
 
-        public RolesController(RolesAPI rolesAPI)
+        public RolesController(IRolesAPI rolesAPI)
         {
             _rolesAPI = rolesAPI;
         }

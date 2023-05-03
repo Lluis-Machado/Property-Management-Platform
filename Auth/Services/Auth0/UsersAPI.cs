@@ -1,10 +1,11 @@
 ﻿using Authentication.Models;
 using Authentication.Utils;
+using AuthenticationAPI.Services.Auth0.Interfaces;
 using System.Text.Json;
 
 namespace Authentication.Services.Auth0
 {
-    public class UsersAPI
+    public class UsersAPI : IUsersAPI
     {
         private readonly HttpClient _httpClient;
         private readonly Auth0Settings _auth0Settings;

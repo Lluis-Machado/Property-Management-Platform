@@ -1,6 +1,7 @@
 using Authentication.Middlewares;
 using Authentication.Models;
 using Authentication.Services.Auth0;
+using AuthenticationAPI.Services.Auth0.Interfaces;
 using Microsoft.Extensions.Options;
 using Serilog;
 
@@ -25,9 +26,9 @@ builder.Services.AddSwaggerGen();
 
 // Add Auth0 configuration and services
 builder.Services.Configure<Auth0Settings>(builder.Configuration.GetSection("Auth0"));
-builder.Services.AddHttpClient<PublicTokenAPI>();
-builder.Services.AddHttpClient<UsersAPI>();
-builder.Services.AddHttpClient<RolesAPI>();
+builder.Services.AddHttpClient<IPublicTokenAPI, PublicTokenAPI>();
+builder.Services.AddHttpClient<IUsersAPI, UsersAPI>();
+builder.Services.AddHttpClient<IRolesAPI, RolesAPI>();
 builder.Services.AddSingleton(provider =>
 {
     var auth0Settings = provider.GetRequiredService<IOptions<Auth0Settings>>().Value;

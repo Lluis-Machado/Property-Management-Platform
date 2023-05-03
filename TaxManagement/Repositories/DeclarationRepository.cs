@@ -25,17 +25,23 @@ namespace TaxManagement.Repositories
             queryBuilder.Append(" DeclarantId");
             queryBuilder.Append(",CreateUser");
             queryBuilder.Append(",UpdateUser");
-            queryBuilder.Append(" )OUTPUT INSERTED.Id VALUES(");
+            queryBuilder.Append(")OUTPUT INSERTED.Id");
+            queryBuilder.Append(",INSERTED.DeclarantId");
+            queryBuilder.Append(",INSERTED.Status");
+            queryBuilder.Append(",INSERTED.Deleted");
+            queryBuilder.Append(",INSERTED.CreateUser");
+            queryBuilder.Append(",INSERTED.CreateDate");
+            queryBuilder.Append(",INSERTED.UpdateUser");
+            queryBuilder.Append(",INSERTED.UpdateDate");
+            queryBuilder.Append(" VALUES(");
             queryBuilder.Append(" @DeclarantId");
             queryBuilder.Append(",@CreateUser");
             queryBuilder.Append(",@UpdateUser");
             queryBuilder.Append(" )");
 
-
             using var connection = _context.CreateConnection();
 
-            Guid declarationId = await connection.QuerySingleAsync<Guid>(queryBuilder.ToString(), parameters);
-            declaration.Id = declarationId;
+            declaration = await connection.QuerySingleAsync<Declaration>(queryBuilder.ToString(), parameters);
             return declaration;
         }
 

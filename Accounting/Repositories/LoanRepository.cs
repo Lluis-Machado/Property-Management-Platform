@@ -33,10 +33,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" FROM Loans");
             queryBuilder.Append(" WHERE Id = @loanId");
 
-            using var connection = _context.CreateConnection();
-
-            Loan loan = await connection.QuerySingleAsync<Loan>(queryBuilder.ToString(), parameters);
-            return loan;
+            return await _context
+                .CreateConnection()
+                .QuerySingleAsync<Loan>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<IEnumerable<Loan>> GetLoansAsync()
@@ -53,13 +52,12 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,LastModificationByUser");
             queryBuilder.Append(" FROM Loans");
 
-            using var connection = _context.CreateConnection();
-
-            IEnumerable<Loan> loans = await connection.QueryAsync<Loan>(queryBuilder.ToString());
-            return loans;
+            return await _context
+                .CreateConnection()
+                .QueryAsync<Loan>(queryBuilder.ToString());
         }
 
-        public async Task<Guid> InsertLoanAsync(Loan loan)
+        public async Task<Loan> InsertLoanAsync(Loan loan)
         {
             var parameters = new
             {
@@ -76,7 +74,16 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,Amount");
             queryBuilder.Append(" ,AmountPaid");
             queryBuilder.Append(" ,LastModificationByUser");
-            queryBuilder.Append(" )OUTPUT INSERTED.Id VALUES(");
+            queryBuilder.Append(" )OUTPUT INSERTED.Id");
+            queryBuilder.Append(" ,INSERTED.BusinessPartnerId");
+            queryBuilder.Append(" ,INSERTED.Concept");
+            queryBuilder.Append(" ,INSERTED.Amount");
+            queryBuilder.Append(" ,INSERTED.AmountPaid");
+            queryBuilder.Append(" ,INSERTED.Deleted");
+            queryBuilder.Append(" ,INSERTED.CreationDate");
+            queryBuilder.Append(" ,INSERTED.LastModificationDate");
+            queryBuilder.Append(" ,INSERTED.LastModificationByUser");
+            queryBuilder.Append(" VALUES(");
             queryBuilder.Append(" @BusinessPartnerID");
             queryBuilder.Append(" ,@Concept");
             queryBuilder.Append(" ,@Amount");
@@ -84,10 +91,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,@LastModificationByUser");
             queryBuilder.Append(" )");
 
-            using var connection = _context.CreateConnection();
-
-            Guid loanId = await connection.QuerySingleAsync<Guid>(queryBuilder.ToString(), parameters);
-            return loanId;
+            return await _context
+                .CreateConnection()
+                .QuerySingleAsync<Loan>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<int> SetDeleteLoanAsync(Guid id, bool deleted)
@@ -103,10 +109,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" SET Deleted = @deleted");
             queryBuilder.Append(" WHERE Id = @id");
 
-            using var connection = _context.CreateConnection();
-
-            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
-            return rowsAffected;
+            return await _context
+                .CreateConnection()
+                .ExecuteAsync(queryBuilder.ToString(), parameters);
         }
 
         public async Task<int> UpdateLoanAsync(Loan loan)
@@ -133,10 +138,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,LastModificationDate = @LastModificationDate");
             queryBuilder.Append(" WHERE Id = @Id");
 
-            using var connection = _context.CreateConnection();
-
-            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
-            return rowsAffected;
+            return await _context
+                .CreateConnection()
+                .ExecuteAsync(queryBuilder.ToString(), parameters);
         }
     }
 }

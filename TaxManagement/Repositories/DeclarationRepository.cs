@@ -5,7 +5,7 @@ using TaxManagement.Models;
 
 namespace TaxManagement.Repositories
 {
-    public class DeclarationRepository :IDeclarationRepository
+    public class DeclarationRepository : IDeclarationRepository
     {
         private readonly DapperContext _context;
         public DeclarationRepository(DapperContext context)
@@ -15,7 +15,8 @@ namespace TaxManagement.Repositories
 
         public async Task<Declaration> InsertDeclarationAsync(Declaration declaration)
         {
-            var parameters = new {
+            var parameters = new
+            {
                 declaration.DeclarantId,
                 declaration.CreateUser,
                 declaration.UpdateUser,
@@ -58,7 +59,7 @@ namespace TaxManagement.Repositories
             queryBuilder.Append(",UpdateUser");
             queryBuilder.Append(",UpdateDate");
             queryBuilder.Append(" FROM Declarations");
-            if(declarantId != null) queryBuilder.Append(" WHERE DeclarantId = @declarantId");
+            if (declarantId != null) queryBuilder.Append(" WHERE DeclarantId = @declarantId");
 
             using var connection = _context.CreateConnection();
             var declarations = await connection.QueryAsync<Declaration>(queryBuilder.ToString(), parameters);
@@ -83,7 +84,7 @@ namespace TaxManagement.Repositories
             queryBuilder.Append(" ,UpdateDate");
             queryBuilder.Append(" FROM Declarations");
             queryBuilder.Append(" WHERE Id = @id");
-            if(declarantId != null) queryBuilder.Append(" AND DeclarantId = @declarantId");
+            if (declarantId != null) queryBuilder.Append(" AND DeclarantId = @declarantId");
 
             using var connection = _context.CreateConnection();
 

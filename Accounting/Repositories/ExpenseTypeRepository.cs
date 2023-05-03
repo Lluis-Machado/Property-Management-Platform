@@ -30,10 +30,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" FROM ExpenseTypes");
             queryBuilder.Append(" WHERE Id = @expenseTypeId");
 
-            using var connection = _context.CreateConnection();
-
-            ExpenseType expenseType = await connection.QuerySingleAsync<ExpenseType>(queryBuilder.ToString(), parameters);
-            return expenseType;
+            return await _context
+                .CreateConnection()
+                .QuerySingleAsync<ExpenseType>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<IEnumerable<ExpenseType>> GetExpenseTypesAsync()
@@ -48,13 +47,12 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,LastModificationByUser");
             queryBuilder.Append(" FROM ExpenseTypes");
 
-            using var connection = _context.CreateConnection();
-
-            IEnumerable<ExpenseType> expenseTypes = await connection.QueryAsync<ExpenseType>(queryBuilder.ToString());
-            return expenseTypes;
+            return await _context
+                .CreateConnection()
+                .QueryAsync<ExpenseType>(queryBuilder.ToString());
         }
 
-        public async Task<Guid> InsertExpenseTypeAsync(ExpenseType expenseType)
+        public async Task<ExpenseType> InsertExpenseTypeAsync(ExpenseType expenseType)
         {
             var parameters = new
             {
@@ -67,16 +65,23 @@ namespace Accounting.Repositories
             queryBuilder.Append(" Code");
             queryBuilder.Append(" ,Description");
             queryBuilder.Append(" ,LastModificationByUser");
-            queryBuilder.Append(" )OUTPUT INSERTED.Id VALUES(");
+            queryBuilder.Append(" )OUTPUT INSERTED.Id");
+            queryBuilder.Append(" ,INSERTED.Id");
+            queryBuilder.Append(" ,INSERTED.Code");
+            queryBuilder.Append(" ,INSERTED.Description");
+            queryBuilder.Append(" ,INSERTED.Deleted");
+            queryBuilder.Append(" ,INSERTED.CreationDate");
+            queryBuilder.Append(" ,INSERTED.LastModificationDate");
+            queryBuilder.Append(" ,INSERTED.LastModificationByUser");
+            queryBuilder.Append(" VALUES(");
             queryBuilder.Append(" @Code");
             queryBuilder.Append(" ,@Description");
             queryBuilder.Append(" ,@LastModificationByUser");
             queryBuilder.Append(" )");
 
-            using var connection = _context.CreateConnection();
-
-            Guid expenseTypeId = await connection.QuerySingleAsync<Guid>(queryBuilder.ToString(), parameters);
-            return expenseTypeId;
+            return await _context
+                .CreateConnection()
+                .QuerySingleAsync<ExpenseType>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<int> SetDeleteExpenseTypeAsync(Guid id, bool deleted)
@@ -92,10 +97,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" SET Deleted = @deleted");
             queryBuilder.Append(" WHERE Id = @id");
 
-            using var connection = _context.CreateConnection();
-
-            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
-            return rowsAffected;
+            return await _context
+                .CreateConnection()
+                .ExecuteAsync(queryBuilder.ToString(), parameters);
         }
 
         public async Task<int> UpdateExpenseTypeAsync(ExpenseType expenseType)
@@ -117,11 +121,10 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,LastModificationByUser = @LastModificationByUser");
             queryBuilder.Append(" ,LastModificationDate = @LastModificationDate");
             queryBuilder.Append(" WHERE Id = @Id");
-
-            using var connection = _context.CreateConnection();
-
-            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
-            return rowsAffected;
+            
+            return await _context
+                .CreateConnection()
+                .ExecuteAsync(queryBuilder.ToString(), parameters);
         }
     }
 }

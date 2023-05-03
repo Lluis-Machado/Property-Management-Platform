@@ -31,10 +31,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" FROM Depreciations");
             queryBuilder.Append(" WHERE Id = @depreciationId");
 
-            using var connection = _context.CreateConnection();
-
-            Depreciation depreciation = await connection.QuerySingleAsync<Depreciation>(queryBuilder.ToString(), parameters);
-            return depreciation;
+            return await _context.
+                CreateConnection().
+                QuerySingleAsync<Depreciation>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<IEnumerable<Depreciation>> GetDepreciationsAsync()
@@ -50,13 +49,12 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,LastModificationByUser");
             queryBuilder.Append(" FROM Depreciations");
 
-            using var connection = _context.CreateConnection();
-
-            IEnumerable<Depreciation> depreciations = await connection.QueryAsync<Depreciation>(queryBuilder.ToString());
-            return depreciations;
+            return await _context
+                .CreateConnection()
+                .QueryAsync<Depreciation>(queryBuilder.ToString());
         }
 
-        public async Task<Guid> InsertDepreciationAsync(Depreciation depreciation)
+        public async Task<Depreciation> InsertDepreciationAsync(Depreciation depreciation)
         {
             var parameters = new
             {
@@ -71,17 +69,24 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,Period");
             queryBuilder.Append(" ,Amount");
             queryBuilder.Append(" ,LastModificationByUser");
-            queryBuilder.Append(" )OUTPUT INSERTED.Id VALUES(");
+            queryBuilder.Append(" )OUTPUT INSERTED.Id");
+            queryBuilder.Append(" ,INSERTED.FixedAssetId");
+            queryBuilder.Append(" ,INSERTED.Period");
+            queryBuilder.Append(" ,INSERTED.Amount");
+            queryBuilder.Append(" ,INSERTED.Deleted");
+            queryBuilder.Append(" ,INSERTED.CreationDate");
+            queryBuilder.Append(" ,INSERTED.LastModificationDate");
+            queryBuilder.Append(" ,INSERTED.LastModificationByUser");
+            queryBuilder.Append(" VALUES(");
             queryBuilder.Append(" @FixedAssetId");
             queryBuilder.Append(" ,@Period");
             queryBuilder.Append(" ,@Amount");
             queryBuilder.Append(" ,@LastModificationByUser");
             queryBuilder.Append(" )");
 
-            using var connection = _context.CreateConnection();
-
-            Guid depreciationId = await connection.QuerySingleAsync<Guid>(queryBuilder.ToString(), parameters);
-            return depreciationId;
+            return await _context
+                .CreateConnection()
+                .QuerySingleAsync<Depreciation>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<int> SetDeleteDepreciationAsync(Guid id, bool deleted)
@@ -97,10 +102,9 @@ namespace Accounting.Repositories
             queryBuilder.Append("SET Deleted = @deleted ");
             queryBuilder.Append(" WHERE Id = @id ");
 
-            using var connection = _context.CreateConnection();
-
-            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
-            return rowsAffected;
+            return await _context
+                .CreateConnection()
+                .ExecuteAsync(queryBuilder.ToString(), parameters);
         }
 
         public async Task<int> UpdateDepreciationAsync(Depreciation depreciation)
@@ -125,10 +129,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,LastModificationByUser = @LastModificationByUser ");
             queryBuilder.Append(" WHERE Id = @Id ");
 
-            using var connection = _context.CreateConnection();
-
-            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
-            return rowsAffected;
+            return await _context
+                .CreateConnection()
+                .ExecuteAsync(queryBuilder.ToString(), parameters);
         }
     }
 }

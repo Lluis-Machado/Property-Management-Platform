@@ -30,10 +30,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" FROM DepreciationConfigs");
             queryBuilder.Append(" WHERE Id = @depreciationConfigId");
 
-            using var connection = _context.CreateConnection();
-
-            DepreciationConfig depreciationConfig = await connection.QuerySingleAsync<DepreciationConfig>(queryBuilder.ToString(), parameters);
-            return depreciationConfig;
+            return await _context
+                .CreateConnection()
+                .QuerySingleAsync<DepreciationConfig>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<IEnumerable<DepreciationConfig>> GetDepreciationConfigsAsync()
@@ -50,11 +49,12 @@ namespace Accounting.Repositories
 
             using var connection = _context.CreateConnection();
 
-            IEnumerable<DepreciationConfig> depreciationConfigs = await connection.QueryAsync<DepreciationConfig>(queryBuilder.ToString());
-            return depreciationConfigs;
+            return await _context
+                 .CreateConnection()
+                 .QueryAsync<DepreciationConfig>(queryBuilder.ToString());
         }
 
-        public async Task<Guid> InsertDepreciationConfigAsync(DepreciationConfig DepreciationConfig)
+        public async Task<DepreciationConfig> InsertDepreciationConfigAsync(DepreciationConfig DepreciationConfig)
         {
             var parameters = new
             {
@@ -67,16 +67,22 @@ namespace Accounting.Repositories
             queryBuilder.Append(" Type");
             queryBuilder.Append(" ,DepreciationPercent");
             queryBuilder.Append(" ,LastModificationByUser");
-            queryBuilder.Append(" )OUTPUT INSERTED.Id VALUES(");
+            queryBuilder.Append(" )OUTPUT INSERTED.Id");
+            queryBuilder.Append(" ,INSERTED.Type");
+            queryBuilder.Append(" ,INSERTED.DepreciationPercent");
+            queryBuilder.Append(" ,INSERTED.Deleted");
+            queryBuilder.Append(" ,INSERTED.CreationDate");
+            queryBuilder.Append(" ,INSERTED.LastModificationDate");
+            queryBuilder.Append(" ,INSERTED.LastModificationByUser");
+            queryBuilder.Append(" VALUES(");
             queryBuilder.Append(" @Type");
             queryBuilder.Append(" ,@DepreciationPercent");
             queryBuilder.Append(" ,@LastModificationByUser");
             queryBuilder.Append(" )");
 
-            using var connection = _context.CreateConnection();
-
-            Guid DepreciationConfigId = await connection.QuerySingleAsync<Guid>(queryBuilder.ToString(), parameters);
-            return DepreciationConfigId;
+            return await _context
+                .CreateConnection()
+                .QuerySingleAsync<DepreciationConfig>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<int> SetDeleteDepereciationConfigAsync(Guid id, bool deleted)
@@ -92,10 +98,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" SET Deleted = @deleted ");
             queryBuilder.Append(" WHERE Id = @id");
 
-            using var connection = _context.CreateConnection();
-
-            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
-            return rowsAffected;
+            return await _context
+                .CreateConnection()
+                .ExecuteAsync(queryBuilder.ToString(), parameters);
         }
 
         public async Task<int> UpdateDepreciationConfigAsync(DepreciationConfig depreciationConfig)
@@ -118,10 +123,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,LastModificationDate = @LastModificationDate");
             queryBuilder.Append(" WHERE Id = @Id");
 
-            using var connection = _context.CreateConnection();
-
-            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
-            return rowsAffected;
+            return await _context
+                .CreateConnection()
+                .ExecuteAsync(queryBuilder.ToString(), parameters);
         }
 
     }

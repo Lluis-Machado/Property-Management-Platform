@@ -34,10 +34,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,LastModificationByUser");
             queryBuilder.Append(" FROM InvoiceLines");
 
-            using var connection = _context.CreateConnection();
-
-            IEnumerable<InvoiceLine> invoiceLines = await connection.QueryAsync<InvoiceLine>(queryBuilder.ToString());
-            return invoiceLines;
+            return await _context
+                .CreateConnection()
+                .QueryAsync<InvoiceLine>(queryBuilder.ToString());
         }
 
         public async Task<InvoiceLine> GetInvoiceLineByIdAsync(Guid invoiceLineId)
@@ -66,13 +65,12 @@ namespace Accounting.Repositories
             queryBuilder.Append(" FROM InvoiceLines");
             queryBuilder.Append(" WHERE Id = @invoiceLineId");
 
-            using var connection = _context.CreateConnection();
-
-            InvoiceLine invoiceLine = await connection.QuerySingleAsync<InvoiceLine>(queryBuilder.ToString(), parameters);
-            return invoiceLine;
+            return await _context
+                .CreateConnection()
+                .QuerySingleAsync<InvoiceLine>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<Guid> InsertInvoiceLineAsync(InvoiceLine invoiceLine)
+        public async Task<InvoiceLine> InsertInvoiceLineAsync(InvoiceLine invoiceLine)
         {
             var parameters = new
             {
@@ -101,7 +99,23 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,DateRefTo");
             queryBuilder.Append(" ,ExpenseTypeId");
             queryBuilder.Append(" ,LastModificationByUser");
-            queryBuilder.Append(" )OUTPUT INSERTED.Id VALUES(");
+            queryBuilder.Append(" )OUTPUT INSERTED.Id");
+            queryBuilder.Append(" ,INSERTED.LineNumber");
+            queryBuilder.Append(" ,INSERTED.ArticleRefNumber");
+            queryBuilder.Append(" ,INSERTED.ArticleName");
+            queryBuilder.Append(" ,INSERTED.Tax");
+            queryBuilder.Append(" ,INSERTED.Quantity");
+            queryBuilder.Append(" ,INSERTED.UnitPrice");
+            queryBuilder.Append(" ,INSERTED.TotalPrice");
+            queryBuilder.Append(" ,INSERTED.DateRefFrom");
+            queryBuilder.Append(" ,INSERTED.DateRefTo");
+            queryBuilder.Append(" ,INSERTED.ExpenseTypeId");
+            queryBuilder.Append(" ,INSERTED.InvoiceId");
+            queryBuilder.Append(" ,INSERTED.Deleted");
+            queryBuilder.Append(" ,INSERTED.CreationDate");
+            queryBuilder.Append(" ,INSERTED.LastModificationDate");
+            queryBuilder.Append(" ,INSERTED.LastModificationByUser");
+            queryBuilder.Append(" VALUES(");
             queryBuilder.Append(" @LineNumber");
             queryBuilder.Append(" ,@ArticleRefNumber");
             queryBuilder.Append(" ,@ArticleName");
@@ -115,10 +129,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,@LastModificationByUser");
             queryBuilder.Append(" )");
 
-            using var connection = _context.CreateConnection();
-
-            Guid invoiceLineId = await connection.QuerySingleAsync<Guid>(queryBuilder.ToString(), parameters);
-            return invoiceLineId;
+            return await _context
+                .CreateConnection()
+                .QuerySingleAsync<InvoiceLine>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<int> SetDeleteInvoiceLineAsync(Guid id, bool deleted)
@@ -134,10 +147,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" SET Deleted = @deleted");
             queryBuilder.Append(" WHERE Id = @id");
 
-            using var connection = _context.CreateConnection();
-
-            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
-            return rowsAffected;
+            return await _context
+                .CreateConnection()
+                .ExecuteAsync(queryBuilder.ToString(), parameters);
         }
 
         public async Task<int> UpdateInvoiceLineAsync(InvoiceLine invoiceLine)
@@ -177,10 +189,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,LastModificationDate = @LastModificationDate");
             queryBuilder.Append(" WHERE Id = @Id");
 
-            using var connection = _context.CreateConnection();
-
-            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
-            return rowsAffected;
+            return await _context
+                .CreateConnection()
+                .ExecuteAsync(queryBuilder.ToString(), parameters);
         }
     }
 }

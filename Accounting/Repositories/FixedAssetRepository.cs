@@ -34,10 +34,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" FROM FixedAssets");
             queryBuilder.Append(" WHERE Id = @fixedAssetId");
 
-            using var connection = _context.CreateConnection();
-
-            FixedAsset fixedAsset = await connection.QuerySingleAsync<FixedAsset>(queryBuilder.ToString(), parameters);
-            return fixedAsset;
+            return await _context
+                .CreateConnection()
+                .QuerySingleAsync<FixedAsset>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<IEnumerable<FixedAsset>> GetFixedAssetsAsync()
@@ -56,13 +55,12 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,LastModificationByUser");
             queryBuilder.Append(" FROM FixedAssets");
 
-            using var connection = _context.CreateConnection();
-
-            IEnumerable<FixedAsset> fixedAssets = await connection.QueryAsync<FixedAsset>(queryBuilder.ToString());
-            return fixedAssets;
+            return await _context
+                .CreateConnection()
+                .QueryAsync<FixedAsset>(queryBuilder.ToString());
         }
 
-        public async Task<Guid> InsertFixedAssetAsync(FixedAsset fixedAsset)
+        public async Task<FixedAsset> InsertFixedAssetAsync(FixedAsset fixedAsset)
         {
             var parameters = new
             {
@@ -81,7 +79,18 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,ActivationAmount");
             queryBuilder.Append(" ,DepreciationConfigId");
             queryBuilder.Append(" ,LastModificationByUser");
-            queryBuilder.Append(" )OUTPUT INSERTED.Id VALUES(");
+            queryBuilder.Append(" )OUTPUT INSERTED.Id");
+            queryBuilder.Append(" ,INSERTED.InvoiceId");
+            queryBuilder.Append(" ,INSERTED.Name");
+            queryBuilder.Append(" ,INSERTED.ActivationDate");
+            queryBuilder.Append(" ,INSERTED.ActivationAmount");
+            queryBuilder.Append(" ,INSERTED.DepreciationConfigId");
+            queryBuilder.Append(" ,INSERTED.DepreciationAmount");
+            queryBuilder.Append(" ,INSERTED.Deleted");
+            queryBuilder.Append(" ,INSERTED.CreationDate");
+            queryBuilder.Append(" ,INSERTED.LastModificationDate");
+            queryBuilder.Append(" ,INSERTED.LastModificationByUser");
+            queryBuilder.Append(" VALUES(");
             queryBuilder.Append(" @InvoiceId");
             queryBuilder.Append(" ,@Name");
             queryBuilder.Append(" ,@ActivationDate");
@@ -90,10 +99,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,@LastModificationByUser");
             queryBuilder.Append(" )");
 
-            using var connection = _context.CreateConnection();
-
-            Guid fixedAssetId = await connection.QuerySingleAsync<Guid>(queryBuilder.ToString(), parameters);
-            return fixedAssetId;
+            return await _context
+                .CreateConnection()
+                .QuerySingleAsync<FixedAsset>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<int> SetDeleteFixedAssetAsync(Guid id, bool deleted)
@@ -109,10 +117,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" SET Deleted = @deleted");
             queryBuilder.Append(" WHERE Id = @id");
 
-            using var connection = _context.CreateConnection();
-
-            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
-            return rowsAffected;
+            return await _context
+                .CreateConnection()
+                .ExecuteAsync(queryBuilder.ToString(), parameters);
         }
 
         public async Task<int> UpdateFixedAssetAsync(FixedAsset fixedAsset)
@@ -141,10 +148,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,LastModificationDate = @LastModificationDate");
             queryBuilder.Append(" WHERE Id = @Id");
 
-            using var connection = _context.CreateConnection();
-
-            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
-            return rowsAffected;
+            return await _context
+                .CreateConnection()
+                .ExecuteAsync(queryBuilder.ToString(), parameters);
         }
     }
 }

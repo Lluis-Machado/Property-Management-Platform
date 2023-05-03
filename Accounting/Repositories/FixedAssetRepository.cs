@@ -20,7 +20,18 @@ namespace Accounting.Repositories
                 fixedAssetId
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT * FROM FixedAssets");
+            queryBuilder.Append("SELECT Id");
+            queryBuilder.Append(" ,InvoiceId");
+            queryBuilder.Append(" ,Name");
+            queryBuilder.Append(" ,ActivationDate");
+            queryBuilder.Append(" ,ActivationAmount");
+            queryBuilder.Append(" ,DepreciationConfigId");
+            queryBuilder.Append(" ,DepreciationAmount");
+            queryBuilder.Append(" ,Deleted");
+            queryBuilder.Append(" ,CreationDate");
+            queryBuilder.Append(" ,LastModificationDate");
+            queryBuilder.Append(" ,LastModificationByUser");
+            queryBuilder.Append(" FROM FixedAssets");
             queryBuilder.Append(" WHERE Id = @fixedAssetId");
 
             using var connection = _context.CreateConnection();
@@ -32,7 +43,18 @@ namespace Accounting.Repositories
         public async Task<IEnumerable<FixedAsset>> GetFixedAssetsAsync()
         {
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT * FROM FixedAssets");
+            queryBuilder.Append("SELECT Id");
+            queryBuilder.Append(" ,InvoiceId");
+            queryBuilder.Append(" ,Name");
+            queryBuilder.Append(" ,ActivationDate");
+            queryBuilder.Append(" ,ActivationAmount");
+            queryBuilder.Append(" ,DepreciationConfigId");
+            queryBuilder.Append(" ,DepreciationAmount");
+            queryBuilder.Append(" ,Deleted");
+            queryBuilder.Append(" ,CreationDate");
+            queryBuilder.Append(" ,LastModificationDate");
+            queryBuilder.Append(" ,LastModificationByUser");
+            queryBuilder.Append(" FROM FixedAssets");
 
             using var connection = _context.CreateConnection();
 
@@ -83,9 +105,9 @@ namespace Accounting.Repositories
             };
 
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE FixedAssets ");
-            queryBuilder.Append("SET Deleted = @deleted ");
-            queryBuilder.Append(" WHERE Id = @id ");
+            queryBuilder.Append("UPDATE FixedAssets");
+            queryBuilder.Append(" SET Deleted = @deleted");
+            queryBuilder.Append(" WHERE Id = @id");
 
             using var connection = _context.CreateConnection();
 
@@ -108,16 +130,16 @@ namespace Accounting.Repositories
                 LastModificationDate = DateTime.Now,
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE FixedAssets ");
-            queryBuilder.Append("SET InvoiceId = @InvoiceId ");
-            queryBuilder.Append(" ,Name = @Name ");
-            queryBuilder.Append(" ,ActivationDate = @ActivationDate ");
-            queryBuilder.Append(" ,ActivationAmount = @ActivationAmount ");
-            queryBuilder.Append(" ,DepreciationConfigId = @DepreciationConfigId ");
-            queryBuilder.Append(" ,Deleted = @Deleted ");
-            queryBuilder.Append(" ,LastModificationByUser = @LastModificationByUser ");
-            queryBuilder.Append(" ,LastModificationDate = @LastModificationDate ");
-            queryBuilder.Append(" WHERE Id = @Id ");
+            queryBuilder.Append("UPDATE FixedAssets");
+            queryBuilder.Append(" SET InvoiceId = @InvoiceId");
+            queryBuilder.Append(" ,Name = @Name");
+            queryBuilder.Append(" ,ActivationDate = @ActivationDate");
+            queryBuilder.Append(" ,ActivationAmount = @ActivationAmount");
+            queryBuilder.Append(" ,DepreciationConfigId = @DepreciationConfigId");
+            queryBuilder.Append(" ,Deleted = @Deleted");
+            queryBuilder.Append(" ,LastModificationByUser = @LastModificationByUser");
+            queryBuilder.Append(" ,LastModificationDate = @LastModificationDate");
+            queryBuilder.Append(" WHERE Id = @Id");
 
             using var connection = _context.CreateConnection();
 

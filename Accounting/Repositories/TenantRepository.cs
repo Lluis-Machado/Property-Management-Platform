@@ -20,7 +20,13 @@ namespace Accounting.Repositories
                 tenantId
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT * FROM Tenants");
+            queryBuilder.Append("SELECT Id");
+            queryBuilder.Append(" ,Name");
+            queryBuilder.Append(" ,Deleted");
+            queryBuilder.Append(" ,CreationDate");
+            queryBuilder.Append(" ,LastModificationDate");
+            queryBuilder.Append(" ,LastModificationByUser");
+            queryBuilder.Append(" FROM Tenants");
             queryBuilder.Append(" WHERE Id = @tenantId");
 
             using var connection = _context.CreateConnection();
@@ -32,7 +38,13 @@ namespace Accounting.Repositories
         public async Task<IEnumerable<Tenant>> GetTenantsAsync()
         {
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT * FROM Tenants");
+            queryBuilder.Append("SELECT Id");
+            queryBuilder.Append(" ,Name");
+            queryBuilder.Append(" ,Deleted");
+            queryBuilder.Append(" ,CreationDate");
+            queryBuilder.Append(" ,LastModificationDate");
+            queryBuilder.Append(" ,LastModificationByUser");
+            queryBuilder.Append(" FROM Tenants");
 
             using var connection = _context.CreateConnection();
 
@@ -71,9 +83,9 @@ namespace Accounting.Repositories
             };
 
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE Tenants ");
-            queryBuilder.Append("SET Deleted = @deleted ");
-            queryBuilder.Append(" WHERE Id = @id ");
+            queryBuilder.Append("UPDATE Tenants");
+            queryBuilder.Append(" SET Deleted = @deleted");
+            queryBuilder.Append(" WHERE Id = @id");
 
             using var connection = _context.CreateConnection();
 
@@ -92,12 +104,12 @@ namespace Accounting.Repositories
                 LastModificationDate = DateTime.Now,
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE Tenants ");
-            queryBuilder.Append("SET Name = @Name ");
-            queryBuilder.Append(" ,Deleted = @Deleted ");
-            queryBuilder.Append(" ,LastModificationDate = @LastModificationDate ");
-            queryBuilder.Append(" ,LastModificationByUser = @LastModificationByUser ");
-            queryBuilder.Append(" WHERE Id = @Id ");
+            queryBuilder.Append("UPDATE Tenants");
+            queryBuilder.Append(" SET Name = @Name");
+            queryBuilder.Append(" ,Deleted = @Deleted");
+            queryBuilder.Append(" ,LastModificationDate = @LastModificationDate");
+            queryBuilder.Append(" ,LastModificationByUser = @LastModificationByUser");
+            queryBuilder.Append(" WHERE Id = @Id");
 
             using var connection = _context.CreateConnection();
 

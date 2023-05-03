@@ -7,10 +7,6 @@ namespace Accounting.Validators
     {
         public InvoiceLineValidator()
         {
-            RuleFor(Line => Line.LineNumber)
-                .NotEmpty().WithMessage("{PropertyName} cannot be empty")
-                .GreaterThanOrEqualTo(1).WithMessage("{PropertyName} cannot be less than 1");
-
             RuleFor(Line => Line.ArticleRefNumber)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty");
 
@@ -30,18 +26,6 @@ namespace Accounting.Validators
             RuleFor(Line => Line.UnitPrice)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty")
                 .GreaterThan(0).WithMessage("{PropertyName} has to be greater than 0");
-
-            RuleFor(Line => Line.TotalPrice)
-                .NotEmpty().WithMessage("{PropertyName} cannot be empty");
-
-            RuleFor(Line => Line.DateRefFrom)
-                .NotEmpty().WithMessage("{PropertyName} cannot be empty");
-
-            RuleFor(Line => Line.DateRefTo)
-                .NotEmpty().WithMessage("{PropertyName} cannot be empty");
-
-            RuleFor(Line => Line.ExpenseTypeId)
-                .NotEmpty().WithMessage("{PropertyName} cannot be empty");
         }
     }
 }

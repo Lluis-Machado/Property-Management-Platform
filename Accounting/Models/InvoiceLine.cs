@@ -12,6 +12,7 @@
         public DateTime DateRefFrom { get; set; }
         public DateTime DateRefTo { get; set; }
         public Guid ExpenseTypeId { get; set; }
+        public Guid InvoiceId { get; set; }
 
         public Guid Id { get; set; }
         public bool Deleted { get; set; }
@@ -19,7 +20,7 @@
         public DateTime LastModificationDate { get; set; }
         public string LastModificationByUser { get; set; }
 
-        public InvoiceLine() 
+        public InvoiceLine()
         {
             ArticleName = string.Empty;
             ArticleRefNumber = string.Empty;

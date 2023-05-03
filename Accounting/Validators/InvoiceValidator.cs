@@ -20,12 +20,11 @@ namespace Accounting.Validators
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty")
                 .Matches(@"[A-Z]+").WithMessage("{PropertyName} has to be in uppercase");
 
-            RuleFor(Invoice => Invoice.GrossAmount)
+            RuleFor(Invoice => Invoice.InvoiceLines)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty");
 
-            RuleFor(Invoice => Invoice.NetAmount)
-                .NotEmpty().WithMessage("{PropertyName} cannot be empty")
-                .LessThan(x => x.GrossAmount);
+            RuleForEach(Invoice => Invoice.InvoiceLines)
+                .SetValidator(new InvoiceLineValidator());
         }
     }
 }

@@ -11,6 +11,7 @@ namespace Accounting.Models
         public string Currency { get; set; }
         public double GrossAmount { get; set; }
         public double NetAmount { get; set; }
+        public InvoiceLine[] InvoiceLines { get; set; }
 
         public Guid Id { get; set; }
         public bool Deleted { get; set; }
@@ -23,6 +24,9 @@ namespace Accounting.Models
         {
             RefNumber = string.Empty;
             Currency = string.Empty;
+            GrossAmount = 0;
+            NetAmount = 0;
+            InvoiceLines = Array.Empty<InvoiceLine>();
             LastModificationByUser = string.Empty;
         }
     }

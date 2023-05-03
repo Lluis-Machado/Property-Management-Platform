@@ -1,8 +1,22 @@
+using Authentication.Middlewares;
 using Authentication.Models;
 using Authentication.Services.Auth0;
 using Microsoft.Extensions.Options;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Serilog
+var logger = new LoggerConfiguration()
+  .ReadFrom.Configuration(builder.Configuration)
+  .Enrich.FromLogContext()
+  .CreateLogger();
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog(logger);
+
+// Global error handling
+builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
+builder.Services.AddTransient<ApiErrorHandlingMiddleware>();
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -32,6 +46,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseMiddleware<GlobalErrorHandlingMiddleware>();
+app.UseMiddleware<ApiErrorHandlingMiddleware>();
 
 app.MapControllers();
 

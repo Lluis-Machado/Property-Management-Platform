@@ -1,6 +1,6 @@
 using Authentication.Services.Auth0;
-using Authentication.Utils;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace Authentication.Controllers
 {
@@ -10,27 +10,19 @@ namespace Authentication.Controllers
     {
         private readonly PublicTokenAPI _publicTokenApi;
 
-        public TokenController(PublicTokenAPI auth0Api, UsersAPI usersAPI)
+        public TokenController(PublicTokenAPI auth0Api)
         {
             _publicTokenApi = auth0Api;
         }
 
         [HttpGet]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetToken([FromQuery] string username, [FromQuery] string password)
         {
-            try
-            {
-                var token = await _publicTokenApi.GetTokenAsync(username, password);
-                return Ok(token);
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return Ok(await _publicTokenApi.GetTokenAsync(username, password));
         }
     }
 }

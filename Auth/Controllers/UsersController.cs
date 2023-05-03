@@ -1,9 +1,8 @@
 ﻿using Authentication.Models;
 using Authentication.Security;
 using Authentication.Services.Auth0;
-using Authentication.Utils;
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Http;
+using System.Net;
 
 namespace Authentication.Controllers
 {
@@ -21,236 +20,160 @@ namespace Authentication.Controllers
         #region BASIC_CRUD
         [HttpGet]
         [Authorize]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetUsers()
         {
-            try
-            {
-                var users = await _usersAPI.GetUserListAsync();
-                return Ok(users);
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return Ok(await _usersAPI.GetUserListAsync());
         }
 
         [HttpGet("{userId}")]
         [Authorize]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetUser(string userId)
         {
-            try
-            {
-                var user = await _usersAPI.GetUserAsync(userId);
-                return Ok(user);
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return Ok(await _usersAPI.GetUserAsync(userId));
         }
 
         [HttpPost]
         [Authorize]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.Conflict)]
+        [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> CreateUser([FromBody] Auth0User auth0User)
         {
-            try
-            {
-                var user = await _usersAPI.CreateUserAsync(auth0User);
-                return Created($"users/{user}", user);
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var user = await _usersAPI.CreateUserAsync(auth0User);
+            return Created($"users/{user}", user);
         }
 
         [HttpPatch("{userId}")]
         [Authorize]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UpdateUser(string userId, [FromBody] object updatedUser)
         {
-            try
-            {
-                var result = await _usersAPI.UpdateUserAsync(userId, updatedUser);
-                return Ok(result);
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return Ok(await _usersAPI.UpdateUserAsync(userId, updatedUser));
         }
 
         [HttpDelete("{userId}")]
         [Authorize]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> DeleteUser(string userId)
         {
-            try
-            {
-                await _usersAPI.DeleteUserAsync(userId);
-                return NoContent();
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            await _usersAPI.DeleteUserAsync(userId);
+            return NoContent();
         }
         #endregion
 
         #region USER_ROLES
         [HttpGet("{userId}/roles")]
         [Authorize]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetUserRoles(string userId)
         {
-            try
-            {
-                var roles = await _usersAPI.GetUserRolesAsync(userId);
-                return Ok(roles);
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return Ok(await _usersAPI.GetUserRolesAsync(userId));
         }
 
         [HttpPost("{userId}/roles")]
         [Authorize]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> AssignUserRoles(string userId, [FromBody] List<string> roles)
         {
-            try
-            {
-                await _usersAPI.AssignUserRolesAsync(userId, roles);
-                return Ok();
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            await _usersAPI.AssignUserRolesAsync(userId, roles);
+            return NoContent();
         }
 
         [HttpDelete("{userId}/roles")]
         [Authorize]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> DeleteUserRoles(string userId, [FromBody] List<string> roles)
         {
-            try
-            {
-                await _usersAPI.DeleteUserRolesAsync(userId, roles);
-                return NoContent();
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            await _usersAPI.DeleteUserRolesAsync(userId, roles);
+            return NoContent();
         }
         #endregion
 
         #region USER_PERMISSIONS
         [HttpGet("{userId}/permissions")]
         [Authorize]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetUserPermissions(string userId)
         {
-            try
-            {
-                var permissions = await _usersAPI.GetUserPermissionsAsync(userId);
-                return Ok(permissions);
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return Ok(await _usersAPI.GetUserPermissionsAsync(userId));
         }
 
         [HttpPost("{userId}/permissions")]
         [Authorize]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> AssignPermissionsToUser(string userId, [FromBody] List<Auth0Permission> permissions)
         {
-            try
-            {
-                await _usersAPI.AssignPermissionsToUserAsync(userId, permissions);
-                return Ok();
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            await _usersAPI.AssignPermissionsToUserAsync(userId, permissions);
+            return Ok();
         }
 
         [HttpDelete("{userId}/permissions")]
         [Authorize]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> DeletePermissionsFromUser(string userId, [FromBody] List<Auth0Permission> permissions)
         {
-            try
-            {
-                await _usersAPI.DeletePermissionsFromUserAsync(userId, permissions);
-                return NoContent();
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            await _usersAPI.DeletePermissionsFromUserAsync(userId, permissions);
+            return NoContent();
         }
         #endregion
 
         #region USER_LOGS
         [HttpGet("{userId}/logs")]
         [Authorize]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetUserLogs(string userId)
         {
-            try
-            {
-                var logs = await _usersAPI.GetUserLogsAsync(userId);
-                return Ok(logs);
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode((int)ex.StatusCode, ex.ErrorMessage);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return Ok(await _usersAPI.GetUserLogsAsync(userId));
         }
         #endregion
     }

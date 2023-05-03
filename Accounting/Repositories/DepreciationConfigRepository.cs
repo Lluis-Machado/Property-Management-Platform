@@ -20,7 +20,14 @@ namespace Accounting.Repositories
                 depreciationConfigId
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT * FROM depreciationConfigs");
+            queryBuilder.Append("SELECT Id");
+            queryBuilder.Append(" ,Type");
+            queryBuilder.Append(" ,DepreciationPercent");
+            queryBuilder.Append(" ,Deleted");
+            queryBuilder.Append(" ,CreationDate");
+            queryBuilder.Append(" ,LastModificationDate");
+            queryBuilder.Append(" ,LastModificationByUser");
+            queryBuilder.Append(" FROM DepreciationConfigs");
             queryBuilder.Append(" WHERE Id = @depreciationConfigId");
 
             using var connection = _context.CreateConnection();
@@ -32,7 +39,14 @@ namespace Accounting.Repositories
         public async Task<IEnumerable<DepreciationConfig>> GetDepreciationConfigsAsync()
         {
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT * FROM depreciationConfigs");
+            queryBuilder.Append("SELECT Id");
+            queryBuilder.Append(" ,Type");
+            queryBuilder.Append(" ,DepreciationPercent");
+            queryBuilder.Append(" ,Deleted");
+            queryBuilder.Append(" ,CreationDate");
+            queryBuilder.Append(" ,LastModificationDate");
+            queryBuilder.Append(" ,LastModificationByUser");
+            queryBuilder.Append(" FROM DepreciationConfigs");
 
             using var connection = _context.CreateConnection();
 
@@ -49,7 +63,7 @@ namespace Accounting.Repositories
                 DepreciationConfig.LastModificationByUser,
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("INSERT INTO depreciationConfigs (");
+            queryBuilder.Append("INSERT INTO DepreciationConfigs (");
             queryBuilder.Append(" Type");
             queryBuilder.Append(" ,DepreciationPercent");
             queryBuilder.Append(" ,LastModificationByUser");
@@ -74,9 +88,9 @@ namespace Accounting.Repositories
             };
 
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE depreciationConfigs ");
-            queryBuilder.Append("SET Deleted = @deleted ");
-            queryBuilder.Append(" WHERE Id = @id ");
+            queryBuilder.Append("UPDATE DepreciationConfigs");
+            queryBuilder.Append(" SET Deleted = @deleted ");
+            queryBuilder.Append(" WHERE Id = @id");
 
             using var connection = _context.CreateConnection();
 
@@ -96,13 +110,13 @@ namespace Accounting.Repositories
                 LastModificationDate = DateTime.Now,
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE depreciationConfigs ");
-            queryBuilder.Append("SET Type = @Type ");
-            queryBuilder.Append(" ,DepreciationPercent = @DepreciationPercent ");
-            queryBuilder.Append(" ,Deleted = @Deleted ");
-            queryBuilder.Append(" ,LastModificationByUser = @LastModificationByUser ");
-            queryBuilder.Append(" ,LastModificationDate = @LastModificationDate ");
-            queryBuilder.Append(" WHERE Id = @Id ");
+            queryBuilder.Append("UPDATE DepreciationConfigs");
+            queryBuilder.Append(" SET Type = @Type");
+            queryBuilder.Append(" ,DepreciationPercent = @DepreciationPercent");
+            queryBuilder.Append(" ,Deleted = @Deleted");
+            queryBuilder.Append(" ,LastModificationByUser = @LastModificationByUser");
+            queryBuilder.Append(" ,LastModificationDate = @LastModificationDate");
+            queryBuilder.Append(" WHERE Id = @Id");
 
             using var connection = _context.CreateConnection();
 

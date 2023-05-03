@@ -16,7 +16,23 @@ namespace Accounting.Repositories
         public async Task<IEnumerable<InvoiceLine>> GetInvoiceLinesAsync()
         {
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT * FROM InvoiceLines");
+            queryBuilder.Append("SELECT Id");
+            queryBuilder.Append(" ,LineNumber");
+            queryBuilder.Append(" ,ArticleRefNumber");
+            queryBuilder.Append(" ,ArticleName");
+            queryBuilder.Append(" ,Tax");
+            queryBuilder.Append(" ,Quantity");
+            queryBuilder.Append(" ,UnitPrice");
+            queryBuilder.Append(" ,TotalPrice");
+            queryBuilder.Append(" ,DateRefFrom");
+            queryBuilder.Append(" ,DateRefTo");
+            queryBuilder.Append(" ,ExpenseTypeId");
+            queryBuilder.Append(" ,InvoiceId");
+            queryBuilder.Append(" ,Deleted");
+            queryBuilder.Append(" ,CreationDate");
+            queryBuilder.Append(" ,LastModificationDate");
+            queryBuilder.Append(" ,LastModificationByUser");
+            queryBuilder.Append(" FROM InvoiceLines");
 
             using var connection = _context.CreateConnection();
 
@@ -31,7 +47,23 @@ namespace Accounting.Repositories
                 invoiceLineId
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT * FROM InvoiceLines");
+            queryBuilder.Append("SELECT Id");
+            queryBuilder.Append(" ,LineNumber");
+            queryBuilder.Append(" ,ArticleRefNumber");
+            queryBuilder.Append(" ,ArticleName");
+            queryBuilder.Append(" ,Tax");
+            queryBuilder.Append(" ,Quantity");
+            queryBuilder.Append(" ,UnitPrice");
+            queryBuilder.Append(" ,TotalPrice");
+            queryBuilder.Append(" ,DateRefFrom");
+            queryBuilder.Append(" ,DateRefTo");
+            queryBuilder.Append(" ,ExpenseTypeId");
+            queryBuilder.Append(" ,InvoiceId");
+            queryBuilder.Append(" ,Deleted");
+            queryBuilder.Append(" ,CreationDate");
+            queryBuilder.Append(" ,LastModificationDate");
+            queryBuilder.Append(" ,LastModificationByUser");
+            queryBuilder.Append(" FROM InvoiceLines");
             queryBuilder.Append(" WHERE Id = @invoiceLineId");
 
             using var connection = _context.CreateConnection();
@@ -85,8 +117,8 @@ namespace Accounting.Repositories
 
             using var connection = _context.CreateConnection();
 
-            Guid loanId = await connection.QuerySingleAsync<Guid>(queryBuilder.ToString(), parameters);
-            return loanId;
+            Guid invoiceLineId = await connection.QuerySingleAsync<Guid>(queryBuilder.ToString(), parameters);
+            return invoiceLineId;
         }
 
         public async Task<int> SetDeleteInvoiceLineAsync(Guid id, bool deleted)
@@ -98,9 +130,9 @@ namespace Accounting.Repositories
             };
 
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE InvoiceLines ");
-            queryBuilder.Append("SET Deleted = @deleted ");
-            queryBuilder.Append(" WHERE Id = @id ");
+            queryBuilder.Append("UPDATE InvoiceLines");
+            queryBuilder.Append(" SET Deleted = @deleted");
+            queryBuilder.Append(" WHERE Id = @id");
 
             using var connection = _context.CreateConnection();
 
@@ -129,21 +161,21 @@ namespace Accounting.Repositories
             };
 
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE InvoiceLines ");
-            queryBuilder.Append("SET LineNumber = @LineNumber ");
-            queryBuilder.Append(" ,ArticleRefNumber = @ArticleRefNumber ");
-            queryBuilder.Append(" ,ArticleName = @ArticleName ");
-            queryBuilder.Append(" ,Tax = @Tax ");
-            queryBuilder.Append(" ,Quantity = @Quantity ");
-            queryBuilder.Append(" ,UnitPrice = @UnitPrice ");
-            queryBuilder.Append(" ,TotalPrice = @TotalPrice ");
-            queryBuilder.Append(" ,DateRefFrom = @DateRefFrom ");
-            queryBuilder.Append(" ,DateRefTo = @DateRefTo ");
-            queryBuilder.Append(" ,ExpenseTypeId = @ExpenseTypeId ");
-            queryBuilder.Append(" ,Deleted = @Deleted ");
-            queryBuilder.Append(" ,LastModificationByUser = @LastModificationByUser ");
-            queryBuilder.Append(" ,LastModificationDate = @LastModificationDate ");
-            queryBuilder.Append(" WHERE Id = @Id ");
+            queryBuilder.Append("UPDATE InvoiceLines");
+            queryBuilder.Append(" SET LineNumber = @LineNumber");
+            queryBuilder.Append(" ,ArticleRefNumber = @ArticleRefNumber");
+            queryBuilder.Append(" ,ArticleName = @ArticleName");
+            queryBuilder.Append(" ,Tax = @Tax");
+            queryBuilder.Append(" ,Quantity = @Quantity");
+            queryBuilder.Append(" ,UnitPrice = @UnitPrice");
+            queryBuilder.Append(" ,TotalPrice = @TotalPrice");
+            queryBuilder.Append(" ,DateRefFrom = @DateRefFrom");
+            queryBuilder.Append(" ,DateRefTo = @DateRefTo");
+            queryBuilder.Append(" ,ExpenseTypeId = @ExpenseTypeId");
+            queryBuilder.Append(" ,Deleted = @Deleted");
+            queryBuilder.Append(" ,LastModificationByUser = @LastModificationByUser");
+            queryBuilder.Append(" ,LastModificationDate = @LastModificationDate");
+            queryBuilder.Append(" WHERE Id = @Id");
 
             using var connection = _context.CreateConnection();
 

@@ -21,7 +21,16 @@ namespace Accounting.Repositories
                 loanId
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT * FROM Loans");
+            queryBuilder.Append("SELECT Id");
+            queryBuilder.Append(" ,BusinessPartnerId");
+            queryBuilder.Append(" ,Concept");
+            queryBuilder.Append(" ,Amount");
+            queryBuilder.Append(" ,AmountPaid");
+            queryBuilder.Append(" ,Deleted");
+            queryBuilder.Append(" ,CreationDate");
+            queryBuilder.Append(" ,LastModificationDate");
+            queryBuilder.Append(" ,LastModificationByUser");
+            queryBuilder.Append(" FROM Loans");
             queryBuilder.Append(" WHERE Id = @loanId");
 
             using var connection = _context.CreateConnection();
@@ -33,7 +42,16 @@ namespace Accounting.Repositories
         public async Task<IEnumerable<Loan>> GetLoansAsync()
         {
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT * FROM Loans");
+            queryBuilder.Append("SELECT Id");
+            queryBuilder.Append(" ,BusinessPartnerId");
+            queryBuilder.Append(" ,Concept");
+            queryBuilder.Append(" ,Amount");
+            queryBuilder.Append(" ,AmountPaid");
+            queryBuilder.Append(" ,Deleted");
+            queryBuilder.Append(" ,CreationDate");
+            queryBuilder.Append(" ,LastModificationDate");
+            queryBuilder.Append(" ,LastModificationByUser");
+            queryBuilder.Append(" FROM Loans");
 
             using var connection = _context.CreateConnection();
 
@@ -81,9 +99,9 @@ namespace Accounting.Repositories
             };
 
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE Loans ");
-            queryBuilder.Append("SET Deleted = @deleted ");
-            queryBuilder.Append(" WHERE Id = @id ");
+            queryBuilder.Append("UPDATE Loans");
+            queryBuilder.Append(" SET Deleted = @deleted");
+            queryBuilder.Append(" WHERE Id = @id");
 
             using var connection = _context.CreateConnection();
 
@@ -105,15 +123,15 @@ namespace Accounting.Repositories
                 LastModificationDate = DateTime.Now,
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE Loans ");
-            queryBuilder.Append("SET BusinessPartnerID = @BusinessPartnerID ");
-            queryBuilder.Append(" ,Concept = @Concept ");
-            queryBuilder.Append(" ,Deleted = @Deleted ");
-            queryBuilder.Append(" ,Amount = @Amount ");
-            queryBuilder.Append(" ,AmountPaid = @AmountPaid ");
-            queryBuilder.Append(" ,LastModificationByUser = @LastModificationByUser ");
-            queryBuilder.Append(" ,LastModificationDate = @LastModificationDate ");
-            queryBuilder.Append(" WHERE Id = @Id ");
+            queryBuilder.Append("UPDATE Loans");
+            queryBuilder.Append(" SET BusinessPartnerID = @BusinessPartnerID");
+            queryBuilder.Append(" ,Concept = @Concept");
+            queryBuilder.Append(" ,Deleted = @Deleted");
+            queryBuilder.Append(" ,Amount = @Amount");
+            queryBuilder.Append(" ,AmountPaid = @AmountPaid");
+            queryBuilder.Append(" ,LastModificationByUser = @LastModificationByUser");
+            queryBuilder.Append(" ,LastModificationDate = @LastModificationDate");
+            queryBuilder.Append(" WHERE Id = @Id");
 
             using var connection = _context.CreateConnection();
 

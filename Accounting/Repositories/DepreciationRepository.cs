@@ -20,7 +20,15 @@ namespace Accounting.Repositories
                 depreciationId
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT * FROM Depreciations");
+            queryBuilder.Append("SELECT Id");
+            queryBuilder.Append(" ,FixedAssetId");
+            queryBuilder.Append(" ,Period");
+            queryBuilder.Append(" ,Amount");
+            queryBuilder.Append(" ,Deleted");
+            queryBuilder.Append(" ,CreationDate");
+            queryBuilder.Append(" ,LastModificationDate");
+            queryBuilder.Append(" ,LastModificationByUser");
+            queryBuilder.Append(" FROM Depreciations");
             queryBuilder.Append(" WHERE Id = @depreciationId");
 
             using var connection = _context.CreateConnection();
@@ -32,7 +40,15 @@ namespace Accounting.Repositories
         public async Task<IEnumerable<Depreciation>> GetDepreciationsAsync()
         {
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT * FROM Depreciations");
+            queryBuilder.Append("SELECT Id");
+            queryBuilder.Append(" ,FixedAssetId");
+            queryBuilder.Append(" ,Period");
+            queryBuilder.Append(" ,Amount");
+            queryBuilder.Append(" ,Deleted");
+            queryBuilder.Append(" ,CreationDate");
+            queryBuilder.Append(" ,LastModificationDate");
+            queryBuilder.Append(" ,LastModificationByUser");
+            queryBuilder.Append(" FROM Depreciations");
 
             using var connection = _context.CreateConnection();
 

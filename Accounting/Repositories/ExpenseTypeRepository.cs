@@ -20,7 +20,14 @@ namespace Accounting.Repositories
                 expenseTypeId
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT * FROM ExpenseTypes");
+            queryBuilder.Append("SELECT Id");
+            queryBuilder.Append(" ,Code");
+            queryBuilder.Append(" ,Description");
+            queryBuilder.Append(" ,Deleted");
+            queryBuilder.Append(" ,CreationDate");
+            queryBuilder.Append(" ,LastModificationDate");
+            queryBuilder.Append(" ,LastModificationByUser");
+            queryBuilder.Append(" FROM ExpenseTypes");
             queryBuilder.Append(" WHERE Id = @expenseTypeId");
 
             using var connection = _context.CreateConnection();
@@ -32,7 +39,14 @@ namespace Accounting.Repositories
         public async Task<IEnumerable<ExpenseType>> GetExpenseTypesAsync()
         {
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT * FROM ExpenseTypes");
+            queryBuilder.Append("SELECT Id");
+            queryBuilder.Append(" ,Code");
+            queryBuilder.Append(" ,Description");
+            queryBuilder.Append(" ,Deleted");
+            queryBuilder.Append(" ,CreationDate");
+            queryBuilder.Append(" ,LastModificationDate");
+            queryBuilder.Append(" ,LastModificationByUser");
+            queryBuilder.Append(" FROM ExpenseTypes");
 
             using var connection = _context.CreateConnection();
 
@@ -74,9 +88,9 @@ namespace Accounting.Repositories
             };
 
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE ExpenseTypes ");
-            queryBuilder.Append("SET Deleted = @deleted ");
-            queryBuilder.Append(" WHERE Id = @id ");
+            queryBuilder.Append("UPDATE ExpenseTypes");
+            queryBuilder.Append(" SET Deleted = @deleted");
+            queryBuilder.Append(" WHERE Id = @id");
 
             using var connection = _context.CreateConnection();
 
@@ -96,13 +110,13 @@ namespace Accounting.Repositories
                 LastModificationDate = DateTime.Now,
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE ExpenseTypes ");
-            queryBuilder.Append("SET Code = @Code ");
-            queryBuilder.Append(" ,Description = @Description ");
-            queryBuilder.Append(" ,Deleted = @Deleted ");
-            queryBuilder.Append(" ,LastModificationByUser = @LastModificationByUser ");
-            queryBuilder.Append(" ,LastModificationDate = @LastModificationDate ");
-            queryBuilder.Append(" WHERE Id = @Id ");
+            queryBuilder.Append("UPDATE ExpenseTypes");
+            queryBuilder.Append(" SET Code = @Code");
+            queryBuilder.Append(" ,Description = @Description");
+            queryBuilder.Append(" ,Deleted = @Deleted");
+            queryBuilder.Append(" ,LastModificationByUser = @LastModificationByUser");
+            queryBuilder.Append(" ,LastModificationDate = @LastModificationDate");
+            queryBuilder.Append(" WHERE Id = @Id");
 
             using var connection = _context.CreateConnection();
 

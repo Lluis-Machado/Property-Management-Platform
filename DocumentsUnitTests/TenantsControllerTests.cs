@@ -10,7 +10,8 @@ using FluentValidation.Results;
 using Azure;
 using Newtonsoft.Json.Linq;
 
-namespace DocumentsUnitTests
+namespace DocumentsControllersTests
+
 {
     public class TenantControllerTests
     {

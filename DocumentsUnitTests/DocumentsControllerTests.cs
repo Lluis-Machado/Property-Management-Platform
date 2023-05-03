@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using System.Net;
 
-namespace DocumentsUnitTests
+namespace DocumentsControllersTests
 {
     public class DocumentsControllerTests
     {

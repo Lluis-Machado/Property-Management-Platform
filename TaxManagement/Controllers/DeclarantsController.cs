@@ -28,7 +28,7 @@ namespace TaxManagement.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
 
-        public async Task<ActionResult<Guid>> CreateAsync([FromBody] Declarant declarant)
+        public async Task<ActionResult<Declarant>> CreateAsync([FromBody] Declarant declarant)
         {
             // request validations
             if (declarant == null) return BadRequest("Incorrect body format");

@@ -29,10 +29,9 @@ namespace TaxManagement.Repositories
             queryBuilder.Append(" @Name");
             queryBuilder.Append(" )");
 
-            using var connection = _context.CreateConnection();
-
-            declarant = await connection.QuerySingleAsync<Declarant>(queryBuilder.ToString(), parameters);
-            return declarant;
+            return await _context
+                .CreateConnection()
+                .QuerySingleAsync<Declarant>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<IEnumerable<Declarant>> GetDeclarantsAsync()
@@ -42,10 +41,9 @@ namespace TaxManagement.Repositories
             queryBuilder.Append(" ,Name");
             queryBuilder.Append(" FROM Declarants ");
 
-            using var connection = _context.CreateConnection();
-
-            IEnumerable<Declarant> declarants = await connection.QueryAsync<Declarant>(queryBuilder.ToString());
-            return declarants;
+            return await _context
+                .CreateConnection()
+                .QueryAsync<Declarant>(queryBuilder.ToString());
         }
 
         public async Task<Declarant?> GetDeclarantByIdAsync(Guid id)
@@ -60,10 +58,9 @@ namespace TaxManagement.Repositories
             queryBuilder.Append(" FROM Declarants");
             queryBuilder.Append(" WHERE Id = @id");
 
-            using var connection = _context.CreateConnection();
-
-            Declarant? declarant = await connection.QuerySingleAsync<Declarant?>(queryBuilder.ToString(), parameters);
-            return declarant;
+            return await _context
+                .CreateConnection()
+                .QuerySingleAsync<Declarant?>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<int> UpdateDeclarantAsync(Declarant declarant)
@@ -80,10 +77,9 @@ namespace TaxManagement.Repositories
             queryBuilder.Append(" ,Deleted = @Deleted ");
             queryBuilder.Append(" WHERE Id = @Id ");
 
-            using var connection = _context.CreateConnection();
-
-            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
-            return rowsAffected;
+            return await _context
+                .CreateConnection()
+                .ExecuteAsync(queryBuilder.ToString(), parameters);
         }
 
         public async Task<int> SetDeleteDeclarantAsync(Guid id, bool deleted)
@@ -99,10 +95,9 @@ namespace TaxManagement.Repositories
             queryBuilder.Append("SET Deleted = @deleted ");
             queryBuilder.Append(" WHERE Id = @id ");
 
-            using var connection = _context.CreateConnection();
-
-            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
-            return rowsAffected;
+            return await _context
+                .CreateConnection()
+                .ExecuteAsync(queryBuilder.ToString(), parameters);
         }
     }
 }

@@ -25,7 +25,7 @@ namespace Accounting.Controllers
         [Authorize]
         [HttpPost]
         [Route("expenseTypes")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<Guid>> CreateAsync([FromBody] ExpenseType expenseType)
@@ -38,7 +38,8 @@ namespace Accounting.Controllers
             ValidationResult validationResult = await _expenseTypeValidator.ValidateAsync(expenseType);
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
-            return Ok(await _expenseTypeRepo.InsertExpenseTypeAsync(expenseType));
+            expenseType = await _expenseTypeRepo.InsertExpenseTypeAsync(expenseType);
+            return Created($"expenseTypes/{expenseType.Id}", expenseType);
         }
 
         // GET: Get expenseType(s)
@@ -56,9 +57,10 @@ namespace Accounting.Controllers
         [Authorize]
         [HttpPost]
         [Route("expenseTypes/{expenseTypeId}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult> UpdateAsync([FromBody] ExpenseType expenseType, Guid expenseTypeId)
         {
             // request validations
@@ -73,33 +75,35 @@ namespace Accounting.Controllers
 
             int result = await _expenseTypeRepo.UpdateExpenseTypeAsync(expenseType);
             if (result == 0) return NotFound("ExpenseType not found");
-            return Ok();
+            return NoContent();
         }
 
         // DELETE: delete expenseType
         [Authorize]
         [HttpDelete]
         [Route("expenseTypes/{expenseTypeId}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> DeleteAsync(Guid expenseTypeId)
         {
             int result = await _expenseTypeRepo.SetDeleteExpenseTypeAsync(expenseTypeId, true);
             if (result == 0) return BadRequest("ExpenseType not found");
-            return Ok();
+            return NoContent();
         }
 
         // POST: undelete expenseType
         [Authorize]
         [HttpPost]
         [Route("expenseTypes/{expenseTypeId}/undelete")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UndeleteAsync(Guid expenseTypeId)
         {
             int result = await _expenseTypeRepo.SetDeleteExpenseTypeAsync(expenseTypeId, false);
             if (result == 0) return BadRequest("ExpenseType not found");
-            return Ok();
+            return NoContent();
         }
 
     }

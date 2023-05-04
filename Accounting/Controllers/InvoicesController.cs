@@ -25,7 +25,7 @@ namespace Accounting.Controllers
         [Authorize]
         [HttpPost]
         [Route("invoices")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<Guid>> CreateAsync([FromBody] Invoice invoice)
@@ -38,7 +38,8 @@ namespace Accounting.Controllers
             ValidationResult validationResult = await _invoiceValidator.ValidateAsync(invoice);
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
-            return Ok(await _invoiceRepo.InsertInvoiceAsync(invoice));
+            invoice = await _invoiceRepo.InsertInvoiceAsync(invoice);
+            return Created($"invoices/{invoice.Id}", invoice);
         }
 
         // GET: Get invoice(s)
@@ -56,9 +57,10 @@ namespace Accounting.Controllers
         [Authorize]
         [HttpPost]
         [Route("invoices/{invoiceId}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult> UpdateAsync([FromBody] Invoice invoice, Guid invoiceId)
         {
             // request validations
@@ -73,33 +75,35 @@ namespace Accounting.Controllers
 
             int result = await _invoiceRepo.UpdateInvoiceAsync(invoice);
             if (result == 0) return NotFound("Invoice not found");
-            return Ok();
+            return NoContent();
         }
 
         // DELETE: delete invoice
         [Authorize]
         [HttpDelete]
         [Route("invoices/{invoiceId}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> DeleteAsync(Guid invoiceId)
         {
             int result = await _invoiceRepo.SetDeleteInvoiceAsync(invoiceId, true);
             if (result == 0) return NotFound("Invoice not found");
-            return Ok();
+            return NoContent();
         }
 
         // POST: undelete invoice
         [Authorize]
         [HttpPost]
         [Route("invoices/{invoiceId}/undelete")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UndeleteAsync(Guid invoiceId)
         {
             int result = await _invoiceRepo.SetDeleteInvoiceAsync(invoiceId, false);
             if (result == 0) return NotFound("Invoice not found");
-            return Ok();
+            return NoContent();
         }
     }
 }

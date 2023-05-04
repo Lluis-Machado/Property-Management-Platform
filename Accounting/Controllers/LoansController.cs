@@ -25,7 +25,7 @@ namespace Accounting.Controllers
         [Authorize]
         [HttpPost]
         [Route("loans")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<Guid>> CreateAsync([FromBody] Loan loan)
@@ -38,7 +38,8 @@ namespace Accounting.Controllers
             ValidationResult validationResult = await _loanValidator.ValidateAsync(loan);
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
-            return Ok(await _loanRepo.InsertLoanAsync(loan));
+            loan = await _loanRepo.InsertLoanAsync(loan);
+            return Created($"loans/{loan.Id}", loan);
         }
 
         // GET: Get loan(s)
@@ -56,9 +57,10 @@ namespace Accounting.Controllers
         [Authorize]
         [HttpPost]
         [Route("loans/{loanId}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult> UpdateAsync([FromBody] Loan loan, Guid loanId)
         {
             // request validations
@@ -73,33 +75,35 @@ namespace Accounting.Controllers
 
             int result = await _loanRepo.UpdateLoanAsync(loan);
             if (result == 0) return NotFound("Loan not found");
-            return Ok();
+            return NoContent();
         }
 
         // DELETE: delete loan
         [Authorize]
         [HttpDelete]
         [Route("loans/{loanId}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> DeleteAsync(Guid loanId)
         {
             int result = await _loanRepo.SetDeleteLoanAsync(loanId, true);
             if (result == 0) return NotFound("Loan not found");
-            return Ok();
+            return NoContent();
         }
 
         // POST: undelete loan
         [Authorize]
         [HttpPost]
         [Route("loans/{loanId}/undelete")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UndeleteAsync(Guid loanId)
         {
             int result = await _loanRepo.SetDeleteLoanAsync(loanId, false);
             if (result == 0) return NotFound("Loan not found");
-            return Ok();
+            return NoContent();
         }
     }
 }

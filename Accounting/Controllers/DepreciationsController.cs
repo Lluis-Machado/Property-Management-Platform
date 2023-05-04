@@ -24,7 +24,7 @@ namespace Accounting.Controllers
         [Authorize]
         [HttpPost]
         [Route("depreciations")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<Guid>> CreateAsync([FromBody] Depreciation depreciation)
@@ -40,7 +40,8 @@ namespace Accounting.Controllers
 
             await _depreciationValidator.ValidateAndThrowAsync(depreciation);
 
-            return Ok(await _depreciationRepo.InsertDepreciationAsync(depreciation));
+            depreciation = await _depreciationRepo.InsertDepreciationAsync(depreciation);
+            return Created($"depreciations/{depreciation.Id}", depreciation);
         }
 
         // GET: Get depreciation(s)
@@ -58,9 +59,10 @@ namespace Accounting.Controllers
         [Authorize]
         [HttpPost]
         [Route("depreciations/{depreciationId}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult> UpdateAsync([FromBody] Depreciation depreciation, Guid depreciationId)
         {
             // request validations
@@ -75,31 +77,33 @@ namespace Accounting.Controllers
 
             int result = await _depreciationRepo.UpdateDepreciationAsync(depreciation);
             if (result == 0) return NotFound("Depreciation not found");
-            return Ok();
+            return NoContent();
         }
 
         // DELETE: delete depreciation
         [HttpDelete]
         [Route("depreciations/{depreciationId}")]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> DeleteAsync(Guid depreciationId)
         {
             int result = await _depreciationRepo.SetDeleteDepreciationAsync(depreciationId, true);
             if (result == 0) return NotFound("Depreciation not found");
-            return Ok();
+            return NoContent();
         }
 
         // POST: undelete depreciation
         [HttpPost]
         [Route("depreciations/{depreciationId}/undelete")]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UndeleteAsync(Guid depreciationId)
         {
             int result = await _depreciationRepo.SetDeleteDepreciationAsync(depreciationId, false);
             if (result == 0) return NotFound("Depreciation not found");
-            return Ok();
+            return NoContent();
         }
     }
 }

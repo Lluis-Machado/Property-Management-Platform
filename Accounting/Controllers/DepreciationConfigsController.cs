@@ -24,7 +24,7 @@ namespace Accounting.Controllers
         [Authorize]
         [HttpPost]
         [Route("depreciationConfigs")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<Guid>> CreateAsync([FromBody] DepreciationConfig depreciationConfig)
@@ -37,7 +37,8 @@ namespace Accounting.Controllers
             ValidationResult validationResult = await _depreciationConfigValidator.ValidateAsync(depreciationConfig);
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
-            return Ok(await _depreciationCongifRepo.InsertDepreciationConfigAsync(depreciationConfig));
+            depreciationConfig = await _depreciationCongifRepo.InsertDepreciationConfigAsync(depreciationConfig);
+            return Ok($"depreciationConfigs/{depreciationConfig.Id}", depreciationConfig);
         }
 
         // GET: Get depreciationConfig(s)
@@ -55,9 +56,10 @@ namespace Accounting.Controllers
         [Authorize]
         [HttpPost]
         [Route("depreciationConfigs/{depreciationConfigId}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult> UpdateAsync([FromBody] DepreciationConfig depreciationConfig, Guid depreciationConfigId)
         {
             // request validations
@@ -72,33 +74,35 @@ namespace Accounting.Controllers
 
             int result = await _depreciationCongifRepo.UpdateDepreciationConfigAsync(depreciationConfig);
             if (result == 0) return NotFound("depreciationConfig not found");
-            return Ok();
+            return NoContent();
         }
 
         // DELETE: delete depreciationConfig
         [Authorize]
         [HttpDelete]
         [Route("depreciationConfigs/{depreciationConfigId}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> DeleteAsync(Guid depreciationConfigId)
         {
             int result = await _depreciationCongifRepo.SetDeleteDepereciationConfigAsync(depreciationConfigId, true);
             if (result == 0) return NotFound("depreciationConfig not found");
-            return Ok();
+            return NoContent();
         }
 
         // POST: undelete depreciationConfig
         [Authorize]
         [HttpPost]
         [Route("depreciationConfigs/{depreciationConfigId}/undelete")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UndeleteAsync(Guid depreciationConfigId)
         {
             int result = await _depreciationCongifRepo.SetDeleteDepereciationConfigAsync(depreciationConfigId, false);
             if (result == 0) return NotFound("depreciationConfig not found");
-            return Ok();
+            return NoContent();
         }
     }
 }

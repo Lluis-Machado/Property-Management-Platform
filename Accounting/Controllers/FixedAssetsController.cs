@@ -25,7 +25,7 @@ namespace Accounting.Controllers
         [Authorize]
         [HttpPost]
         [Route("fixedAssets")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<Guid>> CreateAsync([FromBody] FixedAsset fixedAsset)
@@ -38,7 +38,8 @@ namespace Accounting.Controllers
             ValidationResult validationResult = await _fixedAssetValidator.ValidateAsync(fixedAsset);
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
-            return Ok(await _fixedAssetRepo.InsertFixedAssetAsync(fixedAsset));
+            fixedAsset = await _fixedAssetRepo.InsertFixedAssetAsync(fixedAsset);
+            return Created($"fixedAssets/{fixedAsset.Id}", fixedAsset);
         }
 
         // GET: Get fixedAsset(s)
@@ -56,9 +57,10 @@ namespace Accounting.Controllers
         [Authorize]
         [HttpPost]
         [Route("fixedAssets/{fixedAssetId}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult> UpdateAsync([FromBody] FixedAsset fixedAsset, Guid fixedAssetId)
         {
             // request validations
@@ -75,33 +77,35 @@ namespace Accounting.Controllers
 
             int result = await _fixedAssetRepo.UpdateFixedAssetAsync(fixedAsset);
             if (result == 0) return BadRequest("fixedAsset not found");
-            return Ok();
+            return NoContent();
         }
 
         // DELETE: delete fixedAsset
         [HttpDelete]
         [Authorize]
         [Route("fixedAssets/{fixedAssetId}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> DeleteAsync(Guid fixedAssetId)
         {
             int result = await _fixedAssetRepo.SetDeleteFixedAssetAsync(fixedAssetId, true);
             if (result == 0) return NotFound("fixedAsset not found");
-            return Ok();
+            return NoContent();
         }
 
         // POST: undelete fixedAsset
         [Authorize]
         [HttpPost]
         [Route("fixedAssets/{fixedAssetId}/undelete")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UndeleteAsync(Guid fixedAssetId)
         {
             int result = await _fixedAssetRepo.SetDeleteFixedAssetAsync(fixedAssetId, false);
             if (result == 0) return NotFound("fixedAsset not found");
-            return Ok();
+            return NoContent();
         }
     }
 }

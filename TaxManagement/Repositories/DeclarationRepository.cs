@@ -40,10 +40,9 @@ namespace TaxManagement.Repositories
             queryBuilder.Append(",@UpdateUser");
             queryBuilder.Append(" )");
 
-            using var connection = _context.CreateConnection();
-
-            declaration = await connection.QuerySingleAsync<Declaration>(queryBuilder.ToString(), parameters);
-            return declaration;
+            return await _context
+                .CreateConnection()
+                .QuerySingleAsync<Declaration>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<IEnumerable<Declaration>> GetDeclarationsAsync(Guid? declarantId = null)
@@ -61,9 +60,9 @@ namespace TaxManagement.Repositories
             queryBuilder.Append(" FROM Declarations");
             if (declarantId != null) queryBuilder.Append(" WHERE DeclarantId = @declarantId");
 
-            using var connection = _context.CreateConnection();
-            var declarations = await connection.QueryAsync<Declaration>(queryBuilder.ToString(), parameters);
-            return declarations.ToList();
+            return await _context
+                .CreateConnection()
+                .QueryAsync<Declaration>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<Declaration> GetDeclarationByIdAsync(Guid id, Guid? declarantId = null)
@@ -86,10 +85,9 @@ namespace TaxManagement.Repositories
             queryBuilder.Append(" WHERE Id = @id");
             if (declarantId != null) queryBuilder.Append(" AND DeclarantId = @declarantId");
 
-            using var connection = _context.CreateConnection();
-
-            Declaration declaration = await connection.QuerySingleAsync<Declaration>(queryBuilder.ToString(), parameters);
-            return declaration;
+            return await _context
+                .CreateConnection()
+                .QuerySingleAsync<Declaration>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<int> UpdateDeclarationAsync(Declaration declaration)
@@ -112,8 +110,9 @@ namespace TaxManagement.Repositories
 
             using var connection = _context.CreateConnection();
 
-            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
-            return rowsAffected;
+            return await _context
+                .CreateConnection()
+                .ExecuteAsync(queryBuilder.ToString(), parameters);
         }
 
         public async Task<int> SetDeletedDeclarationAsync(Guid id, string user, bool deleted)
@@ -132,12 +131,9 @@ namespace TaxManagement.Repositories
             queryBuilder.Append(" ,UpdateDate = @UpdateDate ");
             queryBuilder.Append(" WHERE Id = @id ");
 
-            using var connection = _context.CreateConnection();
-
-            int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
-            return rowsAffected;
+            return await _context
+                .CreateConnection()
+                .ExecuteAsync(queryBuilder.ToString(), parameters);
         }
-
-
     }
 }

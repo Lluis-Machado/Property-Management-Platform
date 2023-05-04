@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System.Net;
 using TaxManagement.Controllers;
 using TaxManagement.Models;
 using TaxManagement.Repositories;
@@ -34,32 +33,31 @@ namespace TaxManagementControllerTests
         public async Task CreateAsync_ReturnsOkResult_WhenValidRequestIsMade()
         {
             // Arrange
-            Guid id = Guid.NewGuid();
-            var declarant = new Declarant { Name = "testDeclarant" };
-            var expectedDeclarant = new Declarant { Name = "testDeclarant", Id = id, Deleted = false };
+            var fakeDeclarant = new Declarant { Name = "fakeDeclarant" };
+            var fakeExpectedDeclarant = new Declarant { Name = "fakeDeclarant", Id = Guid.NewGuid(), Deleted = false };
 
             _mockDeclarantValidator.Setup(v => v.ValidateAsync(It.IsAny<Declarant>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
             _mockDeclarantRepo.Setup(r => r.InsertDeclarantAsync(It.IsAny<Declarant>()))
-                .ReturnsAsync(expectedDeclarant);
+                .ReturnsAsync(fakeExpectedDeclarant);
 
             // Act
-            var result = await _declarantsController.CreateAsync(declarant);
+            var result = await _declarantsController.CreateAsync(fakeDeclarant);
 
             // Assert
             var createdResult = Assert.IsType<CreatedResult>(result.Result);
-            Assert.Equal(expectedDeclarant, createdResult.Value);
+            Assert.Equal(fakeExpectedDeclarant, createdResult.Value);
         }
 
         [Fact]
         public async Task CreateAsync_ReturnsBadRequestResult_WhenIdFieldIsNotEmpty()
         {
             // Arrange
-            var declarant = new Declarant { Name = "testDeclarant", Id = Guid.NewGuid() };
+            var fakeDeclarant = new Declarant { Name = "fakeDeclarant", Id = Guid.NewGuid() };
 
             // Act
-            var result = await _declarantsController.CreateAsync(declarant);
+            var result = await _declarantsController.CreateAsync(fakeDeclarant);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
@@ -70,14 +68,15 @@ namespace TaxManagementControllerTests
         public async Task CreateAsync_ReturnsBadRequestResult_WhenValidationIsNotValid()
         {
             // Arrange
-            var declarant = new Declarant { Name = "testDeclarant" };
+            var fakeDeclarant = new Declarant { Name = "fakeDeclarant" };
 
             var validationResult = new ValidationResult(new List<ValidationFailure> { new ValidationFailure("Name", "Name cannot be empty") });
+            
             _mockDeclarantValidator.Setup(v => v.ValidateAsync(It.IsAny<Declarant>(), CancellationToken.None))
             .ReturnsAsync(validationResult);
 
             // Act
-            var result = await _declarantsController.CreateAsync(declarant);
+            var result = await _declarantsController.CreateAsync(fakeDeclarant);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
@@ -90,18 +89,15 @@ namespace TaxManagementControllerTests
         public async Task GetAsync_ReturnsOkResult_WhenValidRequestIsMade()
         {
             // Arrange
-            Guid id1 = Guid.NewGuid();
-            Guid id2 = Guid.NewGuid();
-
-            var expectedDeclarants = new List<Declarant>()
+            var fakeExpectedDeclarants = new List<Declarant>()
             {
-                new Declarant { Name = "testDeclarant1", Id = id1, Deleted = false },
-                new Declarant { Name = "testDeclarant2", Id = id2, Deleted = false }
+                new Declarant { Name = "fakeDeclarant", Id = Guid.NewGuid(), Deleted = false },
+                new Declarant { Name = "fakeDeclarant", Id = Guid.NewGuid(), Deleted = false }
 
             };
 
             _mockDeclarantRepo.Setup(r => r.GetDeclarantsAsync())
-                .ReturnsAsync(expectedDeclarants);
+                .ReturnsAsync(fakeExpectedDeclarants);
 
             // Act
             var result = await _declarantsController.GetAsync();
@@ -109,7 +105,7 @@ namespace TaxManagementControllerTests
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
             var actualDeclarants = Assert.IsAssignableFrom<IEnumerable<Declarant>>(okResult.Value);
-            Assert.Equal(expectedDeclarants, actualDeclarants);
+            Assert.Equal(fakeExpectedDeclarants, actualDeclarants);
         }
 
         [Fact]
@@ -132,17 +128,16 @@ namespace TaxManagementControllerTests
         public async Task UpdateAsync_ReturnsNoContent_WhenValidRequestIsMade()
         {
             // Arrange
-            var id = Guid.NewGuid();
-            var declarant = new Declarant { Name = "testDeclarant", Id = id };
+            var fakeDeclarant = new Declarant { Name = "fakeDeclarant", Id = Guid.NewGuid() };
 
             _mockDeclarantValidator.Setup(v => v.ValidateAsync(It.IsAny<Declarant>(), CancellationToken.None))
             .ReturnsAsync(new ValidationResult());
 
-            _mockDeclarantRepo.Setup(r => r.UpdateDeclarantAsync(declarant))
+            _mockDeclarantRepo.Setup(r => r.UpdateDeclarantAsync(fakeDeclarant))
                 .ReturnsAsync(1);
 
             // Act
-            var result = await _declarantsController.UpdateAsync(declarant, id);
+            var result = await _declarantsController.UpdateAsync(fakeDeclarant, fakeDeclarant.Id);
 
             // Assert
             var noContentResult = Assert.IsType<NoContentResult>(result);
@@ -152,11 +147,10 @@ namespace TaxManagementControllerTests
         public async Task UpdateAsync_ReturnsBadResuqest_WhenDeclarantIdDoesNotMatch()
         {
             // Arrange
-            var id = Guid.NewGuid();
-            var declarant = new Declarant { Name = "testDeclarant", Id = id };
+            var fakeDeclarant = new Declarant { Name = "fakeDeclarant", Id = Guid.NewGuid() };
 
             // Act
-            var result = await _declarantsController.UpdateAsync(declarant, Guid.NewGuid());
+            var result = await _declarantsController.UpdateAsync(fakeDeclarant, Guid.NewGuid());
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -167,15 +161,14 @@ namespace TaxManagementControllerTests
         public async Task UpdateAsync_ReturnsBadResuqest_WhenDeclarantValidationNotValid()
         {
             // Arrange
-            var id = Guid.NewGuid();
-            var declarant = new Declarant { Name = "testDeclarant", Id = id };
+            var fakeDeclarant = new Declarant { Name = "fakeDeclarant", Id = Guid.NewGuid() };
 
             var validationResult = new ValidationResult(new List<ValidationFailure> { new ValidationFailure("Name", "Name cannot be empty") });
             _mockDeclarantValidator.Setup(v => v.ValidateAsync(It.IsAny<Declarant>(), CancellationToken.None))
                                 .ReturnsAsync(validationResult);
 
             // Act
-            var result = await _declarantsController.UpdateAsync(declarant, id);
+            var result = await _declarantsController.UpdateAsync(fakeDeclarant, fakeDeclarant.Id);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -186,17 +179,16 @@ namespace TaxManagementControllerTests
         public async Task UpdateAsync_ReturnsNotFound_WhenDeclarantNotFound()
         {
             // Arrange
-            var id = Guid.NewGuid();
-            var declarant = new Declarant { Name = "testDeclarant", Id = id };
+            var fakeDeclarant = new Declarant { Name = "fakeDeclarant", Id = Guid.NewGuid() };
 
             _mockDeclarantValidator.Setup(v => v.ValidateAsync(It.IsAny<Declarant>(), CancellationToken.None))
             .ReturnsAsync(new ValidationResult());
 
-            _mockDeclarantRepo.Setup(r => r.UpdateDeclarantAsync(declarant))
+            _mockDeclarantRepo.Setup(r => r.UpdateDeclarantAsync(It.IsAny<Declarant>()))
                 .ReturnsAsync(0);
 
             // Act
-            var result = await _declarantsController.UpdateAsync(declarant, id);
+            var result = await _declarantsController.UpdateAsync(fakeDeclarant, fakeDeclarant.Id);
 
             // Assert
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
@@ -208,13 +200,13 @@ namespace TaxManagementControllerTests
         public async Task DeleteAsync_ReturnsNoContent_WhenValidRequestIsMade()
         {
             // Arrange
-            var id = Guid.NewGuid();
+            var fakeDeclarantId = Guid.NewGuid();
 
-            _mockDeclarantRepo.Setup(r => r.SetDeleteDeclarantAsync(id, true))
+            _mockDeclarantRepo.Setup(r => r.SetDeleteDeclarantAsync(It.IsAny<Guid>(), true))
                 .ReturnsAsync(1);
 
             // Act
-            var result = await _declarantsController.DeleteAsync(id);
+            var result = await _declarantsController.DeleteAsync(fakeDeclarantId);
 
             // Assert
             var noContentResult = Assert.IsType<NoContentResult>(result);
@@ -224,13 +216,13 @@ namespace TaxManagementControllerTests
         public async Task DeleteAsync_ReturnsNotFound_WhenDeclarantNotFound()
         {
             // Arrange
-            var id = Guid.NewGuid();
+            var fakeDeclarantId = Guid.NewGuid();
 
-            _mockDeclarantRepo.Setup(r => r.SetDeleteDeclarantAsync(id, true))
+            _mockDeclarantRepo.Setup(r => r.SetDeleteDeclarantAsync(It.IsAny<Guid>(), true))
                 .ReturnsAsync(0);
 
             // Act
-            var result = await _declarantsController.DeleteAsync(id);
+            var result = await _declarantsController.DeleteAsync(fakeDeclarantId);
 
             // Assert
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
@@ -242,13 +234,13 @@ namespace TaxManagementControllerTests
         public async Task UndeleteAsync_ReturnsNoContent_WhenValidRequestIsMade()
         {
             // Arrange
-            var id = Guid.NewGuid();
+            var fakeDeclarantId = Guid.NewGuid();
 
-            _mockDeclarantRepo.Setup(r => r.SetDeleteDeclarantAsync(id, false))
+            _mockDeclarantRepo.Setup(r => r.SetDeleteDeclarantAsync(It.IsAny<Guid>(), false))
                 .ReturnsAsync(1);
 
             // Act
-            var result = await _declarantsController.UndeleteAsync(id);
+            var result = await _declarantsController.UndeleteAsync(fakeDeclarantId);
 
             // Assert
             var noContentResult = Assert.IsType<NoContentResult>(result);
@@ -258,13 +250,13 @@ namespace TaxManagementControllerTests
         public async Task UndeleteAsync_ReturnsNotFound_WhenDeclarantNotFound()
         {
             // Arrange
-            var id = Guid.NewGuid();
+            var fakeDeclarantId = Guid.NewGuid();
 
-            _mockDeclarantRepo.Setup(r => r.SetDeleteDeclarantAsync(id, false))
+            _mockDeclarantRepo.Setup(r => r.SetDeleteDeclarantAsync(It.IsAny<Guid>(), false))
                 .ReturnsAsync(0);
 
             // Act
-            var result = await _declarantsController.UndeleteAsync(id);
+            var result = await _declarantsController.UndeleteAsync(fakeDeclarantId);
 
             // Assert
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);

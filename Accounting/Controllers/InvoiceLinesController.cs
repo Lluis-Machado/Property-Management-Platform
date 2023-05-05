@@ -32,7 +32,7 @@ namespace Accounting.Controllers
         {
             // request validations
             if (invoiceLine == null) return BadRequest("Incorrect body format");
-            if (invoiceLine.Id != Guid.Empty) return BadRequest("invoiceLine Id field must be empty");
+            if (invoiceLine.Id != Guid.Empty) return BadRequest("InvoiceLine Id field must be empty");
 
             // invoiceLine validation
             ValidationResult validationResult = await _invoiceLineValidator.ValidateAsync(invoiceLine);
@@ -66,7 +66,7 @@ namespace Accounting.Controllers
         {
             // request validations
             if (invoiceLine == null) return BadRequest("Incorrect body format");
-            if (invoiceLine.Id != invoiceLineId) return BadRequest("invoiceLine Id from body incorrect");
+            if (invoiceLine.Id != invoiceLineId) return BadRequest("InvoiceLine Id from body incorrect");
 
             // invoiceLine validation
             ValidationResult validationResult = await _invoiceLineValidator.ValidateAsync(invoiceLine);

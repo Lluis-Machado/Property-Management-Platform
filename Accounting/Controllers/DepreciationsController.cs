@@ -31,7 +31,7 @@ namespace Accounting.Controllers
         {
             // request validations
             if (depreciation == null) return BadRequest("Incorrect body format");
-            if (depreciation.Id != Guid.Empty) return BadRequest("depreciation Id field must be empty");
+            if (depreciation.Id != Guid.Empty) return BadRequest("Depreciation Id field must be empty");
 
             // depreciation validation
             ValidationResult validationResult = await _depreciationValidator.ValidateAsync(depreciation);
@@ -67,7 +67,7 @@ namespace Accounting.Controllers
         {
             // request validations
             if (depreciation == null) return BadRequest("Incorrect body format");
-            if (depreciation.Id != depreciationId) return BadRequest("depreciation Id from body incorrect");
+            if (depreciation.Id != depreciationId) return BadRequest("Depreciation Id from body incorrect");
 
             // depreciation validation
             ValidationResult validationResult = await _depreciationValidator.ValidateAsync(depreciation);

@@ -65,7 +65,7 @@ namespace Accounting.Controllers
         {
             // request validations
             if (fixedAsset == null) return BadRequest("Incorrect body format");
-            if (fixedAsset.Id != fixedAssetId) return BadRequest("fixedAsset Id from body incorrect");
+            if (fixedAsset.Id != fixedAssetId) return BadRequest("FixedAsset Id from body incorrect");
 
             // fixedAsset validation
             ValidationResult validationResult = await _fixedAssetValidator.ValidateAsync(fixedAsset);
@@ -76,7 +76,7 @@ namespace Accounting.Controllers
             await _fixedAssetValidator.ValidateAndThrowAsync(fixedAsset);
 
             int result = await _fixedAssetRepo.UpdateFixedAssetAsync(fixedAsset);
-            if (result == 0) return BadRequest("fixedAsset not found");
+            if (result == 0) return NotFound("FixedAsset not found");
             return NoContent();
         }
 
@@ -90,7 +90,7 @@ namespace Accounting.Controllers
         public async Task<IActionResult> DeleteAsync(Guid fixedAssetId)
         {
             int result = await _fixedAssetRepo.SetDeleteFixedAssetAsync(fixedAssetId, true);
-            if (result == 0) return NotFound("fixedAsset not found");
+            if (result == 0) return NotFound("FixedAsset not found");
             return NoContent();
         }
 
@@ -104,7 +104,7 @@ namespace Accounting.Controllers
         public async Task<IActionResult> UndeleteAsync(Guid fixedAssetId)
         {
             int result = await _fixedAssetRepo.SetDeleteFixedAssetAsync(fixedAssetId, false);
-            if (result == 0) return NotFound("fixedAsset not found");
+            if (result == 0) return NotFound("FixedAsset not found");
             return NoContent();
         }
     }

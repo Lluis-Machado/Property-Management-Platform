@@ -166,7 +166,7 @@ namespace Accounting.Repositories
                 };
                 StringBuilder queryBuilder = new();
                 queryBuilder.Append("INSERT INTO Invoices (");
-                queryBuilder.Append(" BusinessPartnerID");
+                queryBuilder.Append(" BusinessPartnerId");
                 queryBuilder.Append(" ,RefNumber");
                 queryBuilder.Append(" ,Date");
                 queryBuilder.Append(" ,Currency");
@@ -185,7 +185,7 @@ namespace Accounting.Repositories
                 queryBuilder.Append(" ,INSERTED.LastModificationDate");
                 queryBuilder.Append(" ,INSERTED.LastModificationByUser");
                 queryBuilder.Append(" VALUES(");
-                queryBuilder.Append(" @BusinessPartnerID");
+                queryBuilder.Append(" @BusinessPartnerId");
                 queryBuilder.Append(" ,@RefNumber");
                 queryBuilder.Append(" ,@Date");
                 queryBuilder.Append(" ,@Currency");
@@ -351,7 +351,7 @@ namespace Accounting.Repositories
 
                 StringBuilder queryBuilder = new();
                 queryBuilder.Append("UPDATE Invoices");
-                queryBuilder.Append(" SET BusinessPartnerID = @BusinessPartnerID");
+                queryBuilder.Append(" SET BusinessPartnerId = @BusinessPartnerId");
                 queryBuilder.Append(" ,RefNumber = @RefNumber");
                 queryBuilder.Append(" ,Date = @Date");
                 queryBuilder.Append(" ,Currency = @Currency");

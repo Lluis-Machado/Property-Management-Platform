@@ -32,7 +32,7 @@ namespace Accounting.Controllers
         {
             // request validations
             if (tenant == null) return BadRequest("Incorrect body format");
-            if (tenant.Id != Guid.Empty) return BadRequest("tenant Id field must be empty");
+            if (tenant.Id != Guid.Empty) return BadRequest("Tenant Id field must be empty");
 
             // tenant validation
             ValidationResult validationResult = await _tenantValidator.ValidateAsync(tenant);
@@ -65,7 +65,7 @@ namespace Accounting.Controllers
         {
             // request validations
             if (tenant == null) return BadRequest("Incorrect body format");
-            if (tenant.Id != tenantId) return BadRequest("tenant Id from body incorrect");
+            if (tenant.Id != tenantId) return BadRequest("Tenant Id from body incorrect");
 
             // tenant validation
             ValidationResult validationResult = await _tenantValidator.ValidateAsync(tenant);

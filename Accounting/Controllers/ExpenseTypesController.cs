@@ -32,7 +32,7 @@ namespace Accounting.Controllers
         {
             // request validations
             if (expenseType == null) return BadRequest("Incorrect body format");
-            if (expenseType.Id != Guid.Empty) return BadRequest("expenseType Id field must be empty");
+            if (expenseType.Id != Guid.Empty) return BadRequest("ExpenseType Id field must be empty");
 
             // expenseType validation
             ValidationResult validationResult = await _expenseTypeValidator.ValidateAsync(expenseType);
@@ -65,7 +65,7 @@ namespace Accounting.Controllers
         {
             // request validations
             if (expenseType == null) return BadRequest("Incorrect body format");
-            if (expenseType.Id != expenseTypeId) return BadRequest("expenseTypeId from body incorrect");
+            if (expenseType.Id != expenseTypeId) return BadRequest("ExpenseType Id from body incorrect");
 
             // expenseType validation
             ValidationResult validationResult = await _expenseTypeValidator.ValidateAsync(expenseType);
@@ -88,7 +88,7 @@ namespace Accounting.Controllers
         public async Task<IActionResult> DeleteAsync(Guid expenseTypeId)
         {
             int result = await _expenseTypeRepo.SetDeleteExpenseTypeAsync(expenseTypeId, true);
-            if (result == 0) return BadRequest("ExpenseType not found");
+            if (result == 0) return NotFound("ExpenseType not found");
             return NoContent();
         }
 
@@ -102,7 +102,7 @@ namespace Accounting.Controllers
         public async Task<IActionResult> UndeleteAsync(Guid expenseTypeId)
         {
             int result = await _expenseTypeRepo.SetDeleteExpenseTypeAsync(expenseTypeId, false);
-            if (result == 0) return BadRequest("ExpenseType not found");
+            if (result == 0) return NotFound("ExpenseType not found");
             return NoContent();
         }
 

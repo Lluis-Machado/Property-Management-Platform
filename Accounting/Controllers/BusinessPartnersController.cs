@@ -32,7 +32,7 @@ namespace Accounting.Controllers
         {
             // request validations
             if (businessPartner == null) return BadRequest("Incorrect body format");
-            if (businessPartner.Id != Guid.Empty) return BadRequest("businessPartner Id field must be empty");
+            if (businessPartner.Id != Guid.Empty) return BadRequest("BusinessPartner Id field must be empty");
 
             // businessPartner validation
             ValidationResult validationResult = await _businessPartnerValidator.ValidateAsync(businessPartner);
@@ -65,7 +65,7 @@ namespace Accounting.Controllers
         {
             // request validations
             if (businessPartner == null) return BadRequest("Incorrect body format");
-            if (businessPartner.Id != businessPartnerId) return BadRequest("businessPartner Id from body incorrect");
+            if (businessPartner.Id != businessPartnerId) return BadRequest("BusinessPartner Id from body incorrect");
 
             // businessPartner validation
             ValidationResult validationResult = await _businessPartnerValidator.ValidateAsync(businessPartner);
@@ -88,7 +88,7 @@ namespace Accounting.Controllers
         public async Task<IActionResult> DeleteAsync(Guid businessPartnerId)
         {
             int result = await _businessPartnerRepo.SetDeleteBusinessPartnerAsync(businessPartnerId, true);
-            if (result == 0) return NotFound("businessPartner not found");
+            if (result == 0) return NotFound("BusinessPartner not found");
             return NoContent();
         }
 
@@ -102,7 +102,7 @@ namespace Accounting.Controllers
         public async Task<IActionResult> UndeleteAsync(Guid businessPartnerId)
         {
             int result = await _businessPartnerRepo.SetDeleteBusinessPartnerAsync(businessPartnerId, false);
-            if (result == 0) return NotFound("businessPartner not found");
+            if (result == 0) return NotFound("BusinessPartner not found");
             return NoContent();
         }
     }

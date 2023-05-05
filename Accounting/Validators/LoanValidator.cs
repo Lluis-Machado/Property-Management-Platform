@@ -7,7 +7,7 @@ namespace Accounting.Validators
     {
         public LoanValidator()
         {
-            RuleFor(loan => loan.BusinessPartnerID)
+            RuleFor(loan => loan.BusinessPartnerId)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty");
 
             RuleFor(loan => loan.Concept)

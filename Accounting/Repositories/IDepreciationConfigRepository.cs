@@ -8,6 +8,6 @@ namespace Accounting.Repositories
         Task<IEnumerable<DepreciationConfig>> GetDepreciationConfigsAsync();
         Task<DepreciationConfig> GetDepreciationConfigByIdAsync(Guid DepreciationConfigId);
         Task<int> UpdateDepreciationConfigAsync(DepreciationConfig DepreciationConfig);
-        Task<int> SetDeleteDepereciationConfigAsync(Guid id, bool deleted);
+        Task<int> SetDeleteDepreciationConfigAsync(Guid id, bool deleted);
     }
 }

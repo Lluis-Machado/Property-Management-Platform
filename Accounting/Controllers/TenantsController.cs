@@ -25,20 +25,21 @@ namespace Accounting.Controllers
         [Authorize]
         [HttpPost]
         [Route("tenants")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<Guid>> CreateAsync([FromBody] Tenant tenant)
         {
             // request validations
             if (tenant == null) return BadRequest("Incorrect body format");
-            if (tenant.Id != Guid.Empty) return BadRequest("tenant Id field must be empty");
+            if (tenant.Id != Guid.Empty) return BadRequest("Tenant Id field must be empty");
 
             // tenant validation
             ValidationResult validationResult = await _tenantValidator.ValidateAsync(tenant);
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
-            return Ok(await _tenantRepo.InsertTenantAsync(tenant));
+            tenant = await _tenantRepo.InsertTenantAsync(tenant);
+            return Created($"tenants/{tenant.Id}", tenant);
         }
 
         // GET: Get tenant(s)
@@ -56,14 +57,15 @@ namespace Accounting.Controllers
         [Authorize]
         [HttpPost]
         [Route("tenants/{tenantId}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UpdateAsync([FromBody] Tenant tenant, Guid tenantId)
         {
             // request validations
             if (tenant == null) return BadRequest("Incorrect body format");
-            if (tenant.Id != tenantId) return BadRequest("tenant Id from body incorrect");
+            if (tenant.Id != tenantId) return BadRequest("Tenant Id from body incorrect");
 
             // tenant validation
             ValidationResult validationResult = await _tenantValidator.ValidateAsync(tenant);
@@ -73,33 +75,35 @@ namespace Accounting.Controllers
 
             int result = await _tenantRepo.UpdateTenantAsync(tenant);
             if (result == 0) return NotFound("Tenant not found");
-            return Ok();
+            return NoContent();
         }
 
         // DELETE: delete tenant
         [Authorize]
         [HttpDelete]
         [Route("tenants/{tenantId}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> DeleteAsync(Guid tenantId)
         {
             int result = await _tenantRepo.SetDeleteTenantAsync(tenantId, true);
             if (result == 0) return NotFound("Tenant not found");
-            return Ok();
+            return NoContent();
         }
 
         // POST: undelete tenant
         [Authorize]
         [HttpPost]
         [Route("tenants/{tenantId}/undelete")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UndeleteAsync(Guid tenantId)
         {
             int result = await _tenantRepo.SetDeleteTenantAsync(tenantId, false);
             if (result == 0) return NotFound("Tenant not found");
-            return Ok();
+            return NoContent();
         }
     }
 }

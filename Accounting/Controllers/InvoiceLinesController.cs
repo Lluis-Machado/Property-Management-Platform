@@ -25,14 +25,14 @@ namespace Accounting.Controllers
         [Authorize]
         [HttpPost]
         [Route("invoiceLines")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<Guid>> CreateAsync([FromBody] InvoiceLine invoiceLine)
         {
             // request validations
             if (invoiceLine == null) return BadRequest("Incorrect body format");
-            if (invoiceLine.Id != Guid.Empty) return BadRequest("invoiceLine Id field must be empty");
+            if (invoiceLine.Id != Guid.Empty) return BadRequest("InvoiceLine Id field must be empty");
 
             // invoiceLine validation
             ValidationResult validationResult = await _invoiceLineValidator.ValidateAsync(invoiceLine);
@@ -40,7 +40,8 @@ namespace Accounting.Controllers
 
             await _invoiceLineValidator.ValidateAndThrowAsync(invoiceLine);
 
-            return Ok(await _invoiceLineRepo.InsertInvoiceLineAsync(invoiceLine));
+            invoiceLine = await _invoiceLineRepo.InsertInvoiceLineAsync(invoiceLine);
+            return Created($"invoiceLines/{invoiceLine.Id}", invoiceLine);
         }
 
         // GET: Get invoiceLine(s)
@@ -57,14 +58,15 @@ namespace Accounting.Controllers
         [Authorize]
         [HttpPost]
         [Route("invoiceLines/{invoiceLineId}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult> UpdateAsync([FromBody] InvoiceLine invoiceLine, Guid invoiceLineId)
         {
             // request validations
             if (invoiceLine == null) return BadRequest("Incorrect body format");
-            if (invoiceLine.Id != invoiceLineId) return BadRequest("invoiceLine Id from body incorrect");
+            if (invoiceLine.Id != invoiceLineId) return BadRequest("InvoiceLine Id from body incorrect");
 
             // invoiceLine validation
             ValidationResult validationResult = await _invoiceLineValidator.ValidateAsync(invoiceLine);
@@ -74,33 +76,35 @@ namespace Accounting.Controllers
 
             int result = await _invoiceLineRepo.UpdateInvoiceLineAsync(invoiceLine);
             if (result == 0) return NotFound("InvoiceLine not found");
-            return Ok();
+            return NoContent();
         }
 
         // DELETE: delete invoiceLine
         [Authorize]
         [HttpDelete]
         [Route("invoiceLines/{invoiceLineId}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> DeleteAsync(Guid invoiceLineId)
         {
             int result = await _invoiceLineRepo.SetDeleteInvoiceLineAsync(invoiceLineId, true);
             if (result == 0) return NotFound("InvoiceLine not found");
-            return Ok();
+            return NoContent();
         }
 
         // POST: undelete invoiceLine
         [Authorize]
         [HttpPost]
         [Route("invoiceLines/{invoiceLineId}/undelete")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UndeleteAsync(Guid invoiceLineId)
         {
             int result = await _invoiceLineRepo.SetDeleteInvoiceLineAsync(invoiceLineId, false);
             if (result == 0) return NotFound("InvoiceLine not found");
-            return Ok();
+            return NoContent();
         }
     }
 }

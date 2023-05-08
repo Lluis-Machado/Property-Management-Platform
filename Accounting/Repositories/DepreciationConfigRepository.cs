@@ -83,7 +83,7 @@ namespace Accounting.Repositories
                 .QuerySingleAsync<DepreciationConfig>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<int> SetDeleteDepereciationConfigAsync(Guid id, bool deleted)
+        public async Task<int> SetDeleteDepreciationConfigAsync(Guid id, bool deleted)
         {
             var parameters = new
             {

@@ -71,7 +71,7 @@ namespace Tenants.Controllers
 
         // POST: Undelete tenant
         [Authorize]
-        [HttpPost]
+        [HttpPatch]
         [Route("tenants/{tenantName}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]

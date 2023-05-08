@@ -17,6 +17,8 @@ namespace AccountingUnitTests
         private readonly Mock<IValidator<InvoiceLine>> _mockInvoiceLineValidator;
         private readonly Mock<IConfiguration> _mockConfiguration;
         private readonly Mock<IInvoiceLineRepository> _mockInvoiceLineRepo;
+        private readonly Mock<IInvoiceRepository> _mockInvoiceRepo;
+        private readonly Mock<IExpenseTypeRepository> _mockExpenseTypeRepo;
         private readonly InvoiceLinesController _invoiceLinesController;
     
         public InvoiceLinesControllerTests() 
@@ -25,7 +27,9 @@ namespace AccountingUnitTests
             _mockInvoiceLineValidator = new Mock<IValidator<InvoiceLine>>();
             _mockConfiguration = new Mock<IConfiguration>();
             _mockInvoiceLineRepo = new Mock<IInvoiceLineRepository>();
-            _invoiceLinesController = new InvoiceLinesController(_mockInvoiceLineRepo.Object, _mockInvoiceLineValidator.Object, _mockLogger.Object);
+            _mockInvoiceRepo = new Mock<IInvoiceRepository>();
+            _mockExpenseTypeRepo = new Mock<IExpenseTypeRepository>();
+            _invoiceLinesController = new InvoiceLinesController(_mockInvoiceLineRepo.Object, _mockInvoiceRepo.Object, _mockExpenseTypeRepo.Object, _mockInvoiceLineValidator.Object, _mockLogger.Object);
         }
 
         #region Create
@@ -34,6 +38,8 @@ namespace AccountingUnitTests
         public async Task CreateAsync_ReturnCreatedResult_WhenValidRequestIsMade()
         {
             // Arrange
+            var fakeInvoice = new Invoice { Id = Guid.NewGuid()};
+            var fakeExpenseType = new ExpenseType { Id = Guid.NewGuid()};
             var fakeInvoiceLine = new InvoiceLine
             {
                 LineNumber = 0,
@@ -44,8 +50,8 @@ namespace AccountingUnitTests
                 UnitPrice = 0,
                 DateRefFrom = DateTime.Now,
                 DateRefTo = DateTime.Now,
-                ExpenseTypeId = Guid.NewGuid(),
-                InvoiceId = Guid.NewGuid(),
+                ExpenseTypeId = fakeExpenseType.Id,
+                InvoiceId = fakeInvoice.Id,
             };
             var fakeExpectedInvoiceLine = new InvoiceLine
             {
@@ -57,8 +63,8 @@ namespace AccountingUnitTests
                 UnitPrice = 0,
                 DateRefFrom = DateTime.Now,
                 DateRefTo = DateTime.Now,
-                ExpenseTypeId = Guid.NewGuid(),
-                InvoiceId = Guid.NewGuid(),
+                ExpenseTypeId = fakeExpenseType.Id,
+                InvoiceId = fakeInvoice.Id,
                 Id = Guid.NewGuid(),
                 Deleted = false
             };
@@ -67,12 +73,20 @@ namespace AccountingUnitTests
                 .Setup(v => v.ValidateAsync(It.IsAny<InvoiceLine>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
+            _mockInvoiceRepo
+                .Setup(v => v.GetInvoiceByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(fakeInvoice);
+
+            _mockExpenseTypeRepo
+                .Setup(v => v.GetExpenseTypeByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(fakeExpenseType);
+
             _mockInvoiceLineRepo
                 .Setup(r => r.InsertInvoiceLineAsync(It.IsAny<InvoiceLine>()))
                 .ReturnsAsync(fakeExpectedInvoiceLine);
 
             // Act
-            var result = await _invoiceLinesController.CreateAsync(fakeInvoiceLine);
+            var result = await _invoiceLinesController.CreateAsync(fakeInvoiceLine, fakeInvoice.Id, fakeExpenseType.Id);
 
             // Assert
             var createdResult = Assert.IsType<CreatedResult>(result.Result);
@@ -83,6 +97,8 @@ namespace AccountingUnitTests
         public async Task CreateAsync_ReturnsBadRequestResult_WhenIdFieldIsNotEmpty()
         {
             // Arrange
+            var fakeInvoice = new Invoice { Id = Guid.NewGuid() };
+            var fakeExpenseType = new ExpenseType { Id = Guid.NewGuid() };
             var fakeInvoiceLine = new InvoiceLine
             {
                 LineNumber = 0,
@@ -93,13 +109,13 @@ namespace AccountingUnitTests
                 UnitPrice = 0,
                 DateRefFrom = DateTime.Now,
                 DateRefTo = DateTime.Now,
-                ExpenseTypeId = Guid.NewGuid(),
-                InvoiceId = Guid.NewGuid(),
-                Id = Guid.NewGuid()
+                ExpenseTypeId = fakeExpenseType.Id,
+                InvoiceId = fakeInvoice.Id,
+                Id = Guid.NewGuid(),
             };
 
             // Act
-            var result = await _invoiceLinesController.CreateAsync(fakeInvoiceLine);
+            var result = await _invoiceLinesController.CreateAsync(fakeInvoiceLine, fakeInvoice.Id, fakeExpenseType.Id);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
@@ -110,6 +126,8 @@ namespace AccountingUnitTests
         public async Task CreateAsync_ReturnsBadRequestResult_WhenValidationIsNotValid()
         {
             // Arrange
+            var fakeInvoice = new Invoice { Id = Guid.NewGuid()};
+            var fakeExpenseType = new ExpenseType { Id = Guid.NewGuid() };
             var fakeInvoiceLine = new InvoiceLine
             {
                 LineNumber = 0,
@@ -120,8 +138,8 @@ namespace AccountingUnitTests
                 UnitPrice = 0,
                 DateRefFrom = DateTime.Now,
                 DateRefTo = DateTime.Now,
-                ExpenseTypeId = Guid.NewGuid(),
-                InvoiceId = Guid.NewGuid(),
+                ExpenseTypeId = fakeExpenseType.Id,
+                InvoiceId = fakeInvoice.Id,
             };
 
             var validationResult = new ValidationResult(new List<ValidationFailure> { new ValidationFailure("Name", "Name cannot be empty") });
@@ -131,7 +149,7 @@ namespace AccountingUnitTests
                 .ReturnsAsync(validationResult);
 
             // Act
-            var result = await _invoiceLinesController.CreateAsync(fakeInvoiceLine);
+            var result = await _invoiceLinesController.CreateAsync(fakeInvoiceLine, fakeInvoice.Id, fakeExpenseType.Id);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
@@ -216,6 +234,8 @@ namespace AccountingUnitTests
         public async Task UpdateAsync_ReturnsNoContent_WhenValidRequestIsMade()
         {
             // Arrange
+            var fakeInvoice = new Invoice { Id = Guid.NewGuid() };
+            var fakeExpenseType = new ExpenseType { Id = Guid.NewGuid() };
             var fakeInvoiceLine = new InvoiceLine
             {
                 LineNumber = 0,
@@ -235,12 +255,20 @@ namespace AccountingUnitTests
                 .Setup(v => v.ValidateAsync(It.IsAny<InvoiceLine>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
+            _mockInvoiceRepo
+                .Setup(v => v.GetInvoiceByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(fakeInvoice);
+
+            _mockExpenseTypeRepo
+                .Setup(v => v.GetExpenseTypeByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(fakeExpenseType);
+
             _mockInvoiceLineRepo
                 .Setup(r => r.UpdateInvoiceLineAsync(fakeInvoiceLine))
                 .ReturnsAsync(1);
 
             // Act
-            var result = await _invoiceLinesController.UpdateAsync(fakeInvoiceLine, fakeInvoiceLine.Id);
+            var result = await _invoiceLinesController.UpdateAsync(fakeInvoiceLine, fakeInvoice.Id, fakeExpenseType.Id, fakeInvoiceLine.Id);
 
             // Assert
             var noContentResult = Assert.IsType<NoContentResult>(result);
@@ -250,6 +278,8 @@ namespace AccountingUnitTests
         public async Task UpdateAsync_ReturnsBadResuqest_WhenInvoiceLineIdDoesNotMatch()
         {
             // Arrange
+            var fakeInvoice = new Invoice { Id = Guid.NewGuid() };
+            var fakeExpenseType = new ExpenseType { Id = Guid.NewGuid() };
             var fakeInvoiceLine = new InvoiceLine
             {
                 LineNumber = 0,
@@ -266,7 +296,7 @@ namespace AccountingUnitTests
             }; ;
 
             // Act
-            var result = await _invoiceLinesController.UpdateAsync(fakeInvoiceLine, Guid.NewGuid());
+            var result = await _invoiceLinesController.UpdateAsync(fakeInvoiceLine, fakeInvoice.Id, fakeExpenseType.Id, Guid.NewGuid());
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -277,6 +307,8 @@ namespace AccountingUnitTests
         public async Task UpdateAsync_ReturnsBadResuqest_WhenInvoiceLineValidationNotValid()
         {
             // Arrange
+            var fakeInvoice = new Invoice { Id = Guid.NewGuid() };
+            var fakeExpenseType = new ExpenseType { Id = Guid.NewGuid() };
             var fakeInvoiceLine = new InvoiceLine
             {
                 LineNumber = 0,
@@ -299,7 +331,7 @@ namespace AccountingUnitTests
                 .ReturnsAsync(validationResult);
 
             // Act
-            var result = await _invoiceLinesController.UpdateAsync(fakeInvoiceLine, fakeInvoiceLine.Id);
+            var result = await _invoiceLinesController.UpdateAsync(fakeInvoiceLine, fakeInvoice.Id, fakeExpenseType.Id, fakeInvoiceLine.Id);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -310,6 +342,8 @@ namespace AccountingUnitTests
         public async Task UpdateAsync_ReturnsNotFound_WhenInvoiceLineNotFound()
         {
             // Arrange
+            var fakeInvoice = new Invoice { Id = Guid.NewGuid() };
+            var fakeExpenseType = new ExpenseType { Id = Guid.NewGuid() };
             var fakeInvoiceLine = new InvoiceLine
             {
                 LineNumber = 0,
@@ -329,12 +363,20 @@ namespace AccountingUnitTests
                 .Setup(v => v.ValidateAsync(It.IsAny<InvoiceLine>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
+            _mockInvoiceRepo
+                .Setup(v => v.GetInvoiceByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(fakeInvoice);
+
+            _mockExpenseTypeRepo
+                .Setup(v => v.GetExpenseTypeByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(fakeExpenseType);
+
             _mockInvoiceLineRepo
                 .Setup(r => r.UpdateInvoiceLineAsync(It.IsAny<InvoiceLine>()))
                 .ReturnsAsync(0);
 
             // Act
-            var result = await _invoiceLinesController.UpdateAsync(fakeInvoiceLine, fakeInvoiceLine.Id);
+            var result = await _invoiceLinesController.UpdateAsync(fakeInvoiceLine, fakeInvoice.Id, fakeExpenseType.Id, fakeInvoiceLine.Id);
 
             // Assert
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);

@@ -6,7 +6,7 @@ namespace Accounting.Repositories
     {
         Task<BusinessPartner> InsertBusinessPartnerAsync(BusinessPartner businessPartner);
         Task<IEnumerable<BusinessPartner>> GetBusinessPartnersAsync();
-        Task<BusinessPartner> GetBusinessPartnerByIdAsync(Guid businessPartnerId);
+        Task<BusinessPartner?> GetBusinessPartnerByIdAsync(Guid businessPartnerId);
         Task<int> UpdateBusinessPartnerAsync(BusinessPartner businessPartner);
         Task<int> SetDeleteBusinessPartnerAsync(Guid id, bool deleted);
     }

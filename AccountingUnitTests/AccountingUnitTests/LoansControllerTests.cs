@@ -16,6 +16,7 @@ namespace AccountingUnitTests
         private readonly Mock<IValidator<Loan>> _mockLoanValidator;
         private readonly Mock<IConfiguration> _mockConfiguration;
         private readonly Mock<ILoanRepository> _mockLoanRepo;
+        private readonly Mock<IBusinessPartnerRepository> _mockBusinessPartnerRepo;
         private readonly LoansController _loansController;
 
         public LoansControllerTests()
@@ -24,7 +25,8 @@ namespace AccountingUnitTests
             _mockLoanValidator = new Mock<IValidator<Loan>>();
             _mockConfiguration = new Mock<IConfiguration>();
             _mockLoanRepo = new Mock<ILoanRepository>();
-            _loansController = new LoansController(_mockLoanRepo.Object, _mockLoanValidator.Object, _mockLogger.Object);
+            _mockBusinessPartnerRepo = new Mock<IBusinessPartnerRepository>();
+            _loansController = new LoansController(_mockLoanRepo.Object, _mockBusinessPartnerRepo.Object, _mockLoanValidator.Object, _mockLogger.Object);
         }
 
         #region Create
@@ -33,16 +35,24 @@ namespace AccountingUnitTests
         public async Task CreateAsync_ReturnCreatedResult_WhenValidRequestIsMade()
         {
             // Arrange
+            var fakeBusinessPartner = new BusinessPartner
+            {
+                AccountID = "FakeAccountId",
+                Name = "FakeName",
+                Type = "FakeType",
+                VATNumber = "FakeVATNumber",
+                Id = Guid.NewGuid(),
+            };
             var fakeLoan = new Loan
             {
-                BusinessPartnerId = Guid.NewGuid(),
+                BusinessPartnerId = fakeBusinessPartner.Id,
                 Concept = "FakeConcept",
                 Amount = 0,
                 AmountPaid = 0,
             };
             var fakeExpectedLoan = new Loan
             {
-                BusinessPartnerId = Guid.NewGuid(),
+                BusinessPartnerId = fakeBusinessPartner.Id,
                 Concept = "FakeConcept",
                 Amount = 0,
                 AmountPaid = 0,
@@ -54,12 +64,16 @@ namespace AccountingUnitTests
                 .Setup(v => v.ValidateAsync(It.IsAny<Loan>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
+            _mockBusinessPartnerRepo
+                .Setup(v => v.GetBusinessPartnerByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(fakeBusinessPartner);
+
             _mockLoanRepo
                 .Setup(r => r.InsertLoanAsync(It.IsAny<Loan>()))
                 .ReturnsAsync(fakeExpectedLoan);
 
             // Act
-            var result = await _loansController.CreateAsync(fakeLoan);
+            var result = await _loansController.CreateAsync(fakeLoan, fakeLoan.BusinessPartnerId);
 
             // Assert
             var createdResult = Assert.IsType<CreatedResult>(result.Result);
@@ -80,7 +94,7 @@ namespace AccountingUnitTests
             };
 
             // Act
-            var result = await _loansController.CreateAsync(fakeLoan);
+            var result = await _loansController.CreateAsync(fakeLoan, fakeLoan.BusinessPartnerId);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
@@ -106,11 +120,49 @@ namespace AccountingUnitTests
                 .ReturnsAsync(validationResult);
 
             // Act
-            var result = await _loansController.CreateAsync(fakeLoan);
+            var result = await _loansController.CreateAsync(fakeLoan, fakeLoan.BusinessPartnerId);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
             Assert.Equal("Name cannot be empty", badRequestResult.Value);
+        }
+
+        [Fact]
+        public async Task CreateAsync_ReturnsNotFoundResult_WhenBusinessPartnerNotFound()
+        {
+            // Arrange
+            var fakeBusinessPartner = new BusinessPartner
+            {
+                AccountID = "FakeAccountId",
+                Name = "FakeName",
+                Type = "FakeType",
+                VATNumber = "FakeVATNumber",
+                Id = Guid.NewGuid(),
+            };
+            var fakeLoan = new Loan
+            {
+                BusinessPartnerId = fakeBusinessPartner.Id,
+                Concept = "FakeConcept",
+                Amount = 0,
+                AmountPaid = 0,
+            };
+
+            fakeBusinessPartner = null;
+
+            _mockLoanValidator
+                .Setup(v => v.ValidateAsync(It.IsAny<Loan>(), CancellationToken.None))
+                .ReturnsAsync(new ValidationResult());
+
+            _mockBusinessPartnerRepo
+                .Setup(v => v.GetBusinessPartnerByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(fakeBusinessPartner);
+
+            // Act
+            var result = await _loansController.CreateAsync(fakeLoan, fakeLoan.BusinessPartnerId);
+
+            // Assert
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+            Assert.Equal("BusinessPartner not found", notFoundResult.Value);
         }
 
         #endregion
@@ -179,6 +231,14 @@ namespace AccountingUnitTests
         public async Task UpdateAsync_ReturnsNoContent_WhenValidRequestIsMade()
         {
             // Arrange
+            var fakeBusinessPartner = new BusinessPartner
+            {
+                AccountID = "FakeAccountId",
+                Name = "FakeName",
+                Type = "FakeType",
+                VATNumber = "FakeVATNumber",
+                Id = Guid.NewGuid(),
+            };
             var fakeLoan = new Loan
             {
                 BusinessPartnerId = Guid.NewGuid(),
@@ -192,12 +252,16 @@ namespace AccountingUnitTests
                 .Setup(v => v.ValidateAsync(It.IsAny<Loan>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
+            _mockBusinessPartnerRepo
+                .Setup(v => v.GetBusinessPartnerByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(fakeBusinessPartner);
+
             _mockLoanRepo
                 .Setup(r => r.UpdateLoanAsync(fakeLoan))
                 .ReturnsAsync(1);
 
             // Act
-            var result = await _loansController.UpdateAsync(fakeLoan, fakeLoan.Id);
+            var result = await _loansController.UpdateAsync(fakeLoan, fakeLoan.BusinessPartnerId, fakeLoan.Id);
 
             // Assert
             var noContentResult = Assert.IsType<NoContentResult>(result);
@@ -207,17 +271,25 @@ namespace AccountingUnitTests
         public async Task UpdateAsync_ReturnsBadResuqest_WhenLoanIdDoesNotMatch()
         {
             // Arrange
+            var fakeBusinessPartner = new BusinessPartner
+            {
+                AccountID = "FakeAccountId",
+                Name = "FakeName",
+                Type = "FakeType",
+                VATNumber = "FakeVATNumber",
+                Id = Guid.NewGuid(),
+            };
             var fakeLoan = new Loan
             {
-                BusinessPartnerId = Guid.NewGuid(),
+                BusinessPartnerId = fakeBusinessPartner.Id,
                 Concept = "FakeConcept",
                 Amount = 0,
                 AmountPaid = 0,
                 Id = Guid.NewGuid()
-            }; ;
+            };
 
             // Act
-            var result = await _loansController.UpdateAsync(fakeLoan, Guid.NewGuid());
+            var result = await _loansController.UpdateAsync(fakeLoan, fakeLoan.BusinessPartnerId, Guid.NewGuid());
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -244,7 +316,7 @@ namespace AccountingUnitTests
                 .ReturnsAsync(validationResult);
 
             // Act
-            var result = await _loansController.UpdateAsync(fakeLoan, fakeLoan.Id);
+            var result = await _loansController.UpdateAsync(fakeLoan, fakeLoan.BusinessPartnerId, fakeLoan.Id);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -255,6 +327,15 @@ namespace AccountingUnitTests
         public async Task UpdateAsync_ReturnsNotFound_WhenLoanNotFound()
         {
             // Arrange
+            var fakeBusinessPartner = new BusinessPartner
+            {
+                AccountID = "FakeAccountId",
+                Name = "FakeName",
+                Type = "FakeType",
+                VATNumber = "FakeVATNumber",
+                Id = Guid.NewGuid(),
+            };
+
             var fakeLoan = new Loan
             {
                 BusinessPartnerId = Guid.NewGuid(),
@@ -268,12 +349,16 @@ namespace AccountingUnitTests
                 .Setup(v => v.ValidateAsync(It.IsAny<Loan>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
+            _mockBusinessPartnerRepo
+                .Setup(v => v.GetBusinessPartnerByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(fakeBusinessPartner);
+
             _mockLoanRepo
                 .Setup(r => r.UpdateLoanAsync(It.IsAny<Loan>()))
                 .ReturnsAsync(0);
 
             // Act
-            var result = await _loansController.UpdateAsync(fakeLoan, fakeLoan.Id);
+            var result = await _loansController.UpdateAsync(fakeLoan, fakeLoan.BusinessPartnerId, fakeLoan.Id);
 
             // Assert
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);

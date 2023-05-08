@@ -15,7 +15,7 @@ namespace Accounting.Repositories
             _context = context;
         }
 
-        public async Task<Invoice> GetInvoiceByIdAsync(Guid invoiceId)
+        public async Task<Invoice?> GetInvoiceByIdAsync(Guid invoiceId)
         {
             using var connection = _context.CreateConnection();
             connection.Open();
@@ -42,7 +42,7 @@ namespace Accounting.Repositories
                 queryBuilder.Append(" FROM Invoices ");
                 queryBuilder.Append(" WHERE Id = @invoiceResponse");
 
-                Invoice invoice = await connection.QuerySingleAsync<Invoice>(queryBuilder.ToString(), parameters, tran);
+                Invoice? invoice = await connection.QuerySingleOrDefaultAsync<Invoice?>(queryBuilder.ToString(), parameters, tran);
 
                 StringBuilder queryBuilder2 = new();
                 queryBuilder.Append("SELECT ID");
@@ -194,7 +194,6 @@ namespace Accounting.Repositories
                 queryBuilder.Append(" ,@LastModificationByUser");
                 queryBuilder.Append(" )");
 
-
                 Invoice invoiceResponse = await connection.QuerySingleAsync<Invoice>(queryBuilder.ToString(), parameters, tran);
 
                 List<InvoiceLine> lines = new();
@@ -218,7 +217,8 @@ namespace Accounting.Repositories
                     };
                     StringBuilder lineQueryBuilder = new();
                     lineQueryBuilder.Append("INSERT INTO InvoiceLines (");
-                    lineQueryBuilder.Append(" LineNumber");
+                    lineQueryBuilder.Append(" InvoiceId");
+                    lineQueryBuilder.Append(" ,LineNumber");
                     lineQueryBuilder.Append(" ,ArticleRefNumber");
                     lineQueryBuilder.Append(" ,ArticleName");
                     lineQueryBuilder.Append(" ,Tax");
@@ -246,7 +246,8 @@ namespace Accounting.Repositories
                     lineQueryBuilder.Append(" ,INSERTED.LastModificationDate");
                     lineQueryBuilder.Append(" ,INSERTED.LastModificationByUser");
                     lineQueryBuilder.Append(" VALUES(");
-                    lineQueryBuilder.Append(" @LineNumber");
+                    lineQueryBuilder.Append(" @InvoiceId");
+                    lineQueryBuilder.Append(" ,@LineNumber");
                     lineQueryBuilder.Append(" ,@ArticleRefNumber");
                     lineQueryBuilder.Append(" ,@ArticleName");
                     lineQueryBuilder.Append(" ,@Tax");
@@ -271,6 +272,7 @@ namespace Accounting.Repositories
             catch
             {
                 tran.Rollback();
+                connection.Close();
                 throw;
             }
         }

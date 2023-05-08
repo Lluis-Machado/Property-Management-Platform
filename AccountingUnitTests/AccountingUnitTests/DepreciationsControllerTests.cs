@@ -37,13 +37,15 @@ namespace AccountingUnitTests
             var fakeDepreciation = new Depreciation
             {
                 FixedAssetId = Guid.NewGuid(),
-                Period = "FakePeriod",
+                PeriodStart = DateTime.Parse("2023-01-01"),
+                PeriodEnd = DateTime.Parse("2023-01-31"),
                 Amount = 0,
             };
             var fakeExpectedDepreciation = new Depreciation
             {
                 FixedAssetId = Guid.NewGuid(),
-                Period = "FakePeriod",
+                PeriodStart = DateTime.Parse("2023-01-01"),
+                PeriodEnd = DateTime.Parse("2023-01-31"),
                 Amount = 0,
                 Id = Guid.NewGuid(),
                 Deleted = false
@@ -72,7 +74,8 @@ namespace AccountingUnitTests
             var fakeDepreciation = new Depreciation
             {
                 FixedAssetId = Guid.NewGuid(),
-                Period = "FakePeriod",
+                PeriodStart = DateTime.Parse("2023-01-01"),
+                PeriodEnd = DateTime.Parse("2023-01-31"),
                 Amount = 0,
                 Id = Guid.NewGuid()
             };
@@ -92,7 +95,8 @@ namespace AccountingUnitTests
             var fakeDepreciation = new Depreciation
             {
                 FixedAssetId = Guid.NewGuid(),
-                Period = "FakePeriod",
+                PeriodStart = DateTime.Parse("2023-01-01"),
+                PeriodEnd = DateTime.Parse("2023-01-31"),
                 Amount = 0,
             };
 
@@ -123,7 +127,8 @@ namespace AccountingUnitTests
                 new Depreciation
                 {
                     FixedAssetId = Guid.NewGuid(),
-                    Period = "FakePeriod",
+                    PeriodStart = DateTime.Parse("2023-01-01"),
+                    PeriodEnd = DateTime.Parse("2023-01-31"),
                     Amount = 0,
                     Id = Guid.NewGuid(),
                     Deleted = false
@@ -131,7 +136,8 @@ namespace AccountingUnitTests
                 new Depreciation
                 {
                     FixedAssetId = Guid.NewGuid(),
-                    Period = "FakePeriod",
+                    PeriodStart = DateTime.Parse("2023-01-01"),
+                    PeriodEnd = DateTime.Parse("2023-01-31"),
                     Amount = 0,
                     Id = Guid.NewGuid(),
                     Deleted = false
@@ -177,7 +183,8 @@ namespace AccountingUnitTests
             var fakeDepreciation = new Depreciation
             {
                 FixedAssetId = Guid.NewGuid(),
-                Period = "FakePeriod",
+                PeriodStart = DateTime.Parse("2023-01-01"),
+                PeriodEnd = DateTime.Parse("2023-01-31"),
                 Amount = 0,
                 Id = Guid.NewGuid()
             };
@@ -204,7 +211,8 @@ namespace AccountingUnitTests
             var fakeDepreciation = new Depreciation
             {
                 FixedAssetId = Guid.NewGuid(),
-                Period = "FakePeriod",
+                PeriodStart = DateTime.Parse("2023-01-01"),
+                PeriodEnd = DateTime.Parse("2023-01-31"),
                 Amount = 0,
                 Id = Guid.NewGuid()
             }; ;
@@ -224,7 +232,8 @@ namespace AccountingUnitTests
             var fakeDepreciation = new Depreciation
             {
                 FixedAssetId = Guid.NewGuid(),
-                Period = "FakePeriod",
+                PeriodStart = DateTime.Parse("2023-01-01"),
+                PeriodEnd = DateTime.Parse("2023-01-31"),
                 Amount = 0,
                 Id = Guid.NewGuid()
             };
@@ -250,7 +259,8 @@ namespace AccountingUnitTests
             var fakeDepreciation = new Depreciation
             {
                 FixedAssetId = Guid.NewGuid(),
-                Period = "FakePeriod",
+                PeriodStart = DateTime.Parse("2023-01-01"),
+                PeriodEnd = DateTime.Parse("2023-01-31"),
                 Amount = 0,
                 Id = Guid.NewGuid()
             };

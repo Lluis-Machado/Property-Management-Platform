@@ -57,7 +57,7 @@ namespace Accounting.Controllers
 
         // POST: update depreciation
         [Authorize]
-        [HttpPost]
+        [HttpPatch]
         [Route("depreciations/{depreciationId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -105,5 +105,9 @@ namespace Accounting.Controllers
             if (result == 0) return NotFound("Depreciation not found");
             return NoContent();
         }
+
+
+        // POST: 
+
     }
 }

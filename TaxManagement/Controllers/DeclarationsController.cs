@@ -60,9 +60,9 @@ namespace TaxManagement.Controllers
             return Ok(await _declarationRepo.GetDeclarationsAsync(declarantId));
         }
 
-        // POST: update declarantion
+        // POST: update declaration
         [Authorize]
-        [HttpPost]
+        [HttpPatch]
         [Route("{declarantId}/declarations/{declarationId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -102,7 +102,7 @@ namespace TaxManagement.Controllers
 
         // POST: undelete declarant
         [Authorize]
-        [HttpPost]
+        [HttpPatch]
         [Route("{declarantId}/declarations/{declarationId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]

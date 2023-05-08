@@ -15,7 +15,7 @@ namespace Accounting.Repositories
             _context = context;
         }
 
-        public async Task<BusinessPartner> GetBusinessPartnerByIdAsync(Guid businessPartnerId)
+        public async Task<BusinessPartner?> GetBusinessPartnerByIdAsync(Guid businessPartnerId)
         {
             var parameters = new
             {
@@ -27,7 +27,7 @@ namespace Accounting.Repositories
 
             return await _context
                 .CreateConnection()
-                .QuerySingleAsync<BusinessPartner>(queryBuilder.ToString(), parameters);
+                .QuerySingleOrDefaultAsync<BusinessPartner?>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<IEnumerable<BusinessPartner>> GetBusinessPartnersAsync()

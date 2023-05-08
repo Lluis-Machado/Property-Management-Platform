@@ -38,11 +38,15 @@ namespace AccountingUnitTests
             {
                 Type = "fakeType",
                 DepreciationPercent = 0,
+                MaxYears = 10,
             };
             var fakeExpectedDepreciationConfig = new DepreciationConfig
             {
                 Type = "fakeType",
                 DepreciationPercent = 0,
+                MaxYears = 10,
+                CustomSetPercent = false,
+                CustomSetYears = false,
                 Id = Guid.NewGuid(),
                 Deleted = false
             };

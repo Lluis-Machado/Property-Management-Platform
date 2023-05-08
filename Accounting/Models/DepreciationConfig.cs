@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using Dapper.Contrib.Extensions;
+using System.Text.Json.Serialization;
 
 namespace Accounting.Models
 {
@@ -9,10 +10,11 @@ namespace Accounting.Models
         public double DepreciationPercent { get; set; }
         public int MaxYears { get; set; }
 
-        // These two bools indicate whether the % and years can be user-defined
-        public bool CustomSetPercent { get; set; }
-        public bool CustomSetYears { get; set; }
+        // These two bools indicate whether the % and years can be user-defined - False by default
+        public bool CustomSetPercent { get; set; } = false;
+        public bool CustomSetYears { get; set; } = false;
 
+        [ExplicitKey]
         public Guid Id { get; set; }
         public bool Deleted { get; set; }
         public DateTime CreationDate { get; set; }

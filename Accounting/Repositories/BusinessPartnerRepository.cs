@@ -55,7 +55,7 @@ namespace Accounting.Repositories
             queryBuilder.Append(" Name");
             queryBuilder.Append(" ,VATNumber");
             queryBuilder.Append(" ,AccountID");
-            queryBuilder.Append(" ,Name");
+            queryBuilder.Append(" ,Type");
             queryBuilder.Append(" ,LastModificationByUser");
             queryBuilder.Append(" )OUTPUT INSERTED.Id");
             queryBuilder.Append(" ,INSERTED.Name");
@@ -70,7 +70,7 @@ namespace Accounting.Repositories
             queryBuilder.Append(" @Name");
             queryBuilder.Append(" ,@VATNumber");
             queryBuilder.Append(" ,@AccountID");
-            queryBuilder.Append(" ,@Name");
+            queryBuilder.Append(" ,@Type");
             queryBuilder.Append(" ,@LastModificationByUser");
             queryBuilder.Append(" )");
 

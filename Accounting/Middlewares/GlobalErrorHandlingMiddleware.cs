@@ -19,7 +19,7 @@ namespace Accounting.Middlewares
             }
             catch (Exception ex)
             {
-                _logger.LogError("Internal expection ocurred: {@Ecpextion}", ex);
+                _logger.LogError("Internal exception ocurred: {@Exception}", ex);
 
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             }

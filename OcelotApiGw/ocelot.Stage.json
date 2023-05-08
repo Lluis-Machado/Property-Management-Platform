@@ -1,12 +1,12 @@
-{
+﻿{
   "Routes": [
     {
       "DownstreamPathTemplate": "/{everything}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7256
+          "Host": "tax-management.plattesapis.net",
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/tax-Management/{everything}",
@@ -17,8 +17,8 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7079
+          "Host": "documents.plattesapis.net",
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/documents/{everything}",
@@ -29,8 +29,8 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7002
+          "Host": "logs.plattesapis.net",
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/logs/{everything}",
@@ -41,8 +41,8 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7292
+          "Host": "accounting.plattesapis.net",
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/accounting/{everything}",
@@ -50,6 +50,6 @@
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "https://localhost:5000"
+    "BaseUrl": "https://stage.plattesapis.net"
   }
 }

@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<LogDatabaseSettings>(
     builder.Configuration.GetSection("LogsDatabase"));
 
-builder.Services.AddSingleton<LogsService>();
+builder.Services.AddSingleton<LogsRepository>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

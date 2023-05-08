@@ -97,7 +97,7 @@ namespace Documents.Controllers
 
         // POST: Undelete document
         [Authorize]
-        [HttpPost]
+        [HttpPatch]
         [Route("{tenantName}/documents/{documentId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -110,7 +110,7 @@ namespace Documents.Controllers
 
         // POST: Rename document
         [Authorize]
-        [HttpPost]
+        [HttpPatch]
         [Route("{tenantName}/documents/{documentId}/rename")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]

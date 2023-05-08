@@ -7,7 +7,6 @@ namespace Accounting.Models
         public string Type { get; set; }
         public double DepreciationPercent { get; set; }
 
-
         public Guid Id { get; set; }
         public bool Deleted { get; set; }
         public DateTime CreationDate { get; set; }

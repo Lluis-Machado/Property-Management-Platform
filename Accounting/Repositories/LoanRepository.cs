@@ -61,7 +61,7 @@ namespace Accounting.Repositories
         {
             var parameters = new
             {
-                loan.BusinessPartnerID,
+                loan.BusinessPartnerId,
                 loan.Concept,
                 loan.Amount,
                 loan.AmountPaid,
@@ -69,7 +69,7 @@ namespace Accounting.Repositories
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("INSERT INTO Loans (");
-            queryBuilder.Append(" BusinessPartnerID");
+            queryBuilder.Append(" BusinessPartnerId");
             queryBuilder.Append(" ,Concept");
             queryBuilder.Append(" ,Amount");
             queryBuilder.Append(" ,AmountPaid");
@@ -84,7 +84,7 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,INSERTED.LastModificationDate");
             queryBuilder.Append(" ,INSERTED.LastModificationByUser");
             queryBuilder.Append(" VALUES(");
-            queryBuilder.Append(" @BusinessPartnerID");
+            queryBuilder.Append(" @BusinessPartnerId");
             queryBuilder.Append(" ,@Concept");
             queryBuilder.Append(" ,@Amount");
             queryBuilder.Append(" ,@AmountPaid");
@@ -119,7 +119,7 @@ namespace Accounting.Repositories
             var parameters = new
             {
                 loan.Id,
-                loan.BusinessPartnerID,
+                loan.BusinessPartnerId,
                 loan.Concept,
                 loan.Deleted,
                 loan.Amount,
@@ -129,7 +129,7 @@ namespace Accounting.Repositories
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("UPDATE Loans");
-            queryBuilder.Append(" SET BusinessPartnerID = @BusinessPartnerID");
+            queryBuilder.Append(" SET BusinessPartnerId = @BusinessPartnerId");
             queryBuilder.Append(" ,Concept = @Concept");
             queryBuilder.Append(" ,Deleted = @Deleted");
             queryBuilder.Append(" ,Amount = @Amount");

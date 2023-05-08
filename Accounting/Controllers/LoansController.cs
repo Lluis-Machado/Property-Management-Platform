@@ -32,7 +32,7 @@ namespace Accounting.Controllers
         {
             // request validations
             if (loan == null) return BadRequest("Incorrect body format");
-            if (loan.Id != Guid.Empty) return BadRequest("loan Id field must be empty");
+            if (loan.Id != Guid.Empty) return BadRequest("Loan Id field must be empty");
 
             // loan validator
             ValidationResult validationResult = await _loanValidator.ValidateAsync(loan);
@@ -65,7 +65,7 @@ namespace Accounting.Controllers
         {
             // request validations
             if (loan == null) return BadRequest("Incorrect body format");
-            if (loan.Id != loanId) return BadRequest("businessPartner Id from body incorrect");
+            if (loan.Id != loanId) return BadRequest("Loan Id from body incorrect");
 
             // loan validation
             ValidationResult validationResult = await _loanValidator.ValidateAsync(loan);

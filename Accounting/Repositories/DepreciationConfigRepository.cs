@@ -45,13 +45,21 @@ namespace Accounting.Repositories
             var parameters = new
             {
                 DepreciationConfig.Name,
+                DepreciationConfig.Type,
                 DepreciationConfig.DepreciationPercent,
+                DepreciationConfig.MaxYears,
+                DepreciationConfig.CustomSetPercent,
+                DepreciationConfig.CustomSetYears,
                 DepreciationConfig.LastModificationByUser,
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("INSERT INTO depreciationConfigs (");
             queryBuilder.Append(" Name");
+            queryBuilder.Append(" ,Type");
             queryBuilder.Append(" ,DepreciationPercent");
+            queryBuilder.Append(" ,MaxYears");
+            queryBuilder.Append(" ,CustomSetPercent");
+            queryBuilder.Append(" ,CustomSetYears");
             queryBuilder.Append(" ,LastModificationByUser");
             queryBuilder.Append(" )OUTPUT INSERTED.Id");
             queryBuilder.Append(" ,INSERTED.Type");
@@ -61,8 +69,12 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,INSERTED.LastModificationDate");
             queryBuilder.Append(" ,INSERTED.LastModificationByUser");
             queryBuilder.Append(" VALUES(");
-            queryBuilder.Append(" @Type");
+            queryBuilder.Append(" @Name");
+            queryBuilder.Append(" ,@Type");
             queryBuilder.Append(" ,@DepreciationPercent");
+            queryBuilder.Append(" ,@MaxYears");
+            queryBuilder.Append(" ,@CustomSetPercent");
+            queryBuilder.Append(" ,@CustomSetYears");
             queryBuilder.Append(" ,@LastModificationByUser");
             queryBuilder.Append(" )");
 
@@ -95,7 +107,11 @@ namespace Accounting.Repositories
             {
                 depreciationConfig.Id,
                 depreciationConfig.Name,
+                depreciationConfig.Type,
                 depreciationConfig.DepreciationPercent,
+                depreciationConfig.MaxYears,
+                depreciationConfig.CustomSetPercent,
+                depreciationConfig.CustomSetYears,
                 depreciationConfig.Deleted,
                 depreciationConfig.LastModificationByUser,
                 LastModificationDate = DateTime.Now,
@@ -103,7 +119,11 @@ namespace Accounting.Repositories
             StringBuilder queryBuilder = new();
             queryBuilder.Append("UPDATE depreciationConfigs ");
             queryBuilder.Append("SET Name = @Name ");
+            queryBuilder.Append(" ,Type = @Type ");
             queryBuilder.Append(" ,DepreciationPercent = @DepreciationPercent ");
+            queryBuilder.Append(" ,MaxYears = @MaxYears ");
+            queryBuilder.Append(" ,CustomSetPercent = @CustomSetPercent ");
+            queryBuilder.Append(" ,CustomSetYears = @CustomSetYears ");
             queryBuilder.Append(" ,Deleted = @Deleted ");
             queryBuilder.Append(" ,LastModificationByUser = @LastModificationByUser ");
             queryBuilder.Append(" ,LastModificationDate = @LastModificationDate ");

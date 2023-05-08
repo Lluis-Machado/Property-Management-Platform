@@ -23,6 +23,7 @@ namespace Accounting.Models
         public DepreciationConfig()
         {
             Name = string.Empty;
+            Type = string.Empty;
             LastModificationByUser = string.Empty;
         }
     }

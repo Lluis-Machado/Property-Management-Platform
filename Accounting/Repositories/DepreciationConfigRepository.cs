@@ -13,7 +13,7 @@ namespace Accounting.Repositories
             _context = context;
         }
 
-        public async Task<DepreciationConfig> GetDepreciationConfigByIdAsync(Guid depreciationConfigId)
+        public async Task<DepreciationConfig?> GetDepreciationConfigByIdAsync(Guid depreciationConfigId)
         {
             var parameters = new
             {
@@ -32,7 +32,7 @@ namespace Accounting.Repositories
 
             return await _context
                 .CreateConnection()
-                .QuerySingleAsync<DepreciationConfig>(queryBuilder.ToString(), parameters);
+                .QuerySingleOrDefaultAsync<DepreciationConfig?>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<IEnumerable<DepreciationConfig>> GetDepreciationConfigsAsync()
@@ -85,7 +85,7 @@ namespace Accounting.Repositories
                 .QuerySingleAsync<DepreciationConfig>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<int> SetDeleteDepereciationConfigAsync(Guid id, bool deleted)
+        public async Task<int> SetDeleteDepreciationConfigAsync(Guid id, bool deleted)
         {
             var parameters = new
             {

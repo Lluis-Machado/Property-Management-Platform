@@ -56,7 +56,7 @@ namespace TaxManagement.Controllers
 
         // POST: update declarant
         [Authorize]
-        [HttpPost]
+        [HttpPatch]
         [Route("declarants/{declarantId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -94,7 +94,7 @@ namespace TaxManagement.Controllers
 
         // POST: undelete declarant
         [Authorize]
-        [HttpPost]
+        [HttpPatch]
         [Route("declarants/{declarantId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]

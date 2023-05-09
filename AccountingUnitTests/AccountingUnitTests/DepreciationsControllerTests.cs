@@ -17,6 +17,7 @@ namespace AccountingUnitTests
         private readonly Mock<IValidator<Depreciation>> _mockDepreciationValidator;
         private readonly Mock<IConfiguration> _mockConfiguration;
         private readonly Mock<IDepreciationRepository> _mockDepreciationRepo;
+        private readonly Mock<IDepreciationConfigRepository> _mockDepreciationConfigRepo;
         private readonly Mock<IFixedAssetRepository> _mockFixedAssetRepo;
         private readonly DepreciationsController _depreciationsController;
 
@@ -26,8 +27,9 @@ namespace AccountingUnitTests
             _mockDepreciationValidator = new Mock<IValidator<Depreciation>>();
             _mockConfiguration = new Mock<IConfiguration>();
             _mockDepreciationRepo = new Mock<IDepreciationRepository>();
+            _mockDepreciationConfigRepo = new Mock<IDepreciationConfigRepository>();
             _mockFixedAssetRepo = new Mock<IFixedAssetRepository>();
-            _depreciationsController = new DepreciationsController(_mockDepreciationRepo.Object, _mockFixedAssetRepo.Object, _mockDepreciationValidator.Object, _mockLogger.Object);
+            _depreciationsController = new DepreciationsController(_mockDepreciationRepo.Object, _mockDepreciationConfigRepo.Object, _mockFixedAssetRepo.Object, _mockDepreciationValidator.Object, _mockLogger.Object);
         }
 
         #region Create
@@ -39,14 +41,14 @@ namespace AccountingUnitTests
             var fakeFixedAsset = new FixedAsset { Id = Guid.NewGuid() };
             var fakeDepreciation = new Depreciation
             {
-                FixedAssetId = Guid.NewGuid(),
+                FixedAssetId = fakeFixedAsset.Id,
                 PeriodStart = DateTime.Parse("2023-01-01"),
                 PeriodEnd = DateTime.Parse("2023-01-31"),
                 Amount = 0,
             };
             var fakeExpectedDepreciation = new Depreciation
             {
-                FixedAssetId = Guid.NewGuid(),
+                FixedAssetId = fakeFixedAsset.Id,
                 PeriodStart = DateTime.Parse("2023-01-01"),
                 PeriodEnd = DateTime.Parse("2023-01-31"),
                 Amount = 0,
@@ -81,7 +83,7 @@ namespace AccountingUnitTests
             var fakeFixedAsset = new FixedAsset { Id = Guid.NewGuid() };
             var fakeDepreciation = new Depreciation
             {
-                FixedAssetId = Guid.NewGuid(),
+                FixedAssetId = fakeFixedAsset.Id,
                 PeriodStart = DateTime.Parse("2023-01-01"),
                 PeriodEnd = DateTime.Parse("2023-01-31"),
                 Amount = 0,
@@ -103,7 +105,7 @@ namespace AccountingUnitTests
             var fakeFixedAsset = new FixedAsset { Id = Guid.NewGuid() };
             var fakeDepreciation = new Depreciation
             {
-                FixedAssetId = Guid.NewGuid(),
+                FixedAssetId = fakeFixedAsset.Id,
                 PeriodStart = DateTime.Parse("2023-01-01"),
                 PeriodEnd = DateTime.Parse("2023-01-31"),
                 Amount = 0,
@@ -131,7 +133,8 @@ namespace AccountingUnitTests
             var fakeDepreciation = new Depreciation
             {
                 FixedAssetId = fakeFixedAsset.Id,
-                Period = "FakePeriod",
+                PeriodStart = DateTime.Parse("2023-01-01"),
+                PeriodEnd = DateTime.Parse("2023-01-31"),
                 Amount = 0,
             };
 
@@ -161,11 +164,12 @@ namespace AccountingUnitTests
         public async Task GetAsync_ReturnsOkResult_WhenValidRequestIsMade()
         {
             // Arrange
+            var fakeFixedAsset = new FixedAsset { Id = Guid.NewGuid() };
             var fakeExpectedDepreciations = new List<Depreciation>()
             {
                 new Depreciation
                 {
-                    FixedAssetId = Guid.NewGuid(),
+                    FixedAssetId = fakeFixedAsset.Id,
                     PeriodStart = DateTime.Parse("2023-01-01"),
                     PeriodEnd = DateTime.Parse("2023-01-31"),
                     Amount = 0,
@@ -174,7 +178,7 @@ namespace AccountingUnitTests
                 },
                 new Depreciation
                 {
-                    FixedAssetId = Guid.NewGuid(),
+                    FixedAssetId = fakeFixedAsset.Id,
                     PeriodStart = DateTime.Parse("2023-01-01"),
                     PeriodEnd = DateTime.Parse("2023-01-31"),
                     Amount = 0,
@@ -222,7 +226,7 @@ namespace AccountingUnitTests
             var fakeFixedAsset = new FixedAsset { Id = Guid.NewGuid() };
             var fakeDepreciation = new Depreciation
             {
-                FixedAssetId = Guid.NewGuid(),
+                FixedAssetId = fakeFixedAsset.Id,
                 PeriodStart = DateTime.Parse("2023-01-01"),
                 PeriodEnd = DateTime.Parse("2023-01-31"),
                 Amount = 0,
@@ -255,7 +259,7 @@ namespace AccountingUnitTests
             var fakeFixedAsset = new FixedAsset { Id = Guid.NewGuid() };
             var fakeDepreciation = new Depreciation
             {
-                FixedAssetId = Guid.NewGuid(),
+                FixedAssetId = fakeFixedAsset.Id,
                 PeriodStart = DateTime.Parse("2023-01-01"),
                 PeriodEnd = DateTime.Parse("2023-01-31"),
                 Amount = 0,
@@ -277,7 +281,7 @@ namespace AccountingUnitTests
             var fakeFixedAsset = new FixedAsset { Id = Guid.NewGuid() };
             var fakeDepreciation = new Depreciation
             {
-                FixedAssetId = Guid.NewGuid(),
+                FixedAssetId = fakeFixedAsset.Id,
                 PeriodStart = DateTime.Parse("2023-01-01"),
                 PeriodEnd = DateTime.Parse("2023-01-31"),
                 Amount = 0,
@@ -305,7 +309,7 @@ namespace AccountingUnitTests
             var fakeFixedAsset = new FixedAsset { Id = Guid.NewGuid() };
             var fakeDepreciation = new Depreciation
             {
-                FixedAssetId = Guid.NewGuid(),
+                FixedAssetId = fakeFixedAsset.Id,
                 PeriodStart = DateTime.Parse("2023-01-01"),
                 PeriodEnd = DateTime.Parse("2023-01-31"),
                 Amount = 0,

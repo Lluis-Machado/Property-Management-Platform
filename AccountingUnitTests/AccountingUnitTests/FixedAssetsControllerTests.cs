@@ -47,7 +47,7 @@ namespace AccountingUnitTests
                 ActivationDate = DateTime.Now,
                 ActivationAmount = 0,
                 DepreciationConfigId = fakeDepreciationConfig.Id,
-                DepreciationAmount = 0,
+                DepreciationAmountPercent = 0,
             };
             var fakeExpectedFixedAsset = new FixedAsset
             {
@@ -56,7 +56,7 @@ namespace AccountingUnitTests
                 ActivationDate = DateTime.Now,
                 ActivationAmount = 0,
                 DepreciationConfigId = fakeDepreciationConfig.Id,
-                DepreciationAmount = 0,
+                DepreciationAmountPercent = 0,
                 Id = Guid.NewGuid(),
                 Deleted = false
             };
@@ -98,7 +98,7 @@ namespace AccountingUnitTests
                 ActivationDate = DateTime.Now,
                 ActivationAmount = 0,
                 DepreciationConfigId = fakeDepreciationConfig.Id,
-                DepreciationAmount = 0,
+                DepreciationAmountPercent = 0,
                 Id = Guid.NewGuid()
             };
 
@@ -123,7 +123,7 @@ namespace AccountingUnitTests
                 ActivationDate = DateTime.Now,
                 ActivationAmount = 0,
                 DepreciationConfigId = fakeDepreciationConfig.Id,
-                DepreciationAmount = 0,
+                DepreciationAmountPercent = 0,
             };
 
             var validationResult = new ValidationResult(new List<ValidationFailure> { new ValidationFailure("Name", "Name cannot be empty") });
@@ -153,7 +153,7 @@ namespace AccountingUnitTests
                 ActivationDate = DateTime.Now,
                 ActivationAmount = 0,
                 DepreciationConfigId = fakeDepreciationConfig.Id,
-                DepreciationAmount = 0,
+                DepreciationAmountPercent = 0,
             };
 
             fakeInvoice = null;
@@ -187,7 +187,7 @@ namespace AccountingUnitTests
                 ActivationDate = DateTime.Now,
                 ActivationAmount = 0,
                 DepreciationConfigId = fakeDepreciationConfig.Id,
-                DepreciationAmount = 0,
+                DepreciationAmountPercent = 0,
             };
 
             fakeDepreciationConfig = null;
@@ -296,7 +296,7 @@ namespace AccountingUnitTests
                 ActivationDate = DateTime.Now,
                 ActivationAmount = 0,
                 DepreciationConfigId = fakeDepreciationConfig.Id,
-                DepreciationAmount = 0,
+                DepreciationAmountPercent = 0,
                 Id = Guid.NewGuid()
             };
 
@@ -336,7 +336,7 @@ namespace AccountingUnitTests
                 ActivationDate = DateTime.Now,
                 ActivationAmount = 0,
                 DepreciationConfigId = fakeDepreciationConfig.Id,
-                DepreciationAmount = 0,
+                DepreciationAmountPercent = 0,
                 Id = Guid.NewGuid()
             }; ;
 
@@ -361,7 +361,7 @@ namespace AccountingUnitTests
                 ActivationDate = DateTime.Now,
                 ActivationAmount = 0,
                 DepreciationConfigId = fakeDepreciationConfig.Id,
-                DepreciationAmount = 0,
+                DepreciationAmountPercent = 0,
                 Id = Guid.NewGuid()
             };
 
@@ -392,7 +392,7 @@ namespace AccountingUnitTests
                 ActivationDate = DateTime.Now,
                 ActivationAmount = 0,
                 DepreciationConfigId = fakeDepreciationConfig.Id,
-                DepreciationAmount = 0,
+                DepreciationAmountPercent = 0,
                 Id = Guid.NewGuid()
             };
 

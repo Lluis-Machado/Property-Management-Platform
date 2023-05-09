@@ -123,6 +123,7 @@ namespace Accounting.Controllers
         [HttpGet]
         [Route("depreciations")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<IEnumerable<Depreciation>>> GetByFAandPeriodAsync(bool fillMissing, Guid fixedAssetId, DateTime? periodStart, DateTime? periodEnd)
         {
@@ -130,7 +131,7 @@ namespace Accounting.Controllers
             // Checks before starting
             if (periodStart != null && periodEnd != null && periodEnd < periodStart)
             {
-                throw new Exception("Period end cannot be before period start");
+                return BadRequest("Period end cannot be before period start");
             }
 
             var foundDepreciations = await _depreciationRepo.GetDepreciationByFAandPeriodAsync(fixedAssetId, periodStart, periodEnd);
@@ -235,6 +236,12 @@ namespace Accounting.Controllers
 
                 return Ok(depreciation);
             }
+        }
+
+        private async Task<bool> FixedAssetExists(Guid fixedAssetId)
+        {
+            FixedAsset? fixedAsset = await _fixedAssetRepo.GetFixedAssetByIdAsync(fixedAssetId);
+            return (fixedAsset != null);
         }
 
     }

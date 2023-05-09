@@ -156,6 +156,86 @@ namespace AccountingUnitTests
             Assert.Equal("Name cannot be empty", badRequestResult.Value);
         }
 
+        [Fact]
+        public async Task CreateAsync_ReturnsNotFoundResult_WhenInvoiceNotFound()
+        {
+            // Arrange
+            var fakeInvoice = new Invoice { Id = Guid.NewGuid() };
+            var fakeExpenseType = new ExpenseType { Id = Guid.NewGuid() };
+            var fakeInvoiceLine = new InvoiceLine
+            {
+                LineNumber = 0,
+                ArticleRefNumber = "FakeArticleRefNumber",
+                ArticleName = "FakeArticleName",
+                Tax = 0,
+                Quantity = 0,
+                UnitPrice = 0,
+                DateRefFrom = DateTime.Now,
+                DateRefTo = DateTime.Now,
+                ExpenseTypeId = fakeExpenseType.Id,
+                InvoiceId = fakeInvoice.Id,
+            };
+
+            fakeInvoice = null;
+
+            _mockInvoiceLineValidator
+                .Setup(v => v.ValidateAsync(It.IsAny<InvoiceLine>(), CancellationToken.None))
+                .ReturnsAsync(new ValidationResult());
+
+            _mockInvoiceRepo
+                .Setup(v => v.GetInvoiceByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(fakeInvoice);
+
+            // Act
+            var result = await _invoiceLinesController.CreateAsync(fakeInvoiceLine, fakeInvoiceLine.InvoiceId, fakeInvoiceLine.ExpenseTypeId);
+
+            // Assert
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+            Assert.Equal("Invoice not found", notFoundResult.Value);
+        }
+
+        [Fact]
+        public async Task CreateAsync_ReturnsNotFoundResult_WhenExpenseTypeNotFound()
+        {
+            // Arrange
+            var fakeInvoice = new Invoice { Id = Guid.NewGuid() };
+            var fakeExpenseType = new ExpenseType { Id = Guid.NewGuid() };
+            var fakeInvoiceLine = new InvoiceLine
+            {
+                LineNumber = 0,
+                ArticleRefNumber = "FakeArticleRefNumber",
+                ArticleName = "FakeArticleName",
+                Tax = 0,
+                Quantity = 0,
+                UnitPrice = 0,
+                DateRefFrom = DateTime.Now,
+                DateRefTo = DateTime.Now,
+                ExpenseTypeId = fakeExpenseType.Id,
+                InvoiceId = fakeInvoice.Id,
+            };
+
+            fakeExpenseType = null;
+
+            _mockInvoiceLineValidator
+                .Setup(v => v.ValidateAsync(It.IsAny<InvoiceLine>(), CancellationToken.None))
+                .ReturnsAsync(new ValidationResult());
+
+            _mockInvoiceRepo
+                .Setup(v => v.GetInvoiceByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(fakeInvoice);
+
+            _mockExpenseTypeRepo
+                .Setup(v => v.GetExpenseTypeByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(fakeExpenseType);
+
+            // Act
+            var result = await _invoiceLinesController.CreateAsync(fakeInvoiceLine, fakeInvoiceLine.InvoiceId, fakeInvoiceLine.ExpenseTypeId);
+
+            // Assert
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+            Assert.Equal("ExpenseType not found", notFoundResult.Value);
+        }
+
         #endregion
 
         #region Get

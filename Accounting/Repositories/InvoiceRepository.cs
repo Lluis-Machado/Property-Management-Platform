@@ -28,7 +28,7 @@ namespace Accounting.Repositories
                     invoiceId
                 };
                 StringBuilder queryBuilder = new();
-                queryBuilder.Append("SELECT ID");
+                queryBuilder.Append("SELECT Id");
                 queryBuilder.Append(" ,BusinessPartnerId");
                 queryBuilder.Append(" ,RefNumber");
                 queryBuilder.Append(" ,Date");
@@ -43,9 +43,15 @@ namespace Accounting.Repositories
                 queryBuilder.Append(" WHERE Id = @invoiceId");
 
                 Invoice? invoice = await connection.QuerySingleOrDefaultAsync<Invoice?>(queryBuilder.ToString(), parameters, tran);
+                if(invoice == null) 
+                {
+                    tran.Rollback();
+                    connection.Close();
+                    return null;
+                }
 
                 StringBuilder queryBuilder2 = new();
-                queryBuilder2.Append("SELECT ID");
+                queryBuilder2.Append("SELECT Id");
                 queryBuilder2.Append(" ,LineNumber");
                 queryBuilder2.Append(" ,ArticleRefNumber");
                 queryBuilder2.Append(" ,ArticleName");
@@ -64,7 +70,14 @@ namespace Accounting.Repositories
                 queryBuilder2.Append(" FROM InvoiceLines");
                 queryBuilder2.Append(" WHERE InvoiceId = @invoiceId");
 
-                invoice.InvoiceLines = await connection.QuerySingleAsync<InvoiceLine[]>(queryBuilder2.ToString(), parameters, tran);
+                IEnumerable<InvoiceLine> aux = await connection.QueryAsync<InvoiceLine>(queryBuilder2.ToString(), parameters, tran);
+                invoice.InvoiceLines = aux.ToArray();
+                if (invoice.InvoiceLines == null || invoice.InvoiceLines.Length == 0)
+                {
+                    tran.Rollback();
+                    connection.Close();
+                    return null;
+                }
 
                 tran.Commit();
                 connection.Close();

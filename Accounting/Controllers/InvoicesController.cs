@@ -11,12 +11,14 @@ namespace Accounting.Controllers
     public class InvoicesController : Controller
     {
         private readonly IInvoiceRepository _invoiceRepo;
+        private readonly IBusinessPartnerRepository _businessPartnerRepo;
         private readonly IValidator<Invoice> _invoiceValidator;
         private readonly ILogger<InvoicesController> _logger;
 
-        public InvoicesController(IInvoiceRepository invoiceRepo, IValidator<Invoice> invoiceValidator, ILogger<InvoicesController> logger)
+        public InvoicesController(IInvoiceRepository invoiceRepo, IBusinessPartnerRepository businessPartnerRepository, IValidator<Invoice> invoiceValidator, ILogger<InvoicesController> logger)
         {
             _invoiceValidator = invoiceValidator;
+            _businessPartnerRepo = businessPartnerRepository;
             _invoiceRepo = invoiceRepo;
             _logger = logger;
         }
@@ -28,15 +30,19 @@ namespace Accounting.Controllers
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<Guid>> CreateAsync([FromBody] Invoice invoice)
+        public async Task<ActionResult<Guid>> CreateAsync([FromBody] Invoice invoice, Guid businessPartnerId)
         {
             // request validations
             if (invoice == null) return BadRequest("Incorrect body format");
             if (invoice.Id != Guid.Empty) return BadRequest("Invoice Id field must be empty");
+            if (invoice.BusinessPartnerId != businessPartnerId) return BadRequest("Incorrect BusinessPartner Id in body");
 
             // invoice validation
             ValidationResult validationResult = await _invoiceValidator.ValidateAsync(invoice);
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
+
+            // businessPartner validation
+            if (!await BusinessPartnerExists(businessPartnerId)) return NotFound("BusinessPartner not found");
 
             invoice = await _invoiceRepo.InsertInvoiceAsync(invoice);
             return Created($"invoices/{invoice.Id}", invoice);
@@ -61,15 +67,19 @@ namespace Accounting.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult> UpdateAsync([FromBody] Invoice invoice, Guid invoiceId)
+        public async Task<ActionResult> UpdateAsync([FromBody] Invoice invoice, Guid businessPartnerId, Guid invoiceId)
         {
             // request validations
             if (invoice == null) return BadRequest("Incorrect body format");
             if (invoice.Id != invoiceId) return BadRequest("Invoice Id from body incorrect");
+            if (invoice.BusinessPartnerId != businessPartnerId) return BadRequest("Incorrect BusinessPartner Id in body");
 
             // invoice validation
             ValidationResult validationResult = await _invoiceValidator.ValidateAsync(invoice);
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
+
+            // businessPartner validation
+            if (!await BusinessPartnerExists(businessPartnerId)) return NotFound("BusinessPartner not found");
 
             invoice.Id = invoiceId; // copy id to invoice object
 
@@ -104,6 +114,12 @@ namespace Accounting.Controllers
             int result = await _invoiceRepo.SetDeleteInvoiceAsync(invoiceId, false);
             if (result == 0) return NotFound("Invoice not found");
             return NoContent();
+        }
+
+        private async Task<bool> BusinessPartnerExists(Guid businessPartnerId)
+        {
+            BusinessPartner? businessPartner = await _businessPartnerRepo.GetBusinessPartnerByIdAsync(businessPartnerId);
+            return (businessPartner != null);
         }
     }
 }

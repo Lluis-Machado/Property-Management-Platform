@@ -37,6 +37,34 @@ namespace Accounting.Repositories
                 QuerySingleAsync<Depreciation>(queryBuilder.ToString(), parameters);
         }
 
+        public async Task<IEnumerable<Depreciation>> GetDepreciationByFAandPeriodAsync(Guid fixedAssetId, DateTime? periodStart, DateTime? periodEnd)
+        {
+            var parameters = new
+            {
+                fixedAssetId,
+                periodStart,
+                periodEnd
+            };
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("SELECT Id");
+            queryBuilder.Append(" ,FixedAssetId");
+            queryBuilder.Append(" ,PeriodStart");
+            queryBuilder.Append(" ,PeriodEnd");
+            queryBuilder.Append(" ,Amount");
+            queryBuilder.Append(" ,Deleted");
+            queryBuilder.Append(" ,CreationDate");
+            queryBuilder.Append(" ,LastModificationDate");
+            queryBuilder.Append(" ,LastModificationByUser");
+            queryBuilder.Append(" FROM Depreciations");
+            queryBuilder.Append(" WHERE FixedAssetId = @fixedAssetId");
+            if (periodStart != null) queryBuilder.Append(" AND PeriodStart >= @periodStart");
+            if (periodEnd != null)   queryBuilder.Append(" AND PeriodEnd <= @periodEnd");
+
+            return await _context.
+                CreateConnection().
+                QueryAsync<Depreciation>(queryBuilder.ToString(), parameters);
+        }
+
         public async Task<IEnumerable<Depreciation>> GetDepreciationsAsync()
         {
             StringBuilder queryBuilder = new();

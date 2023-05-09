@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Primitives;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
+using System.Runtime.Serialization;
 
 namespace Authentication.Security
 {
@@ -31,6 +32,8 @@ namespace Authentication.Security
                 var httpContext = actionContext.HttpContext;
                 StringValues auth = httpContext.Request.Headers.Authorization;
 
+                if (string.IsNullOrEmpty(auth[0])) throw new EmptyTokenException();
+
                 string token = auth[0].Replace("bearer", "", StringComparison.OrdinalIgnoreCase).Trim();
                 var handler = new JwtSecurityTokenHandler();
                 var jwtSecurityToken = handler.ReadJwtToken(token);
@@ -43,11 +46,41 @@ namespace Authentication.Security
 
                 if (!hasAnyPermission) throw new UnauthorizedAccessException();
             }
-            catch (Exception e)
+            catch (EmptyTokenException e)
             {
                 actionContext.HttpContext.Response.StatusCode = (int)HttpStatusCode.ExpectationFailed;
+                actionContext.Result = new JsonResult("Expected token not provided") { Value = e.Message };
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                actionContext.HttpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                actionContext.Result = new JsonResult("Unauthorized") { Value = e.Message };
+            }
+            catch (Exception e)
+            {
+                actionContext.HttpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 actionContext.Result = new JsonResult("Error occurred on token verification") { Value = e.Message };
             }
+        }
+    }
+
+    [Serializable]
+    internal class EmptyTokenException : Exception
+    {
+        public EmptyTokenException()
+        {
+        }
+
+        public EmptyTokenException(string? message) : base(message)
+        {
+        }
+
+        public EmptyTokenException(string? message, Exception? innerException) : base(message, innerException)
+        {
+        }
+
+        protected EmptyTokenException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
         }
     }
 }

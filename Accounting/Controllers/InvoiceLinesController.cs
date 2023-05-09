@@ -11,12 +11,16 @@ namespace Accounting.Controllers
     public class InvoiceLinesController : Controller
     {
         private readonly IInvoiceLineRepository _invoiceLineRepo;
+        private readonly IInvoiceRepository _invoiceRepo;
+        private readonly IExpenseTypeRepository _expenseTypeRepo;
         private readonly IValidator<InvoiceLine> _invoiceLineValidator;
         private readonly ILogger<InvoiceLinesController> _logger;
 
-        public InvoiceLinesController(IInvoiceLineRepository invoiceLineRepository, IValidator<InvoiceLine> invoiceLineValidator, ILogger<InvoiceLinesController> logger)
+        public InvoiceLinesController(IInvoiceLineRepository invoiceLineRepository, IInvoiceRepository invoiceRepository, IExpenseTypeRepository expenseTypeRepository, IValidator<InvoiceLine> invoiceLineValidator, ILogger<InvoiceLinesController> logger)
         {
             _invoiceLineRepo = invoiceLineRepository;
+            _invoiceRepo = invoiceRepository;
+            _expenseTypeRepo = expenseTypeRepository;
             _invoiceLineValidator = invoiceLineValidator;
             _logger = logger;
         }
@@ -28,17 +32,23 @@ namespace Accounting.Controllers
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<Guid>> CreateAsync([FromBody] InvoiceLine invoiceLine)
+        public async Task<ActionResult<Guid>> CreateAsync([FromBody] InvoiceLine invoiceLine, Guid invoiceId, Guid expenseTypeId)
         {
             // request validations
             if (invoiceLine == null) return BadRequest("Incorrect body format");
             if (invoiceLine.Id != Guid.Empty) return BadRequest("InvoiceLine Id field must be empty");
+            if (invoiceLine.InvoiceId != invoiceId) return BadRequest("Incorrect Invoice Id in body");
+            if (invoiceLine.ExpenseTypeId!= expenseTypeId) return BadRequest("Incorrect ExpenseType Id in body");
 
             // invoiceLine validation
             ValidationResult validationResult = await _invoiceLineValidator.ValidateAsync(invoiceLine);
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
-            await _invoiceLineValidator.ValidateAndThrowAsync(invoiceLine);
+            // invoice validator
+            if(!await InvoiceExists(invoiceId)) return NotFound("Invoice not found");
+
+            // expenseType validator
+            if (!await ExpenseTypeExists(expenseTypeId)) return NotFound("ExpenseType not found");
 
             invoiceLine = await _invoiceLineRepo.InsertInvoiceLineAsync(invoiceLine);
             return Created($"invoiceLines/{invoiceLine.Id}", invoiceLine);
@@ -62,7 +72,7 @@ namespace Accounting.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult> UpdateAsync([FromBody] InvoiceLine invoiceLine, Guid invoiceLineId)
+        public async Task<ActionResult> UpdateAsync([FromBody] InvoiceLine invoiceLine, Guid invoiceId, Guid expenseTypeId, Guid invoiceLineId)
         {
             // request validations
             if (invoiceLine == null) return BadRequest("Incorrect body format");
@@ -71,6 +81,12 @@ namespace Accounting.Controllers
             // invoiceLine validation
             ValidationResult validationResult = await _invoiceLineValidator.ValidateAsync(invoiceLine);
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
+
+            // invoice validator
+            if (!await InvoiceExists(invoiceId)) return NotFound("Invoice not found");
+
+            // expenseType validator
+            if (!await ExpenseTypeExists(expenseTypeId)) return NotFound("ExpenseType not found");
 
             invoiceLine.Id = invoiceLineId; // copy id to invoiceLine object
 
@@ -105,6 +121,18 @@ namespace Accounting.Controllers
             int result = await _invoiceLineRepo.SetDeleteInvoiceLineAsync(invoiceLineId, false);
             if (result == 0) return NotFound("InvoiceLine not found");
             return NoContent();
+        }
+
+        private async Task<bool> InvoiceExists(Guid invoiceId)
+        {
+            Invoice? invoice = await _invoiceRepo.GetInvoiceByIdAsync(invoiceId);
+            return (invoice != null);
+        }
+
+        private async Task<bool> ExpenseTypeExists(Guid expenseTypeId)
+        {
+            ExpenseType? expenseType = await _expenseTypeRepo.GetExpenseTypeByIdAsync(expenseTypeId);
+            return (expenseType != null);
         }
     }
 }

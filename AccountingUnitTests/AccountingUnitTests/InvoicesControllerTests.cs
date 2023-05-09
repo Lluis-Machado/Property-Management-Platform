@@ -17,6 +17,7 @@ namespace AccountingUnitTests
         private readonly Mock<IValidator<Invoice>> _mockInvoiceValidator;
         private readonly Mock<IConfiguration> _mockConfiguration;
         private readonly Mock<IInvoiceRepository> _mockInvoiceRepo;
+        private readonly Mock<IBusinessPartnerRepository> _mockBusinessPartnerRepo;
         private readonly InvoicesController _invoicesController;
 
         public InvoicesControllerTests()
@@ -25,7 +26,8 @@ namespace AccountingUnitTests
             _mockInvoiceValidator = new Mock<IValidator<Invoice>>();
             _mockConfiguration = new Mock<IConfiguration>();
             _mockInvoiceRepo = new Mock<IInvoiceRepository>();
-            _invoicesController = new InvoicesController(_mockInvoiceRepo.Object, _mockInvoiceValidator.Object, _mockLogger.Object);
+            _mockBusinessPartnerRepo = new Mock<IBusinessPartnerRepository>();
+            _invoicesController = new InvoicesController(_mockInvoiceRepo.Object, _mockBusinessPartnerRepo.Object, _mockInvoiceValidator.Object, _mockLogger.Object);
         }
 
         #region Create
@@ -34,9 +36,10 @@ namespace AccountingUnitTests
         public async Task CreateAsync_ReturnCreatedResult_WhenValidRequestIsMade()
         {
             // Arrange
+            var fakeBusinessPartner = new BusinessPartner { Id = Guid.NewGuid() };
             var fakeInvoice = new Invoice
             {
-                BusinessPartnerId = Guid.NewGuid(),
+                BusinessPartnerId = fakeBusinessPartner.Id,
                 RefNumber = "FakeRefNumber",
                 Date = DateTime.Now,
                 Currency = "FakeCurrency",
@@ -46,7 +49,7 @@ namespace AccountingUnitTests
             };
             var fakeExpectedInvoice = new Invoice
             {
-                BusinessPartnerId = Guid.NewGuid(),
+                BusinessPartnerId = fakeBusinessPartner.Id,
                 RefNumber = "FakeRefNumber",
                 Date = DateTime.Now,
                 Currency = "FakeCurrency",
@@ -61,12 +64,16 @@ namespace AccountingUnitTests
                 .Setup(v => v.ValidateAsync(It.IsAny<Invoice>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
+            _mockBusinessPartnerRepo
+                .Setup(v => v.GetBusinessPartnerByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(fakeBusinessPartner);
+
             _mockInvoiceRepo
                 .Setup(r => r.InsertInvoiceAsync(It.IsAny<Invoice>()))
                 .ReturnsAsync(fakeExpectedInvoice);
 
             // Act
-            var result = await _invoicesController.CreateAsync(fakeInvoice);
+            var result = await _invoicesController.CreateAsync(fakeInvoice, fakeBusinessPartner.Id);
 
             // Assert
             var createdResult = Assert.IsType<CreatedResult>(result.Result);
@@ -77,9 +84,10 @@ namespace AccountingUnitTests
         public async Task CreateAsync_ReturnsBadRequestResult_WhenIdFieldIsNotEmpty()
         {
             // Arrange
+            var fakeBusinessPartner = new BusinessPartner { Id = Guid.NewGuid() };
             var fakeInvoice = new Invoice
             {
-                BusinessPartnerId = Guid.NewGuid(),
+                BusinessPartnerId = fakeBusinessPartner.Id,
                 RefNumber = "FakeRefNumber",
                 Date = DateTime.Now,
                 Currency = "FakeCurrency",
@@ -90,7 +98,7 @@ namespace AccountingUnitTests
             };
 
             // Act
-            var result = await _invoicesController.CreateAsync(fakeInvoice);
+            var result = await _invoicesController.CreateAsync(fakeInvoice, fakeBusinessPartner.Id);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
@@ -101,9 +109,10 @@ namespace AccountingUnitTests
         public async Task CreateAsync_ReturnsBadRequestResult_WhenValidationIsNotValid()
         {
             // Arrange
+            var fakeBusinessPartner = new BusinessPartner { Id = Guid.NewGuid() };
             var fakeInvoice = new Invoice
             {
-                BusinessPartnerId = Guid.NewGuid(),
+                BusinessPartnerId = fakeBusinessPartner.Id,
                 RefNumber = "FakeRefNumber",
                 Date = DateTime.Now,
                 Currency = "FakeCurrency",
@@ -119,11 +128,45 @@ namespace AccountingUnitTests
                 .ReturnsAsync(validationResult);
 
             // Act
-            var result = await _invoicesController.CreateAsync(fakeInvoice);
+            var result = await _invoicesController.CreateAsync(fakeInvoice, fakeBusinessPartner.Id);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
             Assert.Equal("Name cannot be empty", badRequestResult.Value);
+        }
+
+        [Fact]
+        public async Task CreateAsync_ReturnsNotFoundResult_WhenBusinessPartnerNotFound()
+        {
+            // Arrange
+            var fakeBusinessPartner = new BusinessPartner { Id = Guid.NewGuid() };
+            var fakeInvoice = new Invoice
+            {
+                BusinessPartnerId = fakeBusinessPartner.Id,
+                RefNumber = "FakeRefNumber",
+                Date = DateTime.Now,
+                Currency = "FakeCurrency",
+                GrossAmount = 0,
+                NetAmount = 0,
+                InvoiceLines = Array.Empty<InvoiceLine>(),
+            };
+
+            fakeBusinessPartner = null;
+
+            _mockInvoiceValidator
+                .Setup(v => v.ValidateAsync(It.IsAny<Invoice>(), CancellationToken.None))
+                .ReturnsAsync(new ValidationResult());
+
+            _mockBusinessPartnerRepo
+                .Setup(v => v.GetBusinessPartnerByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(fakeBusinessPartner);
+
+            // Act
+            var result = await _invoicesController.CreateAsync(fakeInvoice, fakeInvoice.BusinessPartnerId);
+
+            // Assert
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+            Assert.Equal("BusinessPartner not found", notFoundResult.Value);
         }
 
         #endregion
@@ -151,7 +194,7 @@ namespace AccountingUnitTests
                 },
                 new Invoice
                 {
-                    
+
                     BusinessPartnerId = Guid.NewGuid(),
                     RefNumber = "FakeRefNumber",
                     Date = DateTime.Now,
@@ -200,9 +243,10 @@ namespace AccountingUnitTests
         public async Task UpdateAsync_ReturnsNoContent_WhenValidRequestIsMade()
         {
             // Arrange
+            var fakeBusinessPartner = new BusinessPartner { Id = Guid.NewGuid() };
             var fakeInvoice = new Invoice
             {
-                BusinessPartnerId = Guid.NewGuid(),
+                BusinessPartnerId = fakeBusinessPartner.Id,
                 RefNumber = "FakeRefNumber",
                 Date = DateTime.Now,
                 Currency = "FakeCurrency",
@@ -216,12 +260,16 @@ namespace AccountingUnitTests
                 .Setup(v => v.ValidateAsync(It.IsAny<Invoice>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
+            _mockBusinessPartnerRepo
+                .Setup(v => v.GetBusinessPartnerByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(fakeBusinessPartner);
+
             _mockInvoiceRepo
                 .Setup(r => r.UpdateInvoiceAsync(fakeInvoice))
                 .ReturnsAsync(1);
 
             // Act
-            var result = await _invoicesController.UpdateAsync(fakeInvoice, fakeInvoice.Id);
+            var result = await _invoicesController.UpdateAsync(fakeInvoice, fakeBusinessPartner.Id, fakeInvoice.Id);
 
             // Assert
             var noContentResult = Assert.IsType<NoContentResult>(result);
@@ -231,9 +279,10 @@ namespace AccountingUnitTests
         public async Task UpdateAsync_ReturnsBadResuqest_WhenInvoiceIdDoesNotMatch()
         {
             // Arrange
+            var fakeBusinessPartner = new BusinessPartner { Id = Guid.NewGuid() };
             var fakeInvoice = new Invoice
             {
-                BusinessPartnerId = Guid.NewGuid(),
+                BusinessPartnerId = fakeBusinessPartner.Id,
                 RefNumber = "FakeRefNumber",
                 Date = DateTime.Now,
                 Currency = "FakeCurrency",
@@ -244,7 +293,7 @@ namespace AccountingUnitTests
             }; ;
 
             // Act
-            var result = await _invoicesController.UpdateAsync(fakeInvoice, Guid.NewGuid());
+            var result = await _invoicesController.UpdateAsync(fakeInvoice, fakeBusinessPartner.Id, Guid.NewGuid());
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -255,9 +304,10 @@ namespace AccountingUnitTests
         public async Task UpdateAsync_ReturnsBadResuqest_WhenInvoiceValidationNotValid()
         {
             // Arrange
+            var fakeBusinessPartner = new BusinessPartner { Id = Guid.NewGuid() };
             var fakeInvoice = new Invoice
             {
-                BusinessPartnerId = Guid.NewGuid(),
+                BusinessPartnerId = fakeBusinessPartner.Id,
                 RefNumber = "FakeRefNumber",
                 Date = DateTime.Now,
                 Currency = "FakeCurrency",
@@ -274,7 +324,7 @@ namespace AccountingUnitTests
                 .ReturnsAsync(validationResult);
 
             // Act
-            var result = await _invoicesController.UpdateAsync(fakeInvoice, fakeInvoice.Id);
+            var result = await _invoicesController.UpdateAsync(fakeInvoice, fakeBusinessPartner.Id, fakeInvoice.Id);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -285,9 +335,10 @@ namespace AccountingUnitTests
         public async Task UpdateAsync_ReturnsNotFound_WhenInvoiceNotFound()
         {
             // Arrange
+            var fakeBusinessPartner = new BusinessPartner { Id = Guid.NewGuid() };
             var fakeInvoice = new Invoice
             {
-                BusinessPartnerId = Guid.NewGuid(),
+                BusinessPartnerId = fakeBusinessPartner.Id,
                 RefNumber = "FakeRefNumber",
                 Date = DateTime.Now,
                 Currency = "FakeCurrency",
@@ -301,12 +352,16 @@ namespace AccountingUnitTests
                 .Setup(v => v.ValidateAsync(It.IsAny<Invoice>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
+            _mockBusinessPartnerRepo
+                .Setup(v => v.GetBusinessPartnerByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(fakeBusinessPartner);
+
             _mockInvoiceRepo
                 .Setup(r => r.UpdateInvoiceAsync(It.IsAny<Invoice>()))
                 .ReturnsAsync(0);
 
             // Act
-            var result = await _invoicesController.UpdateAsync(fakeInvoice, fakeInvoice.Id);
+            var result = await _invoicesController.UpdateAsync(fakeInvoice, fakeBusinessPartner.Id, fakeInvoice.Id);
 
             // Assert
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);

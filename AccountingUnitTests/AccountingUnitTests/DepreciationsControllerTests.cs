@@ -17,15 +17,17 @@ namespace AccountingUnitTests
         private readonly Mock<IValidator<Depreciation>> _mockDepreciationValidator;
         private readonly Mock<IConfiguration> _mockConfiguration;
         private readonly Mock<IDepreciationRepository> _mockDepreciationRepo;
+        private readonly Mock<IFixedAssetRepository> _mockFixedAssetRepo;
         private readonly DepreciationsController _depreciationsController;
 
-        public DepreciationsControllerTests() 
+        public DepreciationsControllerTests()
         {
             _mockLogger = new Mock<ILogger<DepreciationsController>>();
             _mockDepreciationValidator = new Mock<IValidator<Depreciation>>();
             _mockConfiguration = new Mock<IConfiguration>();
             _mockDepreciationRepo = new Mock<IDepreciationRepository>();
-            _depreciationsController = new DepreciationsController(_mockDepreciationRepo.Object, _mockDepreciationValidator.Object, _mockLogger.Object);
+            _mockFixedAssetRepo = new Mock<IFixedAssetRepository>();
+            _depreciationsController = new DepreciationsController(_mockDepreciationRepo.Object, _mockFixedAssetRepo.Object, _mockDepreciationValidator.Object, _mockLogger.Object);
         }
 
         #region Create
@@ -34,15 +36,16 @@ namespace AccountingUnitTests
         public async Task CreateAsync_ReturnCreatedResult_WhenValidRequestIsMade()
         {
             // Arrange
+            var fakeFixedAsset = new FixedAsset { Id = Guid.NewGuid() };
             var fakeDepreciation = new Depreciation
             {
-                FixedAssetId = Guid.NewGuid(),
+                FixedAssetId = fakeFixedAsset.Id,
                 Period = "FakePeriod",
                 Amount = 0,
             };
             var fakeExpectedDepreciation = new Depreciation
             {
-                FixedAssetId = Guid.NewGuid(),
+                FixedAssetId = fakeFixedAsset.Id,
                 Period = "FakePeriod",
                 Amount = 0,
                 Id = Guid.NewGuid(),
@@ -53,12 +56,16 @@ namespace AccountingUnitTests
                 .Setup(v => v.ValidateAsync(It.IsAny<Depreciation>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
+            _mockFixedAssetRepo
+                .Setup(r => r.GetFixedAssetByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(fakeFixedAsset);
+
             _mockDepreciationRepo
                 .Setup(r => r.InsertDepreciationAsync(It.IsAny<Depreciation>()))
                 .ReturnsAsync(fakeExpectedDepreciation);
 
             // Act
-            var result = await _depreciationsController.CreateAsync(fakeDepreciation);
+            var result = await _depreciationsController.CreateAsync(fakeDepreciation, fakeFixedAsset.Id);
 
             // Assert
             var createdResult = Assert.IsType<CreatedResult>(result.Result);
@@ -69,16 +76,17 @@ namespace AccountingUnitTests
         public async Task CreateAsync_ReturnsBadRequestResult_WhenIdFieldIsNotEmpty()
         {
             // Arrange
+            var fakeFixedAsset = new FixedAsset { Id = Guid.NewGuid() };
             var fakeDepreciation = new Depreciation
             {
-                FixedAssetId = Guid.NewGuid(),
+                FixedAssetId = fakeFixedAsset.Id,
                 Period = "FakePeriod",
                 Amount = 0,
                 Id = Guid.NewGuid()
             };
 
             // Act
-            var result = await _depreciationsController.CreateAsync(fakeDepreciation);
+            var result = await _depreciationsController.CreateAsync(fakeDepreciation, fakeFixedAsset.Id);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
@@ -89,9 +97,10 @@ namespace AccountingUnitTests
         public async Task CreateAsync_ReturnsBadRequestResult_WhenValidationIsNotValid()
         {
             // Arrange
+            var fakeFixedAsset = new FixedAsset { Id = Guid.NewGuid() };
             var fakeDepreciation = new Depreciation
             {
-                FixedAssetId = Guid.NewGuid(),
+                FixedAssetId = fakeFixedAsset.Id,
                 Period = "FakePeriod",
                 Amount = 0,
             };
@@ -103,11 +112,41 @@ namespace AccountingUnitTests
                 .ReturnsAsync(validationResult);
 
             // Act
-            var result = await _depreciationsController.CreateAsync(fakeDepreciation);
+            var result = await _depreciationsController.CreateAsync(fakeDepreciation, fakeFixedAsset.Id);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
             Assert.Equal("Name cannot be empty", badRequestResult.Value);
+        }
+
+        [Fact]
+        public async Task CreateAsync_ReturnsNotFoundResult_WhenInvoiceNotFound()
+        {
+            // Arrange
+            var fakeFixedAsset = new FixedAsset { Id = Guid.NewGuid() };
+            var fakeDepreciation = new Depreciation
+            {
+                FixedAssetId = fakeFixedAsset.Id,
+                Period = "FakePeriod",
+                Amount = 0,
+            };
+
+            fakeFixedAsset = null;
+
+            _mockDepreciationValidator
+               .Setup(v => v.ValidateAsync(It.IsAny<Depreciation>(), CancellationToken.None))
+               .ReturnsAsync(new ValidationResult());
+
+            _mockFixedAssetRepo
+                .Setup(r => r.GetFixedAssetByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(fakeFixedAsset);
+
+            // Act
+            var result = await _depreciationsController.CreateAsync(fakeDepreciation, fakeDepreciation.FixedAssetId);
+
+            // Assert
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+            Assert.Equal("FixedAsset not found", notFoundResult.Value);
         }
 
         #endregion
@@ -174,9 +213,10 @@ namespace AccountingUnitTests
         public async Task UpdateAsync_ReturnsNoContent_WhenValidRequestIsMade()
         {
             // Arrange
+            var fakeFixedAsset = new FixedAsset { Id = Guid.NewGuid() };
             var fakeDepreciation = new Depreciation
             {
-                FixedAssetId = Guid.NewGuid(),
+                FixedAssetId = fakeFixedAsset.Id,
                 Period = "FakePeriod",
                 Amount = 0,
                 Id = Guid.NewGuid()
@@ -186,12 +226,16 @@ namespace AccountingUnitTests
                 .Setup(v => v.ValidateAsync(It.IsAny<Depreciation>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
+            _mockFixedAssetRepo
+                .Setup(r => r.GetFixedAssetByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(fakeFixedAsset);
+
             _mockDepreciationRepo
                 .Setup(r => r.UpdateDepreciationAsync(fakeDepreciation))
                 .ReturnsAsync(1);
 
             // Act
-            var result = await _depreciationsController.UpdateAsync(fakeDepreciation, fakeDepreciation.Id);
+            var result = await _depreciationsController.UpdateAsync(fakeDepreciation, fakeFixedAsset.Id, fakeDepreciation.Id);
 
             // Assert
             var noContentResult = Assert.IsType<NoContentResult>(result);
@@ -201,16 +245,17 @@ namespace AccountingUnitTests
         public async Task UpdateAsync_ReturnsBadResuqest_WhenDepreciationIdDoesNotMatch()
         {
             // Arrange
+            var fakeFixedAsset = new FixedAsset { Id = Guid.NewGuid() };
             var fakeDepreciation = new Depreciation
             {
-                FixedAssetId = Guid.NewGuid(),
+                FixedAssetId = fakeFixedAsset.Id,
                 Period = "FakePeriod",
                 Amount = 0,
                 Id = Guid.NewGuid()
-            }; ;
+            };
 
             // Act
-            var result = await _depreciationsController.UpdateAsync(fakeDepreciation, Guid.NewGuid());
+            var result = await _depreciationsController.UpdateAsync(fakeDepreciation, fakeFixedAsset.Id, Guid.NewGuid());
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -221,9 +266,10 @@ namespace AccountingUnitTests
         public async Task UpdateAsync_ReturnsBadResuqest_WhenDepreciationValidationNotValid()
         {
             // Arrange
+            var fakeFixedAsset = new FixedAsset { Id = Guid.NewGuid() };
             var fakeDepreciation = new Depreciation
             {
-                FixedAssetId = Guid.NewGuid(),
+                FixedAssetId = fakeFixedAsset.Id,
                 Period = "FakePeriod",
                 Amount = 0,
                 Id = Guid.NewGuid()
@@ -236,7 +282,7 @@ namespace AccountingUnitTests
                 .ReturnsAsync(validationResult);
 
             // Act
-            var result = await _depreciationsController.UpdateAsync(fakeDepreciation, fakeDepreciation.Id);
+            var result = await _depreciationsController.UpdateAsync(fakeDepreciation, fakeFixedAsset.Id, fakeDepreciation.Id);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -247,9 +293,10 @@ namespace AccountingUnitTests
         public async Task UpdateAsync_ReturnsNotFound_WhenDepreciationNotFound()
         {
             // Arrange
+            var fakeFixedAsset = new FixedAsset { Id = Guid.NewGuid() };
             var fakeDepreciation = new Depreciation
             {
-                FixedAssetId = Guid.NewGuid(),
+                FixedAssetId = fakeFixedAsset.Id,
                 Period = "FakePeriod",
                 Amount = 0,
                 Id = Guid.NewGuid()
@@ -259,12 +306,16 @@ namespace AccountingUnitTests
                 .Setup(v => v.ValidateAsync(It.IsAny<Depreciation>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
+            _mockFixedAssetRepo
+                .Setup(r => r.GetFixedAssetByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(fakeFixedAsset);
+
             _mockDepreciationRepo
                 .Setup(r => r.UpdateDepreciationAsync(It.IsAny<Depreciation>()))
                 .ReturnsAsync(0);
 
             // Act
-            var result = await _depreciationsController.UpdateAsync(fakeDepreciation, fakeDepreciation.Id);
+            var result = await _depreciationsController.UpdateAsync(fakeDepreciation, fakeFixedAsset.Id, fakeDepreciation.Id);
 
             // Assert
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);

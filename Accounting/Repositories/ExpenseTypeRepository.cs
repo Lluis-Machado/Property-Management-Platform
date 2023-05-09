@@ -13,7 +13,7 @@ namespace Accounting.Repositories
             _context = context;
         }
 
-        public async Task<ExpenseType> GetExpenseTypeByIdAsync(Guid expenseTypeId)
+        public async Task<ExpenseType?> GetExpenseTypeByIdAsync(Guid expenseTypeId)
         {
             var parameters = new
             {
@@ -32,7 +32,7 @@ namespace Accounting.Repositories
 
             return await _context
                 .CreateConnection()
-                .QuerySingleAsync<ExpenseType>(queryBuilder.ToString(), parameters);
+                .QuerySingleOrDefaultAsync<ExpenseType?>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<IEnumerable<ExpenseType>> GetExpenseTypesAsync()

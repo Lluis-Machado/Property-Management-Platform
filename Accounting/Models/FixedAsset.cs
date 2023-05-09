@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Accounting.Models
 {

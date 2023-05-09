@@ -8,7 +8,7 @@ namespace TaxManagement.Repositories
         Task<Declaration> InsertDeclarationAsync(Declaration declaration);
         Task<Declaration> GetDeclarationByIdAsync(Guid id, Guid? declarantId = null);
         Task<int> UpdateDeclarationAsync(Declaration declaration);
-        Task<int> SetDeletedDeclarationAsync(Guid id, string user, bool deleted);
+        Task<int> SetDeletedDeclarationAsync(Guid id, bool deleted, string? userName);
 
     }
 }

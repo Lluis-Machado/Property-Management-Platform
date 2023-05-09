@@ -13,7 +13,7 @@ namespace Accounting.Repositories
             _context = context;
         }
 
-        public async Task<FixedAsset> GetFixedAssetByIdAsync(Guid fixedAssetId)
+        public async Task<FixedAsset?> GetFixedAssetByIdAsync(Guid fixedAssetId)
         {
             var parameters = new
             {
@@ -36,7 +36,7 @@ namespace Accounting.Repositories
 
             return await _context
                 .CreateConnection()
-                .QuerySingleAsync<FixedAsset>(queryBuilder.ToString(), parameters);
+                .QuerySingleOrDefaultAsync<FixedAsset?>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<IEnumerable<FixedAsset>> GetFixedAssetsAsync()

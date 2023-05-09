@@ -6,7 +6,7 @@ namespace Accounting.Repositories
     {
         Task<DepreciationConfig> InsertDepreciationConfigAsync(DepreciationConfig DepreciationConfig);
         Task<IEnumerable<DepreciationConfig>> GetDepreciationConfigsAsync();
-        Task<DepreciationConfig> GetDepreciationConfigByIdAsync(Guid DepreciationConfigId);
+        Task<DepreciationConfig?> GetDepreciationConfigByIdAsync(Guid DepreciationConfigId);
         Task<int> UpdateDepreciationConfigAsync(DepreciationConfig DepreciationConfig);
         Task<int> SetDeleteDepreciationConfigAsync(Guid id, bool deleted);
     }

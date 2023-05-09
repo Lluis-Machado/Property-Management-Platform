@@ -12,13 +12,15 @@ namespace Accounting.Controllers
     {
         private readonly IFixedAssetRepository _fixedAssetRepo;
         private readonly IInvoiceRepository _invoiceRepo;
+        private readonly IDepreciationConfigRepository _depreciationConfigRepo;
         private readonly IValidator<FixedAsset> _fixedAssetValidator;
         private readonly ILogger<FixedAssetsController> _logger;
 
-        public FixedAssetsController(IFixedAssetRepository fixedAssetRepo, IInvoiceRepository invoiceRepository, IValidator<FixedAsset> fixedAssetValidator, ILogger<FixedAssetsController> logger)
+        public FixedAssetsController(IFixedAssetRepository fixedAssetRepo, IInvoiceRepository invoiceRepository, IDepreciationConfigRepository depreciationConfigRepository, IValidator<FixedAsset> fixedAssetValidator, ILogger<FixedAssetsController> logger)
         {
             _fixedAssetRepo = fixedAssetRepo;
             _invoiceRepo = invoiceRepository;
+            _depreciationConfigRepo = depreciationConfigRepository;
             _fixedAssetValidator = fixedAssetValidator;
             _logger = logger;
         }
@@ -30,7 +32,7 @@ namespace Accounting.Controllers
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<Guid>> CreateAsync([FromBody] FixedAsset fixedAsset, Guid invoiceId)
+        public async Task<ActionResult<Guid>> CreateAsync([FromBody] FixedAsset fixedAsset, Guid invoiceId, Guid depreciationConfigId)
         {
             // request validations
             if (fixedAsset == null) return BadRequest("Incorrect body format");
@@ -43,6 +45,9 @@ namespace Accounting.Controllers
 
             // invoice validation
             if (!await InvoiceExists(invoiceId)) return NotFound("Invoice not found");
+
+            // depreciationConfig validation
+            if (!await DepreciationConfigExists(depreciationConfigId)) return NotFound("DepreciationConfig not found");
 
             fixedAsset = await _fixedAssetRepo.InsertFixedAssetAsync(fixedAsset);
             return Created($"fixedAssets/{fixedAsset.Id}", fixedAsset);
@@ -67,7 +72,7 @@ namespace Accounting.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult> UpdateAsync([FromBody] FixedAsset fixedAsset, Guid invoiceId, Guid fixedAssetId)
+        public async Task<ActionResult> UpdateAsync([FromBody] FixedAsset fixedAsset, Guid invoiceId, Guid depreciationConfigId, Guid fixedAssetId)
         {
             // request validations
             if (fixedAsset == null) return BadRequest("Incorrect body format");
@@ -80,6 +85,9 @@ namespace Accounting.Controllers
 
             // invoice validation
             if (!await InvoiceExists(invoiceId)) return NotFound("Invoice not found");
+
+            // depreciationConfig validation
+            if (!await DepreciationConfigExists(depreciationConfigId)) return NotFound("DepreciationConfig not found");
 
             fixedAsset.Id = fixedAssetId; // copy id to fixedAsset object
 
@@ -122,6 +130,12 @@ namespace Accounting.Controllers
         {
             Invoice? invoice = await _invoiceRepo.GetInvoiceByIdAsync(invoiceId);
             return (invoice != null);
+        }
+
+        private async Task<bool> DepreciationConfigExists(Guid depreciationConfigId)
+        {
+            DepreciationConfig? depreciationConfig = await _depreciationConfigRepo.GetDepreciationConfigByIdAsync(depreciationConfigId);
+            return (depreciationConfig != null);
         }
     }
 }

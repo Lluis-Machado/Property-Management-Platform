@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System.Net;
 
 namespace AccountingUnitTests
 {
@@ -413,6 +414,26 @@ namespace AccountingUnitTests
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
             Assert.Equal("Depreciation not found", notFoundResult.Value);
         }
+
+
+        //// GET: Depreciations by Fixed Asset and Period
+        //[Authorize]
+        //[HttpGet]
+        //[Route("{fixedAssetId}/depreciations")]
+        //[ProducesResponseType((int)HttpStatusCode.OK)]
+        //[ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        //[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        //public async Task<ActionResult<IEnumerable<Depreciation>>> GetByFAandPeriodAsync(Guid fixedAssetId, DateTime? periodStart, DateTime? periodEnd)
+
+        //// POST: Upsert depreciations
+        //[Authorize]
+        //[HttpPost]
+        //[Route("depreciations/upsert")]
+        //[ProducesResponseType((int)HttpStatusCode.OK)]
+        //[ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        //[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        //public async Task<ActionResult<IEnumerable<Depreciation>>> UpsertDepreciation([FromBody] Depreciation depreciation)
+
 
         #endregion
     }

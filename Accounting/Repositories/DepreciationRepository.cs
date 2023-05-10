@@ -42,8 +42,8 @@ namespace Accounting.Repositories
             var parameters = new
             {
                 fixedAssetId,
-                periodStart,
-                periodEnd
+                pS = periodStart != null ? ((DateTime)periodStart).ToString("yyyyMMdd") : null,
+                pE = periodEnd != null ? ((DateTime)periodEnd).ToString("yyyyMMdd") : null,
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");
@@ -57,8 +57,8 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,LastModificationByUser");
             queryBuilder.Append(" FROM Depreciations");
             queryBuilder.Append(" WHERE FixedAssetId = @fixedAssetId");
-            if (periodStart != null) queryBuilder.Append(" AND PeriodStart >= @periodStart");
-            if (periodEnd != null)   queryBuilder.Append(" AND PeriodEnd <= @periodEnd");
+            if (periodStart != null) queryBuilder.Append(" AND PeriodStart >= @pS");
+            if (periodEnd != null)   queryBuilder.Append(" AND PeriodEnd <= @pE");
 
             return await _context.
                 CreateConnection().

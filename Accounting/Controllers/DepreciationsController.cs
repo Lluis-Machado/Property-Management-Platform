@@ -4,6 +4,7 @@ using Accounting.Security;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 using System.Net;
 
 namespace Accounting.Controllers
@@ -118,124 +119,197 @@ namespace Accounting.Controllers
         }
 
 
-        // GET: Depreciations by Fixed Asset and Period
+        // POST: Upsert depreciations
         [Authorize]
-        [HttpGet]
-        [Route("depreciations")]
+        [HttpPost]
+        [Route("depreciations/upsert")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<Depreciation>>> GetByFAandPeriodAsync(bool fillMissing, Guid fixedAssetId, DateTime? periodStart, DateTime? periodEnd)
+        public async Task<ActionResult<IEnumerable<Depreciation>>> UpsertDepreciation([FromBody] Depreciation depreciation)
         {
+            // Request validations
+            if (depreciation.PeriodStart != null && depreciation.PeriodEnd != null && depreciation.PeriodEnd < depreciation.PeriodStart)
+                return BadRequest("Period end cannot be before period start");
+            if (depreciation == null) return BadRequest("Incorrect body format");
 
+            // depreciation validation
+            ValidationResult validationResult = await _depreciationValidator.ValidateAsync(depreciation);
+            if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
+
+            // fixedAsset validation
+            if (!await FixedAssetExists(depreciation.FixedAssetId)) return NotFound("FixedAsset not found");
+
+            await _depreciationValidator.ValidateAndThrowAsync(depreciation);
+
+            _logger.Log(LogLevel.Debug, $"UpsertDepreciation - Validation OK");
+
+            DateTime periodStart = depreciation.PeriodStart;
+            DateTime periodEnd = depreciation.PeriodEnd;
+
+            // Strip hours info if present
+            periodStart = DateTime.ParseExact(periodStart.ToString("yyyyMMdd"), "yyyyMMdd", CultureInfo.InvariantCulture);
+            periodEnd = DateTime.ParseExact(periodEnd.ToString("yyyyMMdd"), "yyyyMMdd", CultureInfo.InvariantCulture);
+
+            // Check if the depreciation exists
+            var foundDepreciations =
+                (await _depreciationRepo.GetDepreciationByFAandPeriodAsync(
+                    depreciation.FixedAssetId,
+                    periodStart.AddMonths(-6),
+                    periodEnd.AddMonths(6))).ToArray();
+
+            Depreciation depToUpdate = null;
+
+            foreach (Depreciation dep in foundDepreciations)
+            {
+
+                // Strip hours info
+                DateTime dep_periodStart = DateTime.ParseExact(dep.PeriodStart.ToString("yyyyMMdd"), "yyyyMMdd", CultureInfo.InvariantCulture);
+                DateTime dep_periodEnd= DateTime.ParseExact(dep.PeriodEnd.ToString("yyyyMMdd"), "yyyyMMdd", CultureInfo.InvariantCulture);
+
+                if (dep_periodStart == periodStart && dep_periodEnd == periodEnd)
+                {
+                    // If an exact match is found, return the current depreciation
+                    _logger.Log(LogLevel.Debug, $"UpsertDepreciation - Found an exact match!");
+                    return Ok(dep);
+                }
+                //else if (
+                //    (depreciation.PeriodStart >= dep.PeriodStart && depreciation.PeriodStart <= dep.PeriodEnd && depreciation.PeriodEnd >= dep.PeriodEnd && depreciation.PeriodEnd >= dep.PeriodStart) ||
+                //    (depreciation.PeriodStart <= dep.PeriodStart && depreciation.PeriodEnd <= dep.PeriodEnd && depreciation.PeriodEnd >= dep.PeriodStart && depreciation.PeriodStart <= dep.PeriodEnd) ||
+                //    (depreciation.PeriodStart <= dep.PeriodStart && depreciation.PeriodStart <= dep.PeriodEnd && depreciation.PeriodEnd >= dep.PeriodStart && depreciation.PeriodEnd >= dep.PeriodEnd))
+                //{
+
+                // chatgpt to the rescue
+                else if (depreciation.PeriodStart <= dep.PeriodEnd && depreciation.PeriodEnd >= dep.PeriodStart)
+                {
+                    depToUpdate = dep;
+                    _logger.Log(LogLevel.Debug, $"UpsertDepreciation - Found a depreciation with overlap!");
+                }
+            }
+
+            if (depToUpdate == null) _logger.Log(LogLevel.Debug, $"UpsertDepreciation - No overlapping depreciation found");
+
+            // Calculate depreciation during this period if not present
+            FixedAsset? fa = await _fixedAssetRepo.GetFixedAssetByIdAsync(depreciation.FixedAssetId);
+            if (fa == null) throw new Exception($"Could not find fixed asset w/ ID {depreciation.FixedAssetId}");
+            DepreciationConfig? dc = await _depreciationConfigRepo.GetDepreciationConfigByIdAsync(fa.DepreciationConfigId);
+
+            // Check if fixed asset data contains depreciation config info
+            // If not, get them from the depreciation config entry
+            if (fa.DepreciationAmountPercent == 0 && fa.DepreciationMaxYears == 0)
+            {
+                if (dc != null && dc.DepreciationPercent == 0 && dc.MaxYears == 0)
+                {
+                    throw new Exception($"Error calculating depreciation for fixed asset w/ ID {depreciation.FixedAssetId} - Depreciation settings found, but invalid");
+                }
+                else
+                {
+                    if (dc == null) throw new Exception($"Error calculating depreciation for fixed asset w/ ID {depreciation.FixedAssetId} - No depreciation settings found in database");
+
+                    // Update data in the fixed asset entry
+                    fa.DepreciationAmountPercent = dc.DepreciationPercent;
+                    fa.DepreciationMaxYears = dc.MaxYears;
+
+                    await _fixedAssetRepo.UpdateFixedAssetAsync(fa);
+                }
+            }
+
+            _logger.Log(LogLevel.Debug, $"UpsertDepreciation - Total fixed asset value: {fa.ActivationAmount}");
+
+            // Create depreciation object
+            // Update PeriodStart and PeriodEnd if they extend outwards compared to the found depreciation
+#pragma warning disable CS8602 // Desreferencia de una referencia posiblemente NULL.
+            Depreciation d = new Depreciation()
+            {
+                PeriodStart = depToUpdate != null ? (depToUpdate.PeriodStart > periodStart ? periodStart : depToUpdate.PeriodStart) : periodStart,
+                PeriodEnd = depToUpdate != null ? (depToUpdate.PeriodEnd < periodEnd ? periodEnd : depToUpdate.PeriodEnd) : periodEnd,
+                FixedAssetId = depreciation.FixedAssetId
+                //,LastModificationByUser = User?.Identity.Name // TODO: Añadir cuando se implemente cambio en Authorize
+                //,LastModificationDate = DateTime.Now
+            };
+#pragma warning restore CS8602 // Desreferencia de una referencia posiblemente NULL.
+
+            // If a dates overlap was found in the existing entries in the database, set the Id so that we update instead of insert
+            if (depToUpdate != null) d.Id = depToUpdate.Id;
+
+            double depreciationPerDay;
+
+            // Check whether to use percent or years lineal depreciation
+            if (fa.DepreciationAmountPercent != 0)
+            {
+                _logger.Log(LogLevel.Debug, $"UpsertDepreciation - Using lineal calculation per PERCENTAGE ({fa.DepreciationAmountPercent}%)");
+                // Depreciation per percentage
+                double yearlyDepreciation = fa.ActivationAmount * fa.DepreciationAmountPercent / 100;
+                depreciationPerDay = yearlyDepreciation / 365;
+                int daysAmount = (d.PeriodEnd - d.PeriodStart).Days;
+
+                _logger.Log(LogLevel.Debug, $"UpsertDepreciation - Days between {d.PeriodStart.ToString("dd/MM/yyyy")} and {d.PeriodEnd.ToString("dd/MM/yyyy")}: {daysAmount}");
+
+                d.Amount = depreciationPerDay * daysAmount;
+            }
+            else
+            {
+                _logger.Log(LogLevel.Debug, $"UpsertDepreciation - Using lineal calculation per USEFUL LIFE YEARS ({fa.DepreciationMaxYears} yrs)");
+                // Depreciation per useful life years
+                // Check if useful life already ran out
+
+                DateTime usefulLifeEnd = fa.ActivationDate.AddYears(fa.DepreciationMaxYears);
+                if (usefulLifeEnd < d.PeriodStart)
+                {
+                    d.Amount = 0;
+                    _logger.Log(LogLevel.Debug, $"UpsertDepreciation - Depreciation is gonna be zero because the useful life ended before the period started");
+                }
+                else
+                {
+                    double yearlyDepreciation = fa.ActivationAmount / fa.DepreciationMaxYears;
+                    depreciationPerDay = yearlyDepreciation / 365;
+
+                    int daysAmount;
+                    if (usefulLifeEnd >= d.PeriodStart && usefulLifeEnd <= d.PeriodEnd)
+                        daysAmount = (d.PeriodEnd - usefulLifeEnd).Days;
+                    else
+                        daysAmount = (d.PeriodEnd - d.PeriodStart).Days;
+                    d.Amount = depreciationPerDay * daysAmount;
+
+                    _logger.Log(LogLevel.Debug, $"UpsertDepreciation - Days between {d.PeriodStart.ToString("dd/MM/yyyy")} and {d.PeriodEnd.ToString("dd/MM/yyyy")}: {daysAmount}");
+                }
+
+            }
+
+            _logger.Log(LogLevel.Debug, $"UpsertDepreciation - Total depreciation amount: {d.Amount} euros");
+
+            // Save depreciation and return
+
+            if (depToUpdate != null)
+            {
+                _logger.Log(LogLevel.Debug, $"UpsertDepreciation - Updating depreciation w/ ID: {depToUpdate.Id}");
+                await _depreciationRepo.UpdateDepreciationAsync(d);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Debug, $"UpsertDepreciation - Inserting new depreciation");
+                await _depreciationRepo.InsertDepreciationAsync(d);
+            }
+
+            return Ok(d);
+        }
+
+        // GET: Depreciations by Fixed Asset and Period
+        [Authorize]
+        [HttpGet]
+        [Route("{fixedAssetId}/depreciations")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<IEnumerable<Depreciation>>> GetByFAandPeriodAsync(Guid fixedAssetId, DateTime? periodStart, DateTime? periodEnd)
+        {
             // Checks before starting
             if (periodStart != null && periodEnd != null && periodEnd < periodStart)
             {
                 return BadRequest("Period end cannot be before period start");
             }
 
-            var foundDepreciations = await _depreciationRepo.GetDepreciationByFAandPeriodAsync(fixedAssetId, periodStart, periodEnd);
-            foundDepreciations = foundDepreciations.ToArray();
-
-            if (!fillMissing)
-                return Ok(await _depreciationRepo.GetDepreciationByFAandPeriodAsync(fixedAssetId, periodStart, periodEnd));
-            else
-            {
-                // Check if the depreciation exists. If found, return the array
-
-                bool skipCheck = periodStart == null || periodEnd == null;
-
-                if (periodStart == null) periodStart = DateTime.MinValue;
-                if (periodEnd == null) periodEnd = DateTime.MaxValue;
-
-                // We skip checking since one of the two parameters was null
-                if (!skipCheck)
-                {
-                    bool found = false;
-                    foreach (Depreciation dep in foundDepreciations)
-                    {
-                        if (dep.PeriodStart == periodStart && dep.PeriodEnd == periodEnd)
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    if (found)
-                    {
-                        return Ok(foundDepreciations);
-                    }
-                }
-
-                // Calculate depreciation during this period if not present
-                FixedAsset fa = await _fixedAssetRepo.GetFixedAssetByIdAsync(fixedAssetId);
-                DepreciationConfig dc = await _depreciationConfigRepo.GetDepreciationConfigByIdAsync(fa.DepreciationConfigId);
-
-                // Check if fixed asset data contains depreciation config info
-                // If not, get them from the depreciation config entry
-                if (fa.DepreciationAmountPercent == 0 && fa.DepreciationMaxYears == 0)
-                {
-                    if (dc.DepreciationPercent == 0 && dc.MaxYears == 0)
-                    {
-                        throw new Exception($"Error calculating depreciation for fixed asset w/ ID {fixedAssetId} - No depreciation settings found");
-                    }
-                    else
-                    {
-                        // Update data in the fixed asset entry
-                        fa.DepreciationAmountPercent = dc.DepreciationPercent;
-                        fa.DepreciationMaxYears = dc.MaxYears;
-
-                        _ = _fixedAssetRepo.UpdateFixedAssetAsync(fa).Result;
-                    }
-                }
-
-                Depreciation depreciation = new Depreciation()
-                {
-                    PeriodStart = (DateTime)periodStart,
-                    PeriodEnd = (DateTime)periodEnd,
-                    FixedAssetId = fixedAssetId
-                };
-                double depreciationPerDay;
-
-                // Check whether to use percent or years lineal depreciation
-                if (fa.DepreciationAmountPercent != 0)
-                {
-                    // Depreciation per percentage
-                    double yearlyDepreciation = fa.ActivationAmount * fa.DepreciationAmountPercent / 100;
-                    depreciationPerDay = yearlyDepreciation / 365;
-                    int daysAmount = (depreciation.PeriodEnd - depreciation.PeriodStart).Days;
-
-                    depreciation.Amount = depreciationPerDay * daysAmount;
-                }
-                else
-                {
-                    // Depreciation per useful life years
-                    // Check if useful life already ran out
-
-                    DateTime usefulLifeEnd = fa.ActivationDate.AddYears(fa.DepreciationMaxYears);
-                    if (usefulLifeEnd < periodStart)
-                    {
-                        depreciation.Amount = 0;
-                    } else 
-                    {
-                        double yearlyDepreciation = fa.ActivationAmount / fa.DepreciationMaxYears;
-                        depreciationPerDay = yearlyDepreciation / 365;
-
-                        int daysAmount;
-                        if (usefulLifeEnd >= periodStart && usefulLifeEnd <= periodEnd)
-                            daysAmount = (depreciation.PeriodEnd - usefulLifeEnd).Days;
-                        else
-                            daysAmount = (depreciation.PeriodEnd - depreciation.PeriodStart).Days;
-                        depreciation.Amount = depreciationPerDay * daysAmount;
-                    }
-
-                }
-
-                // Save depreciation and return
-                await _depreciationRepo.InsertDepreciationAsync(depreciation);
-
-                return Ok(depreciation);
-            }
+            return Ok(await _depreciationRepo.GetDepreciationByFAandPeriodAsync(fixedAssetId, periodStart, periodEnd));
         }
 
         private async Task<bool> FixedAssetExists(Guid fixedAssetId)

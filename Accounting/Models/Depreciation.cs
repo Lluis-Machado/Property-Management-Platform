@@ -6,7 +6,6 @@
         public DateTime PeriodStart { get; set; }
         public DateTime PeriodEnd { get; set; }
         public double Amount { get; set; }
-
         public Guid Id { get; set; }
         public bool Deleted { get; set; }
         public DateTime CreationDate { get; set; }

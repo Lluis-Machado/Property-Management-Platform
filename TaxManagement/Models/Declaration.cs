@@ -1,8 +1,9 @@
 ﻿using System.Text.Json.Serialization;
+using TaxManagementAPI.Models;
 
 namespace TaxManagement.Models
 {
-    public class Declaration
+    public class Declaration: IAuditable
     {
         public enum DeclarationStatus
         {
@@ -18,16 +19,15 @@ namespace TaxManagement.Models
         public Guid DeclarantId { get; set; }
         public DeclarationStatus Status { get; set; }
         public bool Deleted { get; set; }
-        public string CreateUser { get; set; }
-        public DateTime CreateDate { get; set; }
-
-        public string UpdateUser { get; set; }
-        public DateTime UpdateDate { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime LastUpdateAt { get; set; }
+        public string? CreatedByUser { get; set; }
+        public string? LastUpdateByUser { get; set; }
 
         [JsonConstructor]
         public Declaration() {
-            CreateUser = String.Empty;
-            UpdateUser = String.Empty;
+            CreatedByUser = String.Empty;
+            LastUpdateByUser = String.Empty;
         }
     }
 }

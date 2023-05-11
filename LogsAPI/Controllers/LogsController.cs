@@ -1,11 +1,12 @@
 ﻿using LogsAPI.Models;
 using LogsAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using TaxManagement.Security;
 
 namespace LogsAPI.Controllers
 {
+    [Authorize]
     public class LogsController : Controller
     {
         private readonly LogsService _logsService;
@@ -14,7 +15,6 @@ namespace LogsAPI.Controllers
             _logsService = logsService;
 
         [HttpGet]
-        [Authorize]
         [Route("logs")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]

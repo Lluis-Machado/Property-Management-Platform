@@ -1,11 +1,12 @@
 using Documents.Models;
 using Documents.Services.AzureBlobStorage;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using TaxManagement.Security;
 
 namespace Documents.Controllers
 {
+    [Authorize]
     [ApiController]
     public class DocumentsController : ControllerBase
     {
@@ -21,7 +22,6 @@ namespace Documents.Controllers
         }
 
         // POST: Upload document(s)
-        [Authorize]
         [HttpPost]
         [Route("{tenantName}/documents")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -58,7 +58,6 @@ namespace Documents.Controllers
         }
 
         // GET: Get document(s)
-        [Authorize]
         [HttpGet]
         [Route("{tenantName}/documents")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -70,7 +69,6 @@ namespace Documents.Controllers
         }
 
         // GET: Download document
-        [Authorize]
         [HttpGet]
         [Route("{tenantName}/documents/{documentId}")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -83,7 +81,6 @@ namespace Documents.Controllers
         }
 
         // DELETE: Delete document
-        [Authorize]
         [HttpDelete]
         [Route("{tenantName}/documents/{documentId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -96,7 +93,6 @@ namespace Documents.Controllers
         }
 
         // POST: Undelete document
-        [Authorize]
         [HttpPatch]
         [Route("{tenantName}/documents/{documentId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -109,7 +105,6 @@ namespace Documents.Controllers
         }
 
         // POST: Rename document
-        [Authorize]
         [HttpPatch]
         [Route("{tenantName}/documents/{documentId}/rename")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -122,7 +117,6 @@ namespace Documents.Controllers
         }
 
         // POST: Copy document
-        [Authorize]
         [HttpPost]
         [Route("{tenantName}/documents/{documentId}/copy")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]

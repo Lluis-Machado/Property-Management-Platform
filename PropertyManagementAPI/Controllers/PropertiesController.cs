@@ -1,13 +1,14 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
 using PropertyManagementAPI.Models;
 using PropertyManagementAPI.Repositories;
 using System.Net;
 
 namespace PropertyManagementAPI.Controllers
 {
+    [Authorize]
     public class PropertiesController : Controller
     {
         private readonly ILogger<PropertiesController> _logger;
@@ -89,8 +90,8 @@ namespace PropertyManagementAPI.Controllers
         }
 
         // POST: undelete property
-        [HttpPost]
-        [Route("declarants/{declarantId}/undelete")]
+        [HttpPatch]
+        [Route("properties/{propertyId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UndeleteAsync(Guid propertyId)

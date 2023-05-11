@@ -129,9 +129,9 @@ namespace Accounting.Controllers
         public async Task<ActionResult<IEnumerable<Depreciation>>> UpsertDepreciation([FromBody] Depreciation depreciation)
         {
             // Request validations
+            if (depreciation == null) return BadRequest("Incorrect body format");
             if (depreciation.PeriodStart != null && depreciation.PeriodEnd != null && depreciation.PeriodEnd < depreciation.PeriodStart)
                 return BadRequest("Period end cannot be before period start");
-            if (depreciation == null) return BadRequest("Incorrect body format");
 
             // depreciation validation
             ValidationResult validationResult = await _depreciationValidator.ValidateAsync(depreciation);
@@ -193,6 +193,8 @@ namespace Accounting.Controllers
             FixedAsset? fa = await _fixedAssetRepo.GetFixedAssetByIdAsync(depreciation.FixedAssetId);
             if (fa == null) throw new Exception($"Could not find fixed asset w/ ID {depreciation.FixedAssetId}");
             DepreciationConfig? dc = await _depreciationConfigRepo.GetDepreciationConfigByIdAsync(fa.DepreciationConfigId);
+
+            if (fa.ActivationDate > periodStart) throw new Exception($"Depreciation period start cannot be before asset activation date");
 
             // Check if fixed asset data contains depreciation config info
             // If not, get them from the depreciation config entry

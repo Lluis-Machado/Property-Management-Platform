@@ -1,13 +1,14 @@
 ﻿using Accounting.Models;
 using Accounting.Repositories;
-using Accounting.Security;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace Accounting.Controllers
 {
+    [Authorize]
     public class FixedAssetsController : Controller
     {
         private readonly IFixedAssetRepository _fixedAssetRepo;
@@ -26,7 +27,7 @@ namespace Accounting.Controllers
         }
 
         // POST: Create fixedAsset
-        [Authorize]
+
         [HttpPost]
         [Route("fixedAssets")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
@@ -54,7 +55,7 @@ namespace Accounting.Controllers
         }
 
         // GET: Get fixedAsset(s)
-        [Authorize]
+
         [HttpGet]
         [Route("fixedAssets")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -65,7 +66,7 @@ namespace Accounting.Controllers
         }
 
         // POST: update fixedAsset
-        [Authorize]
+
         [HttpPost]
         [Route("fixedAssets/{fixedAssetId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -99,7 +100,7 @@ namespace Accounting.Controllers
         }
 
         // DELETE: delete fixedAsset
-        [Authorize]
+
         [HttpDelete]
         [Route("fixedAssets/{fixedAssetId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -113,7 +114,7 @@ namespace Accounting.Controllers
         }
 
         // POST: undelete fixedAsset
-        [Authorize]
+
         [HttpPost]
         [Route("fixedAssets/{fixedAssetId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]

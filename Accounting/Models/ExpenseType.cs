@@ -11,7 +11,7 @@
         public DateTime LastModificationDate { get; set; }
         public string LastModificationByUser { get; set; }
 
-        public ExpenseType() 
+        public ExpenseType()
         {
             Description = string.Empty;
             LastModificationByUser = string.Empty;

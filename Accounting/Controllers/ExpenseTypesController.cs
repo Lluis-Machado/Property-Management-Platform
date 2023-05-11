@@ -1,13 +1,14 @@
 ﻿using Accounting.Models;
 using Accounting.Repositories;
-using Accounting.Security;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace Accounting.Controllers
 {
+    [Authorize]
     public class ExpenseTypesController : Controller
     {
         private readonly IExpenseTypeRepository _expenseTypeRepo;
@@ -22,7 +23,7 @@ namespace Accounting.Controllers
         }
 
         // POST: Create expenseType
-        [Authorize]
+
         [HttpPost]
         [Route("expenseTypes")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
@@ -43,7 +44,7 @@ namespace Accounting.Controllers
         }
 
         // GET: Get expenseType(s)
-        [Authorize]
+
         [HttpGet]
         [Route("expenseTypes")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -54,7 +55,7 @@ namespace Accounting.Controllers
         }
 
         // POST: update expenseType
-        [Authorize]
+
         [HttpPost]
         [Route("expenseTypes/{expenseTypeId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -79,7 +80,7 @@ namespace Accounting.Controllers
         }
 
         // DELETE: delete expenseType
-        [Authorize]
+
         [HttpDelete]
         [Route("expenseTypes/{expenseTypeId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -93,7 +94,7 @@ namespace Accounting.Controllers
         }
 
         // POST: undelete expenseType
-        [Authorize]
+
         [HttpPost]
         [Route("expenseTypes/{expenseTypeId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]

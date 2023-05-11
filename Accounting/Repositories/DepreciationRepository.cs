@@ -58,7 +58,7 @@ namespace Accounting.Repositories
             queryBuilder.Append(" FROM Depreciations");
             queryBuilder.Append(" WHERE FixedAssetId = @fixedAssetId");
             if (periodStart != null) queryBuilder.Append(" AND PeriodStart >= @pS");
-            if (periodEnd != null)   queryBuilder.Append(" AND PeriodEnd <= @pE");
+            if (periodEnd != null) queryBuilder.Append(" AND PeriodEnd <= @pE");
 
             return await _context.
                 CreateConnection().

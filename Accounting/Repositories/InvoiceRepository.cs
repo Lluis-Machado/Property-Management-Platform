@@ -43,7 +43,7 @@ namespace Accounting.Repositories
                 queryBuilder.Append(" WHERE Id = @invoiceId");
 
                 Invoice? invoice = await connection.QuerySingleOrDefaultAsync<Invoice?>(queryBuilder.ToString(), parameters, tran);
-                if(invoice == null) 
+                if (invoice == null)
                 {
                     tran.Rollback();
                     connection.Close();
@@ -83,7 +83,7 @@ namespace Accounting.Repositories
                 connection.Close();
                 return invoice;
             }
-            catch 
+            catch
             {
                 tran.Rollback();
                 connection.Close();

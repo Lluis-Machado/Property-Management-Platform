@@ -1,14 +1,15 @@
 ﻿using Accounting.Models;
 using Accounting.Repositories;
-using Accounting.Security;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using System.Net;
 
 namespace Accounting.Controllers
 {
+    [Authorize]
     public class DepreciationsController : Controller
     {
         private readonly IDepreciationRepository _depreciationRepo;
@@ -27,7 +28,7 @@ namespace Accounting.Controllers
         }
 
         // POST: Create depreciation
-        [Authorize]
+
         [HttpPost]
         [Route("depreciations")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
@@ -54,7 +55,7 @@ namespace Accounting.Controllers
         }
 
         // GET: Get depreciation(s)
-        [Authorize]
+
         [HttpGet]
         [Route("depreciations")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -65,7 +66,7 @@ namespace Accounting.Controllers
         }
 
         // POST: update depreciation
-        [Authorize]
+
         [HttpPatch]
         [Route("depreciations/{depreciationId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -120,7 +121,7 @@ namespace Accounting.Controllers
 
 
         // POST: Upsert depreciations
-        [Authorize]
+
         [HttpPost]
         [Route("depreciations/upsert")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -165,7 +166,7 @@ namespace Accounting.Controllers
 
                 // Strip hours info
                 DateTime dep_periodStart = DateTime.ParseExact(dep.PeriodStart.ToString("yyyyMMdd"), "yyyyMMdd", CultureInfo.InvariantCulture);
-                DateTime dep_periodEnd= DateTime.ParseExact(dep.PeriodEnd.ToString("yyyyMMdd"), "yyyyMMdd", CultureInfo.InvariantCulture);
+                DateTime dep_periodEnd = DateTime.ParseExact(dep.PeriodEnd.ToString("yyyyMMdd"), "yyyyMMdd", CultureInfo.InvariantCulture);
 
                 if (dep_periodStart == periodStart && dep_periodEnd == periodEnd)
                 {
@@ -297,7 +298,7 @@ namespace Accounting.Controllers
         }
 
         // GET: Depreciations by Fixed Asset and Period
-        [Authorize]
+
         [HttpGet]
         [Route("{fixedAssetId}/depreciations")]
         [ProducesResponseType((int)HttpStatusCode.OK)]

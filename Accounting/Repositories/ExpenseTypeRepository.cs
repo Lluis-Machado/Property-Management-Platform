@@ -121,7 +121,7 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,LastModificationByUser = @LastModificationByUser");
             queryBuilder.Append(" ,LastModificationDate = @LastModificationDate");
             queryBuilder.Append(" WHERE Id = @Id");
-            
+
             return await _context
                 .CreateConnection()
                 .ExecuteAsync(queryBuilder.ToString(), parameters);

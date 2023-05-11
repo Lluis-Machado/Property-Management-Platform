@@ -1,13 +1,14 @@
 ﻿using Accounting.Models;
 using Accounting.Repositories;
-using Accounting.Security;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace Accounting.Controllers
 {
+    [Authorize]
     public class InvoicesController : Controller
     {
         private readonly IInvoiceRepository _invoiceRepo;
@@ -24,7 +25,7 @@ namespace Accounting.Controllers
         }
 
         // POST: Create Invoice
-        [Authorize]
+
         [HttpPost]
         [Route("invoices")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
@@ -49,7 +50,7 @@ namespace Accounting.Controllers
         }
 
         // GET: Get invoice(s)
-        [Authorize]
+
         [HttpGet]
         [Route("invoices")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -60,7 +61,7 @@ namespace Accounting.Controllers
         }
 
         // POST: update invoice
-        [Authorize]
+
         [HttpPost]
         [Route("invoices/{invoiceId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -89,7 +90,7 @@ namespace Accounting.Controllers
         }
 
         // DELETE: delete invoice
-        [Authorize]
+
         [HttpDelete]
         [Route("invoices/{invoiceId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -103,7 +104,7 @@ namespace Accounting.Controllers
         }
 
         // POST: undelete invoice
-        [Authorize]
+
         [HttpPost]
         [Route("invoices/{invoiceId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]

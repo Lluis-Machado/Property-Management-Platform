@@ -21,7 +21,7 @@ namespace Accounting.Validators
 
             RuleFor(Line => Line.Quantity)
                 .NotNull().WithMessage("{PropertyName} cannot be null");
-                //.GreaterThanOrEqualTo(1).WithMessage("{PropertyName} cannot be less than 1");  // Allow quantities to be negative for discounts
+            //.GreaterThanOrEqualTo(1).WithMessage("{PropertyName} cannot be less than 1");  // Allow quantities to be negative for discounts
 
             RuleFor(Line => Line.UnitPrice)
                 .NotNull().WithMessage("{PropertyName} cannot be null")

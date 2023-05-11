@@ -8,7 +8,7 @@ namespace Accounting.Repositories
     public class FixedAssetRepository : IFixedAssetRepository
     {
         private readonly DapperContext _context;
-        public FixedAssetRepository(DapperContext context) 
+        public FixedAssetRepository(DapperContext context)
         {
             _context = context;
         }

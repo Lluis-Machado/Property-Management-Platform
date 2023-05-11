@@ -1,14 +1,14 @@
-﻿namespace PropertyManagementAPI.Models
+﻿using MongoDB.Bson.Serialization.Attributes;
+
+namespace PropertyManagementAPI.Models
 {
-    public class Property
+    public class Property: CoreObject
     {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public Guid AccoutingTenantId { get; set; }
-        public Guid DocumentsTenantId { get; set; }
-        public Property()
-        {
-            Name = String.Empty;
-        }
+        [BsonId]
+        public Guid _id { get; set; }
+        public string? Name { get; set; }
+        public string? Type { get; set; }
+        public Address? Address { get; set; }
+        public bool Deleted { get; set; }
     }
 }

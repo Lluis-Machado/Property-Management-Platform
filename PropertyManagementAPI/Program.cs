@@ -1,14 +1,17 @@
+using FluentValidation;
+using PropertyManagementAPI.Contexts;
 using PropertyManagementAPI.Models;
+using PropertyManagementAPI.Repositories;
 using PropertyManagementAPI.Services;
+using PropertyManagementAPI.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.Configure<PropertyManagentDataBaseSettings>(
-    builder.Configuration.GetSection("PropertyManagementDatabase"));
-
-builder.Services.AddSingleton<PropertiesRepository>();
-
+builder.Services.AddSingleton<MongoContext>();
+builder.Services.AddScoped<IPropertiesRepository, PropertiesRepository>();
+builder.Services.AddScoped<IValidator<Property>, PropertyValidator>();
+builder.Services.AddScoped<IValidator<Address>, AddressValidator>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

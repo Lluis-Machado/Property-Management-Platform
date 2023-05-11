@@ -18,26 +18,26 @@ namespace TaxManagement.Repositories
             var parameters = new
             {
                 declaration.DeclarantId,
-                declaration.CreateUser,
-                declaration.UpdateUser,
+                declaration.CreatedByUser,
+                declaration.LastUpdateByUser,
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("INSERT INTO Declarations (");
             queryBuilder.Append(" DeclarantId");
-            queryBuilder.Append(",CreateUser");
-            queryBuilder.Append(",UpdateUser");
+            queryBuilder.Append(",CreatedByUser");
+            queryBuilder.Append(",LastUpdateByUser");
             queryBuilder.Append(")OUTPUT INSERTED.Id");
             queryBuilder.Append(",INSERTED.DeclarantId");
             queryBuilder.Append(",INSERTED.Status");
             queryBuilder.Append(",INSERTED.Deleted");
-            queryBuilder.Append(",INSERTED.CreateUser");
-            queryBuilder.Append(",INSERTED.CreateDate");
-            queryBuilder.Append(",INSERTED.UpdateUser");
-            queryBuilder.Append(",INSERTED.UpdateDate");
+            queryBuilder.Append(",INSERTED.CreatedByUser");
+            queryBuilder.Append(",INSERTED.CreatedAt");
+            queryBuilder.Append(",INSERTED.LastUpdateByUser");
+            queryBuilder.Append(",INSERTED.LastUpdateAt");
             queryBuilder.Append(" VALUES(");
             queryBuilder.Append(" @DeclarantId");
-            queryBuilder.Append(",@CreateUser");
-            queryBuilder.Append(",@UpdateUser");
+            queryBuilder.Append(",@CreatedByUser");
+            queryBuilder.Append(",@LastUpdateByUser");
             queryBuilder.Append(" )");
 
             return await _context
@@ -53,10 +53,10 @@ namespace TaxManagement.Repositories
             queryBuilder.Append("Id");
             queryBuilder.Append(",DeclarantId");
             queryBuilder.Append(",Status");
-            queryBuilder.Append(",CreateUser");
-            queryBuilder.Append(",CreateDate");
-            queryBuilder.Append(",UpdateUser");
-            queryBuilder.Append(",UpdateDate");
+            queryBuilder.Append(",CreatedByUser");
+            queryBuilder.Append(",CreatedAt");
+            queryBuilder.Append(",LastUpdateByUser");
+            queryBuilder.Append(",LastUpdateAt");
             queryBuilder.Append(" FROM Declarations");
             if (declarantId != null) queryBuilder.Append(" WHERE DeclarantId = @declarantId");
 
@@ -77,10 +77,10 @@ namespace TaxManagement.Repositories
             queryBuilder.Append(" ,DeclarantId");
             queryBuilder.Append(" ,Status");
             queryBuilder.Append(" ,Deleted");
-            queryBuilder.Append(" ,CreateUser");
-            queryBuilder.Append(" ,CreateDate");
-            queryBuilder.Append(" ,UpdateUser");
-            queryBuilder.Append(" ,UpdateDate");
+            queryBuilder.Append(" ,CreatedByUser");
+            queryBuilder.Append(" ,CreatedAt");
+            queryBuilder.Append(" ,LastUpdateByUser");
+            queryBuilder.Append(" ,LastUpdateAt");
             queryBuilder.Append(" FROM Declarations");
             queryBuilder.Append(" WHERE Id = @id");
             if (declarantId != null) queryBuilder.Append(" AND DeclarantId = @declarantId");
@@ -97,15 +97,15 @@ namespace TaxManagement.Repositories
                 declaration.Id,
                 declaration.Status,
                 declaration.Deleted,
-                declaration.UpdateUser,
-                UpdateDate = DateTime.Now,
+                declaration.LastUpdateByUser,
+                LastUpdateAt = DateTime.Now,
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("UPDATE Declarations ");
             queryBuilder.Append("SET Status = @Status ");
             queryBuilder.Append(" ,Deleted = @Deleted ");
-            queryBuilder.Append(" ,UpdateUser = @UpdateUser ");
-            queryBuilder.Append(" ,UpdateDate = @UpdateDate ");
+            queryBuilder.Append(" ,LastUpdateByUser = @LastUpdateByUser ");
+            queryBuilder.Append(" ,LastUpdateAt = @LastUpdateAt ");
             queryBuilder.Append(" WHERE Id = @Id ");
 
             using var connection = _context.CreateConnection();
@@ -115,20 +115,20 @@ namespace TaxManagement.Repositories
                 .ExecuteAsync(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<int> SetDeletedDeclarationAsync(Guid id, string user, bool deleted)
+        public async Task<int> SetDeletedDeclarationAsync(Guid id, bool deleted, string? userName)
         {
             var parameters = new
             {
                 id,
                 deleted,
-                user,
-                UpdateDate = DateTime.Now,
+                userName,
+                LastUpdateAt = DateTime.Now,
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("UPDATE Declarations ");
             queryBuilder.Append("SET Deleted = @deleted ");
-            queryBuilder.Append(" ,UpdateUser = @user ");
-            queryBuilder.Append(" ,UpdateDate = @UpdateDate ");
+            queryBuilder.Append(" ,LastUpdateByUser = @userName ");
+            queryBuilder.Append(" ,LastUpdateAt = @LastUpdateAt ");
             queryBuilder.Append(" WHERE Id = @id ");
 
             return await _context

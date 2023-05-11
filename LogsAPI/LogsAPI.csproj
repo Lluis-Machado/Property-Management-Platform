@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Configurations>Development;Production</Configurations>
+    <Configurations>Development;Production;Stage</Configurations>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|AnyCPU'">
@@ -18,9 +18,11 @@
   <ItemGroup>
     <Content Remove="appsettings.Development.json" />
     <Content Remove="appsettings.Production.json" />
+    <Content Remove="appsettings.Stage.json" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.16" />
     <PackageReference Include="Microsoft.VisualStudio.SlowCheetah" Version="4.0.30">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -38,6 +40,10 @@
       <DependentUpon>appsettings.json</DependentUpon>
     </None>
     <None Include="appsettings.Production.json">
+      <IsTransformFile>true</IsTransformFile>
+      <DependentUpon>appsettings.json</DependentUpon>
+    </None>
+    <None Include="appsettings.Stage.json">
       <IsTransformFile>true</IsTransformFile>
       <DependentUpon>appsettings.json</DependentUpon>
     </None>

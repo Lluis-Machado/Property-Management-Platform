@@ -1,13 +1,14 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using TaxManagement.Models;
 using TaxManagement.Repositories;
-using TaxManagement.Security;
 
 namespace TaxManagement.Controllers
 {
+    [Authorize]
     public class DeclarationsController : Controller
     {
         private readonly ILogger<DeclarationsController> _logger;
@@ -19,11 +20,10 @@ namespace TaxManagement.Controllers
             _declarationRepo = declarationRepo;
             _declarantRepo = declarantRepo;
             _declarationValidator = declarationValidator;
-            _logger = logger;   
+            _logger = logger;
         }
 
         // POST: Create declaration
-        [Authorize]
         [HttpPost]
         [Route("{declarantId}/declarations")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
@@ -35,19 +35,19 @@ namespace TaxManagement.Controllers
             if (declaration == null) return BadRequest("Incorrect body format");
             if (declaration.Id != Guid.Empty) return BadRequest("Id fild must be empty");
             if (declaration.DeclarantId != declarantId) return BadRequest("Incorrect declarant Id in body");
-
             // declaration validation
             ValidationResult validationResult = await _declarationValidator.ValidateAsync(declaration);
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
-
             // declarant validation
-            if(!await DeclarantExists(declarantId)) return NotFound("Declarant not found");
+            if (!await DeclarantExists(declarantId)) return NotFound("Declarant not found");
+
+            declaration.CreatedByUser = User?.Identity?.Name;
+            declaration.LastUpdateByUser = User?.Identity?.Name;
             declaration = await _declarationRepo.InsertDeclarationAsync(declaration);
             return Created($"{declaration.DeclarantId}/declarations/{declaration.Id}", declaration);
         }
 
         // GET: Get declaration(s)
-        [Authorize]
         [HttpGet]
         [Route("{declarantId}/declarations")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -60,9 +60,8 @@ namespace TaxManagement.Controllers
             return Ok(await _declarationRepo.GetDeclarationsAsync(declarantId));
         }
 
-        // POST: update declarantion
-        [Authorize]
-        [HttpPost]
+        // POST: update declaration
+        [HttpPatch]
         [Route("{declarantId}/declarations/{declarationId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -81,34 +80,33 @@ namespace TaxManagement.Controllers
             if (!await DeclarantExists(declarantId)) return NotFound("Declarant not found");
 
             declaration.Id = declarationId;
-
+            declaration.LastUpdateByUser = User?.Identity?.Name;
+            declaration.LastUpdateAt = DateTime.Now;
             int result = await _declarationRepo.UpdateDeclarationAsync(declaration);
             if (result == 0) return NotFound("Declaration not found");
             return NoContent();
         }
 
         // DELETE: delete declarantion
-        [Authorize]
         [HttpDelete]
         [Route("{declarantId}/declarations/{declarationId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> DeleteAsync(Guid declarantId, Guid declarationId, string user)
+        public async Task<IActionResult> DeleteAsync(Guid declarantId, Guid declarationId)
         {
-            int result = await _declarationRepo.SetDeletedDeclarationAsync(declarationId, user, true);
+            int result = await _declarationRepo.SetDeletedDeclarationAsync(declarationId, true, User?.Identity?.Name);
             if (result == 0) return NotFound("Declaration not found");
             return NoContent();
         }
 
         // POST: undelete declarant
-        [Authorize]
-        [HttpPost]
+        [HttpPatch]
         [Route("{declarantId}/declarations/{declarationId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> UndeleteAsync(Guid declarantId, Guid declarationId, string user)
+        public async Task<IActionResult> UndeleteAsync(Guid declarantId, Guid declarationId)
         {
-            int result = await _declarationRepo.SetDeletedDeclarationAsync(declarationId, user, false);
+            int result = await _declarationRepo.SetDeletedDeclarationAsync(declarationId,false, User?.Identity?.Name);
             if (result == 0) return NotFound("Declaration not found");
             return NoContent();
         }

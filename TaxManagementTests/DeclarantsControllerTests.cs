@@ -202,7 +202,7 @@ namespace TaxManagementControllerTests
             // Arrange
             var fakeDeclarantId = Guid.NewGuid();
 
-            _mockDeclarantRepo.Setup(r => r.SetDeleteDeclarantAsync(It.IsAny<Guid>(), true, "UserId"))
+            _mockDeclarantRepo.Setup(r => r.SetDeleteDeclarantAsync(It.IsAny<Guid>(), It.IsAny<bool>(), It.IsAny<string>()))
                 .ReturnsAsync(1);
 
             // Act
@@ -218,8 +218,8 @@ namespace TaxManagementControllerTests
             // Arrange
             var fakeDeclarantId = Guid.NewGuid();
 
-            _mockDeclarantRepo.Setup(r => r.SetDeleteDeclarantAsync(It.IsAny<Guid>(), true, "UserId"))
-                .ReturnsAsync(0);
+            _mockDeclarantRepo.Setup(r => r.SetDeleteDeclarantAsync(It.IsAny<Guid>(), It.IsAny<bool>(), It.IsAny<string>()))
+             .ReturnsAsync(0);
 
             // Act
             var result = await _declarantsController.DeleteAsync(fakeDeclarantId);
@@ -236,8 +236,8 @@ namespace TaxManagementControllerTests
             // Arrange
             var fakeDeclarantId = Guid.NewGuid();
 
-            _mockDeclarantRepo.Setup(r => r.SetDeleteDeclarantAsync(It.IsAny<Guid>(), false, "UserId"))
-                .ReturnsAsync(1);
+            _mockDeclarantRepo.Setup(r => r.SetDeleteDeclarantAsync(It.IsAny<Guid>(), It.IsAny<bool>(), It.IsAny<string>()))
+            .ReturnsAsync(1);
 
             // Act
             var result = await _declarantsController.UndeleteAsync(fakeDeclarantId);
@@ -252,8 +252,8 @@ namespace TaxManagementControllerTests
             // Arrange
             var fakeDeclarantId = Guid.NewGuid();
 
-            _mockDeclarantRepo.Setup(r => r.SetDeleteDeclarantAsync(It.IsAny<Guid>(), false, "UserId"))
-                .ReturnsAsync(0);
+            _mockDeclarantRepo.Setup(r => r.SetDeleteDeclarantAsync(It.IsAny<Guid>(), It.IsAny<bool>(), It.IsAny<string>()))
+            .ReturnsAsync(0);
 
             // Act
             var result = await _declarantsController.UndeleteAsync(fakeDeclarantId);

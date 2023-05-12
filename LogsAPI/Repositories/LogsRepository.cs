@@ -4,11 +4,11 @@ using Microsoft.Extensions.Options;
 
 namespace LogsAPI.Services
 {
-    public class LogsService
+    public class LogsRepository
     {
         private readonly IMongoCollection<Log> _logCollection;
 
-        public LogsService(
+        public LogsRepository(
             IOptions<LogDatabaseSettings> logsDatabaseSettings)
         {
             var mongoClient = new MongoClient(

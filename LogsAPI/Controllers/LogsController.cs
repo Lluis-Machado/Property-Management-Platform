@@ -9,9 +9,9 @@ namespace LogsAPI.Controllers
     [Authorize]
     public class LogsController : Controller
     {
-        private readonly LogsService _logsService;
+        private readonly LogsRepository _logsService;
 
-        public LogsController(LogsService logsService) =>
+        public LogsController(LogsRepository logsService) =>
             _logsService = logsService;
 
         [HttpGet]

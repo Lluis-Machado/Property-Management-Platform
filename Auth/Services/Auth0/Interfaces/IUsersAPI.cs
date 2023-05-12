@@ -27,5 +27,6 @@ namespace AuthenticationAPI.Services.Auth0.Interfaces
         #region USER_LOGS
         Task<List<object>> GetUserLogsAsync(string userId);
         #endregion
+        Task<string> ResetPasswordAsync(string email);
     }
 }

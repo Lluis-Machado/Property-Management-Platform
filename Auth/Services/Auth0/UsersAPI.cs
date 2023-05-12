@@ -231,5 +231,24 @@ namespace Authentication.Services.Auth0
             throw new ApiException(response.StatusCode, responseContent);
         }
         #endregion
+
+        public async Task<string> ResetPasswordAsync(string email)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, $"{_auth0Settings.BaseUrl}/dbconnections/change_password")
+            {
+                Content = new FormUrlEncodedContent(new Dictionary<string, string> {
+                    {"client_id", _auth0Settings.ClientId},
+                    {"connection", "Username-Password-Authentication"},
+                    {"email", email},
+                })
+            };
+
+            var response = await _httpClient.SendAsync(request);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode) return responseContent;
+
+            throw new ApiException(response.StatusCode, responseContent);
+        }
     }
 }

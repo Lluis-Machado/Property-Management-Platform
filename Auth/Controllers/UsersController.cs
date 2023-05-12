@@ -1,5 +1,6 @@
 ﻿using Authentication.Models;
 using Authentication.Security;
+using Authentication.Services.Auth0;
 using AuthenticationAPI.Services.Auth0.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -176,5 +177,15 @@ namespace Authentication.Controllers
             return Ok(await _usersAPI.GetUserLogsAsync(userId));
         }
         #endregion
+
+        [HttpGet("resetPassword")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> ResetPassword([FromQuery] string email)
+        {
+            return Ok(await _usersAPI.ResetPasswordAsync(email));
+        }
     }
 }

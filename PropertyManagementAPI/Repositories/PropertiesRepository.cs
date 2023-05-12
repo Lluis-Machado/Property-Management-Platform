@@ -14,7 +14,7 @@ namespace PropertyManagementAPI.Services
             _collection = database.GetCollection<Property>("properties");
         }
 
-        public async Task<Property> CreateAsync(Property property)
+        public async Task<Property> InsertOneAsync(Property property)
         {
             await _collection.InsertOneAsync(property);
             return property;

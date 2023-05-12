@@ -6,7 +6,7 @@ namespace PropertyManagementAPI.Repositories
 {
     public interface IPropertiesRepository
     {
-        Task<Property> CreateAsync(Property property);
+        Task<Property> InsertOneAsync(Property property);
         Task<List<Property>> GetAsync();
         Task<UpdateResult> UpdateAsync(Property property);
         Task<UpdateResult> SetDeleteDeclarantAsync(Guid property, bool deleted);

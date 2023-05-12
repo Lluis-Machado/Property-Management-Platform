@@ -34,12 +34,13 @@ namespace PropertyManagementAPI.Controllers
         {
             // validations
             if (property == null) return BadRequest("Incorrect body format");
+            if (property._id != Guid.Empty) return BadRequest("Id fild must be empty");
 
             // property validation
             ValidationResult validationResult = await ValidateProperty(property);
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
-
-            return Ok(await _propertiesRepo.CreateAsync(property));
+            property = await _propertiesRepo.InsertOneAsync(property);
+            return Created($"properties/{property._id}", property);
         }
 
         // GET: Get properties(s)

@@ -10,5 +10,6 @@ namespace Accounting.Repositories
         Task<IEnumerable<Depreciation>> GetDepreciationByFAandPeriodAsync(Guid fixedAssetId, DateTime? periodStart, DateTime? periodEnd);
         Task<int> UpdateDepreciationAsync(Depreciation depreciation);
         Task<int> SetDeleteDepreciationAsync(Guid id, bool deleted);
+        Task<int> UpdateTotalDepreciationForFixedAsset(Guid fixedAssetId);
     }
 }

@@ -294,6 +294,9 @@ namespace Accounting.Controllers
                 await _depreciationRepo.InsertDepreciationAsync(d);
             }
 
+            // Update FixedAsset
+            await _depreciationRepo.UpdateTotalDepreciationForFixedAsset(fa.Id);
+
             return Ok(d);
         }
 

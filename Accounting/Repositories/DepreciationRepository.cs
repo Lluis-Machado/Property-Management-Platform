@@ -169,5 +169,25 @@ namespace Accounting.Repositories
                 .CreateConnection()
                 .ExecuteAsync(queryBuilder.ToString(), parameters);
         }
+
+        public async Task<int> UpdateTotalDepreciationForFixedAsset(Guid fixedAssetId)
+        {
+            var parameters = new
+            {
+                fixedAssetId
+            };
+
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("UPDATE FixedAssets ");
+            queryBuilder.Append("SET DepreciatedAmount = ( ");
+            queryBuilder.Append(" SELECT SUM(Depreciations.Amount) FROM Depreciations ");
+            queryBuilder.Append("  WHERE Depreciations.FixedAssetId = @fixedAssetId)");
+            queryBuilder.Append(" WHERE FixedAssets.Id = @fixedAssetId");
+
+            return await _context
+                .CreateConnection()
+                .ExecuteAsync(queryBuilder.ToString(), parameters);
+        }
+
     }
 }

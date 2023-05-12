@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using Accounting.Controllers;
+using System.Text.Json.Serialization;
 
 namespace Accounting.Models
 {
@@ -8,10 +9,13 @@ namespace Accounting.Models
         public string Name { get; set; }
         public DateTime ActivationDate { get; set; }
         public double ActivationAmount { get; set; }
+        public double DepreciatedAmount { get; set; }
         public Guid DepreciationConfigId { get; set; }
         public double DepreciationAmountPercent { get; set; } // Taken from the DepreciationConfig, or custom set
         public int DepreciationMaxYears { get; set; }         // Taken from the DepreciationConfig, or custom set
         public int EstimatedUsefulLife { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public Depreciation[]? Depreciations { get; set; }
 
         public Guid Id { get; set; }
         public bool Deleted { get; set; }

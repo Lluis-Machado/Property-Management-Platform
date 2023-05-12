@@ -14,14 +14,16 @@ namespace Accounting.Controllers
         private readonly IFixedAssetRepository _fixedAssetRepo;
         private readonly IInvoiceRepository _invoiceRepo;
         private readonly IDepreciationConfigRepository _depreciationConfigRepo;
+        private readonly IDepreciationRepository _depreciationRepo;
         private readonly IValidator<FixedAsset> _fixedAssetValidator;
         private readonly ILogger<FixedAssetsController> _logger;
 
-        public FixedAssetsController(IFixedAssetRepository fixedAssetRepo, IInvoiceRepository invoiceRepository, IDepreciationConfigRepository depreciationConfigRepository, IValidator<FixedAsset> fixedAssetValidator, ILogger<FixedAssetsController> logger)
+        public FixedAssetsController(IFixedAssetRepository fixedAssetRepo, IInvoiceRepository invoiceRepository, IDepreciationConfigRepository depreciationConfigRepository, IDepreciationRepository depreciationRepository, IValidator<FixedAsset> fixedAssetValidator, ILogger<FixedAssetsController> logger)
         {
             _fixedAssetRepo = fixedAssetRepo;
             _invoiceRepo = invoiceRepository;
             _depreciationConfigRepo = depreciationConfigRepository;
+            _depreciationRepo = depreciationRepository;
             _fixedAssetValidator = fixedAssetValidator;
             _logger = logger;
         }
@@ -63,6 +65,27 @@ namespace Accounting.Controllers
         public async Task<ActionResult<IEnumerable<FixedAsset>>> GetAsync()
         {
             return Ok(await _fixedAssetRepo.GetFixedAssetsAsync());
+        }
+
+        // GET: Get fixedAsset(s)
+
+        [HttpGet]
+        [Route("fixedAssets/getWithDepreciations")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<IEnumerable<FixedAsset>>> GetAsyncWithDepreciations()
+        {
+            var fixedAssets = await _fixedAssetRepo.GetFixedAssetsAsync();
+
+            foreach (var fixedAsset in fixedAssets)
+            {
+                var foundDepreciations = await _depreciationRepo.GetDepreciationByFAandPeriodAsync(fixedAsset.Id, null, null);
+                fixedAsset.Depreciations = foundDepreciations.ToArray();
+                await _depreciationRepo.UpdateTotalDepreciationForFixedAsset(fixedAsset.Id);
+            }
+
+            return Ok(fixedAssets);
+
         }
 
         // POST: update fixedAsset

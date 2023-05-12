@@ -1,13 +1,14 @@
 ﻿using Accounting.Models;
 using Accounting.Repositories;
-using Accounting.Security;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace Accounting.Controllers
 {
+    [Authorize]
     public class DepreciationConfigsController : Controller
     {
         private readonly IDepreciationConfigRepository _depreciationCongifRepo;
@@ -21,7 +22,7 @@ namespace Accounting.Controllers
         }
 
         // POST: Create depreciationConfig
-        [Authorize]
+
         [HttpPost]
         [Route("depreciationConfigs")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
@@ -42,7 +43,7 @@ namespace Accounting.Controllers
         }
 
         // GET: Get depreciationConfig(s)
-        [Authorize]
+
         [HttpGet]
         [Route("depreciationConfigs")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -53,7 +54,7 @@ namespace Accounting.Controllers
         }
 
         // POST: update depreciationConfig
-        [Authorize]
+
         [HttpPost]
         [Route("depreciationConfigs/{depreciationConfigId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -78,7 +79,7 @@ namespace Accounting.Controllers
         }
 
         // DELETE: delete depreciationConfig
-        [Authorize]
+
         [HttpDelete]
         [Route("depreciationConfigs/{depreciationConfigId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -92,7 +93,7 @@ namespace Accounting.Controllers
         }
 
         // POST: undelete depreciationConfig
-        [Authorize]
+
         [HttpPost]
         [Route("depreciationConfigs/{depreciationConfigId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]

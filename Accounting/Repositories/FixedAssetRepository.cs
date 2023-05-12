@@ -8,7 +8,7 @@ namespace Accounting.Repositories
     public class FixedAssetRepository : IFixedAssetRepository
     {
         private readonly DapperContext _context;
-        public FixedAssetRepository(DapperContext context) 
+        public FixedAssetRepository(DapperContext context)
         {
             _context = context;
         }
@@ -26,7 +26,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,ActivationDate");
             queryBuilder.Append(" ,ActivationAmount");
             queryBuilder.Append(" ,DepreciationConfigId");
-            queryBuilder.Append(" ,DepreciationAmount");
+            queryBuilder.Append(" ,DepreciationAmountPercent");
+            queryBuilder.Append(" ,DepreciationMaxYears");
+            queryBuilder.Append(" ,EstimatedUsefulLife");
             queryBuilder.Append(" ,Deleted");
             queryBuilder.Append(" ,CreationDate");
             queryBuilder.Append(" ,LastModificationDate");
@@ -48,7 +50,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,ActivationDate");
             queryBuilder.Append(" ,ActivationAmount");
             queryBuilder.Append(" ,DepreciationConfigId");
-            queryBuilder.Append(" ,DepreciationAmount");
+            queryBuilder.Append(" ,DepreciationAmountPercent");
+            queryBuilder.Append(" ,DepreciationMaxYears");
+            queryBuilder.Append(" ,EstimatedUsefulLife");
             queryBuilder.Append(" ,Deleted");
             queryBuilder.Append(" ,CreationDate");
             queryBuilder.Append(" ,LastModificationDate");
@@ -69,6 +73,9 @@ namespace Accounting.Repositories
                 fixedAsset.ActivationDate,
                 fixedAsset.ActivationAmount,
                 fixedAsset.DepreciationConfigId,
+                fixedAsset.DepreciationAmountPercent,
+                fixedAsset.DepreciationMaxYears,
+                fixedAsset.EstimatedUsefulLife,
                 fixedAsset.LastModificationByUser,
             };
             StringBuilder queryBuilder = new();
@@ -78,6 +85,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,ActivationDate");
             queryBuilder.Append(" ,ActivationAmount");
             queryBuilder.Append(" ,DepreciationConfigId");
+            queryBuilder.Append(" ,DepreciationAmountPercent");
+            queryBuilder.Append(" ,DepreciationMaxYears");
+            queryBuilder.Append(" ,EstimatedUsefulLife");
             queryBuilder.Append(" ,LastModificationByUser");
             queryBuilder.Append(" )OUTPUT INSERTED.Id");
             queryBuilder.Append(" ,INSERTED.InvoiceId");
@@ -85,7 +95,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,INSERTED.ActivationDate");
             queryBuilder.Append(" ,INSERTED.ActivationAmount");
             queryBuilder.Append(" ,INSERTED.DepreciationConfigId");
-            queryBuilder.Append(" ,INSERTED.DepreciationAmount");
+            queryBuilder.Append(" ,INSERTED.DepreciationAmountPercent");
+            queryBuilder.Append(" ,INSERTED.DepreciationMaxYears");
+            queryBuilder.Append(" ,INSERTED.EstimatedUsefulLife");
             queryBuilder.Append(" ,INSERTED.Deleted");
             queryBuilder.Append(" ,INSERTED.CreationDate");
             queryBuilder.Append(" ,INSERTED.LastModificationDate");
@@ -96,6 +108,9 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,@ActivationDate");
             queryBuilder.Append(" ,@ActivationAmount");
             queryBuilder.Append(" ,@DepreciationConfigId");
+            queryBuilder.Append(" ,@DepreciationAmountPercent");
+            queryBuilder.Append(" ,@DepreciationMaxYears");
+            queryBuilder.Append(" ,@EstimatedUsefulLife");
             queryBuilder.Append(" ,@LastModificationByUser");
             queryBuilder.Append(" )");
 
@@ -132,6 +147,8 @@ namespace Accounting.Repositories
                 fixedAsset.ActivationDate,
                 fixedAsset.ActivationAmount,
                 fixedAsset.DepreciationConfigId,
+                fixedAsset.DepreciationMaxYears,
+                fixedAsset.EstimatedUsefulLife,
                 fixedAsset.Deleted,
                 fixedAsset.LastModificationByUser,
                 LastModificationDate = DateTime.Now,
@@ -143,6 +160,8 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,ActivationDate = @ActivationDate");
             queryBuilder.Append(" ,ActivationAmount = @ActivationAmount");
             queryBuilder.Append(" ,DepreciationConfigId = @DepreciationConfigId");
+            queryBuilder.Append(" ,DepreciationMaxYears = @DepreciationMaxYears");
+            queryBuilder.Append(" ,EstimatedUsefulLife = @EstimatedUsefulLife");
             queryBuilder.Append(" ,Deleted = @Deleted");
             queryBuilder.Append(" ,LastModificationByUser = @LastModificationByUser");
             queryBuilder.Append(" ,LastModificationDate = @LastModificationDate");

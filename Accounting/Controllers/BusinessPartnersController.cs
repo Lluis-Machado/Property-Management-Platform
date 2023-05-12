@@ -1,13 +1,14 @@
-﻿using Accounting.Repositories;
-using Accounting.Models;
-using Accounting.Security;
+﻿using Accounting.Models;
+using Accounting.Repositories;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace Accounting.Controllers
 {
+    [Authorize]
     public class BusinessPartnersController : Controller
     {
         private readonly IBusinessPartnerRepository _businessPartnerRepo;
@@ -22,7 +23,7 @@ namespace Accounting.Controllers
         }
 
         // POST: Create businessPartner
-        [Authorize]
+
         [HttpPost]
         [Route("businessPartners")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
@@ -43,7 +44,7 @@ namespace Accounting.Controllers
         }
 
         // GET: Get businessPartner(s)
-        [Authorize]
+
         [HttpGet]
         [Route("businessPartners")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -54,7 +55,7 @@ namespace Accounting.Controllers
         }
 
         // POST: update businessPartner
-        [Authorize]
+
         [HttpPost]
         [Route("businessPartners/{businessPartnerId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -79,7 +80,7 @@ namespace Accounting.Controllers
         }
 
         // DELETE: delete businessPartner
-        [Authorize]
+
         [HttpDelete]
         [Route("businessPartners/{businessPartnerId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -93,7 +94,7 @@ namespace Accounting.Controllers
         }
 
         // POST: undelete businessPartner
-        [Authorize]
+
         [HttpPost]
         [Route("businessPartners/{businessPartnerId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]

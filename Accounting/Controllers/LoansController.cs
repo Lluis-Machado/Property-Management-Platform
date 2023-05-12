@@ -1,13 +1,14 @@
 ﻿using Accounting.Models;
 using Accounting.Repositories;
-using Accounting.Security;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace Accounting.Controllers
 {
+    [Authorize]
     public class LoansController : Controller
     {
         private readonly ILoanRepository _loanRepo;
@@ -24,7 +25,7 @@ namespace Accounting.Controllers
         }
 
         // POST: Create Loan
-        [Authorize]
+
         [HttpPost]
         [Route("loans")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
@@ -49,7 +50,7 @@ namespace Accounting.Controllers
         }
 
         // GET: Get loan(s)
-        [Authorize]
+
         [HttpGet]
         [Route("loans")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -60,7 +61,7 @@ namespace Accounting.Controllers
         }
 
         // POST: update loan
-        [Authorize]
+
         [HttpPost]
         [Route("loans/{loanId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -88,7 +89,7 @@ namespace Accounting.Controllers
         }
 
         // DELETE: delete loan
-        [Authorize]
+
         [HttpDelete]
         [Route("loans/{loanId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -102,7 +103,7 @@ namespace Accounting.Controllers
         }
 
         // POST: undelete loan
-        [Authorize]
+
         [HttpPost]
         [Route("loans/{loanId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]

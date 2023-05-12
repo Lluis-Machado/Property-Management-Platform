@@ -22,16 +22,7 @@ namespace Accounting.Repositories
                 businessPartnerId
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT Id");
-            queryBuilder.Append(" ,Name");
-            queryBuilder.Append(" ,VATNumber");
-            queryBuilder.Append(" ,AccountID");
-            queryBuilder.Append(" ,Type");
-            queryBuilder.Append(" ,Deleted");
-            queryBuilder.Append(" ,CreationDate");
-            queryBuilder.Append(" ,LastModificationDate");
-            queryBuilder.Append(" ,LastModificationByUser");
-            queryBuilder.Append(" FROM BusinessPartners");
+            queryBuilder.Append("SELECT * FROM BusinessPartners");
             queryBuilder.Append(" WHERE Id = @businessPartnerId");
 
             return await _context
@@ -42,16 +33,7 @@ namespace Accounting.Repositories
         public async Task<IEnumerable<BusinessPartner>> GetBusinessPartnersAsync()
         {
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT Id");
-            queryBuilder.Append(" ,Name");
-            queryBuilder.Append(" ,VATNumber");
-            queryBuilder.Append(" ,AccountID");
-            queryBuilder.Append(" ,Type");
-            queryBuilder.Append(" ,Deleted");
-            queryBuilder.Append(" ,CreationDate");
-            queryBuilder.Append(" ,LastModificationDate");
-            queryBuilder.Append(" ,LastModificationByUser");
-            queryBuilder.Append(" FROM BusinessPartners");
+            queryBuilder.Append("SELECT * FROM BusinessPartners");
 
             return await _context
                 .CreateConnection()
@@ -106,8 +88,8 @@ namespace Accounting.Repositories
             };
 
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE BusinessPartners");
-            queryBuilder.Append(" SET Deleted = @deleted");
+            queryBuilder.Append("UPDATE BusinessPartners ");
+            queryBuilder.Append("SET Deleted = @deleted ");
             queryBuilder.Append(" WHERE Id = @id ");
 
             return await _context
@@ -129,15 +111,15 @@ namespace Accounting.Repositories
                 LastModificationDate = DateTime.Now,
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE BusinessPartners");
-            queryBuilder.Append(" SET Name = @Name");
-            queryBuilder.Append(" ,Deleted = @Deleted");
-            queryBuilder.Append(" ,VATNumber = @VATNumber");
-            queryBuilder.Append(" ,AccountID = @AccountID");
-            queryBuilder.Append(" ,Type = @Type");
-            queryBuilder.Append(" ,LastModificationByUser = @LastModificationByUser");
-            queryBuilder.Append(" ,LastModificationDate = @LastModificationDate");
-            queryBuilder.Append(" WHERE Id = @Id");
+            queryBuilder.Append("UPDATE BusinessPartners ");
+            queryBuilder.Append("SET Name = @Name ");
+            queryBuilder.Append(" ,Deleted = @Deleted ");
+            queryBuilder.Append(" ,VATNumber = @VATNumber ");
+            queryBuilder.Append(" ,AccountID = @AccountID ");
+            queryBuilder.Append(" ,Name = @Name ");
+            queryBuilder.Append(" ,LastModificationByUser = @LastModificationByUser ");
+            queryBuilder.Append(" ,LastModificationDate = @LastModificationDate ");
+            queryBuilder.Append(" WHERE Id = @Id ");
 
             return await _context
                 .CreateConnection()

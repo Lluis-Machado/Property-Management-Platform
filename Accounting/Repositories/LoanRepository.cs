@@ -1,7 +1,7 @@
-﻿using Dapper;
-using System.Text;
-using Accounting.Context;
+﻿using Accounting.Context;
 using Accounting.Models;
+using Dapper;
+using System.Text;
 
 namespace Accounting.Repositories
 {

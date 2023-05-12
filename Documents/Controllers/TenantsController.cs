@@ -3,12 +3,13 @@ using Documents.Models;
 using Documents.Services.AzureBlobStorage;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using TaxManagement.Security;
 
 namespace Tenants.Controllers
 {
+    [Authorize]
     [ApiController]
     public class TenantsController : Controller
     {
@@ -24,7 +25,6 @@ namespace Tenants.Controllers
         }
 
         // POST: Create tenant
-        [Authorize]
         [HttpPost]
         [Route("tenants")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
@@ -46,7 +46,6 @@ namespace Tenants.Controllers
         }
 
         // GET: Get tenant(s)
-        [Authorize]
         [HttpGet]
         [Route("tenants")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -57,7 +56,6 @@ namespace Tenants.Controllers
         }
 
         // DELETE: Delete tenant
-        [Authorize]
         [HttpDelete]
         [Route("tenants/{tenantName}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -70,7 +68,6 @@ namespace Tenants.Controllers
         }
 
         // POST: Undelete tenant
-        [Authorize]
         [HttpPatch]
         [Route("tenants/{tenantName}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]

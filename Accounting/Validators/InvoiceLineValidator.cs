@@ -16,16 +16,16 @@ namespace Accounting.Validators
                 .Matches(@"^[\p{Ll}\s]{2,256}$").WithMessage("{PropertyName} has to be between 2 and 256 characters long");
 
             RuleFor(Line => Line.Tax)
-                .NotEmpty().WithMessage("{PropertyName} cannot be empty")
+                .NotNull().WithMessage("{PropertyName} cannot be null")
                 .GreaterThanOrEqualTo(0).WithMessage("{PropertyName} cannot be negative");
 
             RuleFor(Line => Line.Quantity)
-                .NotEmpty().WithMessage("{PropertyName} cannot be empty")
-                .GreaterThanOrEqualTo(1).WithMessage("{PropertyName} cannot be less than 1");
+                .NotNull().WithMessage("{PropertyName} cannot be null");
+            //.GreaterThanOrEqualTo(1).WithMessage("{PropertyName} cannot be less than 1");  // Allow quantities to be negative for discounts
 
             RuleFor(Line => Line.UnitPrice)
-                .NotEmpty().WithMessage("{PropertyName} cannot be empty")
-                .GreaterThan(0).WithMessage("{PropertyName} has to be greater than 0");
+                .NotNull().WithMessage("{PropertyName} cannot be null")
+                .GreaterThanOrEqualTo(0).WithMessage("{PropertyName} cannot be negative");
         }
     }
 }

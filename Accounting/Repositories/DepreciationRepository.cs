@@ -22,7 +22,8 @@ namespace Accounting.Repositories
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");
             queryBuilder.Append(" ,FixedAssetId");
-            queryBuilder.Append(" ,Period");
+            queryBuilder.Append(" ,PeriodStart");
+            queryBuilder.Append(" ,PeriodEnd");
             queryBuilder.Append(" ,Amount");
             queryBuilder.Append(" ,Deleted");
             queryBuilder.Append(" ,CreationDate");
@@ -36,12 +37,41 @@ namespace Accounting.Repositories
                 QuerySingleAsync<Depreciation>(queryBuilder.ToString(), parameters);
         }
 
+        public async Task<IEnumerable<Depreciation>> GetDepreciationByFAandPeriodAsync(Guid fixedAssetId, DateTime? periodStart, DateTime? periodEnd)
+        {
+            var parameters = new
+            {
+                fixedAssetId,
+                pS = periodStart != null ? ((DateTime)periodStart).ToString("yyyyMMdd") : null,
+                pE = periodEnd != null ? ((DateTime)periodEnd).ToString("yyyyMMdd") : null,
+            };
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("SELECT Id");
+            queryBuilder.Append(" ,FixedAssetId");
+            queryBuilder.Append(" ,PeriodStart");
+            queryBuilder.Append(" ,PeriodEnd");
+            queryBuilder.Append(" ,Amount");
+            queryBuilder.Append(" ,Deleted");
+            queryBuilder.Append(" ,CreationDate");
+            queryBuilder.Append(" ,LastModificationDate");
+            queryBuilder.Append(" ,LastModificationByUser");
+            queryBuilder.Append(" FROM Depreciations");
+            queryBuilder.Append(" WHERE FixedAssetId = @fixedAssetId");
+            if (periodStart != null) queryBuilder.Append(" AND PeriodStart >= @pS");
+            if (periodEnd != null) queryBuilder.Append(" AND PeriodEnd <= @pE");
+
+            return await _context.
+                CreateConnection().
+                QueryAsync<Depreciation>(queryBuilder.ToString(), parameters);
+        }
+
         public async Task<IEnumerable<Depreciation>> GetDepreciationsAsync()
         {
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");
             queryBuilder.Append(" ,FixedAssetId");
-            queryBuilder.Append(" ,Period");
+            queryBuilder.Append(" ,PeriodStart");
+            queryBuilder.Append(" ,PeriodEnd");
             queryBuilder.Append(" ,Amount");
             queryBuilder.Append(" ,Deleted");
             queryBuilder.Append(" ,CreationDate");
@@ -59,19 +89,22 @@ namespace Accounting.Repositories
             var parameters = new
             {
                 depreciation.FixedAssetId,
-                depreciation.Period,
+                depreciation.PeriodStart,
+                depreciation.PeriodEnd,
                 depreciation.Amount,
                 depreciation.LastModificationByUser,
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("INSERT INTO Depreciations (");
             queryBuilder.Append(" FixedAssetId");
-            queryBuilder.Append(" ,Period");
+            queryBuilder.Append(" ,PeriodStart");
+            queryBuilder.Append(" ,PeriodEnd");
             queryBuilder.Append(" ,Amount");
             queryBuilder.Append(" ,LastModificationByUser");
             queryBuilder.Append(" )OUTPUT INSERTED.Id");
             queryBuilder.Append(" ,INSERTED.FixedAssetId");
-            queryBuilder.Append(" ,INSERTED.Period");
+            queryBuilder.Append(" ,INSERTED.PeriodStart");
+            queryBuilder.Append(" ,INSERTED.PeriodEnd");
             queryBuilder.Append(" ,INSERTED.Amount");
             queryBuilder.Append(" ,INSERTED.Deleted");
             queryBuilder.Append(" ,INSERTED.CreationDate");
@@ -79,7 +112,8 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,INSERTED.LastModificationByUser");
             queryBuilder.Append(" VALUES(");
             queryBuilder.Append(" @FixedAssetId");
-            queryBuilder.Append(" ,@Period");
+            queryBuilder.Append(" ,@PeriodStart");
+            queryBuilder.Append(" ,@PeriodEnd");
             queryBuilder.Append(" ,@Amount");
             queryBuilder.Append(" ,@LastModificationByUser");
             queryBuilder.Append(" )");
@@ -113,7 +147,8 @@ namespace Accounting.Repositories
             {
                 depreciation.Id,
                 depreciation.FixedAssetId,
-                depreciation.Period,
+                depreciation.PeriodStart,
+                depreciation.PeriodEnd,
                 depreciation.Amount,
                 depreciation.Deleted,
                 depreciation.LastModificationByUser,
@@ -122,7 +157,8 @@ namespace Accounting.Repositories
             StringBuilder queryBuilder = new();
             queryBuilder.Append("UPDATE Depreciations ");
             queryBuilder.Append("SET FixedAssetId = @FixedAssetId ");
-            queryBuilder.Append(" ,Period = @Period ");
+            queryBuilder.Append(" ,PeriodStart = @PeriodStart ");
+            queryBuilder.Append(" ,PeriodEnd = @PeriodEnd ");
             queryBuilder.Append(" ,Amount = @Amount ");
             queryBuilder.Append(" ,Deleted = @Deleted ");
             queryBuilder.Append(" ,LastModificationDate = @LastModificationDate ");

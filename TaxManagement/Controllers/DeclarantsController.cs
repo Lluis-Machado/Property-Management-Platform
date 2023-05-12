@@ -3,11 +3,12 @@ using System.Net;
 using TaxManagement.Models;
 using TaxManagement.Repositories;
 using FluentValidation;
-using TaxManagement.Security;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TaxManagement.Controllers
 {
+    [Authorize]
     public class DeclarantsController : Controller
     {
         private readonly ILogger<DeclarantsController> _logger;
@@ -17,11 +18,10 @@ namespace TaxManagement.Controllers
         {
             _declarantRepo = declarantRepo;
             _declarantValidator = declarantValidator;
-            _logger = logger;  
+            _logger = logger;
         }
 
         // POST: Create declarant
-        [Authorize]
         [HttpPost]
         [Route("declarants")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
@@ -37,13 +37,13 @@ namespace TaxManagement.Controllers
             // declarant validation
             ValidationResult validationResult  = await _declarantValidator.ValidateAsync(declarant);
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
-
+            declarant.CreatedByUser = User?.Identity?.Name;
+            declarant.LastUpdateByUser = User?.Identity?.Name;
             declarant = await _declarantRepo.InsertDeclarantAsync(declarant);
             return Created($"declarants/{declarant.Id}", declarant);
         }
 
         // GET: Get declarants(s)
-        [Authorize]
         [HttpGet]
         [Route("declarants")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -55,7 +55,6 @@ namespace TaxManagement.Controllers
         }
 
         // POST: update declarant
-        [Authorize]
         [HttpPatch]
         [Route("declarants/{declarantId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -73,34 +72,33 @@ namespace TaxManagement.Controllers
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
             declarant.Id = declarantId; // copy id to declarant object
-
+            declarant.LastUpdateByUser = User?.Identity?.Name;
+            declarant.LastUpdateAt = DateTime.Now;
             int result = await _declarantRepo.UpdateDeclarantAsync(declarant);
             if(result == 0) return NotFound("Declarant not found");
             return NoContent();
         }
 
         // DELETE: delete declarant
-        [Authorize]
         [HttpDelete]
         [Route("declarants/{declarantId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteAsync(Guid declarantId)
         {
-            int result = await _declarantRepo.SetDeleteDeclarantAsync(declarantId, true);
+            int result = await _declarantRepo.SetDeleteDeclarantAsync(declarantId, true, User?.Identity?.Name);
             if (result == 0) return NotFound("Declarant not found");
             return NoContent();
         }
 
         // POST: undelete declarant
-        [Authorize]
         [HttpPatch]
         [Route("declarants/{declarantId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UndeleteAsync(Guid declarantId)
         {
-            int result = await _declarantRepo.SetDeleteDeclarantAsync(declarantId, false);
+            int result = await _declarantRepo.SetDeleteDeclarantAsync(declarantId, false, User?.Identity?.Name);
             if (result == 0) return NotFound("Declarant not found");
             return NoContent();
         }

@@ -3,9 +3,9 @@
     public class Depreciation
     {
         public Guid FixedAssetId { get; set; }
-        public string Period { get; set; }
+        public DateTime PeriodStart { get; set; }
+        public DateTime PeriodEnd { get; set; }
         public double Amount { get; set; }
-
         public Guid Id { get; set; }
         public bool Deleted { get; set; }
         public DateTime CreationDate { get; set; }
@@ -14,7 +14,6 @@
 
         public Depreciation()
         {
-            Period = string.Empty;
             LastModificationByUser = string.Empty;
         }
     }

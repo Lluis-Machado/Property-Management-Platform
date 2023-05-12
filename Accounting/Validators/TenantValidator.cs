@@ -1,5 +1,5 @@
-﻿using FluentValidation;
-using Accounting.Models;
+﻿using Accounting.Models;
+using FluentValidation;
 
 namespace Accounting.Validators
 {

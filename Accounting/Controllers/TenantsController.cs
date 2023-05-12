@@ -1,13 +1,14 @@
 ﻿using Accounting.Models;
 using Accounting.Repositories;
-using Accounting.Security;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace Accounting.Controllers
 {
+    [Authorize]
     public class TenantsController : Controller
     {
         private readonly ITenantRepository _tenantRepo;
@@ -22,7 +23,7 @@ namespace Accounting.Controllers
         }
 
         // POST: Create tenant
-        [Authorize]
+
         [HttpPost]
         [Route("tenants")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
@@ -43,7 +44,7 @@ namespace Accounting.Controllers
         }
 
         // GET: Get tenant(s)
-        [Authorize]
+
         [HttpGet]
         [Route("tenants")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -54,7 +55,7 @@ namespace Accounting.Controllers
         }
 
         // POST: update tenant
-        [Authorize]
+
         [HttpPost]
         [Route("tenants/{tenantId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -79,7 +80,7 @@ namespace Accounting.Controllers
         }
 
         // DELETE: delete tenant
-        [Authorize]
+
         [HttpDelete]
         [Route("tenants/{tenantId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -93,7 +94,7 @@ namespace Accounting.Controllers
         }
 
         // POST: undelete tenant
-        [Authorize]
+
         [HttpPost]
         [Route("tenants/{tenantId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]

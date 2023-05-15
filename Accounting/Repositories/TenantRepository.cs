@@ -34,7 +34,7 @@ namespace Accounting.Repositories
                 .QuerySingleAsync<Tenant>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<IEnumerable<Tenant>> GetTenantsAsync()
+        public async Task<IEnumerable<Tenant>> GetTenantsAsync(bool includeDeleted)
         {
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");
@@ -44,6 +44,8 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,LastModificationDate");
             queryBuilder.Append(" ,LastModificationByUser");
             queryBuilder.Append(" FROM Tenants");
+            if (includeDeleted == false) queryBuilder.Append("WHERE Deleted = 0");
+
 
             return await _context
                 .CreateConnection()

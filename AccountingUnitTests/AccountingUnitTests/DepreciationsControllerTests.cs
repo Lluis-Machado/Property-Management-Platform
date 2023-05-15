@@ -189,7 +189,7 @@ namespace AccountingUnitTests
             };
 
             _mockDepreciationRepo
-                .Setup(r => r.GetDepreciationsAsync())
+                .Setup(r => r.GetDepreciationsAsync(false))
                 .ReturnsAsync(fakeExpectedDepreciations);
 
             // Act
@@ -206,7 +206,7 @@ namespace AccountingUnitTests
         {
             // Arrange
             _mockDepreciationRepo
-                .Setup(repo => repo.GetDepreciationsAsync())
+                .Setup(repo => repo.GetDepreciationsAsync(false))
                 .ThrowsAsync(new Exception());
 
             // Act
@@ -231,11 +231,11 @@ namespace AccountingUnitTests
             };
 
             _mockDepreciationRepo
-                .Setup(r => r.GetDepreciationByFAandPeriodAsync(fakeFixedAssetId, fakePeriodStart, fakePeriodEnd))
+                .Setup(r => r.GetDepreciationByFAandPeriodAsync(fakeFixedAssetId, false, fakePeriodStart, fakePeriodEnd))
                 .ReturnsAsync(fakeDepreciations);
 
             // Act
-            var result = await _depreciationsController.GetByFAandPeriodAsync(fakeFixedAssetId, fakePeriodStart, fakePeriodEnd);
+            var result = await _depreciationsController.GetByFAandPeriodAsync(fakeFixedAssetId, false, fakePeriodStart, fakePeriodEnd);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -252,7 +252,7 @@ namespace AccountingUnitTests
             var fakePeriodEnd = DateTime.Parse("2023-01-01");
 
             // Act
-            var result = await _depreciationsController.GetByFAandPeriodAsync(fakeFixedAssetId, fakePeriodStart, fakePeriodEnd);
+            var result = await _depreciationsController.GetByFAandPeriodAsync(fakeFixedAssetId, false, fakePeriodStart, fakePeriodEnd);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
@@ -268,11 +268,11 @@ namespace AccountingUnitTests
             var fakeDepreciations = new List<Depreciation> { fakeDepreciation };
 
             _mockDepreciationRepo
-                .Setup(r => r.GetDepreciationByFAandPeriodAsync(It.IsAny<Guid>(), null, null))
+                .Setup(r => r.GetDepreciationByFAandPeriodAsync(It.IsAny<Guid>(), false, null, null))
                 .ReturnsAsync(fakeDepreciations);
 
             // Act
-            var result = await _depreciationsController.GetByFAandPeriodAsync(fakeFixedAssetId, null, null);
+            var result = await _depreciationsController.GetByFAandPeriodAsync(fakeFixedAssetId, false, null, null);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -294,11 +294,11 @@ namespace AccountingUnitTests
             var fakeDepreciations = new List<Depreciation> { fakeDepreciation };
 
             _mockDepreciationRepo
-                .Setup(r => r.GetDepreciationByFAandPeriodAsync(It.IsAny<Guid>(), DateTime.Parse("2023-01-01"), null))
+                .Setup(r => r.GetDepreciationByFAandPeriodAsync(It.IsAny<Guid>(), false, DateTime.Parse("2023-01-01"), null))
                 .ReturnsAsync(fakeDepreciations);
 
             // Act
-            var result = await _depreciationsController.GetByFAandPeriodAsync(fakeFixedAssetId, DateTime.Parse("2023-01-01"), null);
+            var result = await _depreciationsController.GetByFAandPeriodAsync(fakeFixedAssetId, false, DateTime.Parse("2023-01-01"), null);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -312,11 +312,11 @@ namespace AccountingUnitTests
         {
             // Arrange
             _mockDepreciationRepo
-                .Setup(repo => repo.GetDepreciationByFAandPeriodAsync(new Guid(), null, null))
+                .Setup(repo => repo.GetDepreciationByFAandPeriodAsync(new Guid(), false, null, null))
                 .ThrowsAsync(new Exception());
 
             // Act
-            async Task act() => await _depreciationsController.GetByFAandPeriodAsync(new Guid(), null, null);
+            async Task act() => await _depreciationsController.GetByFAandPeriodAsync(new Guid(), false, null, null);
 
             // Assert
             await Assert.ThrowsAsync<Exception>(act);
@@ -537,7 +537,7 @@ namespace AccountingUnitTests
                 .ReturnsAsync(fakeFixedAsset);
 
             _mockDepreciationRepo
-                .Setup(r => r.GetDepreciationByFAandPeriodAsync(It.IsAny<Guid>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>()))
+                .Setup(r => r.GetDepreciationByFAandPeriodAsync(It.IsAny<Guid>(), false, It.IsAny<DateTime?>(), It.IsAny<DateTime?>()))
                 .ReturnsAsync(fakeDepreciationsFound);
 
 
@@ -585,7 +585,7 @@ namespace AccountingUnitTests
                 .ReturnsAsync(fakeFixedAsset);
 
             _mockDepreciationRepo
-                .Setup(r => r.GetDepreciationByFAandPeriodAsync(It.IsAny<Guid>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>()))
+                .Setup(r => r.GetDepreciationByFAandPeriodAsync(It.IsAny<Guid>(), false, It.IsAny<DateTime?>(), It.IsAny<DateTime?>()))
                 .ReturnsAsync(fakeDepreciationsFound);
 
 
@@ -635,7 +635,7 @@ namespace AccountingUnitTests
                 .ReturnsAsync(fakeFixedAsset);
 
             _mockDepreciationRepo
-                .Setup(r => r.GetDepreciationByFAandPeriodAsync(It.IsAny<Guid>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>()))
+                .Setup(r => r.GetDepreciationByFAandPeriodAsync(It.IsAny<Guid>(), false, It.IsAny<DateTime?>(), It.IsAny<DateTime?>()))
                 .ReturnsAsync(fakeDepreciationsFound);
 
 
@@ -685,7 +685,7 @@ namespace AccountingUnitTests
                 .ReturnsAsync(fakeFixedAsset);
 
             _mockDepreciationRepo
-                .Setup(r => r.GetDepreciationByFAandPeriodAsync(It.IsAny<Guid>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>()))
+                .Setup(r => r.GetDepreciationByFAandPeriodAsync(It.IsAny<Guid>(), false, It.IsAny<DateTime?>(), It.IsAny<DateTime?>()))
                 .ReturnsAsync(fakeDepreciationsFound);
 
 
@@ -736,7 +736,7 @@ namespace AccountingUnitTests
                 .ReturnsAsync(fakeFixedAsset);
 
             _mockDepreciationRepo
-                .Setup(r => r.GetDepreciationByFAandPeriodAsync(It.IsAny<Guid>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>()))
+                .Setup(r => r.GetDepreciationByFAandPeriodAsync(It.IsAny<Guid>(), false, It.IsAny<DateTime?>(), It.IsAny<DateTime?>()))
                 .ReturnsAsync(fakeDepreciationsFound);
 
 
@@ -786,7 +786,7 @@ namespace AccountingUnitTests
                 .ReturnsAsync(fakeFixedAsset);
 
             _mockDepreciationRepo
-                .Setup(r => r.GetDepreciationByFAandPeriodAsync(It.IsAny<Guid>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>()))
+                .Setup(r => r.GetDepreciationByFAandPeriodAsync(It.IsAny<Guid>(), false, It.IsAny<DateTime?>(), It.IsAny<DateTime?>()))
                 .ReturnsAsync(fakeDepreciationsFound);
 
 
@@ -836,7 +836,7 @@ namespace AccountingUnitTests
                 .ReturnsAsync(fakeFixedAsset);
 
             _mockDepreciationRepo
-                .Setup(r => r.GetDepreciationByFAandPeriodAsync(It.IsAny<Guid>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>()))
+                .Setup(r => r.GetDepreciationByFAandPeriodAsync(It.IsAny<Guid>(), false, It.IsAny<DateTime?>(), It.IsAny<DateTime?>()))
                 .ReturnsAsync(fakeDepreciationsFound);
 
 
@@ -889,7 +889,7 @@ namespace AccountingUnitTests
                 .ReturnsAsync(fakeFixedAsset);
 
             _mockDepreciationRepo
-                .Setup(r => r.GetDepreciationByFAandPeriodAsync(It.IsAny<Guid>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>()))
+                .Setup(r => r.GetDepreciationByFAandPeriodAsync(It.IsAny<Guid>(), false, It.IsAny<DateTime?>(), It.IsAny<DateTime?>()))
                 .ReturnsAsync(fakeDepreciationsFound);
 
 
@@ -934,7 +934,7 @@ namespace AccountingUnitTests
                 .ReturnsAsync(fakeFixedAsset);
 
             _mockDepreciationRepo
-                .Setup(r => r.GetDepreciationByFAandPeriodAsync(It.IsAny<Guid>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>()))
+                .Setup(r => r.GetDepreciationByFAandPeriodAsync(It.IsAny<Guid>(), false, It.IsAny<DateTime?>(), It.IsAny<DateTime?>()))
                 .ReturnsAsync(new List<Depreciation>());
 
 

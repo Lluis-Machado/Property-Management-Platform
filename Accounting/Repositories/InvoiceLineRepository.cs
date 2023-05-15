@@ -13,7 +13,7 @@ namespace Accounting.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<InvoiceLine>> GetInvoiceLinesAsync()
+        public async Task<IEnumerable<InvoiceLine>> GetInvoiceLinesAsync(bool includeDeleted)
         {
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");
@@ -33,6 +33,8 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,LastModificationDate");
             queryBuilder.Append(" ,LastModificationByUser");
             queryBuilder.Append(" FROM InvoiceLines");
+            if (includeDeleted == false) queryBuilder.Append("WHERE Deleted = 0");
+
 
             return await _context
                 .CreateConnection()

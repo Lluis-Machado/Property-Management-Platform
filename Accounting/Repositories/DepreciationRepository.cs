@@ -37,7 +37,7 @@ namespace Accounting.Repositories
                 QuerySingleAsync<Depreciation>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<IEnumerable<Depreciation>> GetDepreciationByFAandPeriodAsync(Guid fixedAssetId, DateTime? periodStart, DateTime? periodEnd)
+        public async Task<IEnumerable<Depreciation>> GetDepreciationByFAandPeriodAsync(Guid fixedAssetId, bool includeDeleted, DateTime? periodStart, DateTime? periodEnd)
         {
             var parameters = new
             {
@@ -57,6 +57,7 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,LastModificationByUser");
             queryBuilder.Append(" FROM Depreciations");
             queryBuilder.Append(" WHERE FixedAssetId = @fixedAssetId");
+            if (includeDeleted == false) queryBuilder.Append("AND Deleted = 0");
             if (periodStart != null) queryBuilder.Append(" AND PeriodStart >= @pS");
             if (periodEnd != null) queryBuilder.Append(" AND PeriodEnd <= @pE");
 
@@ -65,7 +66,7 @@ namespace Accounting.Repositories
                 QueryAsync<Depreciation>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<IEnumerable<Depreciation>> GetDepreciationsAsync()
+        public async Task<IEnumerable<Depreciation>> GetDepreciationsAsync(bool includeDeleted)
         {
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");
@@ -78,6 +79,8 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,LastModificationDate");
             queryBuilder.Append(" ,LastModificationByUser");
             queryBuilder.Append(" FROM Depreciations");
+            if (includeDeleted == false) queryBuilder.Append("WHERE Deleted = 0");
+
 
             return await _context
                 .CreateConnection()
@@ -181,7 +184,8 @@ namespace Accounting.Repositories
             queryBuilder.Append("UPDATE FixedAssets ");
             queryBuilder.Append("SET DepreciatedAmount = ( ");
             queryBuilder.Append(" SELECT SUM(Depreciations.Amount) FROM Depreciations ");
-            queryBuilder.Append("  WHERE Depreciations.FixedAssetId = @fixedAssetId)");
+            queryBuilder.Append("  WHERE Depreciations.FixedAssetId = @fixedAssetId");
+            queryBuilder.Append("  AND Depreciations.Deleted = 0)");
             queryBuilder.Append(" WHERE FixedAssets.Id = @fixedAssetId");
 
             return await _context

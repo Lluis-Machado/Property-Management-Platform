@@ -35,7 +35,7 @@ namespace Accounting.Repositories
                 .QuerySingleOrDefaultAsync<ExpenseType?>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<IEnumerable<ExpenseType>> GetExpenseTypesAsync()
+        public async Task<IEnumerable<ExpenseType>> GetExpenseTypesAsync(bool includeDeleted)
         {
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");
@@ -46,6 +46,8 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,LastModificationDate");
             queryBuilder.Append(" ,LastModificationByUser");
             queryBuilder.Append(" FROM ExpenseTypes");
+            if (includeDeleted == false) queryBuilder.Append("WHERE Deleted = 0");
+
 
             return await _context
                 .CreateConnection()

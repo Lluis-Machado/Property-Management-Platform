@@ -137,7 +137,7 @@ namespace AccountingUnitTests
             };
 
             _mockDepreciationConfigRepo
-                .Setup(r => r.GetDepreciationConfigsAsync())
+                .Setup(r => r.GetDepreciationConfigsAsync(false))
                 .ReturnsAsync(fakeExpectedDepreciationConfigs);
 
             // Act
@@ -154,7 +154,7 @@ namespace AccountingUnitTests
         {
             // Arrange
             _mockDepreciationConfigRepo
-                .Setup(repo => repo.GetDepreciationConfigsAsync())
+                .Setup(repo => repo.GetDepreciationConfigsAsync(false))
                 .ThrowsAsync(new Exception());
 
             // Act

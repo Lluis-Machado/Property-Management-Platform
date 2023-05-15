@@ -41,7 +41,7 @@ namespace Accounting.Repositories
                 .QuerySingleOrDefaultAsync<FixedAsset?>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<IEnumerable<FixedAsset>> GetFixedAssetsAsync()
+        public async Task<IEnumerable<FixedAsset>> GetFixedAssetsAsync(bool includeDeleted)
         {
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");
@@ -58,6 +58,8 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,LastModificationDate");
             queryBuilder.Append(" ,LastModificationByUser");
             queryBuilder.Append(" FROM FixedAssets");
+            if (includeDeleted == false) queryBuilder.Append("WHERE Deleted = 0");
+
 
             return await _context
                 .CreateConnection()

@@ -55,9 +55,9 @@ namespace Accounting.Controllers
         [Route("invoices")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<Invoice>>> GetAsync()
+        public async Task<ActionResult<IEnumerable<Invoice>>> GetAsync([FromQuery] bool includeDeleted = false)
         {
-            return Ok(await _invoiceRepo.GetInvoicesAsync());
+            return Ok(await _invoiceRepo.GetInvoicesAsync(includeDeleted));
         }
 
         // POST: update invoice
@@ -120,7 +120,7 @@ namespace Accounting.Controllers
         private async Task<bool> BusinessPartnerExists(Guid businessPartnerId)
         {
             BusinessPartner? businessPartner = await _businessPartnerRepo.GetBusinessPartnerByIdAsync(businessPartnerId);
-            return (businessPartner != null);
+            return (businessPartner != null && businessPartner?.Deleted == false);
         }
     }
 }

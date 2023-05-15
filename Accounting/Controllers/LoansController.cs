@@ -55,9 +55,9 @@ namespace Accounting.Controllers
         [Route("loans")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<Loan>>> GetAsync()
+        public async Task<ActionResult<IEnumerable<Loan>>> GetAsync([FromQuery] bool includeDeleted = false)
         {
-            return Ok(await _loanRepo.GetLoansAsync());
+            return Ok(await _loanRepo.GetLoansAsync(includeDeleted));
         }
 
         // POST: update loan
@@ -119,7 +119,7 @@ namespace Accounting.Controllers
         private async Task<bool> BusinessPartnerExists(Guid businessPartnerId)
         {
             BusinessPartner? businessPartner = await _businessPartnerRepo.GetBusinessPartnerByIdAsync(businessPartnerId);
-            return (businessPartner != null);
+            return (businessPartner != null && businessPartner?.Deleted == false);
         }
     }
 }

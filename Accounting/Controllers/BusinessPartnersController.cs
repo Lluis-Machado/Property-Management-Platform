@@ -49,9 +49,9 @@ namespace Accounting.Controllers
         [Route("businessPartners")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<BusinessPartner>>> GetAsync()
+        public async Task<ActionResult<IEnumerable<BusinessPartner>>> GetAsync([FromQuery] bool includeDeleted = false)
         {
-            return Ok(await _businessPartnerRepo.GetBusinessPartnersAsync());
+            return Ok(await _businessPartnerRepo.GetBusinessPartnersAsync(includeDeleted));
         }
 
         // POST: update businessPartner

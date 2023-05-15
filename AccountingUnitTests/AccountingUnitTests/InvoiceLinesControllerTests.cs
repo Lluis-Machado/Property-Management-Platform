@@ -279,7 +279,7 @@ namespace AccountingUnitTests
             };
 
             _mockInvoiceLineRepo
-                .Setup(r => r.GetInvoiceLinesAsync())
+                .Setup(r => r.GetInvoiceLinesAsync(false))
                 .ReturnsAsync(fakeExpectedInvoiceLines);
 
             // Act
@@ -296,7 +296,7 @@ namespace AccountingUnitTests
         {
             // Arrange
             _mockInvoiceLineRepo
-                .Setup(repo => repo.GetInvoiceLinesAsync())
+                .Setup(repo => repo.GetInvoiceLinesAsync(false))
                 .ThrowsAsync(new Exception());
 
             // Act

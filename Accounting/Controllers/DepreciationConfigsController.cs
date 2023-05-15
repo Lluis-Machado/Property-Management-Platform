@@ -48,9 +48,9 @@ namespace Accounting.Controllers
         [Route("depreciationConfigs")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<DepreciationConfig>>> GetAsync()
+        public async Task<ActionResult<IEnumerable<DepreciationConfig>>> GetAsync([FromQuery] bool includeDeleted = false)
         {
-            return Ok(await _depreciationCongifRepo.GetDepreciationConfigsAsync());
+            return Ok(await _depreciationCongifRepo.GetDepreciationConfigsAsync(includeDeleted));
         }
 
         // POST: update depreciationConfig

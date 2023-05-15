@@ -30,10 +30,11 @@ namespace Accounting.Repositories
                 .QuerySingleOrDefaultAsync<BusinessPartner?>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<IEnumerable<BusinessPartner>> GetBusinessPartnersAsync()
+        public async Task<IEnumerable<BusinessPartner>> GetBusinessPartnersAsync(bool includeDeleted)
         {
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT * FROM BusinessPartners");
+            if (includeDeleted == false) queryBuilder.Append("WHERE Deleted = 0");
 
             return await _context
                 .CreateConnection()

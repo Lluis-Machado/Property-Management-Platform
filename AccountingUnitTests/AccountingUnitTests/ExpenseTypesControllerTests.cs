@@ -133,7 +133,7 @@ namespace AccountingUnitTests
             };
 
             _mockExpenseTypeRepo
-                .Setup(r => r.GetExpenseTypesAsync())
+                .Setup(r => r.GetExpenseTypesAsync(false))
                 .ReturnsAsync(fakeExpectedExpenseTypes);
 
             // Act
@@ -150,7 +150,7 @@ namespace AccountingUnitTests
         {
             // Arrange
             _mockExpenseTypeRepo
-                .Setup(repo => repo.GetExpenseTypesAsync())
+                .Setup(repo => repo.GetExpenseTypesAsync(false))
                 .ThrowsAsync(new Exception());
 
             // Act

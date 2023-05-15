@@ -49,9 +49,9 @@ namespace Accounting.Controllers
         [Route("tenants")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<Tenant>>> GetAsync()
+        public async Task<ActionResult<IEnumerable<Tenant>>> GetAsync([FromQuery] bool includeDeleted = false)
         {
-            return Ok(await _tenantRepo.GetTenantsAsync());
+            return Ok(await _tenantRepo.GetTenantsAsync(includeDeleted));
         }
 
         // POST: update tenant

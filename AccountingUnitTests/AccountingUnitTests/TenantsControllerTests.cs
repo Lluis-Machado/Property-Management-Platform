@@ -126,7 +126,7 @@ namespace AccountingUnitTests
             };
 
             _mockTenantRepo
-                .Setup(r => r.GetTenantsAsync())
+                .Setup(r => r.GetTenantsAsync(false))
                 .ReturnsAsync(fakeExpectedTenants);
 
             // Act
@@ -143,7 +143,7 @@ namespace AccountingUnitTests
         {
             // Arrange
             _mockTenantRepo
-                .Setup(repo => repo.GetTenantsAsync())
+                .Setup(repo => repo.GetTenantsAsync(false))
                 .ThrowsAsync(new Exception());
 
             // Act

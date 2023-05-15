@@ -28,10 +28,12 @@ namespace Accounting.Repositories
                 .QuerySingleOrDefaultAsync<DepreciationConfig?>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<IEnumerable<DepreciationConfig>> GetDepreciationConfigsAsync()
+        public async Task<IEnumerable<DepreciationConfig>> GetDepreciationConfigsAsync(bool includeDeleted)
         {
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT * FROM depreciationConfigs");
+            if (includeDeleted == false) queryBuilder.Append("WHERE Deleted = 0");
+
 
             using var connection = _context.CreateConnection();
 

@@ -49,9 +49,9 @@ namespace Accounting.Controllers
         [Route("expenseTypes")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<ExpenseType>>> GetAsync()
+        public async Task<ActionResult<IEnumerable<ExpenseType>>> GetAsync([FromQuery] bool includeDeleted = false)
         {
-            return Ok(await _expenseTypeRepo.GetExpenseTypesAsync());
+            return Ok(await _expenseTypeRepo.GetExpenseTypesAsync(includeDeleted));
         }
 
         // POST: update expenseType

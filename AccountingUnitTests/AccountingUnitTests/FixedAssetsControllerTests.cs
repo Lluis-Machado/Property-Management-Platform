@@ -18,6 +18,7 @@ namespace AccountingUnitTests
         private readonly Mock<IConfiguration> _mockConfiguration;
         private readonly Mock<IFixedAssetRepository> _mockFixedAssetRepo;
         private readonly Mock<IInvoiceRepository> _mockInvoiceRepo;
+        private readonly Mock<IDepreciationRepository> _mockDepreciationRepo;
         private readonly Mock<IDepreciationConfigRepository> _mockDepreciationConfigRepo;
         private readonly FixedAssetsController _fixedAssetsController;
 
@@ -28,8 +29,9 @@ namespace AccountingUnitTests
             _mockConfiguration = new Mock<IConfiguration>();
             _mockFixedAssetRepo = new Mock<IFixedAssetRepository>();
             _mockInvoiceRepo = new Mock<IInvoiceRepository>();
+            _mockDepreciationRepo = new Mock<IDepreciationRepository>();
             _mockDepreciationConfigRepo = new Mock<IDepreciationConfigRepository>();
-            _fixedAssetsController = new FixedAssetsController(_mockFixedAssetRepo.Object, _mockInvoiceRepo.Object, _mockDepreciationConfigRepo.Object, _mockFixedAssetValidator.Object, _mockLogger.Object);
+            _fixedAssetsController = new FixedAssetsController(_mockFixedAssetRepo.Object, _mockInvoiceRepo.Object, _mockDepreciationConfigRepo.Object, _mockDepreciationRepo.Object, _mockFixedAssetValidator.Object, _mockLogger.Object);
         }
 
         #region Create
@@ -252,7 +254,7 @@ namespace AccountingUnitTests
                 .ReturnsAsync(fakeInvoice);
 
             _mockFixedAssetRepo
-                .Setup(r => r.GetFixedAssetsAsync())
+                .Setup(r => r.GetFixedAssetsAsync(false))
                 .ReturnsAsync(fakeExpectedFixedAssets);
 
             // Act
@@ -269,7 +271,7 @@ namespace AccountingUnitTests
         {
             // Arrange
             _mockFixedAssetRepo
-                .Setup(repo => repo.GetFixedAssetsAsync())
+                .Setup(repo => repo.GetFixedAssetsAsync(false))
                 .ThrowsAsync(new Exception());
 
             // Act

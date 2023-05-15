@@ -62,9 +62,9 @@ namespace Accounting.Controllers
         [Route("fixedAssets")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<FixedAsset>>> GetAsync()
+        public async Task<ActionResult<IEnumerable<FixedAsset>>> GetAsync([FromQuery] bool includeDeleted = false)
         {
-            return Ok(await _fixedAssetRepo.GetFixedAssetsAsync());
+            return Ok(await _fixedAssetRepo.GetFixedAssetsAsync(includeDeleted));
         }
 
         // GET: Get fixedAsset(s)
@@ -73,13 +73,13 @@ namespace Accounting.Controllers
         [Route("fixedAssets/getWithDepreciations")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<FixedAsset>>> GetAsyncWithDepreciations()
+        public async Task<ActionResult<IEnumerable<FixedAsset>>> GetAsyncWithDepreciations([FromQuery] bool includeDeleted = false)
         {
-            var fixedAssets = await _fixedAssetRepo.GetFixedAssetsAsync();
+            var fixedAssets = await _fixedAssetRepo.GetFixedAssetsAsync(includeDeleted);
 
             foreach (var fixedAsset in fixedAssets)
             {
-                var foundDepreciations = await _depreciationRepo.GetDepreciationByFAandPeriodAsync(fixedAsset.Id, null, null);
+                var foundDepreciations = await _depreciationRepo.GetDepreciationByFAandPeriodAsync(fixedAsset.Id, includeDeleted, null, null);
                 fixedAsset.Depreciations = foundDepreciations.ToArray();
                 await _depreciationRepo.UpdateTotalDepreciationForFixedAsset(fixedAsset.Id);
             }
@@ -159,7 +159,7 @@ namespace Accounting.Controllers
         private async Task<bool> DepreciationConfigExists(Guid depreciationConfigId)
         {
             DepreciationConfig? depreciationConfig = await _depreciationConfigRepo.GetDepreciationConfigByIdAsync(depreciationConfigId);
-            return (depreciationConfig != null);
+            return (depreciationConfig != null && depreciationConfig?.Deleted == false);
         }
     }
 }

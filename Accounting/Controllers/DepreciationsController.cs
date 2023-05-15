@@ -60,9 +60,9 @@ namespace Accounting.Controllers
         [Route("depreciations")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<Depreciation>>> GetAsync()
+        public async Task<ActionResult<IEnumerable<Depreciation>>> GetAsync([FromQuery] bool includeDeleted = false)
         {
-            return Ok(await _depreciationRepo.GetDepreciationsAsync());
+            return Ok(await _depreciationRepo.GetDepreciationsAsync(includeDeleted));
         }
 
         // POST: update depreciation
@@ -156,6 +156,7 @@ namespace Accounting.Controllers
             var foundDepreciations =
                 (await _depreciationRepo.GetDepreciationByFAandPeriodAsync(
                     depreciation.FixedAssetId,
+                    includeDeleted: false,
                     periodStart.AddMonths(-6),
                     periodEnd.AddMonths(6))).ToArray();
 
@@ -307,7 +308,7 @@ namespace Accounting.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<Depreciation>>> GetByFAandPeriodAsync(Guid fixedAssetId, DateTime? periodStart, DateTime? periodEnd)
+        public async Task<ActionResult<IEnumerable<Depreciation>>> GetByFAandPeriodAsync(Guid fixedAssetId, bool includeDeleted, DateTime? periodStart, DateTime? periodEnd)
         {
             // Checks before starting
             if (periodStart != null && periodEnd != null && periodEnd < periodStart)
@@ -315,13 +316,13 @@ namespace Accounting.Controllers
                 return BadRequest("Period end cannot be before period start");
             }
 
-            return Ok(await _depreciationRepo.GetDepreciationByFAandPeriodAsync(fixedAssetId, periodStart, periodEnd));
+            return Ok(await _depreciationRepo.GetDepreciationByFAandPeriodAsync(fixedAssetId, includeDeleted, periodStart, periodEnd));
         }
 
         private async Task<bool> FixedAssetExists(Guid fixedAssetId)
         {
             FixedAsset? fixedAsset = await _fixedAssetRepo.GetFixedAssetByIdAsync(fixedAssetId);
-            return (fixedAsset != null);
+            return (fixedAsset != null && fixedAsset?.Deleted == false);
         }
 
     }

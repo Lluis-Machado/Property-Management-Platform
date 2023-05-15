@@ -196,7 +196,7 @@ namespace AccountingUnitTests
             };
 
             _mockLoanRepo
-                .Setup(r => r.GetLoansAsync())
+                .Setup(r => r.GetLoansAsync(false))
                 .ReturnsAsync(fakeExpectedLoans);
 
             // Act
@@ -213,7 +213,7 @@ namespace AccountingUnitTests
         {
             // Arrange
             _mockLoanRepo
-                .Setup(repo => repo.GetLoansAsync())
+                .Setup(repo => repo.GetLoansAsync(false))
                 .ThrowsAsync(new Exception());
 
             // Act

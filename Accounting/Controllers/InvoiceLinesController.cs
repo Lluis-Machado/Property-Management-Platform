@@ -60,9 +60,9 @@ namespace Accounting.Controllers
         [Route("invoiceLines")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<InvoiceLine>>> GetAsync()
+        public async Task<ActionResult<IEnumerable<InvoiceLine>>> GetAsync([FromQuery] bool includeDeleted = false)
         {
-            return Ok(await _invoiceLineRepo.GetInvoiceLinesAsync());
+            return Ok(await _invoiceLineRepo.GetInvoiceLinesAsync(includeDeleted));
         }
 
         // POST: update invoiceLine
@@ -127,13 +127,13 @@ namespace Accounting.Controllers
         private async Task<bool> InvoiceExists(Guid invoiceId)
         {
             Invoice? invoice = await _invoiceRepo.GetInvoiceByIdAsync(invoiceId);
-            return (invoice != null);
+            return (invoice != null && invoice?.Deleted == false);
         }
 
         private async Task<bool> ExpenseTypeExists(Guid expenseTypeId)
         {
             ExpenseType? expenseType = await _expenseTypeRepo.GetExpenseTypeByIdAsync(expenseTypeId);
-            return (expenseType != null);
+            return (expenseType != null && expenseType?.Deleted == false);
         }
     }
 }

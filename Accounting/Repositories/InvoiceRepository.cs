@@ -91,7 +91,7 @@ namespace Accounting.Repositories
             }
         }
 
-        public async Task<IEnumerable<Invoice>> GetInvoicesAsync()
+        public async Task<IEnumerable<Invoice>> GetInvoicesAsync(bool includeDeleted)
         {
             using var connection = _context.CreateConnection();
             connection.Open();
@@ -112,6 +112,8 @@ namespace Accounting.Repositories
                 queryBuilder.Append(" ,LastModificationDate");
                 queryBuilder.Append(" ,LastModificationByUser");
                 queryBuilder.Append(" FROM Invoices");
+                if (includeDeleted == false) queryBuilder.Append("WHERE Deleted = 0");
+
 
                 IEnumerable<Invoice> invoices = await connection.QueryAsync<Invoice>(queryBuilder.ToString(), transaction: tran);
 
@@ -136,6 +138,8 @@ namespace Accounting.Repositories
                     queryBuilder2.Append(" ,InvoiceId");
                     queryBuilder2.Append(" FROM InvoiceLines");
                     queryBuilder2.Append(" WHERE InvoiceId = @Id");
+                    if (includeDeleted == false) queryBuilder.Append("AND Deleted = 0");
+
 
                     invoice.InvoiceLines = connection
                         .Query<InvoiceLine>(queryBuilder2.ToString(), new { invoice.Id }, tran)

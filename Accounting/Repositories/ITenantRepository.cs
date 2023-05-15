@@ -5,7 +5,7 @@ namespace Accounting.Repositories
     public interface ITenantRepository
     {
         Task<Tenant> InsertTenantAsync(Tenant tenant);
-        Task<IEnumerable<Tenant>> GetTenantsAsync();
+        Task<IEnumerable<Tenant>> GetTenantsAsync(bool includeDeleted);
         Task<Tenant> GetTenantByIdAsync(Guid tenantId);
         Task<int> UpdateTenantAsync(Tenant tenant);
         Task<int> SetDeleteTenantAsync(Guid id, bool deleted);

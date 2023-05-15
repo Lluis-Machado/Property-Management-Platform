@@ -144,7 +144,7 @@ namespace AccountingUnitTests
             };
 
             _mockBusinessPartnerRepo
-                .Setup(r => r.GetBusinessPartnersAsync())
+                .Setup(r => r.GetBusinessPartnersAsync(false))
                 .ReturnsAsync(fakeExpectedBusinessPartners);
 
             // Act
@@ -161,7 +161,7 @@ namespace AccountingUnitTests
         {
             // Arrange
             _mockBusinessPartnerRepo
-                .Setup(repo => repo.GetBusinessPartnersAsync())
+                .Setup(repo => repo.GetBusinessPartnersAsync(false))
                 .ThrowsAsync(new Exception());
 
             // Act

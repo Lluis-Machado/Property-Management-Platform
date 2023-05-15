@@ -34,7 +34,7 @@ namespace Accounting.Repositories
         {
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT * FROM BusinessPartners");
-            if (includeDeleted == false) queryBuilder.Append("WHERE Deleted = 0");
+            if (includeDeleted == false) queryBuilder.Append(" WHERE Deleted = 0");
 
             return await _context
                 .CreateConnection()

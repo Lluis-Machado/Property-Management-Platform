@@ -44,7 +44,7 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,LastModificationDate");
             queryBuilder.Append(" ,LastModificationByUser");
             queryBuilder.Append(" FROM Tenants");
-            if (includeDeleted == false) queryBuilder.Append("WHERE Deleted = 0");
+            if (includeDeleted == false) queryBuilder.Append(" WHERE Deleted = 0");
 
 
             return await _context

@@ -32,7 +32,7 @@ namespace Accounting.Repositories
         {
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT * FROM depreciationConfigs");
-            if (includeDeleted == false) queryBuilder.Append("WHERE Deleted = 0");
+            if (includeDeleted == false) queryBuilder.Append(" WHERE Deleted = 0");
 
 
             using var connection = _context.CreateConnection();

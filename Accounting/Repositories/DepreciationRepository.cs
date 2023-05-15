@@ -57,7 +57,7 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,LastModificationByUser");
             queryBuilder.Append(" FROM Depreciations");
             queryBuilder.Append(" WHERE FixedAssetId = @fixedAssetId");
-            if (includeDeleted == false) queryBuilder.Append("AND Deleted = 0");
+            if (includeDeleted == false) queryBuilder.Append(" AND Deleted = 0");
             if (periodStart != null) queryBuilder.Append(" AND PeriodStart >= @pS");
             if (periodEnd != null) queryBuilder.Append(" AND PeriodEnd <= @pE");
 

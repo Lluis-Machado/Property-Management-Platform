@@ -54,9 +54,9 @@ namespace Accounting.Controllers
             return Ok(await _businessPartnerRepo.GetBusinessPartnersAsync(includeDeleted));
         }
 
-        // POST: update businessPartner
+        // PATCH: update businessPartner
 
-        [HttpPost]
+        [HttpPatch]
         [Route("businessPartners/{businessPartnerId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]

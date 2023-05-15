@@ -60,9 +60,9 @@ namespace Accounting.Controllers
             return Ok(await _loanRepo.GetLoansAsync(includeDeleted));
         }
 
-        // POST: update loan
+        // PATCH: update loan
 
-        [HttpPost]
+        [HttpPatch]
         [Route("loans/{loanId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]

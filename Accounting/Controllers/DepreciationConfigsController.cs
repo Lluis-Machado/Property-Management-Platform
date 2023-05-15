@@ -53,9 +53,9 @@ namespace Accounting.Controllers
             return Ok(await _depreciationCongifRepo.GetDepreciationConfigsAsync(includeDeleted));
         }
 
-        // POST: update depreciationConfig
+        // PATCH: update depreciationConfig
 
-        [HttpPost]
+        [HttpPatch]
         [Route("depreciationConfigs/{depreciationConfigId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]

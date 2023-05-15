@@ -54,9 +54,9 @@ namespace Accounting.Controllers
             return Ok(await _expenseTypeRepo.GetExpenseTypesAsync(includeDeleted));
         }
 
-        // POST: update expenseType
+        // PATCH: update expenseType
 
-        [HttpPost]
+        [HttpPatch]
         [Route("expenseTypes/{expenseTypeId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]

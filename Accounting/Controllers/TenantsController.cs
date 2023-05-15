@@ -54,9 +54,9 @@ namespace Accounting.Controllers
             return Ok(await _tenantRepo.GetTenantsAsync(includeDeleted));
         }
 
-        // POST: update tenant
+        // PATCH: update tenant
 
-        [HttpPost]
+        [HttpPatch]
         [Route("tenants/{tenantId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]

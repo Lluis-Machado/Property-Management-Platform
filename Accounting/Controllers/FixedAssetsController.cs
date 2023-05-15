@@ -67,7 +67,7 @@ namespace Accounting.Controllers
             return Ok(await _fixedAssetRepo.GetFixedAssetsAsync(includeDeleted));
         }
 
-        // GET: Get fixedAsset(s)
+        // GET: Get fixedAsset(s) with depreciations
 
         [HttpGet]
         [Route("fixedAssets/getWithDepreciations")]
@@ -88,9 +88,9 @@ namespace Accounting.Controllers
 
         }
 
-        // POST: update fixedAsset
+        // PATCH: update fixedAsset
 
-        [HttpPost]
+        [HttpPatch]
         [Route("fixedAssets/{fixedAssetId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]

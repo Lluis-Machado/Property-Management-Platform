@@ -65,7 +65,7 @@ namespace Accounting.Controllers
             return Ok(await _depreciationRepo.GetDepreciationsAsync(includeDeleted));
         }
 
-        // POST: update depreciation
+        // PATCH: update depreciation
 
         [HttpPatch]
         [Route("depreciations/{depreciationId}")]

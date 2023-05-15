@@ -60,9 +60,9 @@ namespace Accounting.Controllers
             return Ok(await _invoiceRepo.GetInvoicesAsync(includeDeleted));
         }
 
-        // POST: update invoice
+        // PATCH: update invoice
 
-        [HttpPost]
+        [HttpPatch]
         [Route("invoices/{invoiceId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]

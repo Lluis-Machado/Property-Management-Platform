@@ -25,6 +25,7 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,Name");
             queryBuilder.Append(" ,ActivationDate");
             queryBuilder.Append(" ,ActivationAmount");
+            queryBuilder.Append(" ,DepreciatedAmount");
             queryBuilder.Append(" ,DepreciationConfigId");
             queryBuilder.Append(" ,DepreciationAmountPercent");
             queryBuilder.Append(" ,DepreciationMaxYears");
@@ -49,6 +50,7 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,Name");
             queryBuilder.Append(" ,ActivationDate");
             queryBuilder.Append(" ,ActivationAmount");
+            queryBuilder.Append(" ,DepreciatedAmount");
             queryBuilder.Append(" ,DepreciationConfigId");
             queryBuilder.Append(" ,DepreciationAmountPercent");
             queryBuilder.Append(" ,DepreciationMaxYears");
@@ -96,6 +98,7 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,INSERTED.Name");
             queryBuilder.Append(" ,INSERTED.ActivationDate");
             queryBuilder.Append(" ,INSERTED.ActivationAmount");
+            queryBuilder.Append(" ,INSERTED.DepreciatedAmount");
             queryBuilder.Append(" ,INSERTED.DepreciationConfigId");
             queryBuilder.Append(" ,INSERTED.DepreciationAmountPercent");
             queryBuilder.Append(" ,INSERTED.DepreciationMaxYears");
@@ -148,6 +151,7 @@ namespace Accounting.Repositories
                 fixedAsset.Name,
                 fixedAsset.ActivationDate,
                 fixedAsset.ActivationAmount,
+                fixedAsset.DepreciatedAmount,
                 fixedAsset.DepreciationConfigId,
                 fixedAsset.DepreciationMaxYears,
                 fixedAsset.EstimatedUsefulLife,
@@ -161,6 +165,7 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,Name = @Name");
             queryBuilder.Append(" ,ActivationDate = @ActivationDate");
             queryBuilder.Append(" ,ActivationAmount = @ActivationAmount");
+            queryBuilder.Append(" ,DepreciatedAmount = @DepreciatedAmount");
             queryBuilder.Append(" ,DepreciationConfigId = @DepreciationConfigId");
             queryBuilder.Append(" ,DepreciationMaxYears = @DepreciationMaxYears");
             queryBuilder.Append(" ,EstimatedUsefulLife = @EstimatedUsefulLife");

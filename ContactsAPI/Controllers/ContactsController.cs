@@ -2,11 +2,13 @@
 using ContactsAPI.Repositories;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace ContactsAPI.Controllers
 {
+    [Authorize]
     public class ContactsController : Controller
     {
         //private readonly ILogger<ContactsController> _logger;

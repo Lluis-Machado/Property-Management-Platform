@@ -1,4 +1,4 @@
-﻿namespace ContactsAPI.Models
+﻿namespace TaxManagementAPI.Models
 {
     public interface IAuditable
     {

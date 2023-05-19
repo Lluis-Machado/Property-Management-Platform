@@ -8,7 +8,7 @@ using System.Net;
 
 namespace PropertyManagementAPI.Controllers
 {
-    //[Authorize]
+    [Authorize]
     public class PropertiesController : Controller
     {
         private readonly ILogger<PropertiesController> _logger;

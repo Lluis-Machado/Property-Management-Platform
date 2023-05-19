@@ -1,4 +1,5 @@
 ﻿using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using PropertyManagementAPI.Contexts;
 using PropertyManagementAPI.Models;
 using PropertyManagementAPI.Repositories;
@@ -26,6 +27,22 @@ namespace PropertyManagementAPI.Services
 
             return await _collection.Find(filter)
                 .ToListAsync();
+        }
+
+        public async Task<List<Property>> GetByContactIdAsync(Guid contactId)
+        {
+            IMongoQueryable<Property> properties = _collection.AsQueryable();
+            return await properties.Where(p => p.Owners.Any(o => o.ContactId == contactId))
+                   .ToListAsync();
+        }
+
+        public async Task<Property> GetByIdAsync(Guid propertyId)
+        {
+            var filter = Builders<Property>.Filter
+                .Eq(actualProperty => actualProperty._id, propertyId);
+
+            return await _collection.Find(filter)
+                .FirstAsync();
         }
 
         public async Task<UpdateResult> UpdateAsync(Property property)

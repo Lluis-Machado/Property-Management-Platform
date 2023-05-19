@@ -54,6 +54,17 @@ namespace PropertyManagementAPI.Controllers
             return Ok(await _propertiesRepo.GetAsync());
         }
 
+        // GET: Get properties(s)
+        [HttpGet]
+        [Route("{contactId}/properties")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+
+        public async Task<ActionResult<IEnumerable<Property>>> GetContactProperties(Guid contactId)
+        {
+            return Ok(await _propertiesRepo.GetByContactIdAsync(contactId));
+        }
+
         // POST: update property
         [HttpPatch]
         [Route("properties/{propertyId}")]

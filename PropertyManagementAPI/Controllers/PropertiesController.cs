@@ -8,7 +8,7 @@ using System.Net;
 
 namespace PropertyManagementAPI.Controllers
 {
-    [Authorize]
+    //[Authorize]
     public class PropertiesController : Controller
     {
         private readonly ILogger<PropertiesController> _logger;
@@ -52,6 +52,17 @@ namespace PropertyManagementAPI.Controllers
         public async Task<ActionResult<IEnumerable<Property>>> GetAsync()
         {
             return Ok(await _propertiesRepo.GetAsync());
+        }
+
+        // GET: Get properties(s)
+        [HttpGet]
+        [Route("{contactId}/properties")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+
+        public async Task<ActionResult<IEnumerable<Property>>> GetContactProperties(Guid contactId)
+        {
+            return Ok(await _propertiesRepo.GetByContactIdAsync(contactId));
         }
 
         // POST: update property

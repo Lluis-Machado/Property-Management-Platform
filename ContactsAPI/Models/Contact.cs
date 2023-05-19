@@ -22,6 +22,7 @@ namespace ContactsAPI.Models
         public Guid ParentId { get; set; }
         public string Individual_Position { get; set; }
         public IndividualType Individual_Type { get; set; }
+        public List<ContactProperty> Properties { get; set; }
         public bool Deleted { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime LastUpdateAt { get; set; }

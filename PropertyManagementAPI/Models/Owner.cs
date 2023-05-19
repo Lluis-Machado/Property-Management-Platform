@@ -1,10 +1,8 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
-
-namespace PropertyManagementAPI.Models
+﻿namespace PropertyManagementAPI.Models
 {
     public class Owner
     {
-        [BsonId]
-        public Guid _id { get; set; }
+        public Guid ContactId { get; set; }
+        public decimal Share { get; set; }
     }
 }

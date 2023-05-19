@@ -9,7 +9,7 @@ namespace PropertyManagementAPI.Models
         LongTermRent
     }
 
-    public class Property: CoreObject
+    public class Property
     {
         [BsonId]
         public Guid _id { get; set; }
@@ -18,7 +18,13 @@ namespace PropertyManagementAPI.Models
         public TypeOfUse[]? TypeOfUse { get; set; }
         public Address? Address { get; set; }
         public Cadastre? Cadastre { get; set; }
+        public List<Owner> Owners { get; set; }
         public string? Comments { get; set; }
         public bool Deleted { get; set; }
+
+        public Property()
+        {
+            Owners = new List<Owner>();
+        }
     }
 }

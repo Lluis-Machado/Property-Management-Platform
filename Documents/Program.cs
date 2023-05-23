@@ -2,6 +2,7 @@ using Documents.Middelwares;
 using Documents.Models;
 using Documents.Services.AzureBlobStorage;
 using Documents.Validators;
+using DocumentsAPI.Contexts;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Azure;
@@ -24,10 +25,8 @@ builder.Logging.AddSerilog(logger);
 builder.Services.AddTransient<AzureErrorHandlingMiddleware>();
 builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
 
-// Azure Blob Storage
-builder.Services.AddTransient<IAzureBlobStorage>(s => 
-    new AzureBlobStorage($"https://{builder.Configuration.GetValue<string>("AzureBlobStorage:StorageAccount")}.blob.core.windows.net")
-);
+builder.Services.AddSingleton<AzureBlobStorageContext>();
+builder.Services.AddScoped<IAzureBlobStorage, AzureBlobStorage>();
 
 builder.Services.AddAzureClients(clientBuilder =>
 {

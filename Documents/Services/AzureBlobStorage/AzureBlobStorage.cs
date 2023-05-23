@@ -3,6 +3,7 @@ using Azure.Identity;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Documents.Models;
+using DocumentsAPI.Contexts;
 using System.Net;
 
 namespace Documents.Services.AzureBlobStorage
@@ -10,24 +11,24 @@ namespace Documents.Services.AzureBlobStorage
 
     public class AzureBlobStorage: IAzureBlobStorage
     {
-        private string ConnectionString { get; set;}
+        private AzureBlobStorageContext _context { get; set;}
 
-        public AzureBlobStorage(string connectionString)
+        public AzureBlobStorage(AzureBlobStorageContext context)
         {
-            ConnectionString = connectionString;
+            _context = context;
         }
 
         #region Containers
 
         public async Task CreateBlobContainerAsync(string pBlobContainerName)
         {
-            BlobContainerClient blobContainerClient = GetBlobContainerClient(pBlobContainerName);
+            BlobContainerClient blobContainerClient = _context.GetBlobContainerClient(pBlobContainerName);
             await blobContainerClient.CreateAsync();
         }
 
         public async Task<IEnumerable<Tenant>> GetBlobContainersAsync(int? segmentSize, bool includeDeleted = false)
         {
-            BlobServiceClient blobServiceClient = GetBlobServiceClient();
+            BlobServiceClient blobServiceClient = _context.GetBlobServiceClient();
             BlobContainerStates blobContainerStates = includeDeleted ? BlobContainerStates.Deleted : BlobContainerStates.None;
 
             var resultSegment = blobServiceClient.GetBlobContainersAsync(default, blobContainerStates).AsPages(default, segmentSize);
@@ -46,7 +47,7 @@ namespace Documents.Services.AzureBlobStorage
 
         public async Task<bool> BlobContainerExistsAsync(string blobContainerName)
         {
-            BlobContainerClient blobContainerClient = GetBlobContainerClient(blobContainerName);
+            BlobContainerClient blobContainerClient = _context.GetBlobContainerClient(blobContainerName);
 
             return await blobContainerClient.ExistsAsync();
         }
@@ -54,21 +55,21 @@ namespace Documents.Services.AzureBlobStorage
         public async Task DeleteBlobContainerAsync(string blobContainerName)
         {
 
-            BlobContainerClient blobContainerClient = GetBlobContainerClient(blobContainerName);
+            BlobContainerClient blobContainerClient = _context.GetBlobContainerClient(blobContainerName);
 
             Response response = await blobContainerClient.DeleteAsync();
 
-            CheckResponse(response);
+            _context.CheckResponse(response);
         }
 
         public async Task UndeleteBlobContainerAsync(string blobContainerName)
         {
-            BlobServiceClient blobServiceClient = GetBlobServiceClient();
+            BlobServiceClient blobServiceClient = _context.GetBlobServiceClient();
 
             Response<BlobContainerClient> blobContainerResponse = await blobServiceClient.UndeleteBlobContainerAsync(blobContainerName,null);
             Response response = blobContainerResponse.GetRawResponse();
 
-            CheckResponse(response);
+            _context.CheckResponse(response);
         }
 
         #endregion
@@ -77,7 +78,7 @@ namespace Documents.Services.AzureBlobStorage
 
         public async Task<HttpStatusCode> UploadAsync(string blobContainerName, string blobName, Stream blobContent)
         {
-            BlobClient blobClient = GetBlobClient(blobContainerName, $"{Guid.NewGuid()}_{blobName}");
+            BlobClient blobClient = _context.GetBlobClient(blobContainerName, $"{Guid.NewGuid()}_{blobName}");
 
             Response<BlobContentInfo> blobContentInfo = await blobClient.UploadAsync(blobContent);
 
@@ -88,7 +89,7 @@ namespace Documents.Services.AzureBlobStorage
 
         public async Task<IEnumerable<Document>> ListBlobsFlatListingAsync(string blobContainerName, int? segmentSize, bool includeDeleted = false)
         {
-            BlobContainerClient blobContainerClient = GetBlobContainerClient(blobContainerName);
+            BlobContainerClient blobContainerClient = _context.GetBlobContainerClient(blobContainerName);
 
             // Call the listing operation and return pages of the specified size.
             BlobStates blobStates = includeDeleted ? BlobStates.Deleted : BlobStates.None;
@@ -109,23 +110,23 @@ namespace Documents.Services.AzureBlobStorage
 
         public async Task<bool> BlobExistsAsync(string blobContainerName, string blobName)
         {
-            BlobClient blobClient = GetBlobClient(blobContainerName, blobName);
+            BlobClient blobClient = _context.GetBlobClient(blobContainerName, blobName);
             return await blobClient.ExistsAsync();
         }
 
         public async Task<byte[]> DownloadBlobAsync(string blobContainerName, string blobName)
         {
-            BlobClient blobClient = GetBlobClient(blobContainerName, blobName);
+            BlobClient blobClient = _context.GetBlobClient(blobContainerName, blobName);
 
             Response<BlobDownloadResult> blobDownloadResponse = await blobClient.DownloadContentAsync();
             Response response = blobDownloadResponse.GetRawResponse();
-            CheckResponse(response);
+            _context.CheckResponse(response);
             return blobDownloadResponse.Value.Content.ToArray();
         }
 
         public async Task DeleteBlobAsync(string blobContainerName, string blobName)
         {
-            BlobClient blobClient = GetBlobClient(blobContainerName, blobName);
+            BlobClient blobClient = _context.GetBlobClient(blobContainerName, blobName);
 
             Response response = await blobClient.DeleteAsync();
             if (response.IsError) throw new Exception(response.ReasonPhrase);
@@ -133,7 +134,7 @@ namespace Documents.Services.AzureBlobStorage
 
         public async Task UndeleteBlobAsync(string blobContainerName, string blobName)
         {
-            BlobClient blobClient = GetBlobClient(blobContainerName, blobName);
+            BlobClient blobClient = _context.GetBlobClient(blobContainerName, blobName);
 
             Response response = await blobClient.UndeleteAsync();
             if (response.IsError) throw new Exception(response.ReasonPhrase);
@@ -142,12 +143,12 @@ namespace Documents.Services.AzureBlobStorage
         public async Task RenameBlobAsync(string blobContainerName, string blobName, string newName)
         {
             // source blob
-            BlobClient sourceBlobClient = GetBlobClient(blobContainerName, blobName);
+            BlobClient sourceBlobClient = _context.GetBlobClient(blobContainerName, blobName);
 
             // destination blob
             DocumentName sourceBlobName = new(sourceBlobClient.Name);
             string destinationBlobName = $"{sourceBlobName.Code}_{newName}{sourceBlobName.Extension}";
-            BlobClient destinationBlobClient = GetBlobClient(blobContainerName, destinationBlobName);
+            BlobClient destinationBlobClient = _context.GetBlobClient(blobContainerName, destinationBlobName);
 
             // copy
             CopyFromUriOperation copyFromUriOperation = await destinationBlobClient.StartCopyFromUriAsync(sourceBlobClient.Uri);
@@ -162,12 +163,12 @@ namespace Documents.Services.AzureBlobStorage
         public async Task CopyBlobAsync(string blobContainerName, string blobName, string newName)
         {
             // source blob
-            BlobClient sourceBlobClient = GetBlobClient(blobContainerName, blobName);
+            BlobClient sourceBlobClient = _context.GetBlobClient(blobContainerName, blobName);
 
             // destination blob
             DocumentName sourceBlobName = new(blobName);
             string destinationBlobName = $"{Guid.NewGuid()}_{newName}{sourceBlobName.Extension}";
-            BlobClient destinationBlobClient = GetBlobClient(blobContainerName, destinationBlobName);
+            BlobClient destinationBlobClient = _context.GetBlobClient(blobContainerName, destinationBlobName);
 
             // copy
             CopyFromUriOperation copyFromUriOperation = await destinationBlobClient.StartCopyFromUriAsync(sourceBlobClient.Uri);
@@ -177,34 +178,6 @@ namespace Documents.Services.AzureBlobStorage
         #endregion
 
         #region Helpers
-
-        private static void CheckResponse(Response response)
-        {
-            if(response.IsError) throw new Exception(response.ReasonPhrase);
-        }
-
-        private BlobServiceClient GetBlobServiceClient()
-        {
-            return new(new Uri(ConnectionString), new DefaultAzureCredential());
-        }
-
-        private BlobContainerClient GetBlobContainerClient(string blobContainerName)
-        {
-            BlobServiceClient blobServiceClient = GetBlobServiceClient();
-            return blobServiceClient.GetBlobContainerClient(blobContainerName);
-        }
-
-        private BlobClient GetBlobClient(string blobContainerName, string blobName)
-        {
-            Uri blobUri = GetBlobUri(blobContainerName, blobName);
-            return new(blobUri, new DefaultAzureCredential());
-        }
-
-        private Uri GetBlobUri(string blobContainerName, string blobName)
-        {
-            return new($"{ConnectionString}/{blobContainerName}/{blobName}");
-        }
-
         private static Tenant MapTenant(BlobContainerItem pBlobContainerItem)
         {
             Tenant tenant = new()

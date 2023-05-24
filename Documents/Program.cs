@@ -1,8 +1,10 @@
 using Documents.Middelwares;
 using Documents.Models;
+using Documents.Repositories;
 using Documents.Services.AzureBlobStorage;
 using Documents.Validators;
 using DocumentsAPI.Contexts;
+using DocumentsAPI.Repositories;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Azure;
@@ -25,8 +27,11 @@ builder.Logging.AddSerilog(logger);
 builder.Services.AddTransient<AzureErrorHandlingMiddleware>();
 builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
 
+builder.Services.AddSingleton<DapperContext>();
 builder.Services.AddSingleton<AzureBlobStorageContext>();
-builder.Services.AddScoped<IAzureBlobStorage, AzureBlobStorage>();
+builder.Services.AddScoped<IDocumentRepository, AzureBlobStorage>();
+builder.Services.AddScoped<IArchiveRepository, AzureBlobStorage>();
+builder.Services.AddScoped<IFolderRepository, FolderRepository>();
 
 builder.Services.AddAzureClients(clientBuilder =>
 {
@@ -35,7 +40,7 @@ builder.Services.AddAzureClients(clientBuilder =>
 });
 
 // Validators
-builder.Services.AddScoped<IValidator<Tenant>, TenantValidator>();
+builder.Services.AddScoped<IValidator<Archive>, ArchiveValidator>();
 
 // Swagger
 builder.Services.AddSwaggerGen(opt =>

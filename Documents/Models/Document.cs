@@ -9,6 +9,7 @@ namespace Documents.Models
         public string? Name { get; set; }
         public string? Extension { get; set; }
         public long? ContentLength { get; set; }
+        public Guid? FolderId  { get; set; }
         public DateTimeOffset? CreatedOn { get; set; }
         public DateTimeOffset? LastModified { get; set; }
 

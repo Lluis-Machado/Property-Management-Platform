@@ -2,14 +2,15 @@
 
 namespace Documents.Models
 {
-    public class Tenant
+    public class Archive
     {
+        public Guid Id { get; set; }
         public string? Name { get; set; }
 
         [JsonConstructor]
-        public Tenant() { }
+        public Archive() { }
 
-        public Tenant(string pName) {
+        public Archive(string pName) {
             Name = pName;
         }
     }

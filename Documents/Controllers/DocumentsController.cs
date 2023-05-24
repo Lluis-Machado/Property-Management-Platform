@@ -1,5 +1,5 @@
 using Documents.Models;
-using Documents.Services.AzureBlobStorage;
+using DocumentsAPI.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -12,24 +12,24 @@ namespace Documents.Controllers
     {
         private readonly ILogger<DocumentsController> _logger;
         private readonly IConfiguration _config ;
-        private readonly IAzureBlobStorage _azureBlobStorage;
+        private readonly IDocumentRepository _documentsRepository;
 
-        public DocumentsController(IConfiguration config, IAzureBlobStorage azureBlobStorage, ILogger<DocumentsController> logger)
+        public DocumentsController(IConfiguration config, IDocumentRepository documentsRepository, ILogger<DocumentsController> logger)
         {
             _config = config;
-            _azureBlobStorage = azureBlobStorage;
+            _documentsRepository = documentsRepository;
             _logger = logger;
         }
 
         // POST: Upload document(s)
         [HttpPost]
-        [Route("{tenantName}/documents")]
+        [Route("{archiveId}/documents")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.MultiStatus)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<List<CreateDocumentStatus>>> UploadAsync(string tenantName, IFormFile[] files)
+        public async Task<ActionResult<List<CreateDocumentStatus>>> UploadAsync(Guid archiveId, IFormFile[] files, [FromQuery] Guid? folderId = null)
         {
             // empty request validation
             if (files.Length == 0) return BadRequest("Files not found");
@@ -43,7 +43,7 @@ namespace Documents.Controllers
             await Parallel.ForEachAsync(files, async (file, CancellationToken) =>
             {
                 Stream fileStream = file.OpenReadStream();
-                HttpStatusCode status = await _azureBlobStorage.UploadAsync(tenantName, file.FileName, fileStream);
+                HttpStatusCode status = await _documentsRepository.UploadDocumentAsync(archiveId, file.FileName, fileStream, folderId);
                 documents.Add(new CreateDocumentStatus(file.FileName, status));
             });
 
@@ -59,72 +59,72 @@ namespace Documents.Controllers
 
         // GET: Get document(s)
         [HttpGet]
-        [Route("{tenantName}/documents")]
+        [Route("{archiveId}/documents")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<Document>>> GetAsync(string tenantName,[FromQuery] bool includeDeleted = false)
+        public async Task<ActionResult<IEnumerable<Document>>> GetDocumentsAsync(Guid archiveId, [FromQuery] Guid? folderId = null, [FromQuery] bool includeDeleted = false)
         {
-            return Ok(await _azureBlobStorage.ListBlobsFlatListingAsync(tenantName, 100, includeDeleted));
+            return Ok(await _documentsRepository.GetDocumentsFlatListingAsync(archiveId, 100, includeDeleted));
         }
 
         // GET: Download document
         [HttpGet]
-        [Route("{tenantName}/documents/{documentId}")]
+        [Route("{archiveId}/documents/{documentId}")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<FileContentResult> DownloadAsync(string tenantName, string documentId)
+        public async Task<FileContentResult> DownloadAsync(Guid archiveId, Guid documentId)
         {
-            byte[] byteArray = await _azureBlobStorage.DownloadBlobAsync(tenantName, documentId);
+            byte[] byteArray = await _documentsRepository.DownloadDocumentAsync(archiveId, documentId);
             return File(byteArray, "application/pdf");
         }
 
         // DELETE: Delete document
         [HttpDelete]
-        [Route("{tenantName}/documents/{documentId}")]
+        [Route("{archiveId}/documents/{documentId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> DeleteAsync(string tenantName, string documentId)
+        public async Task<IActionResult> DeleteAsync(Guid archiveId, Guid documentId)
         {
-            await _azureBlobStorage.DeleteBlobAsync(tenantName, documentId);
+            await _documentsRepository.DeleteDocumentAsync(archiveId, documentId);
             return NoContent();
         }
 
         // POST: Undelete document
         [HttpPatch]
-        [Route("{tenantName}/documents/{documentId}/undelete")]
+        [Route("{archiveId}/documents/{documentId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> UndeleteAsync(string tenantName, string documentId)
+        public async Task<IActionResult> UndeleteAsync(Guid archiveId, Guid documentId)
         {
-            await _azureBlobStorage.UndeleteBlobAsync(tenantName, documentId);
+            await _documentsRepository.UndeleteDocumentAsync(archiveId, documentId);
             return NoContent();
         }
 
         // POST: Rename document
         [HttpPatch]
-        [Route("{tenantName}/documents/{documentId}/rename")]
+        [Route("{archiveId}/documents/{documentId}/rename")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> RenameAsync(string tenantName, string documentId, [FromForm] string name)
+        public async Task<IActionResult> RenameAsync(Guid archiveId, Guid documentId, [FromForm] string documentName)
         {
-            await _azureBlobStorage.RenameBlobAsync(tenantName, documentId, name);
+            await _documentsRepository.RenameDocumentAsync(archiveId, documentId, documentName);
             return NoContent();
         }
 
         // POST: Copy document
         [HttpPost]
-        [Route("{tenantName}/documents/{documentId}/copy")]
+        [Route("{archiveId}/documents/{documentId}/copy")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> CopyAsync(string tenantName, string documentId, [FromForm] string name)
+        public async Task<IActionResult> CopyAsync(Guid archiveId, Guid documentId, [FromForm] string documentName)
         {
-            await _azureBlobStorage.CopyBlobAsync(tenantName, documentId, name);
+            await _documentsRepository.CopyDocumentAsync(archiveId, documentId, documentName);
             return NoContent();
         }
 

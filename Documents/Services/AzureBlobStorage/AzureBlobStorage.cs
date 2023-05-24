@@ -88,7 +88,7 @@ namespace Documents.Services.AzureBlobStorage
             Dictionary<string, string> blobMetadata = new()
             {
                 {"display_name", fileName},
-                {"folder_id" , folderId.ToString()}
+                {"folder_id", folderId.ToString() ?? ""},
             };
 
             BlobUploadOptions blobUploadOptions = new()

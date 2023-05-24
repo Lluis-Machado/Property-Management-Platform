@@ -8,7 +8,7 @@ using System.Net;
 
 namespace Archives.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     public class ArchivesController : Controller
     {

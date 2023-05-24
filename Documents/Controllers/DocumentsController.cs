@@ -6,7 +6,7 @@ using System.Net;
 
 namespace Documents.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     public class DocumentsController : ControllerBase
     {

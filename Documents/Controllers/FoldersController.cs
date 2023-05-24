@@ -1,5 +1,4 @@
 using Documents.Models;
-using Documents.Services.AzureBlobStorage;
 using DocumentsAPI.Models;
 using DocumentsAPI.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -8,7 +7,7 @@ using System.Net;
 
 namespace Documents.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     public class FoldersController : ControllerBase
     {

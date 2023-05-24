@@ -9,5 +9,6 @@ namespace DocumentsAPI.Repositories
         Task<Folder> InsertFolderAsync(Folder folder);
         Task<int> SetDeleteFolderAsync(Guid id, bool deleted);
         Task<int> UpdateFolderAsync(Folder folder);
+        List<TreeFolderItem> ToFolderTreeView(List<Folder> folders);
     }
 }

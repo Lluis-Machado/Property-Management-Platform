@@ -23,10 +23,10 @@ namespace Documents.Services.AzureBlobStorage
 
         public async Task CreateArchiveAsync(Archive archive)
         {
-            Dictionary<string, string> metadata = new()
-            {
-                {"display_name", archive.Name }
-            };
+            Dictionary<string, string> metadata = new();
+
+            if(archive.Name != null) metadata.Add("display_name", archive.Name);
+
             BlobContainerClient blobContainerClient = _context.GetBlobContainerClient(archive.Id.ToString());
             await blobContainerClient.CreateAsync(default, metadata);
         }
@@ -218,13 +218,12 @@ namespace Documents.Services.AzureBlobStorage
 
         private static Document MapDocument(BlobItem blobItem)
         {
-            DocumentName documentName = new(blobItem.Name);
+            string documentName = blobItem.Metadata["display_Name"];
             Document document = new()
             {
                 Id = blobItem.Name,
-                Code = documentName.Code,
-                Name = documentName.Name,
-                Extension = documentName.Extension,
+                Name = documentName,
+                Extension = documentName.Contains('.') ? documentName[documentName.LastIndexOf('.')..] : "",
                 ContentLength = blobItem.Properties.ContentLength,
                 CreatedOn = blobItem.Properties.CreatedOn,
                 LastModified = blobItem.Properties.LastModified,

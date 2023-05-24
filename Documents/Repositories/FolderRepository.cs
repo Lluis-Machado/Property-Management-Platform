@@ -25,8 +25,8 @@ namespace Documents.Repositories
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT * FROM Folders");
-            queryBuilder.Append(" WHERE archiveId = @archiveId");
-            queryBuilder.Append(" AND folderId = @folderId");
+            queryBuilder.Append(" WHERE ArchiveId = @archiveId");
+            queryBuilder.Append(" AND FolderId = @folderId");
 
             return await _context
                 .CreateConnection()
@@ -41,8 +41,8 @@ namespace Documents.Repositories
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT * FROM Folders");
-            queryBuilder.Append(" WHERE archiveId = @archiveId");
-            if (includeDeleted == false) queryBuilder.Append(" WHERE Deleted = 0");
+            queryBuilder.Append(" WHERE ArchiveId = @archiveId");
+            if (includeDeleted == false) queryBuilder.Append(" AND Deleted = 0");
 
             return await _context
                 .CreateConnection()
@@ -53,23 +53,23 @@ namespace Documents.Repositories
         {
             var parameters = new
             {
-                folder.TenantId,
+                folder.ArchiveId,
                 folder.Name,
                 folder.ParentId
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("INSERT INTO Folders (");
-            queryBuilder.Append(" TenantId");
+            queryBuilder.Append(" ArchiveId");
             queryBuilder.Append(" ,Name");
             queryBuilder.Append(" ,ParentId");
             queryBuilder.Append(" )OUTPUT INSERTED.Id");
             queryBuilder.Append(" ,INSERTED.Name");
-            queryBuilder.Append(" ,INSERTED.TenantId");
+            queryBuilder.Append(" ,INSERTED.ArchiveId");
             queryBuilder.Append(" ,INSERTED.Name");
             queryBuilder.Append(" ,INSERTED.ParentId");
             queryBuilder.Append(" ,INSERTED.Deleted");
             queryBuilder.Append(" VALUES(");
-            queryBuilder.Append(" @TenantId");
+            queryBuilder.Append(" @ArchiveId");
             queryBuilder.Append(" ,@Name");
             queryBuilder.Append(" ,@ParentId");
             queryBuilder.Append(" )");
@@ -116,5 +116,37 @@ namespace Documents.Repositories
                 .CreateConnection()
                 .ExecuteAsync(queryBuilder.ToString(), parameters);
         }
+
+        public List<TreeFolderItem> ToFolderTreeView(List<Folder> folders)
+        {
+            List<TreeFolderItem> result = new();
+
+            List<Folder> rootFolders = folders.FindAll(f => f.ParentId == null).ToList();
+            List<Folder> childFolders = folders.FindAll(f => f.ParentId != null).ToList();
+
+            foreach (var rootFolder in rootFolders)
+            {
+                TreeFolderItem parentFolder = new(rootFolder);
+                AddChilds(ref parentFolder, childFolders);
+                result.Add(parentFolder);
+            }
+            return result;
+        }
+        private void AddChilds(ref TreeFolderItem parentFolder, List<Folder> folders)
+        {
+            if (parentFolder == null) return;
+            Guid? parentId = parentFolder.Id;
+            List<Folder> childFolders = folders.FindAll(f => f.ParentId == parentId).ToList();
+            List<TreeFolderItem> treeChildFolders = new();
+            foreach (var childFolder in childFolders)
+            {
+                TreeFolderItem treeChildFolder = new(childFolder);
+                AddChilds(ref treeChildFolder, folders);
+                treeChildFolders.Add(treeChildFolder);
+            }
+            parentFolder.ChildFolders = treeChildFolders;
+        }
+
+
     }
 }

@@ -41,13 +41,13 @@ namespace Documents.Controllers
             //if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
             Folder folder = new()
             {
-                TenantId = archiveId,
+                ArchiveId = archiveId,
                 Name = folderName,
                 ParentId = parentId,
             };
 
             folder = await _folderRepository.InsertFolderAsync(folder);
-            return Created($"{archiveId}/folders /{folder.Id}", folder);
+            return Created($"{archiveId}/folders/{folder.Id}", folder);
         }
 
         //GET: Get Folder(s)
@@ -57,7 +57,9 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<IEnumerable<Folder>>> GetAsync(Guid archiveId, [FromQuery] bool includeDeleted = false)
         {
-            return Ok(await _folderRepository.GetFoldersAsync(archiveId, includeDeleted));
+            IEnumerable<Folder> folders = await _folderRepository.GetFoldersAsync(archiveId, includeDeleted);
+            folders = _folderRepository.ToFolderTreeView(folders.ToList());
+            return Ok(folders);
         }
 
         //PATCH: update Folder

@@ -13,8 +13,8 @@ namespace Documents.Middelwares
             _logger = logger;
             _errors = new Dictionary<string, string>
             {
-                {"ContainerAlreadyExists", "Tenant already exists"},
-                {"ContainerNotFound", "Tenant not found"},
+                {"ContainerAlreadyExists", "Archive already exists"},
+                {"ContainerNotFound", "Archive not found"},
                 {"BlobNotFound", "Document not found"},
                 
             };

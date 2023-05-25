@@ -4,12 +4,13 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Documents.Models;
 using DocumentsAPI.Contexts;
+using DocumentsAPI.Repositories;
 using System.Net;
 
 namespace Documents.Services.AzureBlobStorage
 {
 
-    public class AzureBlobStorage: IAzureBlobStorage
+    public class AzureBlobStorage: IDocumentRepository, IArchiveRepository
     {
         private AzureBlobStorageContext _context { get; set;}
 
@@ -18,55 +19,59 @@ namespace Documents.Services.AzureBlobStorage
             _context = context;
         }
 
-        #region Containers
+        #region Archives
 
-        public async Task CreateBlobContainerAsync(string pBlobContainerName)
+        public async Task CreateArchiveAsync(Archive archive)
         {
-            BlobContainerClient blobContainerClient = _context.GetBlobContainerClient(pBlobContainerName);
-            await blobContainerClient.CreateAsync();
+            Dictionary<string, string> metadata = new();
+
+            if(archive.Name != null) metadata.Add("display_name", archive.Name);
+
+            BlobContainerClient blobContainerClient = _context.GetBlobContainerClient(archive.Id.ToString());
+            await blobContainerClient.CreateAsync(default, metadata);
         }
 
-        public async Task<IEnumerable<Tenant>> GetBlobContainersAsync(int? segmentSize, bool includeDeleted = false)
+        public async Task<IEnumerable<Archive>> GetArchivesAsync(int? segmentSize, bool includeDeleted = false)
         {
             BlobServiceClient blobServiceClient = _context.GetBlobServiceClient();
             BlobContainerStates blobContainerStates = includeDeleted ? BlobContainerStates.Deleted : BlobContainerStates.None;
 
-            var resultSegment = blobServiceClient.GetBlobContainersAsync(default, blobContainerStates).AsPages(default, segmentSize);
+            var resultSegment = blobServiceClient.GetBlobContainersAsync(BlobContainerTraits.Metadata, blobContainerStates).AsPages(default, segmentSize);
             //Enumerate the blobs containers returned for each page.
-            List<Tenant> tenants = new();
+            List<Archive> archives = new();
             await foreach (Page<BlobContainerItem> blobPage in resultSegment)
             {
                 foreach (BlobContainerItem blobContainerItem in blobPage.Values)
                 {
-                    Tenant tenant = MapTenant(blobContainerItem);
-                    tenants.Add(tenant);
+                    Archive archive = MapArchive(blobContainerItem);
+                    archives.Add(archive);
                 }
             }
-            return tenants;
+            return archives;
         }
 
-        public async Task<bool> BlobContainerExistsAsync(string blobContainerName)
+        public async Task<bool> ArchiveExistsAsync(Guid archiveId)
         {
-            BlobContainerClient blobContainerClient = _context.GetBlobContainerClient(blobContainerName);
+            BlobContainerClient blobContainerClient = _context.GetBlobContainerClient(archiveId.ToString());
 
             return await blobContainerClient.ExistsAsync();
         }
 
-        public async Task DeleteBlobContainerAsync(string blobContainerName)
+        public async Task DeleteArchiveAsync(Guid archiveId)
         {
 
-            BlobContainerClient blobContainerClient = _context.GetBlobContainerClient(blobContainerName);
+            BlobContainerClient blobContainerClient = _context.GetBlobContainerClient(archiveId.ToString());
 
             Response response = await blobContainerClient.DeleteAsync();
 
             _context.CheckResponse(response);
         }
 
-        public async Task UndeleteBlobContainerAsync(string blobContainerName)
+        public async Task UndeleteArchiveAsync(Guid archiveId)
         {
             BlobServiceClient blobServiceClient = _context.GetBlobServiceClient();
 
-            Response<BlobContainerClient> blobContainerResponse = await blobServiceClient.UndeleteBlobContainerAsync(blobContainerName,null);
+            Response<BlobContainerClient> blobContainerResponse = await blobServiceClient.UndeleteBlobContainerAsync(archiveId.ToString(), null);
             Response response = blobContainerResponse.GetRawResponse();
 
             _context.CheckResponse(response);
@@ -74,22 +79,33 @@ namespace Documents.Services.AzureBlobStorage
 
         #endregion
 
-        #region Blob 
+        #region Documents 
 
-        public async Task<HttpStatusCode> UploadAsync(string blobContainerName, string blobName, Stream blobContent)
+        public async Task<HttpStatusCode> UploadDocumentAsync(Guid archiveId, string fileName, Stream fileContent, Guid? folderId = null)
         {
-            BlobClient blobClient = _context.GetBlobClient(blobContainerName, $"{Guid.NewGuid()}_{blobName}");
+            BlobClient blobClient = _context.GetBlobClient(archiveId.ToString(), Guid.NewGuid().ToString());
 
-            Response<BlobContentInfo> blobContentInfo = await blobClient.UploadAsync(blobContent);
+            Dictionary<string, string> blobMetadata = new()
+            {
+                {"display_name", fileName},
+                {"folder_id", folderId.ToString() ?? ""},
+            };
+
+            BlobUploadOptions blobUploadOptions = new()
+            {
+                Metadata = blobMetadata
+            };
+
+            Response<BlobContentInfo> blobContentInfo = await blobClient.UploadAsync(fileContent, blobUploadOptions);
 
             Response response = blobContentInfo.GetRawResponse();
 
             return (HttpStatusCode)response.Status;
         }
 
-        public async Task<IEnumerable<Document>> ListBlobsFlatListingAsync(string blobContainerName, int? segmentSize, bool includeDeleted = false)
+        public async Task<IEnumerable<Document>> GetDocumentsFlatListingAsync(Guid archiveId, int? segmentSize, bool includeDeleted = false)
         {
-            BlobContainerClient blobContainerClient = _context.GetBlobContainerClient(blobContainerName);
+            BlobContainerClient blobContainerClient = _context.GetBlobContainerClient(archiveId.ToString());
 
             // Call the listing operation and return pages of the specified size.
             BlobStates blobStates = includeDeleted ? BlobStates.Deleted : BlobStates.None;
@@ -108,15 +124,15 @@ namespace Documents.Services.AzureBlobStorage
             return documents;
         }
 
-        public async Task<bool> BlobExistsAsync(string blobContainerName, string blobName)
+        public async Task<bool> DocumentExistsAsync(Guid archiveId, Guid documentId)
         {
-            BlobClient blobClient = _context.GetBlobClient(blobContainerName, blobName);
+            BlobClient blobClient = _context.GetBlobClient(archiveId.ToString(), documentId.ToString());
             return await blobClient.ExistsAsync();
         }
 
-        public async Task<byte[]> DownloadBlobAsync(string blobContainerName, string blobName)
+        public async Task<byte[]> DownloadDocumentAsync(Guid archiveId, Guid documentId)
         {
-            BlobClient blobClient = _context.GetBlobClient(blobContainerName, blobName);
+            BlobClient blobClient = _context.GetBlobClient(archiveId.ToString(), documentId.ToString());
 
             Response<BlobDownloadResult> blobDownloadResponse = await blobClient.DownloadContentAsync();
             Response response = blobDownloadResponse.GetRawResponse();
@@ -124,81 +140,93 @@ namespace Documents.Services.AzureBlobStorage
             return blobDownloadResponse.Value.Content.ToArray();
         }
 
-        public async Task DeleteBlobAsync(string blobContainerName, string blobName)
+        public async Task DeleteDocumentAsync(Guid archiveId, Guid documentId)
         {
-            BlobClient blobClient = _context.GetBlobClient(blobContainerName, blobName);
+            BlobClient blobClient = _context.GetBlobClient(archiveId.ToString(), documentId.ToString());
 
             Response response = await blobClient.DeleteAsync();
             if (response.IsError) throw new Exception(response.ReasonPhrase);
         }
 
-        public async Task UndeleteBlobAsync(string blobContainerName, string blobName)
+        public async Task UndeleteDocumentAsync(Guid archiveId, Guid documentId)
         {
-            BlobClient blobClient = _context.GetBlobClient(blobContainerName, blobName);
+            BlobClient blobClient = _context.GetBlobClient(archiveId.ToString(), documentId.ToString());
 
             Response response = await blobClient.UndeleteAsync();
             if (response.IsError) throw new Exception(response.ReasonPhrase);
         }
 
-        public async Task RenameBlobAsync(string blobContainerName, string blobName, string newName)
+        public async Task RenameDocumentAsync(Guid archiveId, Guid documentId, string newDocumentName)
         {
             // source blob
-            BlobClient sourceBlobClient = _context.GetBlobClient(blobContainerName, blobName);
+            BlobClient blobClient = _context.GetBlobClient(archiveId.ToString(), documentId.ToString());
 
-            // destination blob
-            DocumentName sourceBlobName = new(sourceBlobClient.Name);
-            string destinationBlobName = $"{sourceBlobName.Code}_{newName}{sourceBlobName.Extension}";
-            BlobClient destinationBlobClient = _context.GetBlobClient(blobContainerName, destinationBlobName);
-
-            // copy
-            CopyFromUriOperation copyFromUriOperation = await destinationBlobClient.StartCopyFromUriAsync(sourceBlobClient.Uri);
-            await copyFromUriOperation.WaitForCompletionAsync();
+            // destinatio blob metadata
+            Dictionary<string, string> blobMetadata = new()
+            {
+                {"display_name", newDocumentName},
+            };
   
             // delete
-            Response responseDelete = await sourceBlobClient.DeleteAsync();
-            if (responseDelete.IsError) throw new Exception(responseDelete.ReasonPhrase);
+            Response<BlobInfo> responseBlobInfo = await blobClient.SetMetadataAsync(blobMetadata);
+            Response response = responseBlobInfo.GetRawResponse();
+            _context.CheckResponse(response);
         }
 
 
-        public async Task CopyBlobAsync(string blobContainerName, string blobName, string newName)
+        public async Task CopyDocumentAsync(Guid archiveId, Guid documentId, string newDocumentName)
         {
             // source blob
-            BlobClient sourceBlobClient = _context.GetBlobClient(blobContainerName, blobName);
+            BlobClient sourceBlobClient = _context.GetBlobClient(archiveId.ToString(), documentId.ToString());
 
             // destination blob
-            DocumentName sourceBlobName = new(blobName);
-            string destinationBlobName = $"{Guid.NewGuid()}_{newName}{sourceBlobName.Extension}";
-            BlobClient destinationBlobClient = _context.GetBlobClient(blobContainerName, destinationBlobName);
+            BlobClient destinationBlobClient = _context.GetBlobClient(archiveId.ToString(), Guid.NewGuid().ToString());
+
+            // destinatio blob metadata
+            Dictionary<string, string> blobMetadata = new()
+            {
+                {"display_name", newDocumentName},
+            };
+
+            BlobCopyFromUriOptions blobCopyFromUriOptions = new()
+            {
+                Metadata = blobMetadata
+            };
 
             // copy
-            CopyFromUriOperation copyFromUriOperation = await destinationBlobClient.StartCopyFromUriAsync(sourceBlobClient.Uri);
+            CopyFromUriOperation copyFromUriOperation = await destinationBlobClient.StartCopyFromUriAsync(sourceBlobClient.Uri, blobCopyFromUriOptions);
             await copyFromUriOperation.WaitForCompletionAsync();
         }
-
         #endregion
 
         #region Helpers
-        private static Tenant MapTenant(BlobContainerItem pBlobContainerItem)
+        private static Archive MapArchive(BlobContainerItem blobContainerItem)
         {
-            Tenant tenant = new()
+            string? archiveDisplayName = null;
+            if (blobContainerItem.Properties.Metadata != null)
             {
-                Name = pBlobContainerItem.Name,
+                archiveDisplayName = blobContainerItem.Properties.Metadata["display_name"];
+            }
+
+            Archive archive = new()
+            {
+                Id = Guid.Parse(blobContainerItem.Name),
+                Name = archiveDisplayName
             };
-            return tenant;
+            return archive;
         }
 
-        private static Document MapDocument(BlobItem pBlobItem)
+        private static Document MapDocument(BlobItem blobItem)
         {
-            DocumentName documentName = new(pBlobItem.Name);
+            string documentName = blobItem.Metadata["display_Name"];
             Document document = new()
             {
-                Id = pBlobItem.Name,
-                Code = documentName.Code,
-                Name = documentName.Name,
-                Extension = documentName.Extension,
-                ContentLength = pBlobItem.Properties.ContentLength,
-                CreatedOn = pBlobItem.Properties.CreatedOn,
-                LastModified = pBlobItem.Properties.LastModified,
+                Id = blobItem.Name,
+                Name = documentName,
+                Extension = documentName.Contains('.') ? documentName[documentName.LastIndexOf('.')..] : "",
+                ContentLength = blobItem.Properties.ContentLength,
+                CreatedOn = blobItem.Properties.CreatedOn,
+                LastModified = blobItem.Properties.LastModified,
 
             };
             return document;

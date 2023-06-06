@@ -26,7 +26,7 @@ namespace Accounting.Controllers
 
         // POST: Create Loan
         [HttpPost]
-        [Route("loans")]
+        [Route("{tenantId}/loans")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
@@ -50,7 +50,7 @@ namespace Accounting.Controllers
 
         // GET: Get loan(s)
         [HttpGet]
-        [Route("loans")]
+        [Route("{tenantId}/loans")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<IEnumerable<Loan>>> GetAsync([FromQuery] bool includeDeleted = false)
@@ -60,7 +60,7 @@ namespace Accounting.Controllers
 
         // PATCH: update loan
         [HttpPatch]
-        [Route("loans/{loanId}")]
+        [Route("{tenantId}/loans/{loanId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -87,7 +87,7 @@ namespace Accounting.Controllers
 
         // DELETE: delete loan
         [HttpDelete]
-        [Route("loans/{loanId}")]
+        [Route("{tenantId}/loans/{loanId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
@@ -100,7 +100,7 @@ namespace Accounting.Controllers
 
         // POST: undelete loan
         [HttpPost]
-        [Route("loans/{loanId}/undelete")]
+        [Route("{tenantId}/loans/{loanId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]

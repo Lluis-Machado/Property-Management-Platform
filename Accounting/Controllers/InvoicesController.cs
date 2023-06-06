@@ -26,7 +26,7 @@ namespace Accounting.Controllers
 
         // POST: Create Invoice
         [HttpPost]
-        [Route("invoices")]
+        [Route("{tenantId}/invoices")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
@@ -50,7 +50,7 @@ namespace Accounting.Controllers
 
         // GET: Get invoice(s)
         [HttpGet]
-        [Route("invoices")]
+        [Route("{tenantId}/invoices")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<IEnumerable<Invoice>>> GetAsync([FromQuery] bool includeDeleted = false)
@@ -60,7 +60,7 @@ namespace Accounting.Controllers
 
         // PATCH: update invoice
         [HttpPatch]
-        [Route("invoices/{invoiceId}")]
+        [Route("{tenantId}/invoices/{invoiceId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -88,7 +88,7 @@ namespace Accounting.Controllers
 
         // DELETE: delete invoice
         [HttpDelete]
-        [Route("invoices/{invoiceId}")]
+        [Route("{tenantId}/invoices/{invoiceId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
@@ -101,7 +101,7 @@ namespace Accounting.Controllers
 
         // POST: undelete invoice
         [HttpPost]
-        [Route("invoices/{invoiceId}/undelete")]
+        [Route("{tenantId}/invoices/{invoiceId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]

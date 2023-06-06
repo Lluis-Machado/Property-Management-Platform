@@ -24,7 +24,7 @@ namespace Accounting.Controllers
 
         // POST: Create expenseCategory
         [HttpPost]
-        [Route("expenseCategories")]
+        [Route("{tenantId}/expenseCategories")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
@@ -44,7 +44,7 @@ namespace Accounting.Controllers
 
         // GET: Get expenseCategory(s)
         [HttpGet]
-        [Route("expenseCategories")]
+        [Route("{tenantId}/expenseCategories")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<IEnumerable<ExpenseCategory>>> GetAsync([FromQuery] bool includeDeleted = false)
@@ -55,7 +55,7 @@ namespace Accounting.Controllers
 
         // PATCH: update expenseCategory
         [HttpPatch]
-        [Route("expenseCategories/{expenseCategoryId}")]
+        [Route("{tenantId}/expenseCategories/{expenseCategoryId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -79,7 +79,7 @@ namespace Accounting.Controllers
 
         // DELETE: delete expenseCategory
         [HttpDelete]
-        [Route("expenseCategories/{expenseCategoryId}")]
+        [Route("{tenantId}/expenseCategories/{expenseCategoryId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
@@ -92,7 +92,7 @@ namespace Accounting.Controllers
 
         // POST: undelete expenseCategory
         [HttpPost]
-        [Route("expenseCategories/{expenseCategoryId}/undelete")]
+        [Route("{tenantId}/expenseCategories/{expenseCategoryId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]

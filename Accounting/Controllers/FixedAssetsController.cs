@@ -28,7 +28,7 @@ namespace Accounting.Controllers
 
         // POST: Create fixedAsset
         [HttpPost]
-        [Route("fixedAssets")]
+        [Route("{tenantId}/fixedAssets")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
@@ -52,7 +52,7 @@ namespace Accounting.Controllers
 
         // GET: Get fixedAsset(s)
         [HttpGet]
-        [Route("fixedAssets")]
+        [Route("{tenantId}/fixedAssets")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<IEnumerable<FixedAsset>>> GetAsync([FromQuery] bool includeDeleted = false)
@@ -62,7 +62,7 @@ namespace Accounting.Controllers
 
         // PATCH: update fixedAsset
         [HttpPatch]
-        [Route("fixedAssets/{fixedAssetId}")]
+        [Route("{tenantId}/fixedAssets/{fixedAssetId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -92,7 +92,7 @@ namespace Accounting.Controllers
 
         // DELETE: delete fixedAsset
         [HttpDelete]
-        [Route("fixedAssets/{fixedAssetId}")]
+        [Route("{tenantId}/fixedAssets/{fixedAssetId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
@@ -105,7 +105,7 @@ namespace Accounting.Controllers
 
         // POST: undelete fixedAsset
         [HttpPost]
-        [Route("fixedAssets/{fixedAssetId}/undelete")]
+        [Route("{tenantId}/fixedAssets/{fixedAssetId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]

@@ -24,7 +24,7 @@ namespace Accounting.Controllers
 
         // POST: Create businessPartner
         [HttpPost]
-        [Route("businessPartners")]
+        [Route("{tenantId}/businessPartners")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
@@ -44,7 +44,7 @@ namespace Accounting.Controllers
 
         // GET: Get businessPartner(s)
         [HttpGet]
-        [Route("businessPartners")]
+        [Route("{tenantId}/businessPartners")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<IEnumerable<BusinessPartner>>> GetAsync([FromQuery] bool includeDeleted = false)
@@ -54,7 +54,7 @@ namespace Accounting.Controllers
 
         // PATCH: update businessPartner
         [HttpPatch]
-        [Route("businessPartners/{businessPartnerId}")]
+        [Route("{tenantId}/businessPartners/{businessPartnerId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -78,7 +78,7 @@ namespace Accounting.Controllers
 
         // DELETE: delete businessPartner
         [HttpDelete]
-        [Route("businessPartners/{businessPartnerId}")]
+        [Route("{tenantId}/businessPartners/{businessPartnerId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
@@ -91,7 +91,7 @@ namespace Accounting.Controllers
 
         // POST: undelete businessPartner
         [HttpPost]
-        [Route("businessPartners/{businessPartnerId}/undelete")]
+        [Route("{tenantId}/businessPartners/{businessPartnerId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]

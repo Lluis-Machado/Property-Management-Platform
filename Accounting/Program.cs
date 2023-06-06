@@ -41,17 +41,14 @@ builder.Services.AddScoped<IValidator<Invoice>, InvoiceValidator>();
 builder.Services.AddScoped<IInvoiceLineRepository, InvoiceLineRepository>();
 builder.Services.AddScoped<IValidator<InvoiceLine>, InvoiceLineValidator>();
 
-builder.Services.AddScoped<IExpenseTypeRepository, ExpenseTypeRepository>();
-builder.Services.AddScoped<IValidator<ExpenseType>, ExpenseTypeValidator>();
+builder.Services.AddScoped<IExpenseCategoryRepository, ExpenseCategoryRepository>();
+builder.Services.AddScoped<IValidator<ExpenseCategory>, ExpenseTypeValidator>();
 
 builder.Services.AddScoped<IFixedAssetRepository, FixedAssetRepository>();
 builder.Services.AddScoped<IValidator<FixedAsset>, FixedAssetValidator>();
 
 builder.Services.AddScoped<IDepreciationRepository, DepreciationRepository>();
 builder.Services.AddScoped<IValidator<Depreciation>, DepreciationValidator>();
-
-builder.Services.AddScoped<IDepreciationConfigRepository, DepreciationConfigRepository>();
-builder.Services.AddScoped<IValidator<DepreciationConfig>, DepreciationConfigValidator>();
 
 builder.Services.AddControllers();
 

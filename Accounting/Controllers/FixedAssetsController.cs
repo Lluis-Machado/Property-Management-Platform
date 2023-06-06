@@ -13,23 +13,20 @@ namespace Accounting.Controllers
     {
         private readonly IFixedAssetRepository _fixedAssetRepo;
         private readonly IInvoiceRepository _invoiceRepo;
-        private readonly IDepreciationConfigRepository _depreciationConfigRepo;
         private readonly IDepreciationRepository _depreciationRepo;
         private readonly IValidator<FixedAsset> _fixedAssetValidator;
         private readonly ILogger<FixedAssetsController> _logger;
 
-        public FixedAssetsController(IFixedAssetRepository fixedAssetRepo, IInvoiceRepository invoiceRepository, IDepreciationConfigRepository depreciationConfigRepository, IDepreciationRepository depreciationRepository, IValidator<FixedAsset> fixedAssetValidator, ILogger<FixedAssetsController> logger)
+        public FixedAssetsController(IFixedAssetRepository fixedAssetRepo, IInvoiceRepository invoiceRepository, IDepreciationRepository depreciationRepository, IValidator<FixedAsset> fixedAssetValidator, ILogger<FixedAssetsController> logger)
         {
             _fixedAssetRepo = fixedAssetRepo;
             _invoiceRepo = invoiceRepository;
-            _depreciationConfigRepo = depreciationConfigRepository;
             _depreciationRepo = depreciationRepository;
             _fixedAssetValidator = fixedAssetValidator;
             _logger = logger;
         }
 
         // POST: Create fixedAsset
-
         [HttpPost]
         [Route("fixedAssets")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
@@ -49,15 +46,11 @@ namespace Accounting.Controllers
             // invoice validation
             if (!await InvoiceExists(invoiceId)) return NotFound("Invoice not found");
 
-            // depreciationConfig validation
-            if (!await DepreciationConfigExists(depreciationConfigId)) return NotFound("DepreciationConfig not found");
-
             fixedAsset = await _fixedAssetRepo.InsertFixedAssetAsync(fixedAsset);
             return Created($"fixedAssets/{fixedAsset.Id}", fixedAsset);
         }
 
         // GET: Get fixedAsset(s)
-
         [HttpGet]
         [Route("fixedAssets")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -67,29 +60,7 @@ namespace Accounting.Controllers
             return Ok(await _fixedAssetRepo.GetFixedAssetsAsync(includeDeleted));
         }
 
-        // GET: Get fixedAsset(s) with depreciations
-
-        [HttpGet]
-        [Route("fixedAssets/getWithDepreciations")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<FixedAsset>>> GetAsyncWithDepreciations([FromQuery] bool includeDeleted = false)
-        {
-            var fixedAssets = await _fixedAssetRepo.GetFixedAssetsAsync(includeDeleted);
-
-            foreach (var fixedAsset in fixedAssets)
-            {
-                var foundDepreciations = await _depreciationRepo.GetDepreciationByFAandPeriodAsync(fixedAsset.Id, includeDeleted, null, null);
-                fixedAsset.Depreciations = foundDepreciations.ToArray();
-                await _depreciationRepo.UpdateTotalDepreciationForFixedAsset(fixedAsset.Id);
-            }
-
-            return Ok(fixedAssets);
-
-        }
-
         // PATCH: update fixedAsset
-
         [HttpPatch]
         [Route("fixedAssets/{fixedAssetId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -110,9 +81,6 @@ namespace Accounting.Controllers
             // invoice validation
             if (!await InvoiceExists(invoiceId)) return NotFound("Invoice not found");
 
-            // depreciationConfig validation
-            if (!await DepreciationConfigExists(depreciationConfigId)) return NotFound("DepreciationConfig not found");
-
             fixedAsset.Id = fixedAssetId; // copy id to fixedAsset object
 
             await _fixedAssetValidator.ValidateAndThrowAsync(fixedAsset);
@@ -123,7 +91,6 @@ namespace Accounting.Controllers
         }
 
         // DELETE: delete fixedAsset
-
         [HttpDelete]
         [Route("fixedAssets/{fixedAssetId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -137,7 +104,6 @@ namespace Accounting.Controllers
         }
 
         // POST: undelete fixedAsset
-
         [HttpPost]
         [Route("fixedAssets/{fixedAssetId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -154,12 +120,6 @@ namespace Accounting.Controllers
         {
             Invoice? invoice = await _invoiceRepo.GetInvoiceByIdAsync(invoiceId);
             return (invoice != null);
-        }
-
-        private async Task<bool> DepreciationConfigExists(Guid depreciationConfigId)
-        {
-            DepreciationConfig? depreciationConfig = await _depreciationConfigRepo.GetDepreciationConfigByIdAsync(depreciationConfigId);
-            return (depreciationConfig != null && depreciationConfig?.Deleted == false);
         }
     }
 }

@@ -1,30 +1,27 @@
 ﻿namespace Accounting.Models
 {
-    public class InvoiceLine
+    public class InvoiceLine :IAuditable
     {
-        public int LineNumber { get; set; }
-        public string ArticleRefNumber { get; set; }
-        public string ArticleName { get; set; }
+        public Guid Id { get; set; }
+        public Guid InvoiceId { get; set; }
+        public string Description { get; set; }
         public double Tax { get; set; }
         public int Quantity { get; set; }
         public double UnitPrice { get; set; }
         public double TotalPrice { get; set; }
-        public DateTime DateRefFrom { get; set; }
-        public DateTime DateRefTo { get; set; }
-        public Guid ExpenseTypeId { get; set; }
-        public Guid InvoiceId { get; set; }
-
-        public Guid Id { get; set; }
+        public Guid ExpenseCategoryId { get; set; }
+        public DateTime ServiceDateFrom { get; set; }
+        public DateTime ServiceDateTo { get; set; }
         public bool Deleted { get; set; }
-        public DateTime CreationDate { get; set; }
-        public DateTime LastModificationDate { get; set; }
-        public string LastModificationByUser { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime LastModificationAt { get; set; }
+        public string? CreatedBy { get; set; }
+        public string? LastModificationBy { get; set; }
 
         public InvoiceLine()
         {
-            ArticleName = string.Empty;
-            ArticleRefNumber = string.Empty;
-            LastModificationByUser = string.Empty;
+            Description = string.Empty;
+            LastModificationBy = string.Empty;
         }
     }
 }

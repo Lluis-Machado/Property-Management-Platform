@@ -38,7 +38,7 @@ namespace Accounting.Repositories
                 queryBuilder.Append(" ,Deleted");
                 queryBuilder.Append(" ,CreationDate");
                 queryBuilder.Append(" ,LastModificationDate");
-                queryBuilder.Append(" ,LastModificationByUser");
+                queryBuilder.Append(" ,LastModificationBy");
                 queryBuilder.Append(" FROM Invoices ");
                 queryBuilder.Append(" WHERE Id = @invoiceId");
 
@@ -54,18 +54,18 @@ namespace Accounting.Repositories
                 queryBuilder2.Append("SELECT Id");
                 queryBuilder2.Append(" ,LineNumber");
                 queryBuilder2.Append(" ,ArticleRefNumber");
-                queryBuilder2.Append(" ,ArticleName");
+                queryBuilder2.Append(" ,Description");
                 queryBuilder2.Append(" ,Tax");
                 queryBuilder2.Append(" ,Quantity");
                 queryBuilder2.Append(" ,UnitPrice");
                 queryBuilder2.Append(" ,TotalPrice");
-                queryBuilder2.Append(" ,DateRefFrom");
-                queryBuilder2.Append(" ,DateRefTo");
-                queryBuilder2.Append(" ,ExpenseTypeId");
+                queryBuilder2.Append(" ,ServiceDateFrom");
+                queryBuilder2.Append(" ,ServiceDateTo");
+                queryBuilder2.Append(" ,ExpenseCategoryId");
                 queryBuilder2.Append(" ,Deleted");
                 queryBuilder2.Append(" ,CreationDate");
                 queryBuilder2.Append(" ,LastModificationDate");
-                queryBuilder2.Append(" ,LastModificationByUser");
+                queryBuilder2.Append(" ,LastModificationBy");
                 queryBuilder2.Append(" ,InvoiceId ");
                 queryBuilder2.Append(" FROM InvoiceLines");
                 queryBuilder2.Append(" WHERE InvoiceId = @invoiceId");
@@ -110,7 +110,7 @@ namespace Accounting.Repositories
                 queryBuilder.Append(" ,Deleted");
                 queryBuilder.Append(" ,CreationDate");
                 queryBuilder.Append(" ,LastModificationDate");
-                queryBuilder.Append(" ,LastModificationByUser");
+                queryBuilder.Append(" ,LastModificationBy");
                 queryBuilder.Append(" FROM Invoices");
                 if (includeDeleted == false) queryBuilder.Append(" WHERE Deleted = 0");
 
@@ -123,18 +123,18 @@ namespace Accounting.Repositories
                     queryBuilder2.Append("SELECT ID");
                     queryBuilder2.Append(" ,LineNumber");
                     queryBuilder2.Append(" ,ArticleRefNumber");
-                    queryBuilder2.Append(" ,ArticleName");
+                    queryBuilder2.Append(" ,Description");
                     queryBuilder2.Append(" ,Tax");
                     queryBuilder2.Append(" ,Quantity");
                     queryBuilder2.Append(" ,UnitPrice");
                     queryBuilder2.Append(" ,TotalPrice");
-                    queryBuilder2.Append(" ,DateRefFrom");
-                    queryBuilder2.Append(" ,DateRefTo");
-                    queryBuilder2.Append(" ,ExpenseTypeId");
+                    queryBuilder2.Append(" ,ServiceDateFrom");
+                    queryBuilder2.Append(" ,ServiceDateTo");
+                    queryBuilder2.Append(" ,ExpenseCategoryId");
                     queryBuilder2.Append(" ,Deleted");
                     queryBuilder2.Append(" ,CreationDate");
                     queryBuilder2.Append(" ,LastModificationDate");
-                    queryBuilder2.Append(" ,LastModificationByUser");
+                    queryBuilder2.Append(" ,LastModificationBy");
                     queryBuilder2.Append(" ,InvoiceId");
                     queryBuilder2.Append(" FROM InvoiceLines");
                     queryBuilder2.Append(" WHERE InvoiceId = @Id");
@@ -179,7 +179,7 @@ namespace Accounting.Repositories
                     invoice.Currency,
                     invoice.GrossAmount,
                     invoice.NetAmount,
-                    invoice.LastModificationByUser,
+                    invoice.LastModificationBy,
                 };
                 StringBuilder queryBuilder = new();
                 queryBuilder.Append("INSERT INTO Invoices (");
@@ -189,7 +189,7 @@ namespace Accounting.Repositories
                 queryBuilder.Append(" ,Currency");
                 queryBuilder.Append(" ,GrossAmount");
                 queryBuilder.Append(" ,NetAmount");
-                queryBuilder.Append(" ,LastModificationByUser");
+                queryBuilder.Append(" ,LastModificationBy");
                 queryBuilder.Append(" )OUTPUT INSERTED.Id");
                 queryBuilder.Append(" ,INSERTED.BusinessPartnerId");
                 queryBuilder.Append(" ,INSERTED.RefNumber");
@@ -200,7 +200,7 @@ namespace Accounting.Repositories
                 queryBuilder.Append(" ,INSERTED.Deleted");
                 queryBuilder.Append(" ,INSERTED.CreationDate");
                 queryBuilder.Append(" ,INSERTED.LastModificationDate");
-                queryBuilder.Append(" ,INSERTED.LastModificationByUser");
+                queryBuilder.Append(" ,INSERTED.LastModificationBy");
                 queryBuilder.Append(" VALUES(");
                 queryBuilder.Append(" @BusinessPartnerId");
                 queryBuilder.Append(" ,@RefNumber");
@@ -208,7 +208,7 @@ namespace Accounting.Repositories
                 queryBuilder.Append(" ,@Currency");
                 queryBuilder.Append(" ,@GrossAmount");
                 queryBuilder.Append(" ,@NetAmount");
-                queryBuilder.Append(" ,@LastModificationByUser");
+                queryBuilder.Append(" ,@LastModificationBy");
                 queryBuilder.Append(" )");
 
                 Invoice invoiceResponse = await connection.QuerySingleAsync<Invoice>(queryBuilder.ToString(), parameters, tran);
@@ -220,61 +220,53 @@ namespace Accounting.Repositories
                     var lineParameters = new
                     {
                         invoiceLine.InvoiceId,
-                        invoiceLine.LineNumber,
-                        invoiceLine.ArticleRefNumber,
-                        invoiceLine.ArticleName,
+                        invoiceLine.Description,
                         invoiceLine.Tax,
                         invoiceLine.Quantity,
                         invoiceLine.UnitPrice,
                         invoiceLine.TotalPrice,
-                        invoiceLine.DateRefFrom,
-                        invoiceLine.DateRefTo,
-                        invoiceLine.ExpenseTypeId,
-                        invoiceLine.LastModificationByUser,
+                        invoiceLine.ServiceDateFrom,
+                        invoiceLine.ServiceDateTo,
+                        invoiceLine.ExpenseCategoryId,
+                        invoiceLine.LastModificationBy,
                     };
                     StringBuilder lineQueryBuilder = new();
                     lineQueryBuilder.Append("INSERT INTO InvoiceLines (");
                     lineQueryBuilder.Append(" InvoiceId");
-                    lineQueryBuilder.Append(" ,LineNumber");
-                    lineQueryBuilder.Append(" ,ArticleRefNumber");
-                    lineQueryBuilder.Append(" ,ArticleName");
+                    lineQueryBuilder.Append(" ,Description");
                     lineQueryBuilder.Append(" ,Tax");
                     lineQueryBuilder.Append(" ,Quantity");
                     lineQueryBuilder.Append(" ,UnitPrice");
                     lineQueryBuilder.Append(" ,TotalPrice");
-                    lineQueryBuilder.Append(" ,DateRefFrom");
-                    lineQueryBuilder.Append(" ,DateRefTo");
-                    lineQueryBuilder.Append(" ,ExpenseTypeId");
-                    lineQueryBuilder.Append(" ,LastModificationByUser");
+                    lineQueryBuilder.Append(" ,ServiceDateFrom");
+                    lineQueryBuilder.Append(" ,ServiceDateTo");
+                    lineQueryBuilder.Append(" ,ExpenseCategoryId");
+                    lineQueryBuilder.Append(" ,LastModificationBy");
                     lineQueryBuilder.Append(" )OUTPUT INSERTED.Id");
-                    lineQueryBuilder.Append(" ,INSERTED.LineNumber");
-                    lineQueryBuilder.Append(" ,INSERTED.ArticleRefNumber");
-                    lineQueryBuilder.Append(" ,INSERTED.ArticleName");
+                    lineQueryBuilder.Append(" ,INSERTED.Description");
                     lineQueryBuilder.Append(" ,INSERTED.Tax");
                     lineQueryBuilder.Append(" ,INSERTED.Quantity");
                     lineQueryBuilder.Append(" ,INSERTED.UnitPrice");
                     lineQueryBuilder.Append(" ,INSERTED.TotalPrice");
-                    lineQueryBuilder.Append(" ,INSERTED.DateRefFrom");
-                    lineQueryBuilder.Append(" ,INSERTED.DateRefTo");
-                    lineQueryBuilder.Append(" ,INSERTED.ExpenseTypeId");
+                    lineQueryBuilder.Append(" ,INSERTED.ServiceDateFrom");
+                    lineQueryBuilder.Append(" ,INSERTED.ServiceDateTo");
+                    lineQueryBuilder.Append(" ,INSERTED.ExpenseCategoryId");
                     lineQueryBuilder.Append(" ,INSERTED.InvoiceId");
                     lineQueryBuilder.Append(" ,INSERTED.Deleted");
                     lineQueryBuilder.Append(" ,INSERTED.CreationDate");
                     lineQueryBuilder.Append(" ,INSERTED.LastModificationDate");
-                    lineQueryBuilder.Append(" ,INSERTED.LastModificationByUser");
+                    lineQueryBuilder.Append(" ,INSERTED.LastModificationBy");
                     lineQueryBuilder.Append(" VALUES(");
                     lineQueryBuilder.Append(" @InvoiceId");
-                    lineQueryBuilder.Append(" ,@LineNumber");
-                    lineQueryBuilder.Append(" ,@ArticleRefNumber");
-                    lineQueryBuilder.Append(" ,@ArticleName");
+                    lineQueryBuilder.Append(" ,@Description");
                     lineQueryBuilder.Append(" ,@Tax");
                     lineQueryBuilder.Append(" ,@Quantity");
                     lineQueryBuilder.Append(" ,@UnitPrice");
                     lineQueryBuilder.Append(" ,@TotalPrice");
-                    lineQueryBuilder.Append(" ,@DateRefFrom");
-                    lineQueryBuilder.Append(" ,@DateRefTo");
-                    lineQueryBuilder.Append(" ,@ExpenseTypeId");
-                    lineQueryBuilder.Append(" ,@LastModificationByUser");
+                    lineQueryBuilder.Append(" ,@ServiceDateFrom");
+                    lineQueryBuilder.Append(" ,@ServiceDateTo");
+                    lineQueryBuilder.Append(" ,@ExpenseCategoryId");
+                    lineQueryBuilder.Append(" ,@LastModificationBy");
                     lineQueryBuilder.Append(" )");
 
                     lines.Add(await connection.QuerySingleAsync<InvoiceLine>(lineQueryBuilder.ToString(), lineParameters, tran));
@@ -364,7 +356,7 @@ namespace Accounting.Repositories
                     invoice.GrossAmount,
                     invoice.NetAmount,
                     invoice.Deleted,
-                    invoice.LastModificationByUser,
+                    invoice.LastModificationBy,
                     LastModificationDate = DateTime.Now,
                 };
 
@@ -377,7 +369,7 @@ namespace Accounting.Repositories
                 queryBuilder.Append(" ,GrossAmount = @GrossAmount");
                 queryBuilder.Append(" ,NetAmount = @NetAmount");
                 queryBuilder.Append(" ,Deleted = @Deleted");
-                queryBuilder.Append(" ,LastModificationByUser = @LastModificationByUser");
+                queryBuilder.Append(" ,LastModificationBy = @LastModificationBy");
                 queryBuilder.Append(" ,LastModificationDate = @LastModificationDate");
                 queryBuilder.Append(" WHERE Id = @Id");
 
@@ -389,45 +381,43 @@ namespace Accounting.Repositories
                     var lineParameters = new
                     {
                         invoiceLine.InvoiceId,
-                        invoiceLine.LineNumber,
-                        invoiceLine.ArticleRefNumber,
-                        invoiceLine.ArticleName,
+                        invoiceLine.Description,
                         invoiceLine.Tax,
                         invoiceLine.Quantity,
                         invoiceLine.UnitPrice,
                         invoiceLine.TotalPrice,
-                        invoiceLine.DateRefFrom,
-                        invoiceLine.DateRefTo,
-                        invoiceLine.ExpenseTypeId,
-                        invoiceLine.LastModificationByUser,
+                        invoiceLine.ServiceDateFrom,
+                        invoiceLine.ServiceDateTo,
+                        invoiceLine.ExpenseCategoryId,
+                        invoiceLine.LastModificationBy,
                     };
                     StringBuilder lineQueryBuilder = new();
                     lineQueryBuilder.Append("INSERT INTO InvoiceLines (");
                     lineQueryBuilder.Append(" LineNumber");
                     lineQueryBuilder.Append(" ,InvoiceId");
                     lineQueryBuilder.Append(" ,ArticleRefNumber");
-                    lineQueryBuilder.Append(" ,ArticleName");
+                    lineQueryBuilder.Append(" ,Description");
                     lineQueryBuilder.Append(" ,Tax");
                     lineQueryBuilder.Append(" ,Quantity");
                     lineQueryBuilder.Append(" ,UnitPrice");
                     lineQueryBuilder.Append(" ,TotalPrice");
-                    lineQueryBuilder.Append(" ,DateRefFrom");
-                    lineQueryBuilder.Append(" ,DateRefTo");
-                    lineQueryBuilder.Append(" ,ExpenseTypeId");
-                    lineQueryBuilder.Append(" ,LastModificationByUser");
+                    lineQueryBuilder.Append(" ,ServiceDateFrom");
+                    lineQueryBuilder.Append(" ,ServiceDateTo");
+                    lineQueryBuilder.Append(" ,ExpenseCategoryId");
+                    lineQueryBuilder.Append(" ,LastModificationBy");
                     lineQueryBuilder.Append(" )OUTPUT INSERTED.Id VALUES(");
                     lineQueryBuilder.Append(" @LineNumber");
                     lineQueryBuilder.Append(" ,@InvoiceId");
                     lineQueryBuilder.Append(" ,@ArticleRefNumber");
-                    lineQueryBuilder.Append(" ,@ArticleName");
+                    lineQueryBuilder.Append(" ,@Description");
                     lineQueryBuilder.Append(" ,@Tax");
                     lineQueryBuilder.Append(" ,@Quantity");
                     lineQueryBuilder.Append(" ,@UnitPrice");
                     lineQueryBuilder.Append(" ,@TotalPrice");
-                    lineQueryBuilder.Append(" ,@DateRefFrom");
-                    lineQueryBuilder.Append(" ,@DateRefTo");
-                    lineQueryBuilder.Append(" ,@ExpenseTypeId");
-                    lineQueryBuilder.Append(" ,@LastModificationByUser");
+                    lineQueryBuilder.Append(" ,@ServiceDateFrom");
+                    lineQueryBuilder.Append(" ,@ServiceDateTo");
+                    lineQueryBuilder.Append(" ,@ExpenseCategoryId");
+                    lineQueryBuilder.Append(" ,@LastModificationBy");
                     lineQueryBuilder.Append(" )");
 
                     await connection.QuerySingleAsync<Guid>(lineQueryBuilder.ToString(), lineParameters, tran);

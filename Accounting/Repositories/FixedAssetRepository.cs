@@ -23,8 +23,8 @@ namespace Accounting.Repositories
             queryBuilder.Append("SELECT Id");
             queryBuilder.Append(" ,InvoiceId");
             queryBuilder.Append(" ,Name");
-            queryBuilder.Append(" ,ActivationDate");
-            queryBuilder.Append(" ,ActivationAmount");
+            queryBuilder.Append(" ,CapitalizationDate");
+            queryBuilder.Append(" ,AcquisitionAndProductionCosts");
             queryBuilder.Append(" ,DepreciatedAmount");
             queryBuilder.Append(" ,DepreciationConfigId");
             queryBuilder.Append(" ,DepreciationAmountPercent");
@@ -33,7 +33,7 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,Deleted");
             queryBuilder.Append(" ,CreationDate");
             queryBuilder.Append(" ,LastModificationDate");
-            queryBuilder.Append(" ,LastModificationByUser");
+            queryBuilder.Append(" ,LastModificationBy");
             queryBuilder.Append(" FROM FixedAssets");
             queryBuilder.Append(" WHERE Id = @fixedAssetId");
 
@@ -48,8 +48,8 @@ namespace Accounting.Repositories
             queryBuilder.Append("SELECT Id");
             queryBuilder.Append(" ,InvoiceId");
             queryBuilder.Append(" ,Name");
-            queryBuilder.Append(" ,ActivationDate");
-            queryBuilder.Append(" ,ActivationAmount");
+            queryBuilder.Append(" ,CapitalizationDate");
+            queryBuilder.Append(" ,AcquisitionAndProductionCosts");
             queryBuilder.Append(" ,DepreciatedAmount");
             queryBuilder.Append(" ,DepreciationConfigId");
             queryBuilder.Append(" ,DepreciationAmountPercent");
@@ -58,7 +58,7 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,Deleted");
             queryBuilder.Append(" ,CreationDate");
             queryBuilder.Append(" ,LastModificationDate");
-            queryBuilder.Append(" ,LastModificationByUser");
+            queryBuilder.Append(" ,LastModificationBy");
             queryBuilder.Append(" FROM FixedAssets");
             if (includeDeleted == false) queryBuilder.Append(" WHERE Deleted = 0");
 
@@ -73,50 +73,38 @@ namespace Accounting.Repositories
             var parameters = new
             {
                 fixedAsset.InvoiceId,
-                fixedAsset.Name,
-                fixedAsset.ActivationDate,
-                fixedAsset.ActivationAmount,
-                fixedAsset.DepreciationConfigId,
+                fixedAsset.Description,
+                fixedAsset.CapitalizationDate,
+                fixedAsset.AcquisitionAndProductionCosts,
                 fixedAsset.DepreciationAmountPercent,
-                fixedAsset.DepreciationMaxYears,
-                fixedAsset.EstimatedUsefulLife,
-                fixedAsset.LastModificationByUser,
+                fixedAsset.LastModificationBy,
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("INSERT INTO FixedAssets (");
             queryBuilder.Append(" InvoiceId");
             queryBuilder.Append(" ,Name");
-            queryBuilder.Append(" ,ActivationDate");
-            queryBuilder.Append(" ,ActivationAmount");
-            queryBuilder.Append(" ,DepreciationConfigId");
+            queryBuilder.Append(" ,CapitalizationDate");
+            queryBuilder.Append(" ,AcquisitionAndProductionCosts");
             queryBuilder.Append(" ,DepreciationAmountPercent");
-            queryBuilder.Append(" ,DepreciationMaxYears");
-            queryBuilder.Append(" ,EstimatedUsefulLife");
-            queryBuilder.Append(" ,LastModificationByUser");
+            queryBuilder.Append(" ,LastModificationBy");
             queryBuilder.Append(" )OUTPUT INSERTED.Id");
             queryBuilder.Append(" ,INSERTED.InvoiceId");
             queryBuilder.Append(" ,INSERTED.Name");
-            queryBuilder.Append(" ,INSERTED.ActivationDate");
-            queryBuilder.Append(" ,INSERTED.ActivationAmount");
+            queryBuilder.Append(" ,INSERTED.CapitalizationDate");
+            queryBuilder.Append(" ,INSERTED.AcquisitionAndProductionCosts");
             queryBuilder.Append(" ,INSERTED.DepreciatedAmount");
-            queryBuilder.Append(" ,INSERTED.DepreciationConfigId");
             queryBuilder.Append(" ,INSERTED.DepreciationAmountPercent");
-            queryBuilder.Append(" ,INSERTED.DepreciationMaxYears");
-            queryBuilder.Append(" ,INSERTED.EstimatedUsefulLife");
             queryBuilder.Append(" ,INSERTED.Deleted");
             queryBuilder.Append(" ,INSERTED.CreationDate");
             queryBuilder.Append(" ,INSERTED.LastModificationDate");
-            queryBuilder.Append(" ,INSERTED.LastModificationByUser");
+            queryBuilder.Append(" ,INSERTED.LastModificationBy");
             queryBuilder.Append(" VALUES(");
             queryBuilder.Append(" @InvoiceId");
             queryBuilder.Append(" ,@Name");
-            queryBuilder.Append(" ,@ActivationDate");
-            queryBuilder.Append(" ,@ActivationAmount");
-            queryBuilder.Append(" ,@DepreciationConfigId");
+            queryBuilder.Append(" ,@CapitalizationDate");
+            queryBuilder.Append(" ,@AcquisitionAndProductionCosts");
             queryBuilder.Append(" ,@DepreciationAmountPercent");
-            queryBuilder.Append(" ,@DepreciationMaxYears");
-            queryBuilder.Append(" ,@EstimatedUsefulLife");
-            queryBuilder.Append(" ,@LastModificationByUser");
+            queryBuilder.Append(" ,@LastModificationBy");
             queryBuilder.Append(" )");
 
             return await _context
@@ -148,29 +136,21 @@ namespace Accounting.Repositories
             {
                 fixedAsset.Id,
                 fixedAsset.InvoiceId,
-                fixedAsset.Name,
-                fixedAsset.ActivationDate,
-                fixedAsset.ActivationAmount,
-                fixedAsset.DepreciatedAmount,
-                fixedAsset.DepreciationConfigId,
-                fixedAsset.DepreciationMaxYears,
-                fixedAsset.EstimatedUsefulLife,
+                fixedAsset.Description,
+                fixedAsset.CapitalizationDate,
+                fixedAsset.AcquisitionAndProductionCosts,
                 fixedAsset.Deleted,
-                fixedAsset.LastModificationByUser,
+                fixedAsset.LastModificationBy,
                 LastModificationDate = DateTime.Now,
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("UPDATE FixedAssets");
             queryBuilder.Append(" SET InvoiceId = @InvoiceId");
-            queryBuilder.Append(" ,Name = @Name");
-            queryBuilder.Append(" ,ActivationDate = @ActivationDate");
-            queryBuilder.Append(" ,ActivationAmount = @ActivationAmount");
-            queryBuilder.Append(" ,DepreciatedAmount = @DepreciatedAmount");
-            queryBuilder.Append(" ,DepreciationConfigId = @DepreciationConfigId");
-            queryBuilder.Append(" ,DepreciationMaxYears = @DepreciationMaxYears");
-            queryBuilder.Append(" ,EstimatedUsefulLife = @EstimatedUsefulLife");
+            queryBuilder.Append(" ,Description = @Description");
+            queryBuilder.Append(" ,CapitalizationDate = @CapitalizationDate");
+            queryBuilder.Append(" ,AcquisitionAndProductionCosts = @AcquisitionAndProductionCosts");
             queryBuilder.Append(" ,Deleted = @Deleted");
-            queryBuilder.Append(" ,LastModificationByUser = @LastModificationByUser");
+            queryBuilder.Append(" ,LastModificationBy = @LastModificationBy");
             queryBuilder.Append(" ,LastModificationDate = @LastModificationDate");
             queryBuilder.Append(" WHERE Id = @Id");
 

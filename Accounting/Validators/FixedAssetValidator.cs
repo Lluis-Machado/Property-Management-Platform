@@ -11,23 +11,19 @@ namespace Accounting.Validators
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty");
 
 
-            RuleFor(Asset => Asset.Name)
+            RuleFor(Asset => Asset.Description)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty")
                 .Matches(@"^[\p{L}\s]+$").WithMessage("{PropertyName} cannot contain special characters")
                 .Matches(@"^[\p{L}\s]{2,256}$").WithMessage("{PropertyName} has to be between 2 and 256 characters long");
 
 
-            RuleFor(Asset => Asset.ActivationDate)
+            RuleFor(Asset => Asset.CapitalizationDate)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty");
 
 
-            RuleFor(Asset => Asset.ActivationAmount)
+            RuleFor(Asset => Asset.AcquisitionAndProductionCosts)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty")
                 .GreaterThan(0).WithMessage("{PropertyName} has to be greater than 0");
-
-
-            RuleFor(Asset => Asset.DepreciationConfigId)
-                .NotEmpty().WithMessage("{PropertyName} cannot be empty");
         }
     }
 }

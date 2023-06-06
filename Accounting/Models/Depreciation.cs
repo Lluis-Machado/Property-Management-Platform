@@ -1,20 +1,20 @@
 ﻿namespace Accounting.Models
 {
-    public class Depreciation
+    public class Depreciation :IAuditable
     {
-        public Guid FixedAssetId { get; set; }
-        public DateTime PeriodStart { get; set; }
-        public DateTime PeriodEnd { get; set; }
-        public double Amount { get; set; }
         public Guid Id { get; set; }
+        public Guid FixedAssetId { get; set; }
+        public Guid PeriodId { get; set; }
+        public double Amount { get; set; }
         public bool Deleted { get; set; }
-        public DateTime CreationDate { get; set; }
-        public DateTime LastModificationDate { get; set; }
-        public string LastModificationByUser { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime LastModificationAt { get; set; }
+        public string? CreatedBy { get; set; }
+        public string? LastModificationBy { get; set; }
 
         public Depreciation()
         {
-            LastModificationByUser = string.Empty;
+            LastModificationBy = string.Empty;
         }
     }
 }

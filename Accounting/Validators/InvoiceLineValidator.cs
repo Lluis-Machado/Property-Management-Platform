@@ -7,10 +7,7 @@ namespace Accounting.Validators
     {
         public InvoiceLineValidator()
         {
-            RuleFor(Line => Line.ArticleRefNumber)
-                .NotEmpty().WithMessage("{PropertyName} cannot be empty");
-
-            RuleFor(Line => Line.ArticleName)
+            RuleFor(Line => Line.Description)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty")
                 .Matches(@"^[\p{Ll}\s]+$").WithMessage("{PropertyName} cannot contain special characters")
                 .Matches(@"^[\p{Ll}\s]{2,256}$").WithMessage("{PropertyName} has to be between 2 and 256 characters long");

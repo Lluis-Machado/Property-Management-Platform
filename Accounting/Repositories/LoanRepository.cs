@@ -29,7 +29,7 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,Deleted");
             queryBuilder.Append(" ,CreationDate");
             queryBuilder.Append(" ,LastModificationDate");
-            queryBuilder.Append(" ,LastModificationByUser");
+            queryBuilder.Append(" ,LastModificationBy");
             queryBuilder.Append(" FROM Loans");
             queryBuilder.Append(" WHERE Id = @loanId");
 
@@ -49,7 +49,7 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,Deleted");
             queryBuilder.Append(" ,CreationDate");
             queryBuilder.Append(" ,LastModificationDate");
-            queryBuilder.Append(" ,LastModificationByUser");
+            queryBuilder.Append(" ,LastModificationBy");
             queryBuilder.Append(" FROM Loans");
             if (includeDeleted == false) queryBuilder.Append(" WHERE Deleted = 0");
 
@@ -67,7 +67,7 @@ namespace Accounting.Repositories
                 loan.Concept,
                 loan.Amount,
                 loan.AmountPaid,
-                loan.LastModificationByUser,
+                loan.LastModificationBy,
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("INSERT INTO Loans (");
@@ -75,7 +75,7 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,Concept");
             queryBuilder.Append(" ,Amount");
             queryBuilder.Append(" ,AmountPaid");
-            queryBuilder.Append(" ,LastModificationByUser");
+            queryBuilder.Append(" ,LastModificationBy");
             queryBuilder.Append(" )OUTPUT INSERTED.Id");
             queryBuilder.Append(" ,INSERTED.BusinessPartnerId");
             queryBuilder.Append(" ,INSERTED.Concept");
@@ -84,13 +84,13 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,INSERTED.Deleted");
             queryBuilder.Append(" ,INSERTED.CreationDate");
             queryBuilder.Append(" ,INSERTED.LastModificationDate");
-            queryBuilder.Append(" ,INSERTED.LastModificationByUser");
+            queryBuilder.Append(" ,INSERTED.LastModificationBy");
             queryBuilder.Append(" VALUES(");
             queryBuilder.Append(" @BusinessPartnerId");
             queryBuilder.Append(" ,@Concept");
             queryBuilder.Append(" ,@Amount");
             queryBuilder.Append(" ,@AmountPaid");
-            queryBuilder.Append(" ,@LastModificationByUser");
+            queryBuilder.Append(" ,@LastModificationBy");
             queryBuilder.Append(" )");
 
             return await _context
@@ -126,7 +126,7 @@ namespace Accounting.Repositories
                 loan.Deleted,
                 loan.Amount,
                 loan.AmountPaid,
-                loan.LastModificationByUser,
+                loan.LastModificationBy,
                 LastModificationDate = DateTime.Now,
             };
             StringBuilder queryBuilder = new();
@@ -136,7 +136,7 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,Deleted = @Deleted");
             queryBuilder.Append(" ,Amount = @Amount");
             queryBuilder.Append(" ,AmountPaid = @AmountPaid");
-            queryBuilder.Append(" ,LastModificationByUser = @LastModificationByUser");
+            queryBuilder.Append(" ,LastModificationBy = @LastModificationBy");
             queryBuilder.Append(" ,LastModificationDate = @LastModificationDate");
             queryBuilder.Append(" WHERE Id = @Id");
 

@@ -22,13 +22,13 @@ namespace Accounting.Repositories
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");
             queryBuilder.Append(" ,FixedAssetId");
-            queryBuilder.Append(" ,PeriodStart");
+            queryBuilder.Append(" ,PeriodId");
             queryBuilder.Append(" ,PeriodEnd");
             queryBuilder.Append(" ,Amount");
             queryBuilder.Append(" ,Deleted");
             queryBuilder.Append(" ,CreationDate");
             queryBuilder.Append(" ,LastModificationDate");
-            queryBuilder.Append(" ,LastModificationByUser");
+            queryBuilder.Append(" ,LastModificationBy");
             queryBuilder.Append(" FROM Depreciations");
             queryBuilder.Append(" WHERE Id = @depreciationId");
 
@@ -37,47 +37,18 @@ namespace Accounting.Repositories
                 QuerySingleAsync<Depreciation>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<IEnumerable<Depreciation>> GetDepreciationByFAandPeriodAsync(Guid fixedAssetId, bool includeDeleted, DateTime? periodStart, DateTime? periodEnd)
-        {
-            var parameters = new
-            {
-                fixedAssetId,
-                pS = periodStart != null ? ((DateTime)periodStart).ToString("yyyyMMdd") : null,
-                pE = periodEnd != null ? ((DateTime)periodEnd).ToString("yyyyMMdd") : null,
-            };
-            StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT Id");
-            queryBuilder.Append(" ,FixedAssetId");
-            queryBuilder.Append(" ,PeriodStart");
-            queryBuilder.Append(" ,PeriodEnd");
-            queryBuilder.Append(" ,Amount");
-            queryBuilder.Append(" ,Deleted");
-            queryBuilder.Append(" ,CreationDate");
-            queryBuilder.Append(" ,LastModificationDate");
-            queryBuilder.Append(" ,LastModificationByUser");
-            queryBuilder.Append(" FROM Depreciations");
-            queryBuilder.Append(" WHERE FixedAssetId = @fixedAssetId");
-            if (includeDeleted == false) queryBuilder.Append(" AND Deleted = 0");
-            if (periodStart != null) queryBuilder.Append(" AND PeriodStart >= @pS");
-            if (periodEnd != null) queryBuilder.Append(" AND PeriodEnd <= @pE");
-
-            return await _context.
-                CreateConnection().
-                QueryAsync<Depreciation>(queryBuilder.ToString(), parameters);
-        }
-
         public async Task<IEnumerable<Depreciation>> GetDepreciationsAsync(bool includeDeleted)
         {
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");
             queryBuilder.Append(" ,FixedAssetId");
-            queryBuilder.Append(" ,PeriodStart");
+            queryBuilder.Append(" ,PeriodId");
             queryBuilder.Append(" ,PeriodEnd");
             queryBuilder.Append(" ,Amount");
             queryBuilder.Append(" ,Deleted");
             queryBuilder.Append(" ,CreationDate");
             queryBuilder.Append(" ,LastModificationDate");
-            queryBuilder.Append(" ,LastModificationByUser");
+            queryBuilder.Append(" ,LastModificationBy");
             queryBuilder.Append(" FROM Depreciations");
             if (includeDeleted == false) queryBuilder.Append(" WHERE Deleted = 0");
 
@@ -92,33 +63,29 @@ namespace Accounting.Repositories
             var parameters = new
             {
                 depreciation.FixedAssetId,
-                depreciation.PeriodStart,
-                depreciation.PeriodEnd,
+                depreciation.PeriodId,
                 depreciation.Amount,
-                depreciation.LastModificationByUser,
+                depreciation.LastModificationBy,
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("INSERT INTO Depreciations (");
             queryBuilder.Append(" FixedAssetId");
-            queryBuilder.Append(" ,PeriodStart");
-            queryBuilder.Append(" ,PeriodEnd");
+            queryBuilder.Append(" ,PeriodId");
             queryBuilder.Append(" ,Amount");
-            queryBuilder.Append(" ,LastModificationByUser");
+            queryBuilder.Append(" ,LastModificationBy");
             queryBuilder.Append(" )OUTPUT INSERTED.Id");
             queryBuilder.Append(" ,INSERTED.FixedAssetId");
-            queryBuilder.Append(" ,INSERTED.PeriodStart");
-            queryBuilder.Append(" ,INSERTED.PeriodEnd");
+            queryBuilder.Append(" ,INSERTED.PeriodId");
             queryBuilder.Append(" ,INSERTED.Amount");
             queryBuilder.Append(" ,INSERTED.Deleted");
             queryBuilder.Append(" ,INSERTED.CreationDate");
             queryBuilder.Append(" ,INSERTED.LastModificationDate");
-            queryBuilder.Append(" ,INSERTED.LastModificationByUser");
+            queryBuilder.Append(" ,INSERTED.LastModificationBy");
             queryBuilder.Append(" VALUES(");
             queryBuilder.Append(" @FixedAssetId");
-            queryBuilder.Append(" ,@PeriodStart");
-            queryBuilder.Append(" ,@PeriodEnd");
+            queryBuilder.Append(" ,@PeriodId");
             queryBuilder.Append(" ,@Amount");
-            queryBuilder.Append(" ,@LastModificationByUser");
+            queryBuilder.Append(" ,@LastModificationBy");
             queryBuilder.Append(" )");
 
             return await _context
@@ -150,22 +117,20 @@ namespace Accounting.Repositories
             {
                 depreciation.Id,
                 depreciation.FixedAssetId,
-                depreciation.PeriodStart,
-                depreciation.PeriodEnd,
+                depreciation.PeriodId,
                 depreciation.Amount,
                 depreciation.Deleted,
-                depreciation.LastModificationByUser,
+                depreciation.LastModificationBy,
                 LastModificationDate = DateTime.Now,
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("UPDATE Depreciations ");
             queryBuilder.Append("SET FixedAssetId = @FixedAssetId ");
-            queryBuilder.Append(" ,PeriodStart = @PeriodStart ");
-            queryBuilder.Append(" ,PeriodEnd = @PeriodEnd ");
+            queryBuilder.Append(" ,PeriodId = @PeriodId ");
             queryBuilder.Append(" ,Amount = @Amount ");
             queryBuilder.Append(" ,Deleted = @Deleted ");
             queryBuilder.Append(" ,LastModificationDate = @LastModificationDate ");
-            queryBuilder.Append(" ,LastModificationByUser = @LastModificationByUser ");
+            queryBuilder.Append(" ,LastModificationBy = @LastModificationBy ");
             queryBuilder.Append(" WHERE Id = @Id ");
 
             return await _context

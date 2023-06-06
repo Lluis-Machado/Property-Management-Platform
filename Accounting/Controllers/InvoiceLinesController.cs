@@ -13,11 +13,11 @@ namespace Accounting.Controllers
     {
         private readonly IInvoiceLineRepository _invoiceLineRepo;
         private readonly IInvoiceRepository _invoiceRepo;
-        private readonly IExpenseTypeRepository _expenseTypeRepo;
+        private readonly IExpenseCategoryRepository _expenseTypeRepo;
         private readonly IValidator<InvoiceLine> _invoiceLineValidator;
         private readonly ILogger<InvoiceLinesController> _logger;
 
-        public InvoiceLinesController(IInvoiceLineRepository invoiceLineRepository, IInvoiceRepository invoiceRepository, IExpenseTypeRepository expenseTypeRepository, IValidator<InvoiceLine> invoiceLineValidator, ILogger<InvoiceLinesController> logger)
+        public InvoiceLinesController(IInvoiceLineRepository invoiceLineRepository, IInvoiceRepository invoiceRepository, IExpenseCategoryRepository expenseTypeRepository, IValidator<InvoiceLine> invoiceLineValidator, ILogger<InvoiceLinesController> logger)
         {
             _invoiceLineRepo = invoiceLineRepository;
             _invoiceRepo = invoiceRepository;
@@ -27,7 +27,6 @@ namespace Accounting.Controllers
         }
 
         // POST: Create invoiceLine
-
         [HttpPost]
         [Route("invoiceLines")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
@@ -39,7 +38,7 @@ namespace Accounting.Controllers
             if (invoiceLine == null) return BadRequest("Incorrect body format");
             if (invoiceLine.Id != Guid.Empty) return BadRequest("InvoiceLine Id field must be empty");
             if (invoiceLine.InvoiceId != invoiceId) return BadRequest("Incorrect Invoice Id in body");
-            if (invoiceLine.ExpenseTypeId != expenseTypeId) return BadRequest("Incorrect ExpenseType Id in body");
+            if (invoiceLine.ExpenseCategoryId != expenseTypeId) return BadRequest("Incorrect ExpenseCategoryId Id in body");
 
             // invoiceLine validation
             ValidationResult validationResult = await _invoiceLineValidator.ValidateAsync(invoiceLine);
@@ -49,7 +48,7 @@ namespace Accounting.Controllers
             if (!await InvoiceExists(invoiceId)) return NotFound("Invoice not found");
 
             // expenseType validator
-            if (!await ExpenseTypeExists(expenseTypeId)) return NotFound("ExpenseType not found");
+            if (!await ExpenseCategoryExists(expenseTypeId)) return NotFound("ExpenseCategory not found");
 
             invoiceLine = await _invoiceLineRepo.InsertInvoiceLineAsync(invoiceLine);
             return Created($"invoiceLines/{invoiceLine.Id}", invoiceLine);
@@ -66,7 +65,6 @@ namespace Accounting.Controllers
         }
 
         // PATCH: update invoiceLine
-
         [HttpPatch]
         [Route("invoiceLines/{invoiceLineId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -87,7 +85,7 @@ namespace Accounting.Controllers
             if (!await InvoiceExists(invoiceId)) return NotFound("Invoice not found");
 
             // expenseType validator
-            if (!await ExpenseTypeExists(expenseTypeId)) return NotFound("ExpenseType not found");
+            if (!await ExpenseCategoryExists(expenseTypeId)) return NotFound("ExpenseCategory not found");
 
             invoiceLine.Id = invoiceLineId; // copy id to invoiceLine object
 
@@ -97,7 +95,6 @@ namespace Accounting.Controllers
         }
 
         // DELETE: delete invoiceLine
-
         [HttpDelete]
         [Route("invoiceLines/{invoiceLineId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -130,9 +127,9 @@ namespace Accounting.Controllers
             return (invoice != null && invoice?.Deleted == false);
         }
 
-        private async Task<bool> ExpenseTypeExists(Guid expenseTypeId)
+        private async Task<bool> ExpenseCategoryExists(Guid expenseTypeId)
         {
-            ExpenseType? expenseType = await _expenseTypeRepo.GetExpenseTypeByIdAsync(expenseTypeId);
+            ExpenseCategory? expenseType = await _expenseTypeRepo.GetExpenseCategoriesByIdAsync(expenseTypeId);
             return (expenseType != null && expenseType?.Deleted == false);
         }
     }

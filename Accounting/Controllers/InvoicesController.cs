@@ -25,7 +25,6 @@ namespace Accounting.Controllers
         }
 
         // POST: Create Invoice
-
         [HttpPost]
         [Route("invoices")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
@@ -50,7 +49,6 @@ namespace Accounting.Controllers
         }
 
         // GET: Get invoice(s)
-
         [HttpGet]
         [Route("invoices")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -61,7 +59,6 @@ namespace Accounting.Controllers
         }
 
         // PATCH: update invoice
-
         [HttpPatch]
         [Route("invoices/{invoiceId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -90,7 +87,6 @@ namespace Accounting.Controllers
         }
 
         // DELETE: delete invoice
-
         [HttpDelete]
         [Route("invoices/{invoiceId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -104,7 +100,6 @@ namespace Accounting.Controllers
         }
 
         // POST: undelete invoice
-
         [HttpPost]
         [Route("invoices/{invoiceId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]

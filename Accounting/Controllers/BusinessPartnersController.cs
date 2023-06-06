@@ -23,7 +23,6 @@ namespace Accounting.Controllers
         }
 
         // POST: Create businessPartner
-
         [HttpPost]
         [Route("businessPartners")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
@@ -44,7 +43,6 @@ namespace Accounting.Controllers
         }
 
         // GET: Get businessPartner(s)
-
         [HttpGet]
         [Route("businessPartners")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -55,7 +53,6 @@ namespace Accounting.Controllers
         }
 
         // PATCH: update businessPartner
-
         [HttpPatch]
         [Route("businessPartners/{businessPartnerId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -80,7 +77,6 @@ namespace Accounting.Controllers
         }
 
         // DELETE: delete businessPartner
-
         [HttpDelete]
         [Route("businessPartners/{businessPartnerId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -94,7 +90,6 @@ namespace Accounting.Controllers
         }
 
         // POST: undelete businessPartner
-
         [HttpPost]
         [Route("businessPartners/{businessPartnerId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]

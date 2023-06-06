@@ -13,19 +13,19 @@ namespace AccountingUnitTests
     public class ExpenseTypesControllerTests
     {
 
-        private readonly Mock<ILogger<ExpenseTypesController>> _mockLogger;
-        private readonly Mock<IValidator<ExpenseType>> _mockExpenseTypeValidator;
+        private readonly Mock<ILogger<ExpenseCategoriesController>> _mockLogger;
+        private readonly Mock<IValidator<ExpenseCategory>> _mockExpenseTypeValidator;
         private readonly Mock<IConfiguration> _mockConfiguration;
-        private readonly Mock<IExpenseTypeRepository> _mockExpenseTypeRepo;
-        private readonly ExpenseTypesController _expenseTypesController;
+        private readonly Mock<IExpenseCategoryRepository> _mockExpenseTypeRepo;
+        private readonly ExpenseCategoriesController _expenseTypesController;
 
         public ExpenseTypesControllerTests()
         {
-            _mockLogger = new Mock<ILogger<ExpenseTypesController>>();
-            _mockExpenseTypeValidator = new Mock<IValidator<ExpenseType>>();
+            _mockLogger = new Mock<ILogger<ExpenseCategoriesController>>();
+            _mockExpenseTypeValidator = new Mock<IValidator<ExpenseCategory>>();
             _mockConfiguration = new Mock<IConfiguration>();
-            _mockExpenseTypeRepo = new Mock<IExpenseTypeRepository>();
-            _expenseTypesController = new ExpenseTypesController(_mockExpenseTypeRepo.Object, _mockExpenseTypeValidator.Object, _mockLogger.Object);
+            _mockExpenseTypeRepo = new Mock<IExpenseCategoryRepository>();
+            _expenseTypesController = new ExpenseCategoriesController(_mockExpenseTypeRepo.Object, _mockExpenseTypeValidator.Object, _mockLogger.Object);
         }
 
         #region Create
@@ -34,12 +34,12 @@ namespace AccountingUnitTests
         public async Task CreateAsync_ReturnCreatedResult_WhenValidRequestIsMade()
         {
             // Arrange
-            var fakeExpenseType = new ExpenseType
+            var fakeExpenseType = new ExpenseCategory
             {
                 Code = 0,
                 Description = "FakeDescription",
             };
-            var fakeExpectedExpenseType = new ExpenseType
+            var fakeExpectedExpenseType = new ExpenseCategory
             {
                 Code = 0,
                 Description = "FakeDescription",
@@ -48,11 +48,11 @@ namespace AccountingUnitTests
             };
 
             _mockExpenseTypeValidator
-                .Setup(v => v.ValidateAsync(It.IsAny<ExpenseType>(), CancellationToken.None))
+                .Setup(v => v.ValidateAsync(It.IsAny<ExpenseCategory>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
             _mockExpenseTypeRepo
-                .Setup(r => r.InsertExpenseTypeAsync(It.IsAny<ExpenseType>()))
+                .Setup(r => r.InsertExpenseTypeAsync(It.IsAny<ExpenseCategory>()))
                 .ReturnsAsync(fakeExpectedExpenseType);
 
             // Act
@@ -67,7 +67,7 @@ namespace AccountingUnitTests
         public async Task CreateAsync_ReturnsBadRequestResult_WhenIdFieldIsNotEmpty()
         {
             // Arrange
-            var fakeExpenseType = new ExpenseType
+            var fakeExpenseType = new ExpenseCategory
             {
                 Code = 0,
                 Description = "FakeDescription",
@@ -86,7 +86,7 @@ namespace AccountingUnitTests
         public async Task CreateAsync_ReturnsBadRequestResult_WhenValidationIsNotValid()
         {
             // Arrange
-            var fakeExpenseType = new ExpenseType
+            var fakeExpenseType = new ExpenseCategory
             {
                 Code = 0,
                 Description = "FakeDescription",
@@ -95,7 +95,7 @@ namespace AccountingUnitTests
             var validationResult = new ValidationResult(new List<ValidationFailure> { new ValidationFailure("Name", "Name cannot be empty") });
 
             _mockExpenseTypeValidator
-                .Setup(v => v.ValidateAsync(It.IsAny<ExpenseType>(), CancellationToken.None))
+                .Setup(v => v.ValidateAsync(It.IsAny<ExpenseCategory>(), CancellationToken.None))
                 .ReturnsAsync(validationResult);
 
             // Act
@@ -114,16 +114,16 @@ namespace AccountingUnitTests
         public async Task GetAsync_ReturnsOkResult_WhenValidRequestIsMade()
         {
             // Arrange
-            var fakeExpectedExpenseTypes = new List<ExpenseType>()
+            var fakeExpectedExpenseTypes = new List<ExpenseCategory>()
             {
-                new ExpenseType
+                new ExpenseCategory
                 {
                     Code = 0,
                     Description = "FakeDescription",
                     Id = Guid.NewGuid(),
                     Deleted = false
                 },
-                new ExpenseType
+                new ExpenseCategory
                 {
                     Code = 0,
                     Description = "FakeDescription",
@@ -141,7 +141,7 @@ namespace AccountingUnitTests
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
-            var actualExpenseTypes = Assert.IsAssignableFrom<IEnumerable<ExpenseType>>(okResult.Value);
+            var actualExpenseTypes = Assert.IsAssignableFrom<IEnumerable<ExpenseCategory>>(okResult.Value);
             Assert.Equal(fakeExpectedExpenseTypes, actualExpenseTypes);
         }
 
@@ -168,7 +168,7 @@ namespace AccountingUnitTests
         public async Task UpdateAsync_ReturnsNoContent_WhenValidRequestIsMade()
         {
             // Arrange
-            var fakeExpenseType = new ExpenseType
+            var fakeExpenseType = new ExpenseCategory
             {
                 Code = 0,
                 Description = "FakeDescription",
@@ -176,7 +176,7 @@ namespace AccountingUnitTests
             };
 
             _mockExpenseTypeValidator
-                .Setup(v => v.ValidateAsync(It.IsAny<ExpenseType>(), CancellationToken.None))
+                .Setup(v => v.ValidateAsync(It.IsAny<ExpenseCategory>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
             _mockExpenseTypeRepo
@@ -194,7 +194,7 @@ namespace AccountingUnitTests
         public async Task UpdateAsync_ReturnsBadResuqest_WhenExpenseTypeIdDoesNotMatch()
         {
             // Arrange
-            var fakeExpenseType = new ExpenseType
+            var fakeExpenseType = new ExpenseCategory
             {
                 Code = 0,
                 Description = "FakeDescription",
@@ -213,7 +213,7 @@ namespace AccountingUnitTests
         public async Task UpdateAsync_ReturnsBadResuqest_WhenExpenseTypeValidationNotValid()
         {
             // Arrange
-            var fakeExpenseType = new ExpenseType
+            var fakeExpenseType = new ExpenseCategory
             {
                 Code = 0,
                 Description = "FakeDescription",
@@ -223,7 +223,7 @@ namespace AccountingUnitTests
             var validationResult = new ValidationResult(new List<ValidationFailure> { new ValidationFailure("Name", "Name cannot be empty") });
 
             _mockExpenseTypeValidator
-                .Setup(v => v.ValidateAsync(It.IsAny<ExpenseType>(), CancellationToken.None))
+                .Setup(v => v.ValidateAsync(It.IsAny<ExpenseCategory>(), CancellationToken.None))
                 .ReturnsAsync(validationResult);
 
             // Act
@@ -238,7 +238,7 @@ namespace AccountingUnitTests
         public async Task UpdateAsync_ReturnsNotFound_WhenExpenseTypeNotFound()
         {
             // Arrange
-            var fakeExpenseType = new ExpenseType
+            var fakeExpenseType = new ExpenseCategory
             {
                 Code = 0,
                 Description = "FakeDescription",
@@ -246,11 +246,11 @@ namespace AccountingUnitTests
             };
 
             _mockExpenseTypeValidator
-                .Setup(v => v.ValidateAsync(It.IsAny<ExpenseType>(), CancellationToken.None))
+                .Setup(v => v.ValidateAsync(It.IsAny<ExpenseCategory>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
             _mockExpenseTypeRepo
-                .Setup(r => r.UpdateExpenseTypeAsync(It.IsAny<ExpenseType>()))
+                .Setup(r => r.UpdateExpenseTypeAsync(It.IsAny<ExpenseCategory>()))
                 .ReturnsAsync(0);
 
             // Act

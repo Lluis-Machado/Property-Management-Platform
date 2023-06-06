@@ -23,7 +23,6 @@ namespace Accounting.Controllers
         }
 
         // POST: Create tenant
-
         [HttpPost]
         [Route("tenants")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
@@ -44,7 +43,6 @@ namespace Accounting.Controllers
         }
 
         // GET: Get tenant(s)
-
         [HttpGet]
         [Route("tenants")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -55,7 +53,6 @@ namespace Accounting.Controllers
         }
 
         // PATCH: update tenant
-
         [HttpPatch]
         [Route("tenants/{tenantId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -80,7 +77,6 @@ namespace Accounting.Controllers
         }
 
         // DELETE: delete tenant
-
         [HttpDelete]
         [Route("tenants/{tenantId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -94,7 +90,6 @@ namespace Accounting.Controllers
         }
 
         // POST: undelete tenant
-
         [HttpPost]
         [Route("tenants/{tenantId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]

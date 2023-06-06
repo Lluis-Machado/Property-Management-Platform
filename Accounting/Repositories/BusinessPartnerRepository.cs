@@ -49,7 +49,7 @@ namespace Accounting.Repositories
                 businessPartner.VATNumber,
                 businessPartner.AccountID,
                 businessPartner.Type,
-                businessPartner.LastModificationByUser,
+                businessPartner.LastModificationBy,
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("INSERT INTO BusinessPartners (");
@@ -57,7 +57,7 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,VATNumber");
             queryBuilder.Append(" ,AccountID");
             queryBuilder.Append(" ,Type");
-            queryBuilder.Append(" ,LastModificationByUser");
+            queryBuilder.Append(" ,LastModificationBy");
             queryBuilder.Append(" )OUTPUT INSERTED.Id");
             queryBuilder.Append(" ,INSERTED.Name");
             queryBuilder.Append(" ,INSERTED.VATNumber");
@@ -66,13 +66,13 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,INSERTED.Deleted");
             queryBuilder.Append(" ,INSERTED.CreationDate");
             queryBuilder.Append(" ,INSERTED.LastModificationDate");
-            queryBuilder.Append(" ,INSERTED.LastModificationByUser");
+            queryBuilder.Append(" ,INSERTED.LastModificationBy");
             queryBuilder.Append(" VALUES(");
             queryBuilder.Append(" @Name");
             queryBuilder.Append(" ,@VATNumber");
             queryBuilder.Append(" ,@AccountID");
             queryBuilder.Append(" ,@Type");
-            queryBuilder.Append(" ,@LastModificationByUser");
+            queryBuilder.Append(" ,@LastModificationBy");
             queryBuilder.Append(" )");
 
             return await _context
@@ -108,7 +108,7 @@ namespace Accounting.Repositories
                 businessPartner.VATNumber,
                 businessPartner.AccountID,
                 businessPartner.Type,
-                businessPartner.LastModificationByUser,
+                businessPartner.LastModificationBy,
                 LastModificationDate = DateTime.Now,
             };
             StringBuilder queryBuilder = new();
@@ -118,7 +118,7 @@ namespace Accounting.Repositories
             queryBuilder.Append(" ,VATNumber = @VATNumber ");
             queryBuilder.Append(" ,AccountID = @AccountID ");
             queryBuilder.Append(" ,Name = @Name ");
-            queryBuilder.Append(" ,LastModificationByUser = @LastModificationByUser ");
+            queryBuilder.Append(" ,LastModificationBy = @LastModificationBy ");
             queryBuilder.Append(" ,LastModificationDate = @LastModificationDate ");
             queryBuilder.Append(" WHERE Id = @Id ");
 

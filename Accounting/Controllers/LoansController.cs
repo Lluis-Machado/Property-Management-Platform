@@ -25,7 +25,6 @@ namespace Accounting.Controllers
         }
 
         // POST: Create Loan
-
         [HttpPost]
         [Route("loans")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
@@ -50,7 +49,6 @@ namespace Accounting.Controllers
         }
 
         // GET: Get loan(s)
-
         [HttpGet]
         [Route("loans")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -61,7 +59,6 @@ namespace Accounting.Controllers
         }
 
         // PATCH: update loan
-
         [HttpPatch]
         [Route("loans/{loanId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -89,7 +86,6 @@ namespace Accounting.Controllers
         }
 
         // DELETE: delete loan
-
         [HttpDelete]
         [Route("loans/{loanId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -103,7 +99,6 @@ namespace Accounting.Controllers
         }
 
         // POST: undelete loan
-
         [HttpPost]
         [Route("loans/{loanId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]

@@ -1,6 +1,7 @@
 ﻿using Authentication.Models;
 using Authentication.Utils;
 using AuthenticationAPI.Services.Auth0.Interfaces;
+using Microsoft.OpenApi.Models;
 using System.Text.Json;
 
 namespace Authentication.Services.Auth0

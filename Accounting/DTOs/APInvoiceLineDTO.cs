@@ -1,6 +1,6 @@
 ﻿namespace AccountingAPI.DTOs
 {
-    public class InvoiceLineDTO
+    public class APInvoiceLineDTO
     {
         public Guid Id { get; set; }
         public Guid InvoiceId { get; set; }
@@ -19,7 +19,7 @@
         public string? CreatedBy { get; set; }
         public string? LastModificationBy { get; set; }
 
-        public InvoiceLineDTO()
+        public APInvoiceLineDTO()
         {
         }
     }

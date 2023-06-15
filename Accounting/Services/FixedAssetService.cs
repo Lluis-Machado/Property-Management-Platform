@@ -10,9 +10,9 @@ namespace AccountingAPI.Services
     {
         private readonly IFixedAssetRepository _fixedAssetRepository;
         private readonly IMapper _mapper;
-        private readonly ILogger<InvoiceService> _logger;
+        private readonly ILogger<APInvoiceService> _logger;
 
-        public FixedAssetService(IInvoiceRepository invoiceRepository, ILogger<InvoiceService> logger, IInvoiceLineRepository invoiceLineRepository, IMapper mapper, IFixedAssetRepository fixedAssetRepository)
+        public FixedAssetService(IAPInvoiceRepository invoiceRepository, ILogger<APInvoiceService> logger, IAPInvoiceLineRepository invoiceLineRepository, IMapper mapper, IFixedAssetRepository fixedAssetRepository)
         {
             _logger = logger;
             _mapper = mapper;

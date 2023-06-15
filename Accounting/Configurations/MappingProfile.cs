@@ -16,16 +16,27 @@ namespace AccountingAPI.Configurations
             CreateMap<BusinessPartner, BusinessPartnerDTO>();
             CreateMap<CreateBusinessPartnerDTO, BusinessPartner>();
 
-            // Invoice
-            CreateMap<Invoice, InvoiceDTO>();
-            CreateMap<InvoiceDTO, Invoice>();
-            CreateMap<CreateInvoiceDTO, Invoice>();
+            // AP Invoice
+            CreateMap<APInvoice, APInvoiceDTO>();
+            CreateMap<APInvoiceDTO, APInvoice>();
+            CreateMap<CreateAPInvoiceDTO, APInvoice>();
 
-            // Invoice Line
-            CreateMap<InvoiceLine, InvoiceLineDTO>();
-            CreateMap<CreateInvoiceLineDTO, InvoiceLine>();
-            CreateMap<CreateInvoiceLineDTO, UpdateInvoiceLineDTO>();
-            CreateMap<UpdateInvoiceLineDTO, InvoiceLine>();
+            // AP Invoice Line
+            CreateMap<APInvoiceLine, APInvoiceLineDTO>();
+            CreateMap<CreateAPInvoiceLineDTO, APInvoiceLine>();
+            CreateMap<CreateAPInvoiceLineDTO, UpdateAPInvoiceLineDTO>();
+            CreateMap<UpdateAPInvoiceLineDTO, APInvoiceLine>();
+
+            // AR Invoice
+            CreateMap<ARInvoice, ARInvoiceDTO>();
+            CreateMap<ARInvoiceDTO, ARInvoice>();
+            CreateMap<CreateARInvoiceDTO, ARInvoice>();
+
+            // AP Invoice Line
+            CreateMap<ARInvoiceLine, ARInvoiceLineDTO>();
+            CreateMap<CreateARInvoiceLineDTO, ARInvoiceLine>();
+            CreateMap<CreateARInvoiceLineDTO, UpdateARInvoiceLineDTO>();
+            CreateMap<UpdateARInvoiceLineDTO, ARInvoiceLine>();
 
             // Expense Category
             CreateMap<ExpenseCategory, ExpenseCategoryDTO>();

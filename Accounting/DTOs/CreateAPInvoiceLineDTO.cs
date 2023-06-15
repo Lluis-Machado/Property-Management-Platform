@@ -2,7 +2,7 @@
 
 namespace AccountingAPI.DTOs
 {
-    public class CreateInvoiceLineDTO
+    public class CreateAPInvoiceLineDTO
     {
         public string Description { get; set; }
         public double Tax { get; set; }
@@ -15,7 +15,7 @@ namespace AccountingAPI.DTOs
         public DateTime ServiceDateTo { get; set; }
 
         [JsonConstructor]
-        public CreateInvoiceLineDTO()
+        public CreateAPInvoiceLineDTO()
         {
             Description = String.Empty;
             ExpenseCategoryType = String.Empty;

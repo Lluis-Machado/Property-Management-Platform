@@ -5,17 +5,17 @@ using System.Text;
 
 namespace AccountingAPI.Repositories
 {
-    public class InvoiceRepository : IInvoiceRepository
+    public class ARInvoiceRepository : IARInvoiceRepository
     {
 
         private readonly IDapperContext _context;
 
-        public InvoiceRepository(IDapperContext context)
+        public ARInvoiceRepository(IDapperContext context)
         {
             _context = context;
         }
 
-        public async Task<Invoice?> GetInvoiceByIdAsync(Guid invoiceId)
+        public async Task<ARInvoice?> GetARInvoiceByIdAsync(Guid invoiceId)
         {
                 var parameters = new
                 {
@@ -35,13 +35,13 @@ namespace AccountingAPI.Repositories
                 queryBuilder.Append(",CreatedBy");
                 queryBuilder.Append(",LastModificationAt");
                 queryBuilder.Append(",LastModificationBy");
-                queryBuilder.Append(" FROM Invoices ");
+                queryBuilder.Append(" FROM ARInvoices ");
                 queryBuilder.Append(" WHERE Id = @invoiceId");
 
-                return await _context.Connection.QuerySingleOrDefaultAsync<Invoice?>(queryBuilder.ToString(), parameters);
+                return await _context.Connection.QuerySingleOrDefaultAsync<ARInvoice?>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<IEnumerable<Invoice>> GetInvoicesAsync(bool includeDeleted = false)
+        public async Task<IEnumerable<ARInvoice>> GetARInvoicesAsync(bool includeDeleted = false)
         {
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT ID");
@@ -56,13 +56,13 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",CreatedBy");
             queryBuilder.Append(",LastModificationAt");
             queryBuilder.Append(",LastModificationBy");
-            queryBuilder.Append(" FROM Invoices");
+            queryBuilder.Append(" FROM ARInvoices");
             if (includeDeleted == false) queryBuilder.Append(" WHERE Deleted = 0");
 
-            return await _context.Connection.QueryAsync<Invoice>(queryBuilder.ToString());   
+            return await _context.Connection.QueryAsync<ARInvoice>(queryBuilder.ToString());   
         }
 
-        public async Task<Invoice> InsertInvoice(Invoice invoice)
+        public async Task<ARInvoice> InsertARInvoice(ARInvoice invoice)
         {
             var parameters = new
             {
@@ -76,7 +76,7 @@ namespace AccountingAPI.Repositories
                 invoice.LastModificationBy,
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("INSERT INTO Invoices (");
+            queryBuilder.Append("INSERT INTO ARInvoices (");
             queryBuilder.Append("BusinessPartnerId");
             queryBuilder.Append(",RefNumber");
             queryBuilder.Append(",Date");
@@ -108,10 +108,10 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",@LastModificationBy");
             queryBuilder.Append(")");
 
-            return await _context.Connection.QuerySingleAsync<Invoice>(queryBuilder.ToString(), parameters);
+            return await _context.Connection.QuerySingleAsync<ARInvoice>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<Invoice> UpdateInvoiceAsync(Invoice invoice)
+        public async Task<ARInvoice> UpdateARInvoiceAsync(ARInvoice invoice)
         {
             var parameters = new
             {
@@ -127,7 +127,7 @@ namespace AccountingAPI.Repositories
             };
 
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE Invoices");
+            queryBuilder.Append("UPDATE ARInvoices");
             queryBuilder.Append(" SET BusinessPartnerId = @BusinessPartnerId");
             queryBuilder.Append(",RefNumber = @RefNumber");
             queryBuilder.Append(",Date = @Date");
@@ -150,10 +150,10 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",INSERTED.LastModificationBy");
             queryBuilder.Append(" WHERE Id = @Id");
 
-            return await _context.Connection.QuerySingleAsync<Invoice>(queryBuilder.ToString(), parameters);
+            return await _context.Connection.QuerySingleAsync<ARInvoice>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<int> SetDeleteInvoiceAsync(Guid id, bool deleted)
+        public async Task<int> SetDeletedARInvoiceAsync(Guid id, bool deleted)
         {
             var parameters = new
             {
@@ -162,7 +162,7 @@ namespace AccountingAPI.Repositories
             };
 
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE Invoices");
+            queryBuilder.Append("UPDATE ARInvoices");
             queryBuilder.Append(" SET Deleted = @deleted");
             queryBuilder.Append(" WHERE Id = @id");
 

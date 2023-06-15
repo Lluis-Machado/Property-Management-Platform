@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace AccountingAPI.Validators
 {
-    public class CreateInvoiceLineDTOValidator : AbstractValidator<CreateInvoiceLineDTO>
+    public class CreateARInvoiceLineDTOValidator : AbstractValidator<CreateARInvoiceLineDTO>
     {
-        public CreateInvoiceLineDTOValidator()
+        public CreateARInvoiceLineDTOValidator()
         {
             RuleFor(Line => Line.Description)
                 .Length(3, 255).WithMessage("{PropertyName} must be from {MinLength} to {MaxLength} characters long");

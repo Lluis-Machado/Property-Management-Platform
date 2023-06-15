@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace AccountingAPI.Validators
 {
-    public class CreateInvoiceDTOValidator : AbstractValidator<CreateInvoiceDTO>
+    public class CreateARInvoiceDTOValidator : AbstractValidator<CreateARInvoiceDTO>
     {
-        public CreateInvoiceDTOValidator()
+        public CreateARInvoiceDTOValidator()
         {
 
             RuleFor(Invoice => Invoice.RefNumber)

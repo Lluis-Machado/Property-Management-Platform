@@ -5,15 +5,15 @@ using System.Text;
 
 namespace AccountingAPI.Repositories
 {
-    public class InvoiceLineRepository : IInvoiceLineRepository
+    public class ARInvoiceLineRepository : IARInvoiceLineRepository
     {
         private readonly IDapperContext _context;
-        public InvoiceLineRepository(IDapperContext context)
+        public ARInvoiceLineRepository(IDapperContext context)
         {
             _context = context;
         }
 
-        public async Task<IEnumerable<InvoiceLine>> GetInvoiceLinesAsync(bool includeDeleted)
+        public async Task<IEnumerable<ARInvoiceLine>> GetARInvoiceLinesAsync(bool includeDeleted)
         {
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");
@@ -23,23 +23,21 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",Quantity");
             queryBuilder.Append(",UnitPrice");
             queryBuilder.Append(",TotalPrice");
-            queryBuilder.Append(",ExpenseCategoryId");
             queryBuilder.Append(",ServiceDateFrom");
             queryBuilder.Append(",ServiceDateTo");
-            queryBuilder.Append(",FixedAssetId");
             queryBuilder.Append(",Deleted");
             queryBuilder.Append(",CreatedAt");
             queryBuilder.Append(",CreatedBy");
             queryBuilder.Append(",LastModificationAt");
             queryBuilder.Append(",LastModificationBy");
-            queryBuilder.Append(" FROM InvoiceLines");
+            queryBuilder.Append(" FROM ARInvoiceLines");
             if (includeDeleted == false) queryBuilder.Append(" WHERE Deleted = 0");
 
 
-            return await _context.Connection.QueryAsync<InvoiceLine>(queryBuilder.ToString());
+            return await _context.Connection.QueryAsync<ARInvoiceLine>(queryBuilder.ToString());
         }
 
-        public async Task<InvoiceLine> GetInvoiceLineByIdAsync(Guid invoiceLineId)
+        public async Task<ARInvoiceLine> GetARInvoiceLineByIdAsync(Guid invoiceLineId)
         {
             var parameters = new
             {
@@ -53,22 +51,20 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",Quantity");
             queryBuilder.Append(",UnitPrice");
             queryBuilder.Append(",TotalPrice");
-            queryBuilder.Append(",ExpenseCategoryId");
             queryBuilder.Append(",ServiceDateFrom");
             queryBuilder.Append(",ServiceDateTo");
-            queryBuilder.Append(",FixedAssetId");
             queryBuilder.Append(",Deleted");
             queryBuilder.Append(",CreatedAt");
             queryBuilder.Append(",CreatedBy");
             queryBuilder.Append(",LastModificationAt");
             queryBuilder.Append(",LastModificationBy");
-            queryBuilder.Append(" FROM InvoiceLines");
+            queryBuilder.Append(" FROM ARInvoiceLines");
             queryBuilder.Append(" WHERE Id = @invoiceLineId");
 
-            return await _context.Connection.QuerySingleAsync<InvoiceLine>(queryBuilder.ToString(), parameters);
+            return await _context.Connection.QuerySingleAsync<ARInvoiceLine>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<InvoiceLine> InsertInvoiceLineAsync(InvoiceLine invoiceLine)
+        public async Task<ARInvoiceLine> InsertARInvoiceLineAsync(ARInvoiceLine invoiceLine)
         {
             var parameters = new
             {
@@ -78,25 +74,21 @@ namespace AccountingAPI.Repositories
                 invoiceLine.Quantity,
                 invoiceLine.UnitPrice,
                 invoiceLine.TotalPrice,
-                invoiceLine.ExpenseCategoryId,
                 invoiceLine.ServiceDateFrom,
                 invoiceLine.ServiceDateTo,
-                invoiceLine.FixedAssetId,
                 invoiceLine.CreatedBy,
                 invoiceLine.LastModificationBy,
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("INSERT INTO InvoiceLines (");
+            queryBuilder.Append("INSERT INTO ARInvoiceLines (");
             queryBuilder.Append("InvoiceId");
             queryBuilder.Append(",Description");
             queryBuilder.Append(",Tax");
             queryBuilder.Append(",Quantity");
             queryBuilder.Append(",UnitPrice");
             queryBuilder.Append(",TotalPrice");
-            queryBuilder.Append(",ExpenseCategoryId");
             queryBuilder.Append(",ServiceDateFrom");
             queryBuilder.Append(",ServiceDateTo");
-            queryBuilder.Append(",FixedAssetId");
             queryBuilder.Append(",CreatedBy");
             queryBuilder.Append(",LastModificationBy");
             queryBuilder.Append(")OUTPUT INSERTED.Id");
@@ -106,10 +98,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",INSERTED.Quantity");
             queryBuilder.Append(",INSERTED.UnitPrice");
             queryBuilder.Append(",INSERTED.TotalPrice");
-            queryBuilder.Append(",INSERTED.ExpenseCategoryId");
             queryBuilder.Append(",INSERTED.ServiceDateFrom");
             queryBuilder.Append(",INSERTED.ServiceDateTo");
-            queryBuilder.Append(",INSERTED.FixedAssetId");
             queryBuilder.Append(",INSERTED.Deleted");
             queryBuilder.Append(",INSERTED.CreatedAt");
             queryBuilder.Append(",INSERTED.CreatedBy");
@@ -122,18 +112,16 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",@Quantity");
             queryBuilder.Append(",@UnitPrice");
             queryBuilder.Append(",@TotalPrice");
-            queryBuilder.Append(",@ExpenseCategoryId");
             queryBuilder.Append(",@ServiceDateFrom");
             queryBuilder.Append(",@ServiceDateTo");
-            queryBuilder.Append(",@FixedAssetId");
             queryBuilder.Append(",@CreatedBy");
             queryBuilder.Append(",@LastModificationBy");
             queryBuilder.Append(")");
 
-            return await _context.Connection.QuerySingleAsync<InvoiceLine>(queryBuilder.ToString(), parameters);
+            return await _context.Connection.QuerySingleAsync<ARInvoiceLine>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<int> SetDeletedInvoiceLineAsync(Guid id, bool deleted)
+        public async Task<int> SetDeletedARInvoiceLineAsync(Guid id, bool deleted)
         {
             var parameters = new
             {
@@ -142,14 +130,14 @@ namespace AccountingAPI.Repositories
             };
 
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE InvoiceLines");
+            queryBuilder.Append("UPDATE ARInvoiceLines");
             queryBuilder.Append(" SET Deleted = @deleted");
             queryBuilder.Append(" WHERE Id = @id");
 
             return await _context.Connection.ExecuteAsync(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<InvoiceLine> UpdateInvoiceLineAsync(InvoiceLine invoiceLine)
+        public async Task<ARInvoiceLine> UpdateARInvoiceLineAsync(ARInvoiceLine invoiceLine)
         {
             var parameters = new
             {
@@ -161,15 +149,13 @@ namespace AccountingAPI.Repositories
                 invoiceLine.TotalPrice,
                 invoiceLine.ServiceDateFrom,
                 invoiceLine.ServiceDateTo,
-                invoiceLine.ExpenseCategoryId,
-                invoiceLine.FixedAssetId,
                 invoiceLine.Deleted,
                 invoiceLine.LastModificationAt,
                 invoiceLine.LastModificationBy
             };
 
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE InvoiceLines");
+            queryBuilder.Append("UPDATE ARInvoiceLines");
             queryBuilder.Append(" SET Description = @Description");
             queryBuilder.Append(",Tax = @Tax");
             queryBuilder.Append(",Quantity = @Quantity");
@@ -177,8 +163,6 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",TotalPrice = @TotalPrice");
             queryBuilder.Append(",ServiceDateFrom = @ServiceDateFrom");
             queryBuilder.Append(",ServiceDateTo = @ServiceDateTo");
-            queryBuilder.Append(",ExpenseCategoryId = @ExpenseCategoryId");
-            queryBuilder.Append(",FixedAssetId = @FixedAssetId");
             queryBuilder.Append(",Deleted = @Deleted");
             queryBuilder.Append(",LastModificationBy = @LastModificationBy");
             queryBuilder.Append(",LastModificationAt = @LastModificationAt");
@@ -191,8 +175,6 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",INSERTED.TotalPrice");
             queryBuilder.Append(",INSERTED.ServiceDateFrom");
             queryBuilder.Append(",INSERTED.ServiceDateTo");
-            queryBuilder.Append(",INSERTED.ExpenseCategoryId");
-            queryBuilder.Append(",INSERTED.FixedAssetId");
             queryBuilder.Append(",INSERTED.Deleted");
             queryBuilder.Append(",INSERTED.CreatedAt");
             queryBuilder.Append(",INSERTED.CreatedBy");
@@ -200,7 +182,7 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",INSERTED.LastModificationBy");
             queryBuilder.Append(" WHERE Id = @Id");
 
-            return await _context.Connection.QuerySingleAsync<InvoiceLine>(queryBuilder.ToString(), parameters);
+            return await _context.Connection.QuerySingleAsync<ARInvoiceLine>(queryBuilder.ToString(), parameters);
         }
     }
 }

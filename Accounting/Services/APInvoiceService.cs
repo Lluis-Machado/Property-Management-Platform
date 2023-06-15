@@ -6,14 +6,14 @@ using AccountingAPI.Models;
 
 namespace AccountingAPI.Services
 {
-    public class InvoiceService : IInvoiceService
+    public class APInvoiceService : IAPInvoiceService
     {
-        private readonly IInvoiceRepository _invoiceRepository;
-        private readonly IInvoiceLineService _invoiceLineService;
+        private readonly IAPInvoiceRepository _invoiceRepository;
+        private readonly IAPInvoiceLineService _invoiceLineService;
         private readonly IMapper _mapper;
-        private readonly ILogger<InvoiceService> _logger;
+        private readonly ILogger<APInvoiceService> _logger;
 
-        public InvoiceService(IInvoiceRepository invoiceRepository, ILogger<InvoiceService> logger, IInvoiceLineService invoiceLineService, IMapper mapper)
+        public APInvoiceService(IAPInvoiceRepository invoiceRepository, ILogger<APInvoiceService> logger, IAPInvoiceLineService invoiceLineService, IMapper mapper)
         {
             _invoiceRepository = invoiceRepository;
             _logger = logger;
@@ -21,14 +21,14 @@ namespace AccountingAPI.Services
             _mapper = mapper;
         }
 
-        public async Task<InvoiceDTO> CreateInvoiceAndLinesAsync(CreateInvoiceDTO createInvoiceDTO, string userName, Guid businessPartnerId)
+        public async Task<APInvoiceDTO> CreateAPInvoiceAndLinesAsync(CreateAPInvoiceDTO createInvoiceDTO, string userName, Guid businessPartnerId)
         {
             using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
                 {
                     // insert invoice
-                    Invoice invoice = _mapper.Map<Invoice>(createInvoiceDTO);
+                    APInvoice invoice = _mapper.Map<APInvoice>(createInvoiceDTO);
 
                     invoice.GrossAmount = createInvoiceDTO.InvoiceLines.Sum(invoiceLine => invoiceLine.UnitPrice * invoiceLine.Quantity);
                     invoice.NetAmount = createInvoiceDTO.InvoiceLines.Sum(invoiceLine => invoiceLine.UnitPrice * invoiceLine.Quantity / (1 + invoiceLine.Tax));
@@ -36,14 +36,14 @@ namespace AccountingAPI.Services
                     invoice.LastModificationBy = userName;
                     invoice.BusinessPartnerId = businessPartnerId;
 
-                    invoice = await _invoiceRepository.InsertInvoice(invoice);
+                    invoice = await _invoiceRepository.InsertAPInvoice(invoice);
 
-                    InvoiceDTO invoiceDTO = _mapper.Map<InvoiceDTO>(invoice);
+                    APInvoiceDTO invoiceDTO = _mapper.Map<APInvoiceDTO>(invoice);
 
                     // inser invoice lines
-                    foreach (CreateInvoiceLineDTO createInvoiceLineDTO in createInvoiceDTO.InvoiceLines)
+                    foreach (CreateAPInvoiceLineDTO createInvoiceLineDTO in createInvoiceDTO.InvoiceLines)
                     {
-                        InvoiceLineDTO invoiceLineDTO = await _invoiceLineService.CreateInvoiceLineAsync(createInvoiceLineDTO, invoiceDTO.Id, userName);
+                        APInvoiceLineDTO invoiceLineDTO = await _invoiceLineService.CreateAPInvoiceLineAsync(createInvoiceLineDTO, invoiceDTO.Id, userName);
 
                         invoiceDTO.InvoiceLines.Add(invoiceLineDTO);
                     }
@@ -59,87 +59,87 @@ namespace AccountingAPI.Services
             }       
         }
 
-        public async Task<InvoiceDTO> GetInvoiceByIdAsync(Guid invoiceId)
+        public async Task<APInvoiceDTO> GetAPInvoiceByIdAsync(Guid invoiceId)
         {
-            InvoiceDTO invoiceDTO = new();
-            IEnumerable<InvoiceLineDTO> invoiceLines = await _invoiceLineService.GetInvoiceLinesAsync();
-            Invoice? invoice = await _invoiceRepository.GetInvoiceByIdAsync(invoiceId);
+            APInvoiceDTO invoiceDTO = new();
+            IEnumerable<APInvoiceLineDTO> invoiceLines = await _invoiceLineService.GetAPInvoiceLinesAsync();
+            Invoice? invoice = await _invoiceRepository.GetAPInvoiceByIdAsync(invoiceId);
 
             if (invoice == null) return invoiceDTO;
 
-            invoiceDTO = _mapper.Map<InvoiceDTO>(invoice);
+            invoiceDTO = _mapper.Map<APInvoiceDTO>(invoice);
             invoiceDTO.InvoiceLines = invoiceLines.Where(i => i.InvoiceId == invoice.Id).ToList();
 
             return invoiceDTO;
         }
 
-        public async Task<bool> CheckIfInvoiceExistsAsync(Guid invoiceId)
+        public async Task<bool> CheckIfAPInvoiceExistsAsync(Guid invoiceId)
         {
-            return await _invoiceRepository.GetInvoiceByIdAsync(invoiceId) != null;
+            return await _invoiceRepository.GetAPInvoiceByIdAsync(invoiceId) != null;
         }
 
-        public async Task<IEnumerable<InvoiceDTO>> GetInvoicesAsync(bool includeDeleted = false)
+        public async Task<IEnumerable<APInvoiceDTO>> GetAPInvoicesAsync(bool includeDeleted = false)
         {
-            List<InvoiceDTO> invoiceDTOs = new();
-            IEnumerable<InvoiceLineDTO> invoiceLines = await _invoiceLineService.GetInvoiceLinesAsync(includeDeleted);
-            IEnumerable<Invoice> invoices = await _invoiceRepository.GetInvoicesAsync(includeDeleted);
+            List<APInvoiceDTO> invoiceDTOs = new();
+            IEnumerable<APInvoiceLineDTO> invoiceLines = await _invoiceLineService.GetAPInvoiceLinesAsync(includeDeleted);
+            IEnumerable<Invoice> invoices = await _invoiceRepository.GetAPInvoicesAsync(includeDeleted);
             foreach(Invoice invoice in invoices)
             {
-                InvoiceDTO invoiceDTO = _mapper.Map<InvoiceDTO>(invoice);
+                APInvoiceDTO invoiceDTO = _mapper.Map<APInvoiceDTO>(invoice);
                 invoiceDTO.InvoiceLines = invoiceLines.Where(i => i.InvoiceId == invoice.Id).ToList();
                 invoiceDTOs.Add(invoiceDTO);
             }
             return invoiceDTOs;
         }
 
-        public async Task<InvoiceDTO> UpdateInvoiceAndLinesAsync(UpdateInvoiceDTO updateInvoiceDTO, string userName, Guid invoiceId)
+        public async Task<APInvoiceDTO> UpdateAPInvoiceAndLinesAsync(UpdateAPInvoiceDTO updateInvoiceDTO, string userName, Guid invoiceId)
         {
             using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
                 {
                     // Get and Update Invoice
-                    InvoiceDTO actualInvoiceDTO = await GetInvoiceByIdAsync(invoiceId);
+                    APInvoiceDTO actualInvoiceDTO = await GetAPInvoiceByIdAsync(invoiceId);
 
-                    Invoice invoice = _mapper.Map<Invoice>(actualInvoiceDTO);
+                    APInvoice invoice = _mapper.Map<APInvoice>(actualInvoiceDTO);
                     invoice.GrossAmount = updateInvoiceDTO.InvoiceLines.Sum(invoiceLine => invoiceLine.UnitPrice * invoiceLine.Quantity);
                     invoice.NetAmount = updateInvoiceDTO.InvoiceLines.Sum(invoiceLine => invoiceLine.UnitPrice * invoiceLine.Quantity / (1 + invoiceLine.Tax));
                     invoice.CreatedBy = userName;
                     invoice.LastModificationBy = userName;
 
-                    invoice = await _invoiceRepository.UpdateInvoiceAsync(invoice);
+                    invoice = await _invoiceRepository.UpdateAPInvoiceAsync(invoice);
 
                     List<Guid> updateInvoiceLineIds = new();
 
                     // check Add/Update invoice lines 
-                    foreach (UpdateInvoiceLineDTO updateInvoiceLineDTO in updateInvoiceDTO.InvoiceLines)
+                    foreach (UpdateAPInvoiceLineDTO updateInvoiceLineDTO in updateInvoiceDTO.InvoiceLines)
                     {
                         if (updateInvoiceLineDTO.Id != null)
                         {
                             // Update invoice line
-                            InvoiceLineDTO updatedInvoiceLine = await _invoiceLineService.UpdateInvoiceLineAsync(updateInvoiceLineDTO, userName, (Guid)updateInvoiceLineDTO.Id);
+                            APInvoiceLineDTO updatedInvoiceLine = await _invoiceLineService.UpdateAPInvoiceLineAsync(updateInvoiceLineDTO, userName, (Guid)updateInvoiceLineDTO.Id);
                             updateInvoiceLineIds.Add(updatedInvoiceLine.Id);
                         }
                         else
                         {
                             // Add invoice line
-                            CreateInvoiceLineDTO createInvoiceLineDTO = _mapper.Map<CreateInvoiceLineDTO>(updateInvoiceLineDTO);
-                            await _invoiceLineService.CreateInvoiceLineAsync(createInvoiceLineDTO, actualInvoiceDTO.Id, userName);
+                            CreateAPInvoiceLineDTO createInvoiceLineDTO = _mapper.Map<CreateAPInvoiceLineDTO>(updateInvoiceLineDTO);
+                            await _invoiceLineService.CreateAPInvoiceLineAsync(createInvoiceLineDTO, actualInvoiceDTO.Id, userName);
                         }
                     }
 
-                    foreach(InvoiceLineDTO actualInvoiceLineDTO in actualInvoiceDTO.InvoiceLines)
+                    foreach(APInvoiceLineDTO actualInvoiceLineDTO in actualInvoiceDTO.InvoiceLines)
                     {
                         if (!updateInvoiceLineIds.Contains(actualInvoiceLineDTO.Id))
                         {
                             // delete invoice line
-                            await _invoiceLineService.SetDeletedInvoiceLineAsync(actualInvoiceLineDTO.Id, true);
+                            await _invoiceLineService.SetDeletedAPInvoiceLineAsync(actualInvoiceLineDTO.Id, true);
                         }
                     }
 
                     transaction.Complete();
 
-                    return await GetInvoiceByIdAsync(invoiceId);
+                    return await GetAPInvoiceByIdAsync(invoiceId);
                 }
                 catch
                 {
@@ -148,9 +148,9 @@ namespace AccountingAPI.Services
             }
         }
 
-        public async Task<int> SetDeleteInvoiceAsync(Guid invoiceId, bool deleted)
+        public async Task<int> SetDeletedAPInvoiceAsync(Guid invoiceId, bool deleted)
         {
-            return await _invoiceRepository.SetDeleteInvoiceAsync(invoiceId, deleted);
+            return await _invoiceRepository.SetDeletedAPInvoiceAsync(invoiceId, deleted);
         }
 
     }

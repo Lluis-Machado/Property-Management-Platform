@@ -1,23 +1,24 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace AccountingAPI.Models
+namespace AccountingAPI.DTOs
 {
-    public class Invoice :BaseModel
+    public class UpdateARInvoiceDTO
     {
-        public Guid BusinessPartnerId { get; set; }
         public string RefNumber { get; set; }
         public DateTime Date { get; set; }
         public string Currency { get; set; }
         public double GrossAmount { get; set; }
         public double NetAmount { get; set; }
+        public List<UpdateARInvoiceLineDTO> InvoiceLines { get; set; }   
 
         [JsonConstructor]
-        public Invoice()
+        public UpdateARInvoiceDTO()
         {
             RefNumber = string.Empty;
             Currency = string.Empty;
             GrossAmount = 0;
             NetAmount = 0;
+            InvoiceLines = new List<UpdateARInvoiceLineDTO>();
         }
     }
 }

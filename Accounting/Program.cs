@@ -39,13 +39,21 @@ builder.Services.AddScoped<IBusinessPartnerService, BusinessPartnerService>();
 builder.Services.AddScoped<IBusinessPartnerRepository, BusinessPartnerRepository>();
 builder.Services.AddScoped<IValidator<CreateBusinessPartnerDTO>, CreateBusinessPartnerDTOValidator>();
 
-builder.Services.AddScoped<IInvoiceService, InvoiceService>();
-builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
-builder.Services.AddScoped<IValidator<CreateInvoiceDTO>, CreateInvoiceDTOValidator>();
+builder.Services.AddScoped<IAPInvoiceService, APInvoiceService>();
+builder.Services.AddScoped<IAPInvoiceRepository, APInvoiceRepository>();
+builder.Services.AddScoped<IValidator<CreateAPInvoiceDTO>, CreateAPInvoiceDTOValidator>();
 
-builder.Services.AddScoped<IInvoiceLineRepository, InvoiceLineRepository>();
-builder.Services.AddScoped<IInvoiceLineService, InvoiceLineService>();
-builder.Services.AddScoped<IValidator<CreateInvoiceLineDTO>, CreateInvoiceLineDTOValidator>();
+builder.Services.AddScoped<IARInvoiceService, ARInvoiceService>();
+builder.Services.AddScoped<IARInvoiceRepository, ARInvoiceRepository>();
+builder.Services.AddScoped<IValidator<CreateARInvoiceDTO>, CreateARInvoiceDTOValidator>();
+
+builder.Services.AddScoped<IAPInvoiceLineRepository, APInvoiceLineRepository>();
+builder.Services.AddScoped<IAPInvoiceLineService, APInvoiceLineService>();
+builder.Services.AddScoped<IValidator<CreateAPInvoiceLineDTO>, CreateAPInvoiceLineDTOValidator>();
+
+builder.Services.AddScoped<IARInvoiceLineRepository, ARInvoiceLineRepository>();
+builder.Services.AddScoped<IARInvoiceLineService, ARInvoiceLineService>();
+builder.Services.AddScoped<IValidator<CreateARInvoiceLineDTO>, CreateARInvoiceLineDTOValidator>();
 
 builder.Services.AddScoped<IExpenseCategoryService, ExpenseCategoryService>();
 builder.Services.AddScoped<IExpenseCategoryRepository, ExpenseCategoryRepository>();

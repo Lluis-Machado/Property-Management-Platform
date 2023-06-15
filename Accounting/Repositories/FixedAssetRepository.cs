@@ -1,14 +1,14 @@
-﻿using Accounting.Context;
-using Accounting.Models;
+﻿using AccountingAPI.Context;
+using AccountingAPI.Models;
 using Dapper;
 using System.Text;
 
-namespace Accounting.Repositories
+namespace AccountingAPI.Repositories
 {
     public class FixedAssetRepository : IFixedAssetRepository
     {
-        private readonly DapperContext _context;
-        public FixedAssetRepository(DapperContext context)
+        private readonly IDapperContext _context;
+        public FixedAssetRepository(IDapperContext context)
         {
             _context = context;
         }
@@ -21,98 +21,89 @@ namespace Accounting.Repositories
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");
-            queryBuilder.Append(" ,InvoiceId");
-            queryBuilder.Append(" ,Name");
-            queryBuilder.Append(" ,CapitalizationDate");
-            queryBuilder.Append(" ,AcquisitionAndProductionCosts");
-            queryBuilder.Append(" ,DepreciatedAmount");
-            queryBuilder.Append(" ,DepreciationConfigId");
-            queryBuilder.Append(" ,DepreciationAmountPercent");
-            queryBuilder.Append(" ,DepreciationMaxYears");
-            queryBuilder.Append(" ,EstimatedUsefulLife");
-            queryBuilder.Append(" ,Deleted");
-            queryBuilder.Append(" ,CreationDate");
-            queryBuilder.Append(" ,LastModificationDate");
-            queryBuilder.Append(" ,LastModificationBy");
+            queryBuilder.Append(",InvoiceLineId");
+            queryBuilder.Append(",Description");
+            queryBuilder.Append(",CapitalizationDate");
+            queryBuilder.Append(",AcquisitionAndProductionCosts");
+            queryBuilder.Append(",DepreciationPercentagePerYear");
+            queryBuilder.Append(",Deleted");
+            queryBuilder.Append(",CreatedAt");
+            queryBuilder.Append(",CreatedBy");
+            queryBuilder.Append(",LastModificationAt");
+            queryBuilder.Append(",LastModificationBy");
             queryBuilder.Append(" FROM FixedAssets");
             queryBuilder.Append(" WHERE Id = @fixedAssetId");
 
-            return await _context
-                .CreateConnection()
-                .QuerySingleOrDefaultAsync<FixedAsset?>(queryBuilder.ToString(), parameters);
+            return await _context.Connection.QuerySingleOrDefaultAsync<FixedAsset?>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<IEnumerable<FixedAsset>> GetFixedAssetsAsync(bool includeDeleted)
         {
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");
-            queryBuilder.Append(" ,InvoiceId");
-            queryBuilder.Append(" ,Name");
-            queryBuilder.Append(" ,CapitalizationDate");
-            queryBuilder.Append(" ,AcquisitionAndProductionCosts");
-            queryBuilder.Append(" ,DepreciatedAmount");
-            queryBuilder.Append(" ,DepreciationConfigId");
-            queryBuilder.Append(" ,DepreciationAmountPercent");
-            queryBuilder.Append(" ,DepreciationMaxYears");
-            queryBuilder.Append(" ,EstimatedUsefulLife");
-            queryBuilder.Append(" ,Deleted");
-            queryBuilder.Append(" ,CreationDate");
-            queryBuilder.Append(" ,LastModificationDate");
-            queryBuilder.Append(" ,LastModificationBy");
+            queryBuilder.Append(",InvoiceLineId");
+            queryBuilder.Append(",Description");
+            queryBuilder.Append(",CapitalizationDate");
+            queryBuilder.Append(",AcquisitionAndProductionCosts");
+            queryBuilder.Append(",DepreciationPercentagePerYear");
+            queryBuilder.Append(",Deleted");
+            queryBuilder.Append(",CreatedAt");
+            queryBuilder.Append(",CreatedBy");
+            queryBuilder.Append(",LastModificationAt");
+            queryBuilder.Append(",LastModificationBy");
             queryBuilder.Append(" FROM FixedAssets");
             if (includeDeleted == false) queryBuilder.Append(" WHERE Deleted = 0");
 
 
-            return await _context
-                .CreateConnection()
-                .QueryAsync<FixedAsset>(queryBuilder.ToString());
+            return await _context.Connection.QueryAsync<FixedAsset>(queryBuilder.ToString());
         }
 
         public async Task<FixedAsset> InsertFixedAssetAsync(FixedAsset fixedAsset)
         {
             var parameters = new
             {
-                fixedAsset.InvoiceId,
+                fixedAsset.InvoiceLineId,
                 fixedAsset.Description,
                 fixedAsset.CapitalizationDate,
                 fixedAsset.AcquisitionAndProductionCosts,
-                fixedAsset.DepreciationAmountPercent,
+                fixedAsset.DepreciationPercentagePerYear,
                 fixedAsset.LastModificationBy,
+                fixedAsset.CreatedBy,
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("INSERT INTO FixedAssets (");
-            queryBuilder.Append(" InvoiceId");
-            queryBuilder.Append(" ,Name");
-            queryBuilder.Append(" ,CapitalizationDate");
-            queryBuilder.Append(" ,AcquisitionAndProductionCosts");
-            queryBuilder.Append(" ,DepreciationAmountPercent");
-            queryBuilder.Append(" ,LastModificationBy");
-            queryBuilder.Append(" )OUTPUT INSERTED.Id");
-            queryBuilder.Append(" ,INSERTED.InvoiceId");
-            queryBuilder.Append(" ,INSERTED.Name");
-            queryBuilder.Append(" ,INSERTED.CapitalizationDate");
-            queryBuilder.Append(" ,INSERTED.AcquisitionAndProductionCosts");
-            queryBuilder.Append(" ,INSERTED.DepreciatedAmount");
-            queryBuilder.Append(" ,INSERTED.DepreciationAmountPercent");
-            queryBuilder.Append(" ,INSERTED.Deleted");
-            queryBuilder.Append(" ,INSERTED.CreationDate");
-            queryBuilder.Append(" ,INSERTED.LastModificationDate");
-            queryBuilder.Append(" ,INSERTED.LastModificationBy");
+            queryBuilder.Append("InvoiceLineId");
+            queryBuilder.Append(",Description");
+            queryBuilder.Append(",CapitalizationDate");
+            queryBuilder.Append(",AcquisitionAndProductionCosts");
+            queryBuilder.Append(",DepreciationPercentagePerYear");
+            queryBuilder.Append(",CreatedBy");
+            queryBuilder.Append(",LastModificationBy");
+            queryBuilder.Append(")OUTPUT INSERTED.Id");
+            queryBuilder.Append(",INSERTED.InvoiceLineId");
+            queryBuilder.Append(",INSERTED.Description");
+            queryBuilder.Append(",INSERTED.CapitalizationDate");
+            queryBuilder.Append(",INSERTED.AcquisitionAndProductionCosts");
+            queryBuilder.Append(",INSERTED.DepreciationPercentagePerYear");
+            queryBuilder.Append(",INSERTED.Deleted");
+            queryBuilder.Append(",INSERTED.CreatedAt");
+            queryBuilder.Append(",INSERTED.CreatedBy");
+            queryBuilder.Append(",INSERTED.LastModificationAt");
+            queryBuilder.Append(",INSERTED.LastModificationBy");
             queryBuilder.Append(" VALUES(");
-            queryBuilder.Append(" @InvoiceId");
-            queryBuilder.Append(" ,@Name");
-            queryBuilder.Append(" ,@CapitalizationDate");
-            queryBuilder.Append(" ,@AcquisitionAndProductionCosts");
-            queryBuilder.Append(" ,@DepreciationAmountPercent");
-            queryBuilder.Append(" ,@LastModificationBy");
-            queryBuilder.Append(" )");
+            queryBuilder.Append("@InvoiceLineId");
+            queryBuilder.Append(",@Description");
+            queryBuilder.Append(",@CapitalizationDate");
+            queryBuilder.Append(",@AcquisitionAndProductionCosts");
+            queryBuilder.Append(",@DepreciationPercentagePerYear");
+            queryBuilder.Append(",@CreatedBy");
+            queryBuilder.Append(",@LastModificationBy");
+            queryBuilder.Append(")");
 
-            return await _context
-                .CreateConnection()
-                .QuerySingleAsync<FixedAsset>(queryBuilder.ToString(), parameters);
+            return await _context.Connection.QuerySingleAsync<FixedAsset>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<int> SetDeleteFixedAssetAsync(Guid id, bool deleted)
+        public async Task<int> SetDeletedFixedAssetAsync(Guid id, bool deleted)
         {
             var parameters = new
             {
@@ -125,38 +116,46 @@ namespace Accounting.Repositories
             queryBuilder.Append(" SET Deleted = @deleted");
             queryBuilder.Append(" WHERE Id = @id");
 
-            return await _context
-                .CreateConnection()
-                .ExecuteAsync(queryBuilder.ToString(), parameters);
+            return await _context.Connection.ExecuteAsync(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<int> UpdateFixedAssetAsync(FixedAsset fixedAsset)
+        public async Task<FixedAsset> UpdateFixedAssetAsync(FixedAsset fixedAsset)
         {
             var parameters = new
             {
                 fixedAsset.Id,
-                fixedAsset.InvoiceId,
                 fixedAsset.Description,
                 fixedAsset.CapitalizationDate,
                 fixedAsset.AcquisitionAndProductionCosts,
+                fixedAsset.DepreciationPercentagePerYear,
                 fixedAsset.Deleted,
                 fixedAsset.LastModificationBy,
+                fixedAsset.LastModificationAt,
                 LastModificationDate = DateTime.Now,
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("UPDATE FixedAssets");
-            queryBuilder.Append(" SET InvoiceId = @InvoiceId");
-            queryBuilder.Append(" ,Description = @Description");
-            queryBuilder.Append(" ,CapitalizationDate = @CapitalizationDate");
-            queryBuilder.Append(" ,AcquisitionAndProductionCosts = @AcquisitionAndProductionCosts");
-            queryBuilder.Append(" ,Deleted = @Deleted");
-            queryBuilder.Append(" ,LastModificationBy = @LastModificationBy");
-            queryBuilder.Append(" ,LastModificationDate = @LastModificationDate");
+            queryBuilder.Append(" SET Description = @Description");
+            queryBuilder.Append(",CapitalizationDate = @CapitalizationDate");
+            queryBuilder.Append(",AcquisitionAndProductionCosts = @AcquisitionAndProductionCosts");
+            queryBuilder.Append(",DepreciationPercentagePerYear = @DepreciationPercentagePerYear");
+            queryBuilder.Append(",Deleted = @Deleted");
+            queryBuilder.Append(",LastModificationBy = @LastModificationBy");
+            queryBuilder.Append(",LastModificationAt = @LastModificationAt");
+            queryBuilder.Append(" OUTPUT INSERTED.Id");
+            queryBuilder.Append(",INSERTED.InvoiceLineId");
+            queryBuilder.Append(",INSERTED.Description");
+            queryBuilder.Append(",INSERTED.CapitalizationDate");
+            queryBuilder.Append(",INSERTED.AcquisitionAndProductionCosts");
+            queryBuilder.Append(",INSERTED.DepreciationPercentagePerYear");
+            queryBuilder.Append(",INSERTED.Deleted");
+            queryBuilder.Append(",INSERTED.CreatedAt");
+            queryBuilder.Append(",INSERTED.CreatedBy");
+            queryBuilder.Append(",INSERTED.LastModificationAt");
+            queryBuilder.Append(",INSERTED.LastModificationBy");
             queryBuilder.Append(" WHERE Id = @Id");
 
-            return await _context
-                .CreateConnection()
-                .ExecuteAsync(queryBuilder.ToString(), parameters);
+            return await _context.Connection.QuerySingleAsync<FixedAsset>(queryBuilder.ToString(), parameters);
         }
     }
 }

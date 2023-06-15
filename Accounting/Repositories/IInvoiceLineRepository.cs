@@ -1,13 +1,13 @@
-﻿using Accounting.Models;
+﻿using AccountingAPI.Models;
 
-namespace Accounting.Repositories
+namespace AccountingAPI.Repositories
 {
     public interface IInvoiceLineRepository
     {
         Task<InvoiceLine> InsertInvoiceLineAsync(InvoiceLine invoiceLine);
         Task<IEnumerable<InvoiceLine>> GetInvoiceLinesAsync(bool includeDeleted);
         Task<InvoiceLine> GetInvoiceLineByIdAsync(Guid invoiceLineId);
-        Task<int> UpdateInvoiceLineAsync(InvoiceLine invoiceLine);
-        Task<int> SetDeleteInvoiceLineAsync(Guid id, bool deleted);
+        Task<InvoiceLine> UpdateInvoiceLineAsync(InvoiceLine invoiceLine);
+        Task<int> SetDeletedInvoiceLineAsync(Guid id, bool deleted);
     }
 }

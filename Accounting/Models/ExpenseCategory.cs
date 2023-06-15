@@ -1,21 +1,24 @@
-﻿namespace Accounting.Models
+﻿using AccountingAPI.Models;
+
+namespace AccountingAPI.Models
 {
-    public class ExpenseCategory :IAuditable
+    public enum ExpenseType
     {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public int ExpenseTypeCode { get; set; }
+        UAT,
+        UAV,
+        BAT,
+        BAV,
+        Asset
+    }
+
+    public class ExpenseCategory :BaseModel
+    {
+        public string? Name { get; set; }
+        public string? ExpenseTypeCode { get; set; }
         public int DepreciationPercent { get; set; }
-        public bool Deleted { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime LastModificationAt { get; set; }
-        public string? CreatedBy { get; set; }
-        public string? LastModificationBy { get; set; }
 
         public ExpenseCategory()
         {
-            Name = string.Empty;
-            LastModificationBy = string.Empty;
         }
     }
 }

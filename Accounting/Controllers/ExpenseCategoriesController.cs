@@ -1,105 +1,110 @@
-﻿using Accounting.Models;
-using Accounting.Repositories;
+﻿using AccountingAPI.DTOs;
+using AccountingAPI.Models;
+using AccountingAPI.Services;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
-namespace Accounting.Controllers
+namespace AccountingAPI.Controllers
 {
     [Authorize]
     public class ExpenseCategoriesController : Controller
     {
-        private readonly IExpenseCategoryRepository _expenseCategoryRepo;
-        private readonly IValidator<ExpenseCategory> _expenseCategoryValidator;
+        private readonly IExpenseCategoryService _expenseCategoryService;
+        private readonly IValidator<CreateExpenseCategoryDTO> _expenseCategoryValidator;
         private readonly ILogger<ExpenseCategoriesController> _logger;
 
-        public ExpenseCategoriesController(IExpenseCategoryRepository expenseCategoryRepository, IValidator<ExpenseCategory> expenseCategoryValidator, ILogger<ExpenseCategoriesController> logger)
+        public ExpenseCategoriesController(IExpenseCategoryService expenseCategoryRepository, IValidator<CreateExpenseCategoryDTO> expenseCategoryValidator, ILogger<ExpenseCategoriesController> logger)
         {
-            _expenseCategoryRepo = expenseCategoryRepository;
+            _expenseCategoryService = expenseCategoryRepository;
             _expenseCategoryValidator = expenseCategoryValidator;
-            _logger = logger;
+            _logger = logger; 
         }
 
         // POST: Create expenseCategory
         [HttpPost]
-        [Route("{tenantId}/expenseCategories")]
+        [Route("tenants/{tenantId}/expenseCategories")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<Guid>> CreateAsync([FromBody] ExpenseCategory expenseCategory)
+        public async Task<ActionResult<ExpenseCategoryDTO>> CreateExpenseCategoryAsync([FromBody] CreateExpenseCategoryDTO createExpenseCategoryDTO)
         {
             // request validations
-            if (expenseCategory == null) return BadRequest("Incorrect body format");
-            if (expenseCategory.Id != Guid.Empty) return BadRequest("ExpenseType Id field must be empty");
+            if (createExpenseCategoryDTO == null) return BadRequest("Incorrect body format");
 
             // expenseCategory validation
-            ValidationResult validationResult = await _expenseCategoryValidator.ValidateAsync(expenseCategory);
+            ValidationResult validationResult = await _expenseCategoryValidator.ValidateAsync(createExpenseCategoryDTO);
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
-            expenseCategory = await _expenseCategoryRepo.InsertExpenseCategoryAsync(expenseCategory);
-            return Created($"expenseCategories/{expenseCategory.Id}", expenseCategory);
+            ExpenseCategoryDTO expenseCategoryDTO = await _expenseCategoryService.CreateExpenseCategoryAsync(createExpenseCategoryDTO, User?.Identity?.Name);
+
+            return Created($"expenseCategories/{expenseCategoryDTO.Id}", expenseCategoryDTO);
         }
 
         // GET: Get expenseCategory(s)
         [HttpGet]
-        [Route("{tenantId}/expenseCategories")]
+        [Route("tenants/{tenantId}/expenseCategories")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<ExpenseCategory>>> GetAsync([FromQuery] bool includeDeleted = false)
+        public async Task<ActionResult<IEnumerable<ExpenseCategory>>> GetExpenseCategoriesAsync([FromQuery] bool includeDeleted = false)
         {
-            return Ok(await _expenseCategoryRepo.GetExpenseCategoriesAsync(includeDeleted));
-            return Ok(await _expenseCategoryRepo.GetExpenseCategoriesAsync(includeDeleted));
+            return Ok(await _expenseCategoryService.GetExpenseCategoriesAsync(includeDeleted));
         }
 
         // PATCH: update expenseCategory
         [HttpPatch]
-        [Route("{tenantId}/expenseCategories/{expenseCategoryId}")]
-        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [Route("tenants/{tenantId}/expenseCategories/{expenseCategoryId}")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult> UpdateAsync([FromBody] ExpenseCategory expenseCategory, Guid expenseCategoryId)
+        public async Task<ActionResult<ExpenseCategoryDTO>> UpdateExpenseCategoryAsync([FromBody] CreateExpenseCategoryDTO createExpenseCategoryDTO, Guid expenseCategoryId)
         {
             // request validations
-            if (expenseCategory == null) return BadRequest("Incorrect body format");
-            if (expenseCategory.Id != expenseCategoryId) return BadRequest("ExpenseType Id from body incorrect");
+            if (createExpenseCategoryDTO == null) return BadRequest("Incorrect body format");
 
-            // expenseCategory validation
-            ValidationResult validationResult = await _expenseCategoryValidator.ValidateAsync(expenseCategory);
+            ValidationResult validationResult = await _expenseCategoryValidator.ValidateAsync(createExpenseCategoryDTO);
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
-            expenseCategory.Id = expenseCategoryId; // copy id to ExpenseType object
+            // check if exists
+            if (!await _expenseCategoryService.CheckIfExpenseCategoryExistsAsync(expenseCategoryId)) return NotFound("Expense Category not found");
 
-            int result = await _expenseCategoryRepo.UpdateExpenseCategoryAsync(expenseCategory);
-            if (result == 0) return NotFound("ExpenseType not found");
-            return NoContent();
+            ExpenseCategoryDTO expenseCategoryDTO = await _expenseCategoryService.UpdateExpenseCategoryAsync(createExpenseCategoryDTO, User?.Identity?.Name, expenseCategoryId);
+
+            return Ok(expenseCategoryDTO);
         }
 
         // DELETE: delete expenseCategory
         [HttpDelete]
-        [Route("{tenantId}/expenseCategories/{expenseCategoryId}")]
+        [Route("tenants/{tenantId}/expenseCategories/{expenseCategoryId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> DeleteAsync(Guid expenseCategoryId)
+        public async Task<IActionResult> DeleteExpenseCategoryAsync(Guid expenseCategoryId)
         {
-            int result = await _expenseCategoryRepo.SetDeleteExpenseCategoryAsync(expenseCategoryId, true);
-            if (result == 0) return NotFound("ExpenseType not found");
+            // check if exists
+            if (!await _expenseCategoryService.CheckIfExpenseCategoryExistsAsync(expenseCategoryId)) return NotFound("Expense Category not found");
+
+            await _expenseCategoryService.SetDeletedExpenseCategoryAsync(expenseCategoryId, true);
+
             return NoContent();
         }
 
         // POST: undelete expenseCategory
         [HttpPost]
-        [Route("{tenantId}/expenseCategories/{expenseCategoryId}/undelete")]
+        [Route("tenants/{tenantId}/expenseCategories/{expenseCategoryId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> UndeleteAsync(Guid expenseCategoryId)
+        public async Task<IActionResult> UndeleteExpenseCategoryAsync(Guid expenseCategoryId)
         {
-            int result = await _expenseCategoryRepo.SetDeleteExpenseCategoryAsync(expenseCategoryId, false);
-            if (result == 0) return NotFound("ExpenseType not found");
+            // check if exists
+            if (!await _expenseCategoryService.CheckIfExpenseCategoryExistsAsync(expenseCategoryId)) return NotFound("Expense Category not found");
+
+            await _expenseCategoryService.SetDeletedExpenseCategoryAsync(expenseCategoryId, false);
+
             return NoContent();
         }
 

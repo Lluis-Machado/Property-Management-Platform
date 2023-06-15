@@ -1,13 +1,13 @@
-﻿using Accounting.Models;
+﻿using AccountingAPI.Models;
 
-namespace Accounting.Repositories
+namespace AccountingAPI.Repositories
 {
     public interface IExpenseCategoryRepository
     {
-        Task<ExpenseCategory> InsertExpenseCategoryAsync(ExpenseCategory expenseType);
+        Task<ExpenseCategory> InsertExpenseCategoryAsync(ExpenseCategory expenseCategory);
         Task<IEnumerable<ExpenseCategory>> GetExpenseCategoriesAsync(bool includeDeleted);
-        Task<ExpenseCategory?> GetExpenseCategoriesByIdAsync(Guid expenseTypeId);
-        Task<int> UpdateExpenseCategoryAsync(ExpenseCategory expenseType);
-        Task<int> SetDeleteExpenseCategoryAsync(Guid id, bool deleted);
+        Task<ExpenseCategory?> GetExpenseCategoryByIdAsync(Guid expenseCategoryId);
+        Task<ExpenseCategory> UpdateExpenseCategoryAsync(ExpenseCategory expenseCategory);
+        Task<int> SetDeletedExpenseCategoryAsync(Guid id, bool deleted);
     }
 }

@@ -1,19 +1,20 @@
-﻿using Accounting.Models;
+﻿using AccountingAPI.DTOs;
 using FluentValidation;
 
-namespace Accounting.Validators
+namespace AccountingAPI.Validators
 {
-    public class ExpenseTypeValidator : AbstractValidator<ExpenseCategory>
+    public class CreateLoanDTOValidator : AbstractValidator<CreateLoanDTO>
     {
-        public ExpenseTypeValidator()
+        public CreateLoanDTOValidator()
         {
-            RuleFor(Type => Type.ExpenseTypeCode)
-                .NotEmpty().WithMessage("{PropertyName} cannot be empty");
 
-            RuleFor(Type => Type.Name)
+            RuleFor(loan => loan.Concept)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty")
                 .Matches(@"^[\p{L}\s]+$").WithMessage("{PropertyName} cannot contain special characters")
                 .Matches(@"^[\p{L}\s]{2,256}$").WithMessage("{PropertyName} has to be between 2 and 256 characters long");
+
+            RuleFor(loan => loan.Amount)
+                .GreaterThan(0).WithMessage("{PropertyName} has to be greater than 0");
         }
     }
 }

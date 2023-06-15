@@ -1,7 +1,9 @@
-﻿namespace Accounting.Models
+﻿namespace AccountingAPI.Models
 {
-    public interface IAuditable
+    public class BaseModel
     {
+        public Guid Id { get; set; }
+        public bool Deleted { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime LastModificationAt { get; set; }
         public string? CreatedBy { get; set; }

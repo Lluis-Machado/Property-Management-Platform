@@ -13,7 +13,7 @@ namespace AccountingUnitTests
     public class BusinessPartnersControllerTests
     {
         private readonly Mock<ILogger<BusinessPartnersController>> _mockLogger;
-        private readonly Mock<IValidator<BusinessPartner>> _mockBusinessPartnerValidator;
+        private readonly Mock<IValidator<BusinessPartnerDTO>> _mockBusinessPartnerValidator;
         private readonly Mock<IConfiguration> _mockConfiguration;
         private readonly Mock<IBusinessPartnerRepository> _mockBusinessPartnerRepo;
         private readonly BusinessPartnersController _businessPartnersController;
@@ -21,7 +21,7 @@ namespace AccountingUnitTests
         public BusinessPartnersControllerTests()
         {
             _mockLogger = new Mock<ILogger<BusinessPartnersController>>();
-            _mockBusinessPartnerValidator = new Mock<IValidator<BusinessPartner>>();
+            _mockBusinessPartnerValidator = new Mock<IValidator<BusinessPartnerDTO>>();
             _mockConfiguration = new Mock<IConfiguration>();
             _mockBusinessPartnerRepo = new Mock<IBusinessPartnerRepository>();
             _businessPartnersController = new BusinessPartnersController(_mockBusinessPartnerRepo.Object, _mockBusinessPartnerValidator.Object, _mockLogger.Object);
@@ -51,11 +51,11 @@ namespace AccountingUnitTests
             };
 
             _mockBusinessPartnerValidator
-                .Setup(v => v.ValidateAsync(It.IsAny<BusinessPartner>(), CancellationToken.None))
+                .Setup(v => v.ValidateAsync(It.IsAny<BusinessPartnerDTO>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
             _mockBusinessPartnerRepo
-                .Setup(r => r.InsertBusinessPartnerAsync(It.IsAny<BusinessPartner>()))
+                .Setup(r => r.InsertBusinessPartnerAsync(It.IsAny<BusinessPartnerDTO>()))
                 .ReturnsAsync(fakeExpectedBusinessPartner);
 
             // Act
@@ -102,7 +102,7 @@ namespace AccountingUnitTests
             var validationResult = new ValidationResult(new List<ValidationFailure> { new ValidationFailure("Name", "Name cannot be empty") });
 
             _mockBusinessPartnerValidator
-                .Setup(v => v.ValidateAsync(It.IsAny<BusinessPartner>(), CancellationToken.None))
+                .Setup(v => v.ValidateAsync(It.IsAny<BusinessPartnerDTO>(), CancellationToken.None))
                 .ReturnsAsync(validationResult);
 
             // Act
@@ -121,7 +121,7 @@ namespace AccountingUnitTests
         public async Task GetAsync_ReturnsOkResult_WhenValidRequestIsMade()
         {
             // Arrange
-            var fakeExpectedBusinessPartners = new List<BusinessPartner>()
+            var fakeExpectedBusinessPartners = new List<BusinessPartnerDTO>()
             {
                 new BusinessPartner
                 {
@@ -152,7 +152,7 @@ namespace AccountingUnitTests
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
-            var actualBusinessPartners = Assert.IsAssignableFrom<IEnumerable<BusinessPartner>>(okResult.Value);
+            var actualBusinessPartners = Assert.IsAssignableFrom<IEnumerable<BusinessPartnerDTO>>(okResult.Value);
             Assert.Equal(fakeExpectedBusinessPartners, actualBusinessPartners);
         }
 
@@ -189,7 +189,7 @@ namespace AccountingUnitTests
             };
 
             _mockBusinessPartnerValidator
-                .Setup(v => v.ValidateAsync(It.IsAny<BusinessPartner>(), CancellationToken.None))
+                .Setup(v => v.ValidateAsync(It.IsAny<BusinessPartnerDTO>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
             _mockBusinessPartnerRepo
@@ -240,7 +240,7 @@ namespace AccountingUnitTests
             var validationResult = new ValidationResult(new List<ValidationFailure> { new ValidationFailure("Name", "Name cannot be empty") });
             
             _mockBusinessPartnerValidator
-                .Setup(v => v.ValidateAsync(It.IsAny<BusinessPartner>(), CancellationToken.None))             
+                .Setup(v => v.ValidateAsync(It.IsAny<BusinessPartnerDTO>(), CancellationToken.None))             
                 .ReturnsAsync(validationResult);
 
             // Act
@@ -265,11 +265,11 @@ namespace AccountingUnitTests
             };
 
             _mockBusinessPartnerValidator
-                .Setup(v => v.ValidateAsync(It.IsAny<BusinessPartner>(), CancellationToken.None))
+                .Setup(v => v.ValidateAsync(It.IsAny<BusinessPartnerDTO>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
             _mockBusinessPartnerRepo
-                .Setup(r => r.UpdateBusinessPartnerAsync(It.IsAny<BusinessPartner>()))
+                .Setup(r => r.UpdateBusinessPartnerAsync(It.IsAny<BusinessPartnerDTO>()))
                 .ReturnsAsync(0);
 
             // Act

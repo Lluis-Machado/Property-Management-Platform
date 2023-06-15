@@ -1,439 +1,172 @@
-﻿using Accounting.Context;
-using Accounting.Models;
+﻿using AccountingAPI.Context;
+using AccountingAPI.Models;
 using Dapper;
 using System.Text;
 
-namespace Accounting.Repositories
+namespace AccountingAPI.Repositories
 {
     public class InvoiceRepository : IInvoiceRepository
     {
 
-        private readonly DapperContext _context;
+        private readonly IDapperContext _context;
 
-        public InvoiceRepository(DapperContext context)
+        public InvoiceRepository(IDapperContext context)
         {
             _context = context;
         }
 
         public async Task<Invoice?> GetInvoiceByIdAsync(Guid invoiceId)
         {
-            using var connection = _context.CreateConnection();
-            connection.Open();
-            using var tran = connection.BeginTransaction();
-
-            try
-            {
                 var parameters = new
                 {
                     invoiceId
                 };
+
                 StringBuilder queryBuilder = new();
                 queryBuilder.Append("SELECT Id");
-                queryBuilder.Append(" ,BusinessPartnerId");
-                queryBuilder.Append(" ,RefNumber");
-                queryBuilder.Append(" ,Date");
-                queryBuilder.Append(" ,Currency");
-                queryBuilder.Append(" ,GrossAmount");
-                queryBuilder.Append(" ,NetAmount");
-                queryBuilder.Append(" ,Deleted");
-                queryBuilder.Append(" ,CreationDate");
-                queryBuilder.Append(" ,LastModificationDate");
-                queryBuilder.Append(" ,LastModificationBy");
+                queryBuilder.Append(",BusinessPartnerId");
+                queryBuilder.Append(",RefNumber");
+                queryBuilder.Append(",Date");
+                queryBuilder.Append(",Currency");
+                queryBuilder.Append(",GrossAmount");
+                queryBuilder.Append(",NetAmount");
+                queryBuilder.Append(",Deleted");
+                queryBuilder.Append(",CreatedAt");
+                queryBuilder.Append(",CreatedBy");
+                queryBuilder.Append(",LastModificationAt");
+                queryBuilder.Append(",LastModificationBy");
                 queryBuilder.Append(" FROM Invoices ");
                 queryBuilder.Append(" WHERE Id = @invoiceId");
 
-                Invoice? invoice = await connection.QuerySingleOrDefaultAsync<Invoice?>(queryBuilder.ToString(), parameters, tran);
-                if (invoice == null)
-                {
-                    tran.Rollback();
-                    connection.Close();
-                    return null;
-                }
-
-                StringBuilder queryBuilder2 = new();
-                queryBuilder2.Append("SELECT Id");
-                queryBuilder2.Append(" ,LineNumber");
-                queryBuilder2.Append(" ,ArticleRefNumber");
-                queryBuilder2.Append(" ,Description");
-                queryBuilder2.Append(" ,Tax");
-                queryBuilder2.Append(" ,Quantity");
-                queryBuilder2.Append(" ,UnitPrice");
-                queryBuilder2.Append(" ,TotalPrice");
-                queryBuilder2.Append(" ,ServiceDateFrom");
-                queryBuilder2.Append(" ,ServiceDateTo");
-                queryBuilder2.Append(" ,ExpenseCategoryId");
-                queryBuilder2.Append(" ,Deleted");
-                queryBuilder2.Append(" ,CreationDate");
-                queryBuilder2.Append(" ,LastModificationDate");
-                queryBuilder2.Append(" ,LastModificationBy");
-                queryBuilder2.Append(" ,InvoiceId ");
-                queryBuilder2.Append(" FROM InvoiceLines");
-                queryBuilder2.Append(" WHERE InvoiceId = @invoiceId");
-
-                IEnumerable<InvoiceLine> aux = await connection.QueryAsync<InvoiceLine>(queryBuilder2.ToString(), parameters, tran);
-                invoice.InvoiceLines = aux.ToArray();
-                if (invoice.InvoiceLines == null || invoice.InvoiceLines.Length == 0)
-                {
-                    tran.Rollback();
-                    connection.Close();
-                    return null;
-                }
-
-                tran.Commit();
-                connection.Close();
-                return invoice;
-            }
-            catch
-            {
-                tran.Rollback();
-                connection.Close();
-                throw;
-            }
+                return await _context.Connection.QuerySingleOrDefaultAsync<Invoice?>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<IEnumerable<Invoice>> GetInvoicesAsync(bool includeDeleted)
+        public async Task<IEnumerable<Invoice>> GetInvoicesAsync(bool includeDeleted = false)
         {
-            using var connection = _context.CreateConnection();
-            connection.Open();
-            using var tran = connection.BeginTransaction();
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("SELECT ID");
+            queryBuilder.Append(",BusinessPartnerId");
+            queryBuilder.Append(",RefNumber");
+            queryBuilder.Append(",Date");
+            queryBuilder.Append(",Currency");
+            queryBuilder.Append(",GrossAmount");
+            queryBuilder.Append(",NetAmount");
+            queryBuilder.Append(",Deleted");
+            queryBuilder.Append(",CreatedAt");
+            queryBuilder.Append(",CreatedBy");
+            queryBuilder.Append(",LastModificationAt");
+            queryBuilder.Append(",LastModificationBy");
+            queryBuilder.Append(" FROM Invoices");
+            if (includeDeleted == false) queryBuilder.Append(" WHERE Deleted = 0");
 
-            try
-            {
-                StringBuilder queryBuilder = new();
-                queryBuilder.Append("SELECT ID");
-                queryBuilder.Append(" ,BusinessPartnerId");
-                queryBuilder.Append(" ,RefNumber");
-                queryBuilder.Append(" ,Date");
-                queryBuilder.Append(" ,Currency");
-                queryBuilder.Append(" ,GrossAmount");
-                queryBuilder.Append(" ,NetAmount");
-                queryBuilder.Append(" ,Deleted");
-                queryBuilder.Append(" ,CreationDate");
-                queryBuilder.Append(" ,LastModificationDate");
-                queryBuilder.Append(" ,LastModificationBy");
-                queryBuilder.Append(" FROM Invoices");
-                if (includeDeleted == false) queryBuilder.Append(" WHERE Deleted = 0");
-
-
-                IEnumerable<Invoice> invoices = await connection.QueryAsync<Invoice>(queryBuilder.ToString(), transaction: tran);
-
-                foreach (var invoice in invoices)
-                {
-                    StringBuilder queryBuilder2 = new();
-                    queryBuilder2.Append("SELECT ID");
-                    queryBuilder2.Append(" ,LineNumber");
-                    queryBuilder2.Append(" ,ArticleRefNumber");
-                    queryBuilder2.Append(" ,Description");
-                    queryBuilder2.Append(" ,Tax");
-                    queryBuilder2.Append(" ,Quantity");
-                    queryBuilder2.Append(" ,UnitPrice");
-                    queryBuilder2.Append(" ,TotalPrice");
-                    queryBuilder2.Append(" ,ServiceDateFrom");
-                    queryBuilder2.Append(" ,ServiceDateTo");
-                    queryBuilder2.Append(" ,ExpenseCategoryId");
-                    queryBuilder2.Append(" ,Deleted");
-                    queryBuilder2.Append(" ,CreationDate");
-                    queryBuilder2.Append(" ,LastModificationDate");
-                    queryBuilder2.Append(" ,LastModificationBy");
-                    queryBuilder2.Append(" ,InvoiceId");
-                    queryBuilder2.Append(" FROM InvoiceLines");
-                    queryBuilder2.Append(" WHERE InvoiceId = @Id");
-                    if (includeDeleted == false) queryBuilder.Append("AND Deleted = 0");
-
-
-                    invoice.InvoiceLines = connection
-                        .Query<InvoiceLine>(queryBuilder2.ToString(), new { invoice.Id }, tran)
-                        .ToArray();
-                }
-
-                tran.Commit();
-                connection.Close();
-                return invoices;
-            }
-            catch
-            {
-                tran.Rollback();
-                connection.Close();
-                throw;
-            }
+            return await _context.Connection.QueryAsync<Invoice>(queryBuilder.ToString());   
         }
 
-        public async Task<Invoice> InsertInvoiceAsync(Invoice invoice)
+        public async Task<Invoice> InsertInvoice(Invoice invoice)
         {
-            using var connection = _context.CreateConnection();
-            connection.Open();
-            using var tran = connection.BeginTransaction();
-
-            Array.ForEach(invoice.InvoiceLines, line => line.TotalPrice = line.UnitPrice * line.Quantity);
-
-            invoice.GrossAmount = invoice.InvoiceLines.Sum(invoiceLine => invoiceLine.TotalPrice);
-            invoice.NetAmount = invoice.InvoiceLines.Sum(invoiceLine => invoiceLine.TotalPrice / (1 + invoiceLine.Tax));
-
-            try
+            var parameters = new
             {
-                var parameters = new
-                {
-                    invoice.BusinessPartnerId,
-                    invoice.RefNumber,
-                    invoice.Date,
-                    invoice.Currency,
-                    invoice.GrossAmount,
-                    invoice.NetAmount,
-                    invoice.LastModificationBy,
-                };
-                StringBuilder queryBuilder = new();
-                queryBuilder.Append("INSERT INTO Invoices (");
-                queryBuilder.Append(" BusinessPartnerId");
-                queryBuilder.Append(" ,RefNumber");
-                queryBuilder.Append(" ,Date");
-                queryBuilder.Append(" ,Currency");
-                queryBuilder.Append(" ,GrossAmount");
-                queryBuilder.Append(" ,NetAmount");
-                queryBuilder.Append(" ,LastModificationBy");
-                queryBuilder.Append(" )OUTPUT INSERTED.Id");
-                queryBuilder.Append(" ,INSERTED.BusinessPartnerId");
-                queryBuilder.Append(" ,INSERTED.RefNumber");
-                queryBuilder.Append(" ,INSERTED.Date");
-                queryBuilder.Append(" ,INSERTED.Currency");
-                queryBuilder.Append(" ,INSERTED.GrossAmount");
-                queryBuilder.Append(" ,INSERTED.NetAmount");
-                queryBuilder.Append(" ,INSERTED.Deleted");
-                queryBuilder.Append(" ,INSERTED.CreationDate");
-                queryBuilder.Append(" ,INSERTED.LastModificationDate");
-                queryBuilder.Append(" ,INSERTED.LastModificationBy");
-                queryBuilder.Append(" VALUES(");
-                queryBuilder.Append(" @BusinessPartnerId");
-                queryBuilder.Append(" ,@RefNumber");
-                queryBuilder.Append(" ,@Date");
-                queryBuilder.Append(" ,@Currency");
-                queryBuilder.Append(" ,@GrossAmount");
-                queryBuilder.Append(" ,@NetAmount");
-                queryBuilder.Append(" ,@LastModificationBy");
-                queryBuilder.Append(" )");
+                invoice.BusinessPartnerId,
+                invoice.RefNumber,
+                invoice.Date,
+                invoice.Currency,
+                invoice.GrossAmount,
+                invoice.NetAmount,
+                invoice.CreatedBy,
+                invoice.LastModificationBy,
+            };
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("INSERT INTO Invoices (");
+            queryBuilder.Append("BusinessPartnerId");
+            queryBuilder.Append(",RefNumber");
+            queryBuilder.Append(",Date");
+            queryBuilder.Append(",Currency");
+            queryBuilder.Append(",GrossAmount");
+            queryBuilder.Append(",NetAmount");
+            queryBuilder.Append(",CreatedBy");
+            queryBuilder.Append(",LastModificationBy");
+            queryBuilder.Append(")OUTPUT INSERTED.Id");
+            queryBuilder.Append(",INSERTED.BusinessPartnerId");
+            queryBuilder.Append(",INSERTED.RefNumber");
+            queryBuilder.Append(",INSERTED.Date");
+            queryBuilder.Append(",INSERTED.Currency");
+            queryBuilder.Append(",INSERTED.GrossAmount");
+            queryBuilder.Append(",INSERTED.NetAmount");
+            queryBuilder.Append(",INSERTED.Deleted");
+            queryBuilder.Append(",INSERTED.CreatedAt");
+            queryBuilder.Append(",INSERTED.CreatedBy");
+            queryBuilder.Append(",INSERTED.LastModificationAt");
+            queryBuilder.Append(",INSERTED.LastModificationBy");
+            queryBuilder.Append(" VALUES(");
+            queryBuilder.Append("@BusinessPartnerId");
+            queryBuilder.Append(",@RefNumber");
+            queryBuilder.Append(",@Date");
+            queryBuilder.Append(",@Currency");
+            queryBuilder.Append(",@GrossAmount");
+            queryBuilder.Append(",@NetAmount");
+            queryBuilder.Append(",@CreatedBy");
+            queryBuilder.Append(",@LastModificationBy");
+            queryBuilder.Append(")");
 
-                Invoice invoiceResponse = await connection.QuerySingleAsync<Invoice>(queryBuilder.ToString(), parameters, tran);
+            return await _context.Connection.QuerySingleAsync<Invoice>(queryBuilder.ToString(), parameters);
+        }
 
-                List<InvoiceLine> lines = new();
-                foreach (var invoiceLine in invoice.InvoiceLines)
-                {
-                    invoiceLine.InvoiceId = invoiceResponse.Id;
-                    var lineParameters = new
-                    {
-                        invoiceLine.InvoiceId,
-                        invoiceLine.Description,
-                        invoiceLine.Tax,
-                        invoiceLine.Quantity,
-                        invoiceLine.UnitPrice,
-                        invoiceLine.TotalPrice,
-                        invoiceLine.ServiceDateFrom,
-                        invoiceLine.ServiceDateTo,
-                        invoiceLine.ExpenseCategoryId,
-                        invoiceLine.LastModificationBy,
-                    };
-                    StringBuilder lineQueryBuilder = new();
-                    lineQueryBuilder.Append("INSERT INTO InvoiceLines (");
-                    lineQueryBuilder.Append(" InvoiceId");
-                    lineQueryBuilder.Append(" ,Description");
-                    lineQueryBuilder.Append(" ,Tax");
-                    lineQueryBuilder.Append(" ,Quantity");
-                    lineQueryBuilder.Append(" ,UnitPrice");
-                    lineQueryBuilder.Append(" ,TotalPrice");
-                    lineQueryBuilder.Append(" ,ServiceDateFrom");
-                    lineQueryBuilder.Append(" ,ServiceDateTo");
-                    lineQueryBuilder.Append(" ,ExpenseCategoryId");
-                    lineQueryBuilder.Append(" ,LastModificationBy");
-                    lineQueryBuilder.Append(" )OUTPUT INSERTED.Id");
-                    lineQueryBuilder.Append(" ,INSERTED.Description");
-                    lineQueryBuilder.Append(" ,INSERTED.Tax");
-                    lineQueryBuilder.Append(" ,INSERTED.Quantity");
-                    lineQueryBuilder.Append(" ,INSERTED.UnitPrice");
-                    lineQueryBuilder.Append(" ,INSERTED.TotalPrice");
-                    lineQueryBuilder.Append(" ,INSERTED.ServiceDateFrom");
-                    lineQueryBuilder.Append(" ,INSERTED.ServiceDateTo");
-                    lineQueryBuilder.Append(" ,INSERTED.ExpenseCategoryId");
-                    lineQueryBuilder.Append(" ,INSERTED.InvoiceId");
-                    lineQueryBuilder.Append(" ,INSERTED.Deleted");
-                    lineQueryBuilder.Append(" ,INSERTED.CreationDate");
-                    lineQueryBuilder.Append(" ,INSERTED.LastModificationDate");
-                    lineQueryBuilder.Append(" ,INSERTED.LastModificationBy");
-                    lineQueryBuilder.Append(" VALUES(");
-                    lineQueryBuilder.Append(" @InvoiceId");
-                    lineQueryBuilder.Append(" ,@Description");
-                    lineQueryBuilder.Append(" ,@Tax");
-                    lineQueryBuilder.Append(" ,@Quantity");
-                    lineQueryBuilder.Append(" ,@UnitPrice");
-                    lineQueryBuilder.Append(" ,@TotalPrice");
-                    lineQueryBuilder.Append(" ,@ServiceDateFrom");
-                    lineQueryBuilder.Append(" ,@ServiceDateTo");
-                    lineQueryBuilder.Append(" ,@ExpenseCategoryId");
-                    lineQueryBuilder.Append(" ,@LastModificationBy");
-                    lineQueryBuilder.Append(" )");
-
-                    lines.Add(await connection.QuerySingleAsync<InvoiceLine>(lineQueryBuilder.ToString(), lineParameters, tran));
-                }
-
-                invoiceResponse.InvoiceLines = lines.ToArray();
-
-                tran.Commit();
-
-                return invoiceResponse;
-            }
-            catch
+        public async Task<Invoice> UpdateInvoiceAsync(Invoice invoice)
+        {
+            var parameters = new
             {
-                tran.Rollback();
-                connection.Close();
-                throw;
-            }
+                invoice.Id,
+                invoice.BusinessPartnerId,
+                invoice.RefNumber,
+                invoice.Date,
+                invoice.Currency,
+                invoice.GrossAmount,
+                invoice.NetAmount,
+                invoice.LastModificationAt,
+                invoice.LastModificationBy,
+            };
+
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("UPDATE Invoices");
+            queryBuilder.Append(" SET BusinessPartnerId = @BusinessPartnerId");
+            queryBuilder.Append(",RefNumber = @RefNumber");
+            queryBuilder.Append(",Date = @Date");
+            queryBuilder.Append(",Currency = @Currency");
+            queryBuilder.Append(",GrossAmount = @GrossAmount");
+            queryBuilder.Append(",NetAmount = @NetAmount");
+            queryBuilder.Append(",LastModificationAt = @LastModificationAt");
+            queryBuilder.Append(",LastModificationBy = @LastModificationBy");
+            queryBuilder.Append(" OUTPUT INSERTED.Id");
+            queryBuilder.Append(",INSERTED.BusinessPartnerId");
+            queryBuilder.Append(",INSERTED.RefNumber");
+            queryBuilder.Append(",INSERTED.Date");
+            queryBuilder.Append(",INSERTED.Currency");
+            queryBuilder.Append(",INSERTED.GrossAmount");
+            queryBuilder.Append(",INSERTED.NetAmount");
+            queryBuilder.Append(",INSERTED.Deleted");
+            queryBuilder.Append(",INSERTED.CreatedAt");
+            queryBuilder.Append(",INSERTED.CreatedBy");
+            queryBuilder.Append(",INSERTED.LastModificationAt");
+            queryBuilder.Append(",INSERTED.LastModificationBy");
+            queryBuilder.Append(" WHERE Id = @Id");
+
+            return await _context.Connection.QuerySingleAsync<Invoice>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<int> SetDeleteInvoiceAsync(Guid id, bool deleted)
         {
-            using var connection = _context.CreateConnection();
-            connection.Open();
-            using var tran = connection.BeginTransaction();
-
-            try
+            var parameters = new
             {
-                var parameters = new
-                {
-                    id,
-                    deleted
-                };
+                id,
+                deleted
+            };
 
-                StringBuilder queryBuilder = new();
-                queryBuilder.Append("UPDATE Invoices");
-                queryBuilder.Append(" SET Deleted = @deleted");
-                queryBuilder.Append(" WHERE Id = @id");
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("UPDATE Invoices");
+            queryBuilder.Append(" SET Deleted = @deleted");
+            queryBuilder.Append(" WHERE Id = @id");
 
-                int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters, tran);
-
-                StringBuilder queryBuilder2 = new();
-                queryBuilder2.Append("UPDATE InvoiceLines");
-                queryBuilder2.Append(" SET Deleted = @deleted");
-                queryBuilder2.Append(" WHERE InvoiceId = @id");
-                int rowsAffected2 = await connection.ExecuteAsync(queryBuilder2.ToString(), parameters, tran);
-
-                tran.Commit();
-                connection.Close();
-
-                return rowsAffected;
-            }
-            catch
-            {
-                tran.Rollback();
-                connection.Close();
-                throw;
-            }
-
-        }
-
-        public async Task<int> UpdateInvoiceAsync(Invoice invoice)
-        {
-            using var connection = _context.CreateConnection();
-            connection.Open();
-            using var tran = connection.BeginTransaction();
-
-            try
-            {
-                StringBuilder queryBuilder1 = new();
-                queryBuilder1.Append("DELETE InvoiceLines");
-                queryBuilder1.Append(" WHERE InvoiceId = @Id");
-
-                connection.Execute(queryBuilder1.ToString(), new { invoice.Id }, tran);
-
-                Array.ForEach(invoice.InvoiceLines, line => line.TotalPrice = line.UnitPrice * line.Quantity);
-
-                invoice.GrossAmount = invoice.InvoiceLines.Sum(invoiceLine => invoiceLine.TotalPrice);
-                invoice.NetAmount = invoice.InvoiceLines.Sum(invoiceLine => invoiceLine.TotalPrice / (1 + invoiceLine.Tax));
-
-                var parameters = new
-                {
-                    invoice.Id,
-                    invoice.BusinessPartnerId,
-                    invoice.RefNumber,
-                    invoice.Date,
-                    invoice.Currency,
-                    invoice.GrossAmount,
-                    invoice.NetAmount,
-                    invoice.Deleted,
-                    invoice.LastModificationBy,
-                    LastModificationDate = DateTime.Now,
-                };
-
-                StringBuilder queryBuilder = new();
-                queryBuilder.Append("UPDATE Invoices");
-                queryBuilder.Append(" SET BusinessPartnerId = @BusinessPartnerId");
-                queryBuilder.Append(" ,RefNumber = @RefNumber");
-                queryBuilder.Append(" ,Date = @Date");
-                queryBuilder.Append(" ,Currency = @Currency");
-                queryBuilder.Append(" ,GrossAmount = @GrossAmount");
-                queryBuilder.Append(" ,NetAmount = @NetAmount");
-                queryBuilder.Append(" ,Deleted = @Deleted");
-                queryBuilder.Append(" ,LastModificationBy = @LastModificationBy");
-                queryBuilder.Append(" ,LastModificationDate = @LastModificationDate");
-                queryBuilder.Append(" WHERE Id = @Id");
-
-                int rowsAffected = await connection.ExecuteAsync(queryBuilder.ToString(), parameters, tran);
-
-                foreach (var invoiceLine in invoice.InvoiceLines)
-                {
-                    invoiceLine.InvoiceId = invoice.Id;
-                    var lineParameters = new
-                    {
-                        invoiceLine.InvoiceId,
-                        invoiceLine.Description,
-                        invoiceLine.Tax,
-                        invoiceLine.Quantity,
-                        invoiceLine.UnitPrice,
-                        invoiceLine.TotalPrice,
-                        invoiceLine.ServiceDateFrom,
-                        invoiceLine.ServiceDateTo,
-                        invoiceLine.ExpenseCategoryId,
-                        invoiceLine.LastModificationBy,
-                    };
-                    StringBuilder lineQueryBuilder = new();
-                    lineQueryBuilder.Append("INSERT INTO InvoiceLines (");
-                    lineQueryBuilder.Append(" LineNumber");
-                    lineQueryBuilder.Append(" ,InvoiceId");
-                    lineQueryBuilder.Append(" ,ArticleRefNumber");
-                    lineQueryBuilder.Append(" ,Description");
-                    lineQueryBuilder.Append(" ,Tax");
-                    lineQueryBuilder.Append(" ,Quantity");
-                    lineQueryBuilder.Append(" ,UnitPrice");
-                    lineQueryBuilder.Append(" ,TotalPrice");
-                    lineQueryBuilder.Append(" ,ServiceDateFrom");
-                    lineQueryBuilder.Append(" ,ServiceDateTo");
-                    lineQueryBuilder.Append(" ,ExpenseCategoryId");
-                    lineQueryBuilder.Append(" ,LastModificationBy");
-                    lineQueryBuilder.Append(" )OUTPUT INSERTED.Id VALUES(");
-                    lineQueryBuilder.Append(" @LineNumber");
-                    lineQueryBuilder.Append(" ,@InvoiceId");
-                    lineQueryBuilder.Append(" ,@ArticleRefNumber");
-                    lineQueryBuilder.Append(" ,@Description");
-                    lineQueryBuilder.Append(" ,@Tax");
-                    lineQueryBuilder.Append(" ,@Quantity");
-                    lineQueryBuilder.Append(" ,@UnitPrice");
-                    lineQueryBuilder.Append(" ,@TotalPrice");
-                    lineQueryBuilder.Append(" ,@ServiceDateFrom");
-                    lineQueryBuilder.Append(" ,@ServiceDateTo");
-                    lineQueryBuilder.Append(" ,@ExpenseCategoryId");
-                    lineQueryBuilder.Append(" ,@LastModificationBy");
-                    lineQueryBuilder.Append(" )");
-
-                    await connection.QuerySingleAsync<Guid>(lineQueryBuilder.ToString(), lineParameters, tran);
-                }
-
-                tran.Commit();
-                connection.Close();
-
-                return rowsAffected;
-            }
-            catch
-            {
-                tran.Rollback();
-                connection.Close();
-                throw;
-            }
+            return await _context.Connection.ExecuteAsync(queryBuilder.ToString(), parameters);
         }
     }
 }

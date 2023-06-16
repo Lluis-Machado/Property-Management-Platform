@@ -6,6 +6,7 @@ namespace AccountingAPI.Services
     {
         Task<FixedAssetDTO> CreateFixedAssetAsync(CreateFixedAssetDTO createFixedAssetDTO, string userName);
         Task<IEnumerable<FixedAssetDTO>> GetFixedAssetsAsync();
+        //Task<IEnumerable<FixedAssetYearDetailsDTO>> GetFixedAssetsYearDetailsAsync();
 
         Task<FixedAssetDTO?> GetFixedAssetByIdAsync(Guid FixedAssetId);
         Task<FixedAssetDTO> UpdateFixedAssetAsync(UpdateFixedAssetDTO updateFixedAssetDTO, string userName, Guid fixedAssetId);

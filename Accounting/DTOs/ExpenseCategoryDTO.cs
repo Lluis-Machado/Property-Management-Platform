@@ -11,9 +11,5 @@
         public DateTime LastModificationAt { get; set; }
         public string? CreatedBy { get; set; }
         public string? LastModificationBy { get; set; }
-
-        public ExpenseCategoryDTO()
-        {
-        }
     }
 }

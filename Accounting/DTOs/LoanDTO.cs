@@ -1,5 +1,4 @@
 ﻿
-using System.Text.Json.Serialization;
 
 namespace AccountingAPI.DTOs
 {
@@ -15,13 +14,5 @@ namespace AccountingAPI.DTOs
         public DateTime LastModificationAt { get; set; }
         public string? CreatedBy { get; set; }
         public string? LastModificationBy { get; set; }
-
-        [JsonConstructor]
-        public LoanDTO()
-        {
-            Concept = string.Empty;
-            Amount = 0;
-            AmountPaid = 0;
-        }
     }
 }

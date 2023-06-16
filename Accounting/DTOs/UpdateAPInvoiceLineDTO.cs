@@ -12,9 +12,5 @@
         public double DepreciationRatePerYear { get; set; }
         public DateTime ServiceDateFrom { get; set; }
         public DateTime ServiceDateTo { get; set; }
-
-        public UpdateAPInvoiceLineDTO()
-        {
-        }
     }
 }

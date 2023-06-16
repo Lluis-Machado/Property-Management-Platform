@@ -40,7 +40,7 @@ namespace AccountingAPI.Services
 
                     APInvoiceDTO invoiceDTO = _mapper.Map<APInvoiceDTO>(invoice);
 
-                    // inser invoice lines
+                    // insert invoice lines
                     foreach (CreateAPInvoiceLineDTO createInvoiceLineDTO in createInvoiceDTO.InvoiceLines)
                     {
                         APInvoiceLineDTO invoiceLineDTO = await _invoiceLineService.CreateAPInvoiceLineAsync(createInvoiceLineDTO, invoiceDTO.Id, userName);

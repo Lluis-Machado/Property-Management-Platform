@@ -9,9 +9,5 @@
         public double UnitPrice { get; set; }
         public DateTime ServiceDateFrom { get; set; }
         public DateTime ServiceDateTo { get; set; }
-
-        public UpdateARInvoiceLineDTO()
-        {
-        }
     }
 }

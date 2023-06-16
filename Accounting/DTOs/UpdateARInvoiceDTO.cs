@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+﻿
 
 namespace AccountingAPI.DTOs
 {
@@ -10,15 +10,5 @@ namespace AccountingAPI.DTOs
         public double GrossAmount { get; set; }
         public double NetAmount { get; set; }
         public List<UpdateARInvoiceLineDTO> InvoiceLines { get; set; }   
-
-        [JsonConstructor]
-        public UpdateARInvoiceDTO()
-        {
-            RefNumber = string.Empty;
-            Currency = string.Empty;
-            GrossAmount = 0;
-            NetAmount = 0;
-            InvoiceLines = new List<UpdateARInvoiceLineDTO>();
-        }
     }
 }

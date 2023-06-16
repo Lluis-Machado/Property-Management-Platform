@@ -12,7 +12,7 @@ namespace AccountingAPI.Services
         private readonly IMapper _mapper;
         private readonly ILogger<APInvoiceService> _logger;
 
-        public FixedAssetService(IAPInvoiceRepository invoiceRepository, ILogger<APInvoiceService> logger, IAPInvoiceLineRepository invoiceLineRepository, IMapper mapper, IFixedAssetRepository fixedAssetRepository)
+        public FixedAssetService(ILogger<APInvoiceService> logger, IMapper mapper, IFixedAssetRepository fixedAssetRepository)
         {
             _logger = logger;
             _mapper = mapper;
@@ -33,6 +33,7 @@ namespace AccountingAPI.Services
             IEnumerable<FixedAsset> fixedAssets = await _fixedAssetRepository.GetFixedAssetsAsync(true);
             return _mapper.Map<IEnumerable<FixedAssetDTO>> (fixedAssets);
         }
+
         public async Task<FixedAssetDTO?> GetFixedAssetByIdAsync(Guid FixedAssetId)
         {
             FixedAsset? fixedAsset = await _fixedAssetRepository.GetFixedAssetByIdAsync(FixedAssetId);

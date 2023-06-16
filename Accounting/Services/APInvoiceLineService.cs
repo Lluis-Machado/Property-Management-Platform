@@ -8,16 +8,18 @@ namespace AccountingAPI.Services
     public class APInvoiceLineService : IAPInvoiceLineService
     {
         private readonly IAPInvoiceLineRepository _invoiceLineRepository;
+        private readonly IExpenseCategoryService _expenseCategoryService;
         private readonly IFixedAssetService _fixedAssetService;
         private readonly IMapper _mapper;
         private readonly ILogger<APInvoiceLineService> _logger;
 
-        public APInvoiceLineService(IAPInvoiceLineRepository invoiceLineRepository, ILogger<APInvoiceLineService> logger, IMapper mapper, IFixedAssetService fixedAssetService)
+        public APInvoiceLineService(IAPInvoiceLineRepository invoiceLineRepository, ILogger<APInvoiceLineService> logger, IMapper mapper, IFixedAssetService fixedAssetService, IExpenseCategoryService expenseCategoryService)
         {
             _invoiceLineRepository = invoiceLineRepository;
             _logger = logger;
             _mapper = mapper;
             _fixedAssetService = fixedAssetService;
+            _expenseCategoryService = expenseCategoryService;
         }
 
         public async Task<APInvoiceLineDTO> CreateAPInvoiceLineAsync(CreateAPInvoiceLineDTO createInvoiceLineDTO,Guid invoiceId, string userName)
@@ -32,7 +34,11 @@ namespace AccountingAPI.Services
 
             invoiceLine = await _invoiceLineRepository.InsertAPInvoiceLineAsync(invoiceLine);
 
-            if (createInvoiceLineDTO.ExpenseCategoryType == "Asset")
+            ExpenseCategoryDTO? expenseCategoryDTO = await _expenseCategoryService.GetExpenseCategoryByIdAsync(invoiceLine.ExpenseCategoryId);
+
+            if (expenseCategoryDTO == null) throw new Exception("Expense category does not exist");
+
+            if (expenseCategoryDTO.ExpenseTypeCode == "Asset")
             {
                 // create fixed asset
                 CreateFixedAssetDTO createFixedAssetDTO = new()
@@ -45,24 +51,32 @@ namespace AccountingAPI.Services
                 };
                 FixedAssetDTO fixedAssetDTO = await _fixedAssetService.CreateFixedAssetAsync(createFixedAssetDTO, userName);
 
-                // update invoiceline with fixed asset id
-                UpdateAPInvoiceLineDTO updateInvoiceLineDTO = _mapper.Map<UpdateAPInvoiceLineDTO>(invoiceLine);
-
-                invoiceLineDTO = await UpdateAPInvoiceLineAsync(updateInvoiceLineDTO, userName, invoiceLine.Id, fixedAssetDTO.Id);
+                invoiceLineDTO.FixedAsset = fixedAssetDTO;
             }
 
             return invoiceLineDTO;  
         }
         public async Task<IEnumerable<APInvoiceLineDTO>> GetAPInvoiceLinesAsync(bool includeDeleted = false)
         {
-            IEnumerable<InvoiceLine> invoiceLines = await _invoiceLineRepository.GetAPInvoiceLinesAsync(includeDeleted);
-            return _mapper.Map<IEnumerable<InvoiceLine>, List<APInvoiceLineDTO>>(invoiceLines);
+            List<APInvoiceLineDTO> aPInvoiceLineDTOs = new();
+            IEnumerable<APInvoiceLine> invoiceLines = await _invoiceLineRepository.GetAPInvoiceLinesAsync(includeDeleted);
+            foreach(APInvoiceLine aPInvoiceLine in invoiceLines)
+            {
+                APInvoiceLineDTO aPInvoiceLineDTO = _mapper.Map<APInvoiceLineDTO>(aPInvoiceLine);
+                aPInvoiceLineDTO.ExpenseCategory = await _expenseCategoryService.GetExpenseCategoryByIdAsync(aPInvoiceLine.ExpenseCategoryId);
+                if (aPInvoiceLine.FixedAssetId != null) aPInvoiceLineDTO.FixedAsset = await _fixedAssetService.GetFixedAssetByIdAsync((Guid)aPInvoiceLine.FixedAssetId);
+                aPInvoiceLineDTOs.Add(aPInvoiceLineDTO);
+            }
+            return aPInvoiceLineDTOs;
         }
 
         public async Task<APInvoiceLineDTO> GetAPInvoiceLineByIdAsync(Guid InvoiceLineId)
         {
-            InvoiceLine invoiceLine = await _invoiceLineRepository.GetAPInvoiceLineByIdAsync(InvoiceLineId);
-            return _mapper.Map<APInvoiceLineDTO>(invoiceLine);
+            APInvoiceLine aPInvoiceLine = await _invoiceLineRepository.GetAPInvoiceLineByIdAsync(InvoiceLineId);
+            APInvoiceLineDTO aPInvoiceLineDTO = _mapper.Map<APInvoiceLineDTO>(aPInvoiceLine);
+            aPInvoiceLineDTO.ExpenseCategory = await _expenseCategoryService.GetExpenseCategoryByIdAsync(aPInvoiceLine.ExpenseCategoryId);
+            if (aPInvoiceLine.FixedAssetId != null) aPInvoiceLineDTO.FixedAsset = await _fixedAssetService.GetFixedAssetByIdAsync((Guid)aPInvoiceLine.FixedAssetId);
+            return aPInvoiceLineDTO;
         }
 
         public async Task<APInvoiceLineDTO> UpdateAPInvoiceLineAsync(UpdateAPInvoiceLineDTO udpateInvoiceLineDTO, string userName, Guid invoiceLineId, Guid? fixedAssetId = null)
@@ -74,6 +88,10 @@ namespace AccountingAPI.Services
             invoiceLine.LastModificationBy = userName;
 
             invoiceLine = await _invoiceLineRepository.UpdateAPInvoiceLineAsync(invoiceLine);
+
+            APInvoiceLineDTO aPInvoiceLineDTO = _mapper.Map<APInvoiceLineDTO>(invoiceLine);
+
+            FixedAssetDTO? fixedAssetDTO = null;
 
             if (udpateInvoiceLineDTO.ExpenseCategoryType == "Asset")
             {
@@ -88,7 +106,7 @@ namespace AccountingAPI.Services
                         AcquisitionAndProductionCosts = invoiceLine.TotalPrice,
                         DepreciationPercentagePerYear = udpateInvoiceLineDTO.DepreciationRatePerYear
                     };
-                    await _fixedAssetService.UpdateFixedAssetAsync(updateFixedAssetDTO, userName, (Guid)invoiceLine.FixedAssetId);
+                    fixedAssetDTO = await _fixedAssetService.UpdateFixedAssetAsync(updateFixedAssetDTO, userName, (Guid)invoiceLine.FixedAssetId);
                 }
                 else
                 {
@@ -100,7 +118,7 @@ namespace AccountingAPI.Services
                         AcquisitionAndProductionCosts = invoiceLine.TotalPrice,
                         DepreciationPercentagePerYear = udpateInvoiceLineDTO.DepreciationRatePerYear
                     };
-                    await _fixedAssetService.CreateFixedAssetAsync(createFixedAssetDTO, userName);
+                    fixedAssetDTO = await _fixedAssetService.CreateFixedAssetAsync(createFixedAssetDTO, userName);
                 }
             }
             else
@@ -111,8 +129,9 @@ namespace AccountingAPI.Services
                     await _fixedAssetService.SetDeletedFixedAssetAsync((Guid)invoiceLine.FixedAssetId, true);
                 }
             }
+            aPInvoiceLineDTO.FixedAsset = fixedAssetDTO;
 
-            return _mapper.Map<APInvoiceLineDTO>(invoiceLine);
+            return aPInvoiceLineDTO;
         }
 
         public async Task<int> SetDeletedAPInvoiceLineAsync(Guid invoiceLineId, bool deleted)

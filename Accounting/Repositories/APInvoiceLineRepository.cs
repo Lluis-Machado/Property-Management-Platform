@@ -32,7 +32,7 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",CreatedBy");
             queryBuilder.Append(",LastModificationAt");
             queryBuilder.Append(",LastModificationBy");
-            queryBuilder.Append(" FROM InvoiceLines");
+            queryBuilder.Append(" FROM APInvoiceLines");
             if (includeDeleted == false) queryBuilder.Append(" WHERE Deleted = 0");
 
 
@@ -62,7 +62,7 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",CreatedBy");
             queryBuilder.Append(",LastModificationAt");
             queryBuilder.Append(",LastModificationBy");
-            queryBuilder.Append(" FROM InvoiceLines");
+            queryBuilder.Append(" FROM APInvoiceLines");
             queryBuilder.Append(" WHERE Id = @invoiceLineId");
 
             return await _context.Connection.QuerySingleAsync<APInvoiceLine>(queryBuilder.ToString(), parameters);
@@ -86,7 +86,7 @@ namespace AccountingAPI.Repositories
                 invoiceLine.LastModificationBy,
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("INSERT INTO InvoiceLines (");
+            queryBuilder.Append("INSERT INTO APInvoiceLines (");
             queryBuilder.Append("InvoiceId");
             queryBuilder.Append(",Description");
             queryBuilder.Append(",Tax");
@@ -142,7 +142,7 @@ namespace AccountingAPI.Repositories
             };
 
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE InvoiceLines");
+            queryBuilder.Append("UPDATE APInvoiceLines");
             queryBuilder.Append(" SET Deleted = @deleted");
             queryBuilder.Append(" WHERE Id = @id");
 
@@ -169,7 +169,7 @@ namespace AccountingAPI.Repositories
             };
 
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE InvoiceLines");
+            queryBuilder.Append("UPDATE APInvoiceLines");
             queryBuilder.Append(" SET Description = @Description");
             queryBuilder.Append(",Tax = @Tax");
             queryBuilder.Append(",Quantity = @Quantity");

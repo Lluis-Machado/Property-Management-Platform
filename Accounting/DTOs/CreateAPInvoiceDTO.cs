@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
+﻿
 namespace AccountingAPI.DTOs
 {
     public class CreateAPInvoiceDTO
@@ -10,13 +9,5 @@ namespace AccountingAPI.DTOs
         public double GrossAmount { get; set; }
         public double NetAmount { get; set; }
         public List<CreateAPInvoiceLineDTO> InvoiceLines { get; set; }   
-
-        [JsonConstructor]
-        public CreateAPInvoiceDTO()
-        {
-            RefNumber = string.Empty;
-            Currency = string.Empty;
-            InvoiceLines = new List<CreateAPInvoiceLineDTO>();
-        }
     }
 }

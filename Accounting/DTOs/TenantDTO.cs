@@ -1,5 +1,4 @@
-﻿using AccountingAPI.Models;
-using System.Text.Json.Serialization;
+﻿
 
 namespace AccountingAPI.DTOs
 {
@@ -12,10 +11,5 @@ namespace AccountingAPI.DTOs
         public DateTime LastModificationAt { get; set; }
         public string? CreatedBy { get; set; }
         public string? LastModificationBy { get; set; }
-
-        [JsonConstructor]
-        public TenantDTO()
-        {
-        }
     }
 }

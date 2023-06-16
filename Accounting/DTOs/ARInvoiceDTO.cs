@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace AccountingAPI.DTOs
+﻿namespace AccountingAPI.DTOs
 {
     public class ARInvoiceDTO
     {
@@ -16,15 +14,5 @@ namespace AccountingAPI.DTOs
         public DateTime LastModificationAt { get; set; }
         public string? CreatedBy { get; set; }
         public string? LastModificationBy { get; set; }
-
-        [JsonConstructor]
-        public ARInvoiceDTO()
-        {
-            RefNumber = string.Empty;
-            Currency = string.Empty;
-            GrossAmount = 0;
-            NetAmount = 0;
-            InvoiceLines = new List<ARInvoiceLineDTO>();
-        }
     }
 }

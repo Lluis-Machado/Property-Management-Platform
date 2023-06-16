@@ -9,18 +9,14 @@
         public int Quantity { get; set; }
         public double UnitPrice { get; set; }
         public double TotalPrice { get; set; }
-        public Guid ExpenseCategoryId { get; set; }
+        public ExpenseCategoryDTO? ExpenseCategory { get; set; }
         public DateTime ServiceDateFrom { get; set; }
         public DateTime ServiceDateTo { get; set; }
-        public Guid? FixedAssetId { get; set; }
+        public FixedAssetDTO? FixedAsset { get; set; }
         public bool Deleted { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime LastModificationAt { get; set; }
         public string? CreatedBy { get; set; }
         public string? LastModificationBy { get; set; }
-
-        public APInvoiceLineDTO()
-        {
-        }
     }
 }

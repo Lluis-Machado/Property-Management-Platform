@@ -23,9 +23,9 @@ namespace AccountingAPI.Controllers
         [Route("tenants/{tenantId}/fixedAssets")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<FixedAssetDTO>>> GetAsync([FromQuery] bool includeDeleted = false)
+        public async Task<ActionResult<IEnumerable<FixedAssetDTO>>> GetFixedAssetsAsync([FromQuery] bool includeDeleted = false)
         {
-            return Ok(await _fixedAssetService.GetFixedAssetsAsync());
+            return Ok(/*await _fixedAssetService.GetFixedAssetsYearDetailsAsync()*/);
         }
     }
 }

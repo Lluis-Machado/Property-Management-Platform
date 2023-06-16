@@ -35,6 +35,15 @@ builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<ITenantRepository, TenantRepository>();
 builder.Services.AddScoped<IValidator<CreateTenantDTO>, CreateTenantDTOValidator>();
 
+builder.Services.AddScoped<IPeriodService, PeriodService>();
+builder.Services.AddScoped<IPeriodRepository, PeriodRepository>();
+
+builder.Services.AddScoped<IDepreciationService, DepreciationService>();
+builder.Services.AddScoped<IDepreciationRepository, DepreciationRepository>();
+
+builder.Services.AddScoped<IFixedAssetService, FixedAssetService>();
+builder.Services.AddScoped<IFixedAssetRepository, FixedAssetRepository>();
+
 builder.Services.AddScoped<IBusinessPartnerService, BusinessPartnerService>();
 builder.Services.AddScoped<IBusinessPartnerRepository, BusinessPartnerRepository>();
 builder.Services.AddScoped<IValidator<CreateBusinessPartnerDTO>, CreateBusinessPartnerDTOValidator>();
@@ -42,10 +51,12 @@ builder.Services.AddScoped<IValidator<CreateBusinessPartnerDTO>, CreateBusinessP
 builder.Services.AddScoped<IAPInvoiceService, APInvoiceService>();
 builder.Services.AddScoped<IAPInvoiceRepository, APInvoiceRepository>();
 builder.Services.AddScoped<IValidator<CreateAPInvoiceDTO>, CreateAPInvoiceDTOValidator>();
+builder.Services.AddScoped<IValidator<UpdateAPInvoiceDTO>, UpdateAPInvoiceDTOValidator>();
 
 builder.Services.AddScoped<IARInvoiceService, ARInvoiceService>();
 builder.Services.AddScoped<IARInvoiceRepository, ARInvoiceRepository>();
 builder.Services.AddScoped<IValidator<CreateARInvoiceDTO>, CreateARInvoiceDTOValidator>();
+builder.Services.AddScoped<IValidator<UpdateARInvoiceDTO>, UpdateARInvoiceDTOValidator>();
 
 builder.Services.AddScoped<IAPInvoiceLineRepository, APInvoiceLineRepository>();
 builder.Services.AddScoped<IAPInvoiceLineService, APInvoiceLineService>();
@@ -58,9 +69,6 @@ builder.Services.AddScoped<IValidator<CreateARInvoiceLineDTO>, CreateARInvoiceLi
 builder.Services.AddScoped<IExpenseCategoryService, ExpenseCategoryService>();
 builder.Services.AddScoped<IExpenseCategoryRepository, ExpenseCategoryRepository>();
 builder.Services.AddScoped<IValidator<CreateExpenseCategoryDTO>, CreateExpenseCategoryDTOValidator>();
-
-builder.Services.AddScoped<IFixedAssetService, FixedAssetService>();
-builder.Services.AddScoped<IFixedAssetRepository, FixedAssetRepository>();
 
 builder.Services.AddScoped<ILoanService, LoanService>();
 builder.Services.AddScoped<ILoanRepository, LoanRepository>();

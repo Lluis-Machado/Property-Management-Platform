@@ -1,5 +1,7 @@
+using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -9,6 +11,8 @@ using TaxManagement.Middelwares;
 using TaxManagement.Models;
 using TaxManagement.Repositories;
 using TaxManagement.Validators;
+using TaxManagementAPI.DTOs;
+using TaxManagementAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,16 +28,41 @@ builder.Logging.AddSerilog(logger);
 builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
 
 // Add services to the container.
+builder.Services.AddScoped<DeclarantService>();
+builder.Services.AddScoped<DeclarationService>();
+
+builder.Services.AddScoped<IDeclarantService, DeclarantService>();
+builder.Services.AddScoped<IDeclarationService, DeclarationService>();
+
 builder.Services.AddSingleton<DapperContext>();
 builder.Services.AddScoped<IDeclarationRepository, DeclarationRepository>();
 builder.Services.AddScoped<IDeclarantRepository, DeclarantRepository>();
-builder.Services.AddScoped<IValidator<Declarant>, DeclarantValidator>();
-builder.Services.AddScoped<IValidator<Declaration>, DeclarationValidator>();
+
+
+builder.Services.AddScoped<IValidator<DeclarantDTO>, DeclarantValidator>();
+builder.Services.AddScoped<IValidator<CreateDeclarantDTO>, CreateDeclarantValidator>();
+builder.Services.AddScoped<IValidator<UpdateDeclarantDTO>, UpdateDeclarantValidator>();
+builder.Services.AddScoped<IValidator<DeclarationDTO>, DeclarationValidator>();
+builder.Services.AddScoped<IValidator<CreateDeclarationDTO>, CreateDeclarationValidator>();
+builder.Services.AddScoped<IValidator<UpdateDeclarationDTO>, UpdateDeclarationValidator>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+
+/*var config = new MapperConfiguration(cfg =>
+{
+    cfg.CreateMap<DeclarantDTO, Declarant>();
+    cfg.CreateMap<Declarant, DeclarantDTO>();
+    cfg.CreateMap<DeclarationDTO, Declaration>();
+    cfg.CreateMap<Declaration, DeclarationDTO>();
+});
+var mapper = config.CreateMapper();*/
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+
 builder.Services.AddSwaggerGen(opt =>
 {
     opt.SwaggerDoc("v1", new OpenApiInfo { Title = "MyAPI", Version = "v1" });
+    opt.EnableAnnotations();
     opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -85,6 +114,8 @@ app.UseSwaggerUI(c =>
     c.ConfigObject.AdditionalItems.Add("persistAuthorization", "true");
 });
 //}
+
+
 
 app.UseHttpsRedirection();
 

@@ -8,7 +8,9 @@ namespace ContactsAPI.Repositories
     {
         Task<Contact> InsertOneAsync(Contact contact);
         Task<List<Contact>> GetAsync();
-        Task<UpdateResult> UpdateAsync(Contact contact);
+        Task<Contact> UpdateAsync(Contact contact);
         Task<UpdateResult> SetDeleteAsync(Guid contact, bool deleted);
+        Task<Contact> GetContactByIdAsync(Guid id);
+
     }
 }

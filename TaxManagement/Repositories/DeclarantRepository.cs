@@ -1,16 +1,20 @@
-﻿using Dapper;
+﻿using AutoMapper;
+using Dapper;
 using System.Text;
 using TaxManagement.Context;
 using TaxManagement.Models;
+using TaxManagementAPI.DTOs;
 
 namespace TaxManagement.Repositories
 {
     public class DeclarantRepository: IDeclarantRepository
     {
         private readonly DapperContext _context;
-        public DeclarantRepository(DapperContext context)
+        private readonly IMapper mapper;
+        public DeclarantRepository(DapperContext context, IMapper mapper)
         {
             _context = context;
+            this.mapper = mapper;
         }
 
         public async Task<Declarant> InsertDeclarantAsync(Declarant declarant)
@@ -39,9 +43,12 @@ namespace TaxManagement.Repositories
             queryBuilder.Append(",@LastUpdateByUser");
             queryBuilder.Append(" )");
 
-            return await _context
-                .CreateConnection()
-                .QuerySingleAsync<Declarant>(queryBuilder.ToString(), parameters);
+            var result = await _context
+                         .CreateConnection()
+                         .QuerySingleAsync<Declarant>(queryBuilder.ToString(), parameters);
+           
+            return declarant;
+
         }
 
         public async Task<IEnumerable<Declarant>> GetDeclarantsAsync()
@@ -55,10 +62,11 @@ namespace TaxManagement.Repositories
             queryBuilder.Append(",CreatedByUser");
             queryBuilder.Append(",LastUpdateByUser");
             queryBuilder.Append(" FROM Declarants ");
+            var result = await _context
+                        .CreateConnection()
+                        .QueryAsync<Declarant>(queryBuilder.ToString());
 
-            return await _context
-                .CreateConnection()
-                .QueryAsync<Declarant>(queryBuilder.ToString());
+            return result;
         }
 
         public async Task<Declarant?> GetDeclarantByIdAsync(Guid id)
@@ -78,12 +86,14 @@ namespace TaxManagement.Repositories
             queryBuilder.Append(" FROM Declarants");
             queryBuilder.Append(" WHERE Id = @id");
 
-            return await _context
+            var result = await _context
                 .CreateConnection()
                 .QuerySingleAsync<Declarant?>(queryBuilder.ToString(), parameters);
+
+            return result;
         }
 
-        public async Task<int> UpdateDeclarantAsync(Declarant declarant)
+        public async Task<Declarant> UpdateDeclarantAsync(Declarant declarant)
         {
             var parameters = new
             {
@@ -100,12 +110,14 @@ namespace TaxManagement.Repositories
             queryBuilder.Append(",LastUpdateByUser = @LastUpdateByUser ");
             queryBuilder.Append(",LastUpdateAt = @LastUpdateAt ");
             queryBuilder.Append(" WHERE Id = @Id ");
-            return await _context
+            var result = await _context
                 .CreateConnection()
                 .ExecuteAsync(queryBuilder.ToString(), parameters);
+
+            return declarant;
         }
 
-        public async Task<int> SetDeleteDeclarantAsync(Guid id, bool deleted, string? LastUpdateByUser)
+        public async Task<Declarant> SetDeleteDeclarantAsync(Guid id, bool deleted, string? LastUpdateByUser)
         {
             var parameters = new
             {
@@ -120,11 +132,14 @@ namespace TaxManagement.Repositories
             queryBuilder.Append("SET Deleted = @deleted ");
             queryBuilder.Append(",LastUpdateByUser = @LastUpdateByUser ");
             queryBuilder.Append(",LastUpdateAt = @LastUpdateAt ");
+            queryBuilder.Append(" OUTPUT INSERTED.* ");
             queryBuilder.Append(" WHERE Id = @id ");
 
-            return await _context
+            Declarant declarant = await _context
                 .CreateConnection()
-                .ExecuteAsync(queryBuilder.ToString(), parameters);
+                .QuerySingleAsync<Declarant>(queryBuilder.ToString(), parameters);
+
+            return declarant;
         }
     }
 }

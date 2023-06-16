@@ -2,129 +2,126 @@
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PropertyManagementAPI.DTOs;
 using PropertyManagementAPI.Models;
-using PropertyManagementAPI.Repositories;
+using PropertyManagementAPI.Services;
+using System;
+using System.Collections.Generic;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace PropertyManagementAPI.Controllers
 {
-    [Authorize]
-    public class PropertiesController : Controller
+    //[Authorize]
+    [ApiController]
+    [Route("properties")]
+    public class PropertiesController : ControllerBase
     {
-        private readonly ILogger<PropertiesController> _logger;
-        private readonly IPropertiesRepository _propertiesRepo;
-        private readonly IValidator<Property> _propertyValidator;
-        private readonly IValidator<Address> _addressValidator;
-        public PropertiesController(IPropertiesRepository propertiesRepo, ILogger<PropertiesController> logger, IValidator<Property> propertyValidator, IValidator<Address> addressValidator)
+        private readonly IPropertiesService _propertiesService;
+        private readonly IValidator<CreatePropertyDTO> _createPropertyValidator;
+        private readonly IValidator<UpdatePropertyDTO> _updatePropertyValidator;
+        private readonly IValidator<PropertyDTO> _propertyValidator;
+
+
+        public PropertiesController(IPropertiesService propertiesService
+            , IValidator<CreatePropertyDTO> createPropertyValidator
+            , IValidator<UpdatePropertyDTO> updatePropertyValidator
+            , IValidator<PropertyDTO> propertyValidator)
         {
-            _propertiesRepo = propertiesRepo;
+            _propertiesService = propertiesService;
             _propertyValidator = propertyValidator;
-            _addressValidator = addressValidator;
-            _logger = logger;
+            _createPropertyValidator = createPropertyValidator;
+            _updatePropertyValidator = updatePropertyValidator;
         }
 
         // POST: Create property
         [HttpPost]
-        [Route("properties")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-
-        public async Task<ActionResult<Property>> CreateAsync([FromBody] Property property)
+        public async Task<ActionResult<PropertyDTO>> CreateAsync([FromBody] CreatePropertyDTO propertyDTO)
         {
             // validations
-            if (property == null) return BadRequest("Incorrect body format");
-            if (property._id != Guid.Empty) return BadRequest("Id fild must be empty");
-
+            if (propertyDTO == null)    return BadRequest("Incorrect body format");
             // property validation
-            ValidationResult validationResult = await ValidateProperty(property);
+            ValidationResult validationResult = await _createPropertyValidator.ValidateAsync(propertyDTO);
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
-            property = await _propertiesRepo.InsertOneAsync(property);
-            return Created($"properties/{property._id}", property);
+
+            string userName = "user";
+
+            return await _propertiesService.CreateProperty(propertyDTO, userName);          
         }
 
         // GET: Get properties(s)
         [HttpGet]
-        [Route("properties")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-
-        public async Task<ActionResult<IEnumerable<Property>>> GetAsync()
+        public async Task<ActionResult<IEnumerable<PropertyDTO>>> GetAsync()
         {
-            return Ok(await _propertiesRepo.GetAsync());
+            var properties = await _propertiesService.GetProperties();
+            return (properties);          
         }
 
-        // GET: Get properties(s)
-        [HttpGet]
-        [Route("{contactId}/properties")]
+        // GET: Get properties(s) by contactId
+        [HttpGet("{propertyId}")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-
-        public async Task<ActionResult<IEnumerable<Property>>> GetContactProperties(Guid contactId)
+        public async Task<ActionResult<PropertyDTO>> GetContactProperties(Guid propertyId)
         {
-            return Ok(await _propertiesRepo.GetByContactIdAsync(contactId));
+            var property = await _propertiesService.GetProperty(propertyId);
+            return property;
+
         }
 
-        // POST: update property
-        [HttpPatch]
-        [Route("properties/{propertyId}")]
+        // PATCH: Update property
+        [HttpPatch("{propertyId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-
-        public async Task<IActionResult> UpdateAsync([FromBody] Property property, Guid propertyId)
+        public async Task<ActionResult<PropertyDTO>> UpdateAsync(Guid propertyId, [FromBody] UpdatePropertyDTO propertyDTO)
         {
-            // validations
-            if (property == null) return BadRequest("Incorrect body format");
-            if (property._id != propertyId) return BadRequest("Property Id from body incorrect");
+            // Validations
+            if (propertyDTO == null)
+                return new BadRequestObjectResult("Incorrect body format");
+            if (propertyDTO.Id != propertyId)
+                return new BadRequestObjectResult("Declarant Id from body incorrect");
 
             // property validation
-            ValidationResult validationResult = await ValidateProperty(property);
+            ValidationResult validationResult = await _updatePropertyValidator.ValidateAsync(propertyDTO);
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
-            property._id = propertyId; // copy id to pr object
+            if (!await _propertiesService.PropertyExists(propertyId)) return NotFound("Property not found");
 
-            var UpdateResult = await _propertiesRepo.UpdateAsync(property);
-            if (!UpdateResult.IsAcknowledged) return NotFound("Property not found");
-            return NoContent();
+            string lastUpdateByUser = "a";// User?.Identity?.Name;
+
+            var result = await _propertiesService.UpdateProperty(propertyId, propertyDTO, lastUpdateByUser);
+            return Ok(result);         
         }
 
-        // DELETE: delete property
-        [HttpDelete]
-        [Route("properties/{propertyId}")]
+        // DELETE: Delete property
+        [HttpDelete("{propertyId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteAsync(Guid propertyId)
         {
-            var updateResult = await _propertiesRepo.SetDeleteDeclarantAsync(propertyId, true);
-            if (!updateResult.IsAcknowledged) return NotFound("Property not found");
-            return NoContent();
+            if (!await _propertiesService.PropertyExists(propertyId)) return NotFound("Property not found");
+
+            string lastUserName = "aa"; // User?.Identity?.Name
+
+            return await _propertiesService.DeleteProperty(propertyId, lastUserName);
         }
 
-        // POST: undelete property
-        [HttpPatch]
-        [Route("properties/{propertyId}/undelete")]
+        // PATCH: Undelete property
+        [HttpPatch("{propertyId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UndeleteAsync(Guid propertyId)
         {
-            var updateResult = await _propertiesRepo.SetDeleteDeclarantAsync(propertyId, false);
-            if (!updateResult.IsAcknowledged) return NotFound("Property not found");
-            return NoContent();
+            if (!await _propertiesService.PropertyExists(propertyId)) return NotFound("Property not found");
+
+            string lastUserName = "aa"; // User?.Identity?.Name
+
+            return await _propertiesService.UndeleteProperty(propertyId, lastUserName);
         }
-
-        private async Task<ValidationResult> ValidateProperty(Property property)
-        {
-            // property validation
-            ValidationResult validationResult = await _propertyValidator.ValidateAsync(property);
-            if (!validationResult.IsValid) return validationResult;
-
-            // address validation
-            if (property.Address != null) validationResult = await _addressValidator.ValidateAsync(property.Address);
-            
-            return validationResult;
-        }
-
-
     }
 }

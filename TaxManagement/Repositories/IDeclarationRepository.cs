@@ -1,14 +1,15 @@
 ﻿using TaxManagement.Models;
+using TaxManagementAPI.DTOs;
 
 namespace TaxManagement.Repositories
 {
     public interface IDeclarationRepository
     {
-        public Task<IEnumerable<Declaration>> GetDeclarationsAsync(Guid? declarantId = null);
+        public Task<IEnumerable<Declaration>> GetDeclarationsAsync(Guid declarantId);
         Task<Declaration> InsertDeclarationAsync(Declaration declaration);
         Task<Declaration> GetDeclarationByIdAsync(Guid id, Guid? declarantId = null);
-        Task<int> UpdateDeclarationAsync(Declaration declaration);
-        Task<int> SetDeletedDeclarationAsync(Guid id, bool deleted, string? userName);
+        Task<Declaration> UpdateDeclarationAsync(Declaration declaration);
+        Task<Declaration> SetDeletedDeclarationAsync(Guid declarantId, Guid declarationId, bool deleted, string? userName);
 
     }
 }

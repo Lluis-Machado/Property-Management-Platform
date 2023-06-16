@@ -16,7 +16,7 @@ namespace Documents.Repositories
             _context = context;
         }
 
-        public async Task<Folder?> GetFolderByIdAsync(Guid archiveId, int folderId)
+        public async Task<Folder> GetFolderByIdAsync(Guid archiveId, int folderId)
         {
             var parameters = new
             {
@@ -30,10 +30,26 @@ namespace Documents.Repositories
 
             return await _context
                 .CreateConnection()
-                .QuerySingleOrDefaultAsync<Folder?>(queryBuilder.ToString(), parameters);
+                .QuerySingleOrDefaultAsync<Folder>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<IEnumerable<Folder>> GetFoldersAsync(Guid archiveId, bool includeDeleted)
+        public async Task<Folder> GetFolderById(Guid folderId)
+        {
+            var parameters = new
+            {
+                folderId
+            };
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("SELECT * FROM Folders");
+            queryBuilder.Append(" WHERE ArchiveId = @archiveId");
+            queryBuilder.Append(" AND FolderId = @folderId");
+
+            return await _context
+                .CreateConnection()
+                .QuerySingleOrDefaultAsync<Folder>(queryBuilder.ToString(), parameters);
+        }
+
+        public async Task<IEnumerable<Folder>> GetFoldersAsync(Guid archiveId, bool includeDeleted = false)
         {
             var parameters = new
             {
@@ -62,12 +78,7 @@ namespace Documents.Repositories
             queryBuilder.Append(" ArchiveId");
             queryBuilder.Append(" ,Name");
             queryBuilder.Append(" ,ParentId");
-            queryBuilder.Append(" )OUTPUT INSERTED.Id");
-            queryBuilder.Append(" ,INSERTED.Name");
-            queryBuilder.Append(" ,INSERTED.ArchiveId");
-            queryBuilder.Append(" ,INSERTED.Name");
-            queryBuilder.Append(" ,INSERTED.ParentId");
-            queryBuilder.Append(" ,INSERTED.Deleted");
+            queryBuilder.Append(" )OUTPUT INSERTED.*");
             queryBuilder.Append(" VALUES(");
             queryBuilder.Append(" @ArchiveId");
             queryBuilder.Append(" ,@Name");
@@ -79,25 +90,28 @@ namespace Documents.Repositories
                 .QuerySingleAsync<Folder>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<int> SetDeleteFolderAsync(Guid id, bool deleted)
+        public async Task<Folder> SetDeleteFolderAsync(Guid id, bool deleted, string userName)
         {
             var parameters = new
             {
                 id,
-                deleted
+                deleted,
+                userName
             };
 
             StringBuilder queryBuilder = new();
             queryBuilder.Append("UPDATE Folders ");
             queryBuilder.Append("SET Deleted = @deleted ");
+            queryBuilder.Append("SET LastUpdateByUser = @userName ");
+            queryBuilder.Append(" OUTPUT INSERTED.* ");
             queryBuilder.Append(" WHERE Id = @id ");
 
             return await _context
                 .CreateConnection()
-                .ExecuteAsync(queryBuilder.ToString(), parameters);
+                .QuerySingleAsync<Folder>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<int> UpdateFolderAsync(Folder folder)
+        public async Task<Folder> UpdateFolderAsync(Folder folder)
         {
             var parameters = new
             {
@@ -110,11 +124,12 @@ namespace Documents.Repositories
             queryBuilder.Append("SET Name = @Name ");
             queryBuilder.Append(" ,Deleted = @Deleted ");
             queryBuilder.Append(" ,ParentId = @ParentId ");
+            queryBuilder.Append(" OUTPUT INSERTED.* ");
             queryBuilder.Append(" WHERE Id = @Id ");
 
             return await _context
                 .CreateConnection()
-                .ExecuteAsync(queryBuilder.ToString(), parameters);
+                .QuerySingleAsync(queryBuilder.ToString(), parameters);
         }
 
         public List<TreeFolderItem> ToFolderTreeView(List<Folder> folders)
@@ -132,6 +147,7 @@ namespace Documents.Repositories
             }
             return result;
         }
+
         private void AddChilds(ref TreeFolderItem parentFolder, List<Folder> folders)
         {
             if (parentFolder == null) return;

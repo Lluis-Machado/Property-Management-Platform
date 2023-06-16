@@ -1,115 +1,118 @@
 ﻿using ContactsAPI.Models;
-using ContactsAPI.Repositories;
-using FluentValidation;
-using FluentValidation.Results;
+using ContactsAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
 using System.Net;
+using System.Threading.Tasks;
+using FluentValidation;
+using FluentValidation.Results;
 
 namespace ContactsAPI.Controllers
 {
-    [Authorize]
-    public class ContactsController : Controller
+   // [Authorize]
+    [ApiController]
+    [Route("contacts")]
+    public class ContactsController : ControllerBase
     {
-        //private readonly ILogger<ContactsController> _logger;
-        private readonly IContactsRepository _contactsRepo;
-        private readonly IValidator<Contact> _contactValidator;
-        private readonly IValidator<Address> _addressValidator;
-        public ContactsController(IContactsRepository contactsRepo, IValidator<Contact> contactValidator, IValidator<Address> addressValidator)
+        private readonly IContactsService _contactsService;
+        private readonly IValidator<CreateContactDTO> _createContactValidator;
+        private readonly IValidator<UpdateContactDTO> _updateContactValidator;
+
+        public ContactsController(IContactsService contactsService
+                          , IValidator<CreateContactDTO> createContactValidator
+                          , IValidator<UpdateContactDTO> updateContactValidator)
         {
-            _contactsRepo = contactsRepo;
-            _contactValidator = contactValidator;
-            _addressValidator = addressValidator;
-            //_logger = logger;
+            _contactsService = contactsService;
+            _createContactValidator = createContactValidator;
+            _updateContactValidator = updateContactValidator;
         }
+
         [HttpPost]
-        [Route("contacts")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<Contact>> CreateAsync([FromBody] Contact contact)
+        public async Task<ActionResult<ContactDTO>> CreateAsync([FromBody] CreateContactDTO contactDTO)
         {
             // validations
-            if (contact == null) return BadRequest("Incorrect body format");
-            if (contact._id != Guid.Empty) return BadRequest("Id fild must be empty");
-
+            if (contactDTO == null) return new BadRequestObjectResult("Incorrect body format");
             // contact validation
-            //ValidationResult validationResult = await ValidateProperty(contact);
-            //if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
-            contact = await _contactsRepo.InsertOneAsync(contact);
-            return Created($"contacts/{contact._id}", contact);
+            ValidationResult validationResult = await _createContactValidator.ValidateAsync(contactDTO);
+            if (!validationResult.IsValid) return new BadRequestObjectResult(validationResult.ToString("~"));
+
+            return await _contactsService.CreateContactAsync(contactDTO);
         }
 
-        // GET: Get contacts(s)
-        [HttpGet]
-        [Route("contacts")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-
-        public async Task<ActionResult<IEnumerable<Contact>>> GetAsync()
-        {
-            return Ok(await _contactsRepo.GetAsync());
-        }
-
-        // POST: update contact
         [HttpPatch]
-        [Route("contacts/{contactId}")]
+        [Route("{contactId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-
-        public async Task<IActionResult> UpdateAsync([FromBody] Contact contact, Guid contactId)
+        public async Task<ActionResult<ContactDTO>> UpdateAsync([FromBody] UpdateContactDTO contactDTO, Guid contactId)
         {
             // validations
-            if (contact == null) return BadRequest("Incorrect body format");
-            if (contact._id != contactId) return BadRequest("contact Id from body incorrect");
+            if (contactDTO == null) return new BadRequestObjectResult("Incorrect body format");
+            if (contactDTO.Id != contactId) return new BadRequestObjectResult("Contact Id from body is incorrect");
 
             // contact validation
-            ValidationResult validationResult = await ValidateProperty(contact);
-            if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
+            ValidationResult validationResult = await _updateContactValidator.ValidateAsync(contactDTO);
+            if (!validationResult.IsValid) return new BadRequestObjectResult(validationResult.ToString("~"));
 
-            contact._id = contactId; // copy id to pr object
 
-            var UpdateResult = await _contactsRepo.UpdateAsync(contact);
-            if (!UpdateResult.IsAcknowledged) return NotFound("contact not found");
-            return NoContent();
+            return await _contactsService.UpdateContactAsync(contactDTO, contactId);
         }
 
-        // DELETE: delete contact
+        [HttpGet]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<IEnumerable<ContactDTO>>> GetAsync()
+        {
+            return await _contactsService.GetContactsAsync();
+        }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<ContactDTO>> GetByIdAsync(Guid id)
+        {
+            var contact = await _contactsService.GetContactByIdAsync(id);
+            if (contact == null)
+            {
+                return NotFound();
+            }
+
+            return contact;
+        }
+
+        [HttpGet("{contactId}/properties")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<ContactDetailsDTO>> GetContactWithProperties(Guid contactId)
+        {
+            var contact = await _contactsService.GetContactWithProperties(contactId);
+
+            return contact;
+        }
+
         [HttpDelete]
-        [Route("contacts/{contactId}")]
+        [Route("{contactId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteAsync(Guid contactId)
         {
-            var updateResult = await _contactsRepo.SetDeleteAsync(contactId, true);
-            if (!updateResult.IsAcknowledged) return NotFound("contact not found");
-            return NoContent();
+            return await _contactsService.DeleteContactAsync(contactId);
         }
 
-        // POST: undelete contact
         [HttpPatch]
-        [Route("contacts/{contactId}/undelete")]
+        [Route("{contactId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UndeleteAsync(Guid contactId)
         {
-            var updateResult = await _contactsRepo.SetDeleteAsync(contactId, false);
-            if (!updateResult.IsAcknowledged) return NotFound("contact not found");
-            return NoContent();
+            return await _contactsService.UndeleteContactAsync(contactId);
         }
-
-        private async Task<ValidationResult> ValidateProperty(Contact contact)
-        {
-            // contact validation
-            ValidationResult validationResult = await _contactValidator.ValidateAsync(contact);
-            if (!validationResult.IsValid) return validationResult;
-
-            // address validation
-            if (contact.Address != null) validationResult = await _addressValidator.ValidateAsync(contact.Address);
-
-            return validationResult;
-        }
-
     }
 }

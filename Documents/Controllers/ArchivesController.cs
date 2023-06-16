@@ -1,26 +1,30 @@
 ﻿using Documents.Models;
-using DocumentsAPI.Repositories;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
 using System.Net;
+using System.Threading.Tasks;
+using Archives.Services;
+using Documents.Validators;
 
 namespace Archives.Controllers
 {
     [Authorize]
     [ApiController]
-    public class ArchivesController : Controller
+    public class ArchivesController : ControllerBase
     {
-        private readonly ILogger<ArchivesController> _logger;
-        private readonly IArchiveRepository _archiveRepository;
+        private readonly ArchivesService _archivesService;
         private readonly IValidator<Archive> _archiveValidator;
 
-        public ArchivesController(IArchiveRepository archiveRepository, IValidator<Archive> archiveValidator, ILogger<ArchivesController> logger)
+
+        public ArchivesController(ArchivesService archivesService,
+            IValidator<Archive> archiveValidator)
         {
-            _archiveRepository = archiveRepository;
+            _archivesService = archivesService;
             _archiveValidator = archiveValidator;
-            _logger = logger;
         }
 
         // POST: Create archive
@@ -39,10 +43,8 @@ namespace Archives.Controllers
 
             if (archive.Name == null) return BadRequest("Archive Name is empty");
 
-            //create archive
-            archive.Id = Guid.NewGuid();
-            await _archiveRepository.CreateArchiveAsync(archive);
-            return Created($"archives/{archive.Name}", archive);
+            Archive createdArchive = await _archivesService.CreateArchiveAsync(archive);
+            return Created($"archives/{createdArchive.Name}", createdArchive);
         }
 
         // GET: Get archive(s)
@@ -52,7 +54,8 @@ namespace Archives.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<IEnumerable<Archive>>> GetAsync([FromQuery] bool includeDeleted = false)
         {
-            return Ok(await _archiveRepository.GetArchivesAsync(100, includeDeleted));
+            IEnumerable<Archive> archives = await _archivesService.GetArchivesAsync(includeDeleted);
+            return Ok(archives);           
         }
 
         // DELETE: Delete archive
@@ -63,7 +66,7 @@ namespace Archives.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteAsync(Guid archiveId)
         {
-            await _archiveRepository.DeleteArchiveAsync(archiveId);
+            await _archivesService.DeleteArchiveAsync(archiveId);
             return NoContent();
         }
 
@@ -75,7 +78,7 @@ namespace Archives.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UndeleteAsync(Guid archiveId)
         {
-            await _archiveRepository.UndeleteArchiveAsync(archiveId);
+            await _archivesService.UndeleteArchiveAsync(archiveId);
             return NoContent();
         }
     }

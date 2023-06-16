@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using DocumentsAPI.Models;
+using Newtonsoft.Json;
 
 namespace Documents.Models
 {
-    public class Archive
+    public class Archive : BaseModel
     {
-        public Guid Id { get; set; }
         public string? Name { get; set; }
 
         [JsonConstructor]

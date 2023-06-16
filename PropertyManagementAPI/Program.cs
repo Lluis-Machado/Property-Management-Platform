@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PropertyManagementAPI.Contexts;
+using PropertyManagementAPI.DTOs;
 using PropertyManagementAPI.Middelwares;
 using PropertyManagementAPI.Models;
 using PropertyManagementAPI.Repositories;
@@ -27,8 +28,12 @@ builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
 // Add services to the container.
 builder.Services.AddSingleton<MongoContext>();
 builder.Services.AddScoped<IPropertiesRepository, PropertiesRepository>();
-builder.Services.AddScoped<IValidator<Property>, PropertyValidator>();
-builder.Services.AddScoped<IValidator<Address>, AddressValidator>();
+builder.Services.AddScoped<IPropertiesService, PropertiesService>();
+builder.Services.AddScoped<IValidator<PropertyDTO>, PropertyValidator>();
+builder.Services.AddScoped<IValidator<CreatePropertyDTO>, CreatePropertyValidator>();
+builder.Services.AddScoped<IValidator<UpdatePropertyDTO>, UpdatePropertyValidator>();
+
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

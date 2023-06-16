@@ -1,4 +1,4 @@
-﻿namespace ContactsAPI.Models
+﻿namespace OwnershipAPI.Models
 {
     public class Address
     {

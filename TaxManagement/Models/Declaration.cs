@@ -3,8 +3,13 @@ using TaxManagementAPI.Models;
 
 namespace TaxManagement.Models
 {
-    public class Declaration: IAuditable
+    public class Declaration: BaseModel
     {
+        public Guid DeclarantId { get; set; }
+        public DeclarationStatus Status { get; set; }
+
+        public GenericModel? ModelPresented { get; set; }
+
         public enum DeclarationStatus
         {
             WaitingForVerification,
@@ -15,15 +20,6 @@ namespace TaxManagement.Models
             VerificationRejected = -1,
             ValidationRejected = -2
         }
-        public Guid Id { get; set; }
-        public Guid DeclarantId { get; set; }
-        public DeclarationStatus Status { get; set; }
-        public bool Deleted { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime LastUpdateAt { get; set; }
-        public string? CreatedByUser { get; set; }
-        public string? LastUpdateByUser { get; set; }
-
         [JsonConstructor]
         public Declaration() {
             CreatedByUser = String.Empty;

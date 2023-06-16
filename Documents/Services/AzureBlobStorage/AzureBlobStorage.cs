@@ -219,14 +219,15 @@ namespace Documents.Services.AzureBlobStorage
         private static Document MapDocument(BlobItem blobItem)
         {
             string documentName = blobItem.Metadata["display_Name"];
+
             Document document = new()
             {
-                Id = blobItem.Name,
+                DocumentId = blobItem.Name,
                 Name = documentName,
                 Extension = documentName.Contains('.') ? documentName[documentName.LastIndexOf('.')..] : "",
                 ContentLength = blobItem.Properties.ContentLength,
-                CreatedOn = blobItem.Properties.CreatedOn,
-                LastModified = blobItem.Properties.LastModified,
+                CreatedAt = blobItem.Properties.CreatedOn.GetValueOrDefault().DateTime,
+                LastUpdateAt = blobItem.Properties.LastModified.GetValueOrDefault().DateTime,
 
             };
             return document;

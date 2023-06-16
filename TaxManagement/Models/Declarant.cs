@@ -1,17 +1,14 @@
-﻿using System.Text.Json.Serialization;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Swashbuckle.AspNetCore.Annotations;
+using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using TaxManagementAPI.Models;
 
 namespace TaxManagement.Models
 {
-    public class Declarant: IAuditable
+    public class Declarant: BaseModel
     {
-        public Guid Id { get; set; }
         public string Name { get; set; }
-        public bool Deleted { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime LastUpdateAt { get; set; }
-        public string? CreatedByUser { get; set; }
-        public string? LastUpdateByUser { get; set; }
 
         [JsonConstructor]
         public Declarant() {

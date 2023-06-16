@@ -1,12 +1,16 @@
 using ContactsAPI.Contexts;
 using ContactsAPI.Middelwares;
+using ContactsAPI.Models;
 using ContactsAPI.Repositories;
 using ContactsAPI.Services;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using ContactsAPI.Validators;
 using Serilog;
 using System.Security.Claims;
+using ContactsAPI.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,9 +25,17 @@ builder.Logging.AddSerilog(logger);
 // Global error handling
 builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
 
+// Validator
+builder.Services.AddScoped<IValidator<ContactDTO>, ContactValidator>();
+builder.Services.AddScoped<IValidator<CreateContactDTO>, CreateContactDTOValidator>();
+builder.Services.AddScoped<IValidator<UpdateContactDTO>, UpdateContactDTOValidator>();
+
 // Add services to the container.
 builder.Services.AddSingleton<MongoContext>();
 builder.Services.AddScoped<IContactsRepository, ContactsRepository>();
+builder.Services.AddScoped<IContactsService, ContactsService>();
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -76,7 +88,11 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(/*c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+        c.RoutePrefix = string.Empty; // Set the root URL for Swagger
+    }*/);
 }
 
 app.UseHttpsRedirection();

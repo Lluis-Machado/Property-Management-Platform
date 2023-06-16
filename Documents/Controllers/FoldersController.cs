@@ -1,6 +1,8 @@
 using Documents.Models;
+using DocumentsAPI.DTOs;
 using DocumentsAPI.Models;
 using DocumentsAPI.Repositories;
+using DocumentsAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -14,12 +16,14 @@ namespace Documents.Controllers
         private readonly ILogger<DocumentsController> _logger;
         private readonly IConfiguration _config ;
         private readonly IFolderRepository _folderRepository;
+        private readonly IFoldersService _foldersService;
 
-        public FoldersController(IConfiguration config, IFolderRepository folderRepository, ILogger<DocumentsController> logger)
+        public FoldersController(IConfiguration config, IFoldersService foldersService , IFolderRepository folderRepository, ILogger<DocumentsController> logger)
         {
             _config = config;
             _folderRepository = folderRepository;
             _logger = logger;
+            _foldersService = foldersService;
         }
 
         // POST: Create folder
@@ -30,23 +34,15 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<List<CreateDocumentStatus>>> UploadAsync(Guid archiveId, string folderName, Guid? parentId)
+        public async Task<ActionResult<FolderDTO>> CreateAsync(Guid archiveId, FolderDTO folderDTO)
         {
+            if (folderDTO == null) return new BadRequestObjectResult("Incorrect body format");
+            if (folderDTO.Id != Guid.Empty) return new BadRequestObjectResult("Id field must be empty");
 
-            // Tenant validation
+            string userName = "user";
 
-            // folder validation
-            //ValidationResult validationResult = await _businessPartnerValidator.ValidateAsync(businessPartner);
-            //if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
-            Folder folder = new()
-            {
-                ArchiveId = archiveId,
-                Name = folderName,
-                ParentId = parentId,
-            };
-
-            folder = await _folderRepository.InsertFolderAsync(folder);
-            return Created($"{archiveId}/folders/{folder.Id}", folder);
+            folderDTO = await _foldersService.CreateFolderAsync(archiveId, folderDTO, userName);
+            return Created($"{archiveId}/folders/{folderDTO.Id}", folderDTO);
         }
 
         //GET: Get Folder(s)
@@ -54,10 +50,10 @@ namespace Documents.Controllers
         [Route("{archiveId}/folders")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<Folder>>> GetAsync(Guid archiveId, [FromQuery] bool includeDeleted = false)
+        public async Task<ActionResult<IEnumerable<FolderDTO>>> GetAsync(Guid archiveId, [FromQuery] bool includeDeleted = false)
         {
-            IEnumerable<Folder> folders = await _folderRepository.GetFoldersAsync(archiveId, includeDeleted);
-            folders = _folderRepository.ToFolderTreeView(folders.ToList());
+            var folders = await _foldersService.GetFoldersAsync(archiveId, includeDeleted);
+            //folders = _folderRepository.ToFolderTreeView(folders.ToList());
             return Ok(folders);
         }
 
@@ -68,21 +64,20 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult> UpdateAsync(Guid archiveId, Guid folderId, [FromBody] Folder folder)
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<ActionResult<FolderDTO>> UpdateAsync(Guid archiveId, Guid folderId, [FromBody] FolderDTO folderDTO)
         {
             // request validations
-            if (folder == null) return BadRequest("Incorrect body format");
-            if (folder.Id != folderId) return BadRequest("folder Id from body incorrect");
+            if (folderDTO == null) return BadRequest("Incorrect body format");
+            if (folderDTO.Id != folderId) return BadRequest("folder Id from body incorrect");
 
-            // businessPartner validation
-            //ValidationResult validationResult = await _businessPartnerValidator.ValidateAsync(businessPartner);
-            //if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
+            var exist = _foldersService.CheckFolderExist(folderDTO.Id);
+            if (!exist) return NotFound("Folder not found");
 
-            folder.Id = folderId; // copy id to folder object
+            string userName = "user";
 
-            int result = await _folderRepository.UpdateFolderAsync(folder);
-            if (result == 0) return NotFound("Folder not found");
-            return NoContent();
+            var result = await _foldersService.UpdateFolderAsync(folderDTO, userName);
+            return Ok(result);
         }
 
         //DELETE: delete folder
@@ -91,11 +86,15 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> DeleteAsync(Guid folderId)
+        public async Task<ActionResult> DeleteAsync(Guid folderId)
         {
-            int result = await _folderRepository.SetDeleteFolderAsync(folderId, true);
-            if (result == 0) return NotFound("Folder not found");
-            return NoContent();
+            var exist = _foldersService.CheckFolderExist(folderId);
+            if (!exist) return NotFound("Folder not found");
+
+            string userName = "user";
+
+            var result = await _foldersService.DeleteFolderAsync(folderId, userName);
+            return Ok(result);
         }
 
         //PATCH: Undelete folder
@@ -104,11 +103,15 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> UndeleteAsync(Guid folderId)
+        public async Task<ActionResult<FolderDTO>> UndeleteAsync(Guid folderId)
         {
-            int result = await _folderRepository.SetDeleteFolderAsync(folderId, false);
-            if (result == 0) return NotFound("Folder not found");
-            return NoContent();
+            var exist = _foldersService.CheckFolderExist(folderId);
+            if (!exist) return NotFound("Folder not found"); 
+            
+            string userName = "user";
+
+            var result = await _foldersService.UnDeleteFolderAsync(folderId, userName);
+            return Ok(result);
         }
 
     }

@@ -1,16 +1,15 @@
-﻿using System.Text.Json.Serialization;
+﻿using DocumentsAPI.Models;
+using System.Text.Json.Serialization;
 
 namespace Documents.Models
 {
-    public class Document
+    public class Document : BaseModel
     {
-        public string? Id { get; set; }
+        public string DocumentId { get; set; } = string.Empty;
         public string? Name { get; set; }
         public string? Extension { get; set; }
         public long? ContentLength { get; set; }
         public Guid? FolderId  { get; set; }
-        public DateTimeOffset? CreatedOn { get; set; }
-        public DateTimeOffset? LastModified { get; set; }
 
         [JsonConstructor]
         public Document() { }

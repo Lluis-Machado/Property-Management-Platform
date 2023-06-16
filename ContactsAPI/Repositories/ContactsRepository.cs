@@ -28,22 +28,27 @@ namespace ContactsAPI.Services
                 .ToListAsync();
         }
 
-        public async Task<UpdateResult> UpdateAsync(Contact contact)
+        public async Task<Contact> GetContactByIdAsync(Guid id)
         {
-            var filter = Builders<Contact>.Filter
-                .Eq(actualContact => actualContact._id, contact._id);
+            var filter = Builders<Contact>.Filter.Eq(c => c.Id, id);
 
-            var update = Builders<Contact>.Update
-                .Set(actualContact => actualContact.Name, contact.Name)
-                .Set(actualContact => actualContact.Address, contact.Address);
+            return await _collection.Find(filter)
+                .FirstOrDefaultAsync();
+        }
 
-            return await _collection.UpdateOneAsync(filter, update);
+        public async Task<Contact> UpdateAsync(Contact contact)
+        {
+            var filter = Builders<Contact>.Filter.Eq(actualContact => actualContact.Id, contact.Id);
+
+            await _collection.ReplaceOneAsync(filter, contact);
+
+            return contact;
         }
 
         public async Task<UpdateResult> SetDeleteAsync(Guid contactId, bool deleted)
         {
             var filter = Builders<Contact>.Filter
-                .Eq(actualContact => actualContact._id, contactId);
+                .Eq(actualContact => actualContact.Id, contactId);
 
             var update = Builders<Contact>.Update
                 .Set(actualContact => actualContact.Deleted, deleted);

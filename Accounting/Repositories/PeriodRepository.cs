@@ -17,6 +17,7 @@ namespace AccountingAPI.Repositories
         {
             var parameters = new
             {
+                period.TenantId,
                 period.Year,
                 period.Month,
                 period.CreatedBy,
@@ -24,20 +25,25 @@ namespace AccountingAPI.Repositories
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("INSERT INTO Periods (");
-            queryBuilder.Append("Year");
+            queryBuilder.Append("TenantId");
+            queryBuilder.Append(",Year");
             queryBuilder.Append(",Month");
             queryBuilder.Append(",CreatedBy");
             queryBuilder.Append(",LastModificationBy");
             queryBuilder.Append(")OUTPUT INSERTED.Id");
+            queryBuilder.Append(",INSERTED.TenantId");
             queryBuilder.Append(",INSERTED.Year");
             queryBuilder.Append(",INSERTED.Month");
+            queryBuilder.Append(",INSERTED.Status");
             queryBuilder.Append(",INSERTED.Deleted");
             queryBuilder.Append(",INSERTED.CreatedAt");
             queryBuilder.Append(",INSERTED.CreatedBy");
             queryBuilder.Append(",INSERTED.LastModificationAt");
             queryBuilder.Append(",INSERTED.LastModificationBy");
             queryBuilder.Append(" VALUES(");
-            queryBuilder.Append("@Name");
+            queryBuilder.Append("@TenantId");
+            queryBuilder.Append(",@Year");
+            queryBuilder.Append(",@Month");
             queryBuilder.Append(",@CreatedBy");
             queryBuilder.Append(",@LastModificationBy");
             queryBuilder.Append(")");
@@ -45,21 +51,28 @@ namespace AccountingAPI.Repositories
             return await _context.Connection.QuerySingleAsync<Period>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<IEnumerable<Period>> GetPeriodsAsync(bool includeDeleted = false)
+        public async Task<IEnumerable<Period>> GetPeriodsAsync(Guid tenantId, bool includeDeleted = false)
         {
+            var parameters = new
+            {
+                tenantId
+            };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");
+            queryBuilder.Append(",TenantId");
             queryBuilder.Append(",Year");
             queryBuilder.Append(",Month");
+            queryBuilder.Append(",Status");
             queryBuilder.Append(",Deleted");
             queryBuilder.Append(",CreatedAt");
             queryBuilder.Append(",CreatedBy");
             queryBuilder.Append(",LastModificationAt");
             queryBuilder.Append(",LastModificationBy");
             queryBuilder.Append(" FROM Periods");
-            if (!includeDeleted) queryBuilder.Append(" WHERE Deleted = 0");
+            queryBuilder.Append(" WHERE TenantId = @tenantId");
+            if (!includeDeleted) queryBuilder.Append(" AND Deleted = 0");
 
-            return await _context.Connection.QueryAsync<Period>(queryBuilder.ToString());
+            return await _context.Connection.QueryAsync<Period>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<Period> GetPeriodByIdAsync(Guid periodId)
@@ -70,8 +83,10 @@ namespace AccountingAPI.Repositories
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");
+            queryBuilder.Append(",TenantId");
             queryBuilder.Append(",Year");
             queryBuilder.Append(",Month");
+            queryBuilder.Append(",Status");
             queryBuilder.Append(",Deleted");
             queryBuilder.Append(",CreatedAt");
             queryBuilder.Append(",CreatedBy");
@@ -104,20 +119,20 @@ namespace AccountingAPI.Repositories
             var parameters = new
             {
                 period.Id,
-                period.Year,
-                period.Month,
+                period.Status,
                 period.LastModificationBy,
                 period.LastModificationAt,
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("UPDATE Periods");
-            queryBuilder.Append(" SET Year = @Year");
-            queryBuilder.Append(",Month = @Month");
+            queryBuilder.Append(" SET Status = @Status");
             queryBuilder.Append(",LastModificationAt = @LastModificationAt");
             queryBuilder.Append(",LastModificationBy = @LastModificationBy");
             queryBuilder.Append(" OUTPUT INSERTED.Id");
+            queryBuilder.Append(",INSERTED.TenantId");
             queryBuilder.Append(",INSERTED.Year");
             queryBuilder.Append(",INSERTED.Month");
+            queryBuilder.Append(",INSERTED.Status");
             queryBuilder.Append(",INSERTED.Deleted");
             queryBuilder.Append(",INSERTED.CreatedAt");
             queryBuilder.Append(",INSERTED.CreatedBy");

@@ -24,9 +24,9 @@ namespace AccountingAPI.Services
             _arInvoiceLineService = arInvoiceLineService;
         }
 
-        public async Task<IEnumerable<DepreciationDTO>> GetDepreciationsAsync()
+        public async Task<IEnumerable<DepreciationDTO>> GetDepreciationsAsync(Guid tenantId)
         {
-            IEnumerable<PeriodDTO> periodDTOs = await _periodService.GetPeriodsAsync();
+            IEnumerable<PeriodDTO> periodDTOs = await _periodService.GetPeriodsAsync(tenantId);
             IEnumerable<Depreciation> depreciations = await _depreciationRepository.GetDepreciationsAsync();
 
             List<DepreciationDTO> depreciationDTOs = new();
@@ -47,7 +47,7 @@ namespace AccountingAPI.Services
             return depreciationDTOs;
         }
 
-        public async Task<IEnumerable<FixedAssetYearDetailsDTO>> GetFixedAssetsYearDetailsAsync()
+        public async Task<IEnumerable<FixedAssetYearDetailsDTO>> GetFixedAssetsYearDetailsAsync(Guid tenantId)
         {
             List<FixedAssetYearDetailsDTO> fixedAssetYearDetailsDTOs = new();
 
@@ -60,7 +60,7 @@ namespace AccountingAPI.Services
                 DateTime firstDayOfYear = new(year, 1, 1);
                 DateTime lastDayOfYear = new(year, 12, 31);
 
-                IEnumerable<DepreciationDTO> depreciationDTOs = await GetDepreciationsAsync();
+                IEnumerable<DepreciationDTO> depreciationDTOs = await GetDepreciationsAsync(tenantId);
 
                 depreciationDTOs = depreciationDTOs.Where(d => d.Year == year);
 

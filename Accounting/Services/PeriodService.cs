@@ -18,18 +18,19 @@ namespace AccountingAPI.Services
             _mapper = mapper;
         }
 
-        public async Task<PeriodDTO> CreatePeriodAsync(CreatePeriodDTO createPeriodDTO, string userName)
+        public async Task<PeriodDTO> CreatePeriodAsync(CreatePeriodDTO createPeriodDTO,Guid tenantId, string userName)
         {
             Period period = _mapper.Map<Period>(createPeriodDTO);
+            period.TenantId = tenantId;
             period.CreatedBy = userName;
             period.LastModificationBy = userName;
 
             period = await _periodRepository.InsertPeriodAsync(period);
             return _mapper.Map<PeriodDTO>(period);  
         }
-        public async Task<IEnumerable<PeriodDTO>> GetPeriodsAsync(bool includeDeleted = false)
+        public async Task<IEnumerable<PeriodDTO>> GetPeriodsAsync(Guid tenantId, bool includeDeleted = false)
         {
-            IEnumerable<Period> periods = await _periodRepository.GetPeriodsAsync(includeDeleted);
+            IEnumerable<Period> periods = await _periodRepository.GetPeriodsAsync(tenantId,includeDeleted);
             return _mapper.Map<IEnumerable<Period>, List<PeriodDTO>>(periods);
         }
 
@@ -39,15 +40,21 @@ namespace AccountingAPI.Services
             return _mapper.Map<PeriodDTO>(period);
         }
 
-        public async Task<bool> CheckIfPeriodExistsAsync(Guid periodId)
+        public async Task<bool> CheckIfPeriodExistsByIdAsync(Guid periodId)
         {
             return await _periodRepository.GetPeriodByIdAsync(periodId) != null;
         }
 
-        public async Task<PeriodDTO?> UpdatePeriodAsync(UpdatePeriodDTO updatePeriodDTO, string userName, Guid periodId)
+        public async Task<bool> CheckIfPeriodExistsAsync(Guid tenantId, int year, int month)
         {
-            Period period = _mapper.Map<Period>(updatePeriodDTO);
-            period.Id = periodId;
+            IEnumerable<PeriodDTO> periodDTOs = await GetPeriodsAsync(tenantId);
+            return periodDTOs.Any(p => p.TenantId == tenantId && p.Year == year && p.Month == month);
+        }
+
+        public async Task<PeriodDTO?> UpdatePeriodStatusAsync(string status, string userName, Guid periodId)
+        {
+            Period? period = await _periodRepository.GetPeriodByIdAsync(periodId);
+            period.Status = (Period.PeriodStatus)Enum.Parse(typeof(Period.PeriodStatus), status.ToLower());
             period.LastModificationAt = DateTime.Now;
             period.LastModificationBy = userName;
 

@@ -37,6 +37,7 @@ builder.Services.AddScoped<IValidator<CreateTenantDTO>, CreateTenantDTOValidator
 
 builder.Services.AddScoped<IPeriodService, PeriodService>();
 builder.Services.AddScoped<IPeriodRepository, PeriodRepository>();
+builder.Services.AddScoped<IValidator<CreatePeriodDTO>, CreatePeriodDTOValidator>();
 
 builder.Services.AddScoped<IDepreciationService, DepreciationService>();
 builder.Services.AddScoped<IDepreciationRepository, DepreciationRepository>();

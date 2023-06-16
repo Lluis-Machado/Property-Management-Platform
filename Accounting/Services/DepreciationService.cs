@@ -87,7 +87,7 @@ namespace AccountingAPI.Services
             return fixedAssetYearDetailsDTOs;
         }
 
-        public async Task<IEnumerable<DepreciationDTO>> SavePeriodDepreciationsAsync(Guid periodId, string userName)
+        public async Task<IEnumerable<DepreciationDTO>> GenerateDepreciationsAsync(Guid periodId, string userName)
         {
             List<DepreciationDTO> depreciationDTOs = new();
 
@@ -100,6 +100,8 @@ namespace AccountingAPI.Services
 
             // Get list of service dates from ar invoices in period
             List<DateTime> serviceDateTimes = await _arInvoiceLineService.GetListOfServiceDatesInPeriodAsync(firstDayOfPeriod, lastDayOfPeriod);
+
+            if (serviceDateTimes.Count() == 0) return depreciationDTOs;
 
             foreach (FixedAssetDTO fixedAssetDTO in fixedAssetDTOs.Where(f => f.CapitalizationDate <= lastDayOfPeriod))
             {

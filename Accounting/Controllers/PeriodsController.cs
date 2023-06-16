@@ -1,10 +1,12 @@
 ﻿using AccountingAPI.DTOs;
+using AccountingAPI.Models;
 using AccountingAPI.Services;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using static AccountingAPI.DTOs.UpdatePeriodDTO;
 
 namespace AccountingAPI.Controllers
 {
@@ -60,17 +62,17 @@ namespace AccountingAPI.Controllers
 
         // PATCH: update period
         [HttpPatch]
-        [Route("tenants/{tenantId}/periods/{periodId}/status={status}")]
+        [Route("tenants/{tenantId}/periods/{periodId}/close")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<PeriodDTO>> ChangePeriodStatusAsync(Guid tenantId, Guid periodId, string status)
+        public async Task<ActionResult<PeriodDTO>> ClosePeriodAsync(Guid tenantId, Guid periodId)
         {
             // check if exists
             if (!await _periodService.CheckIfPeriodExistsByIdAsync(periodId)) return NotFound("Period not found");
 
-            return Ok(await _periodService.UpdatePeriodStatusAsync(status, User?.Identity?.Name, periodId));
+            return Ok(await _periodService.UpdatePeriodStatusAsync(PeriodStatus.closed, User?.Identity?.Name, periodId));
         }
 
         // DELETE: delete period

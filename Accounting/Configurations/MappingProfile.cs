@@ -52,6 +52,9 @@ namespace AccountingAPI.Configurations
             CreateMap<UpdatePeriodDTO, Period>();
             CreateMap<CreatePeriodDTO, Period>();
 
+            // Fixed Asset
+            CreateMap<Depreciation, DepreciationDTO>();
+
             //Loan
             CreateMap<Loan, LoanDTO>();
             CreateMap<CreateLoanDTO, Loan>();

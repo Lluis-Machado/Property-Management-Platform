@@ -22,7 +22,7 @@ namespace AccountingAPI.Services
             _expenseCategoryService = expenseCategoryService;
         }
 
-        public async Task<APInvoiceLineDTO> CreateAPInvoiceLineAsync(CreateAPInvoiceLineDTO createInvoiceLineDTO,Guid invoiceId, string userName)
+        public async Task<APInvoiceLineDTO> CreateAPInvoiceLineAsync(CreateAPInvoiceLineDTO createInvoiceLineDTO,Guid invoiceId,DateTime invoiceDate, string userName)
         {
             APInvoiceLineDTO invoiceLineDTO = new();
 
@@ -45,7 +45,7 @@ namespace AccountingAPI.Services
                 {
                     InvoiceLineId = invoiceLine.Id,
                     Description = invoiceLine.Description,
-                    CapitalizationDate = DateTime.Now,
+                    CapitalizationDate = invoiceDate,
                     AcquisitionAndProductionCosts = invoiceLine.TotalPrice,
                     DepreciationPercentagePerYear = createInvoiceLineDTO.DepreciationRatePerYear
                 };
@@ -79,12 +79,12 @@ namespace AccountingAPI.Services
             return aPInvoiceLineDTO;
         }
 
-        public async Task<APInvoiceLineDTO> UpdateAPInvoiceLineAsync(UpdateAPInvoiceLineDTO udpateInvoiceLineDTO, string userName, Guid invoiceLineId, Guid? fixedAssetId = null)
+        public async Task<APInvoiceLineDTO> UpdateAPInvoiceLineAsync(UpdateAPInvoiceLineDTO udpateInvoiceLineDTO, string userName, Guid invoiceLineId,DateTime invoiceDate, Guid? fixedAssetId = null)
         {
             APInvoiceLine invoiceLine = _mapper.Map<APInvoiceLine>(udpateInvoiceLineDTO);
             invoiceLine.FixedAssetId = fixedAssetId;
             invoiceLine.Id = invoiceLineId;
-            invoiceLine.LastModificationAt = DateTime.Now;
+            invoiceLine.LastModificationAt = invoiceDate;
             invoiceLine.LastModificationBy = userName;
 
             invoiceLine = await _invoiceLineRepository.UpdateAPInvoiceLineAsync(invoiceLine);

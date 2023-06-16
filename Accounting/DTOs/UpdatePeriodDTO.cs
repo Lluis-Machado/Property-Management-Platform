@@ -4,8 +4,8 @@
     {
         public enum PeriodStatus
         {
-            Open,
-            Closed
+            open,
+            closed
         }
         public PeriodStatus Status { get; set; }
     }

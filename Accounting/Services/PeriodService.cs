@@ -51,15 +51,14 @@ namespace AccountingAPI.Services
             return periodDTOs.Any(p => p.TenantId == tenantId && p.Year == year && p.Month == month);
         }
 
-        public async Task<PeriodDTO?> UpdatePeriodStatusAsync(string status, string userName, Guid periodId)
+        public async Task<PeriodDTO?> UpdatePeriodStatusAsync(UpdatePeriodDTO.PeriodStatus status, string userName, Guid periodId)
         {
             Period? period = await _periodRepository.GetPeriodByIdAsync(periodId);
-            period.Status = (Period.PeriodStatus)Enum.Parse(typeof(Period.PeriodStatus), status.ToLower());
+            period.Status = (int)status;
             period.LastModificationAt = DateTime.Now;
             period.LastModificationBy = userName;
-
             period = await _periodRepository.UpdatePeriodAsync(period);
-           return _mapper.Map<PeriodDTO>(period);
+            return _mapper.Map<PeriodDTO>(period);
         }
 
         public async Task<int> SetDeletedPeriodAsync(Guid periodId, bool deleted)

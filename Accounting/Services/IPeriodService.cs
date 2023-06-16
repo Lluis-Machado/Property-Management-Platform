@@ -9,7 +9,7 @@ namespace AccountingAPI.Services
         Task<PeriodDTO> GetPeriodByIdAsync(Guid PeriodId);
         Task<bool> CheckIfPeriodExistsByIdAsync(Guid periodId);
         Task<bool> CheckIfPeriodExistsAsync(Guid tenantId, int year, int month);
-        Task<PeriodDTO?> UpdatePeriodStatusAsync(string status, string userName, Guid periodId);
+        Task<PeriodDTO?> UpdatePeriodStatusAsync(UpdatePeriodDTO.PeriodStatus status, string userName, Guid periodId);
         Task<int> SetDeletedPeriodAsync(Guid tenantId, bool deleted);
     }
 }

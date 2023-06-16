@@ -43,7 +43,7 @@ namespace AccountingAPI.Services
                     // insert invoice lines
                     foreach (CreateAPInvoiceLineDTO createInvoiceLineDTO in createInvoiceDTO.InvoiceLines)
                     {
-                        APInvoiceLineDTO invoiceLineDTO = await _invoiceLineService.CreateAPInvoiceLineAsync(createInvoiceLineDTO, invoiceDTO.Id, userName);
+                        APInvoiceLineDTO invoiceLineDTO = await _invoiceLineService.CreateAPInvoiceLineAsync(createInvoiceLineDTO, invoiceDTO.Id,invoice.Date, userName);
 
                         invoiceDTO.InvoiceLines.Add(invoiceLineDTO);
                     }
@@ -117,14 +117,14 @@ namespace AccountingAPI.Services
                         if (updateInvoiceLineDTO.Id != null)
                         {
                             // Update invoice line
-                            APInvoiceLineDTO updatedInvoiceLine = await _invoiceLineService.UpdateAPInvoiceLineAsync(updateInvoiceLineDTO, userName, (Guid)updateInvoiceLineDTO.Id);
+                            APInvoiceLineDTO updatedInvoiceLine = await _invoiceLineService.UpdateAPInvoiceLineAsync(updateInvoiceLineDTO, userName,(Guid)updateInvoiceLineDTO.Id, invoice.Date);
                             updateInvoiceLineIds.Add(updatedInvoiceLine.Id);
                         }
                         else
                         {
                             // Add invoice line
                             CreateAPInvoiceLineDTO createInvoiceLineDTO = _mapper.Map<CreateAPInvoiceLineDTO>(updateInvoiceLineDTO);
-                            await _invoiceLineService.CreateAPInvoiceLineAsync(createInvoiceLineDTO, actualInvoiceDTO.Id, userName);
+                            await _invoiceLineService.CreateAPInvoiceLineAsync(createInvoiceLineDTO, actualInvoiceDTO.Id,invoice.Date, userName);
                         }
                     }
 

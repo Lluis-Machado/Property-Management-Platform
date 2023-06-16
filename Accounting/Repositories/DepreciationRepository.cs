@@ -26,7 +26,7 @@ namespace AccountingAPI.Repositories
             StringBuilder queryBuilder = new();
             queryBuilder.Append("INSERT INTO Depreciations (");
             queryBuilder.Append(" FixedAssetId");
-            queryBuilder.Append(",PerdioId");
+            queryBuilder.Append(",PeriodId");
             queryBuilder.Append(",DepreciationAmount");
             queryBuilder.Append(",CreatedBy");
             queryBuilder.Append(",LastModificationBy");

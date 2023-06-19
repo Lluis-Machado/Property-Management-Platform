@@ -5,10 +5,5 @@ namespace AccountingAPI.Models
     {
         public Guid ExpenseCategoryId { get; set; }
         public Guid? FixedAssetId { get; set; }
-
-
-        public APInvoiceLine()
-        {
-        }
     }
 }

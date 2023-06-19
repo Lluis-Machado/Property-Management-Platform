@@ -27,11 +27,12 @@ namespace AccountingAPI.Controllers
         // POST: Create period
         [HttpPost]
         [Route("tenants/{tenantId}/periods")]
-        [ProducesResponseType((int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.Ok)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.Conflict)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<PeriodDTO>> CreatePeriodAsync([FromBody] CreatePeriodDTO createPeriodDTO, Guid tenantId)
+
+        public async Task<ActionResult<IEnumerable<PeriodDTO>>> CreatePeriodsAsync([FromBody] CreatePeriodDTO createPeriodDTO, Guid tenantId)
         {
             // request validations
             if (createPeriodDTO == null) return BadRequest("Incorrect body format");
@@ -40,14 +41,17 @@ namespace AccountingAPI.Controllers
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
             // check if already exists
-            if (await _periodService.CheckIfPeriodExistsAsync(tenantId, createPeriodDTO.Year, createPeriodDTO.Month))
+            if (createPeriodDTO.Month != null)
             {
-                return Conflict("Period already exists");
+                if (await _periodService.CheckIfPeriodExistsAsync(tenantId, createPeriodDTO.Year, (int)createPeriodDTO.Month))
+                {
+                    return Conflict("Period already exists");
+                }
             }
 
-            PeriodDTO periodDTO = await _periodService.CreatePeriodAsync(createPeriodDTO, tenantId, User?.Identity?.Name);
+            IEnumerable<PeriodDTO> periodDTOs = await _periodService.CreatePeriodsAsync(createPeriodDTO, tenantId, User?.Identity?.Name);
 
-            return Created($"periods/{periodDTO.Id}", periodDTO);
+            return Ok(periodDTOs);
         }
 
         // GET: Get period(s)

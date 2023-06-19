@@ -31,7 +31,7 @@ namespace AccountingAPI.Services
 
             List<DepreciationDTO> depreciationDTOs = new();
 
-            foreach(Depreciation depreciation in depreciations)
+            Parallel.ForEach(depreciations, depreciation =>
             {
                 PeriodDTO? periodDTO = periodDTOs.FirstOrDefault(p => p.Id == depreciation.PeriodId);
                 DepreciationDTO depreciationDTO = _mapper.Map<DepreciationDTO>(depreciation);
@@ -42,95 +42,102 @@ namespace AccountingAPI.Services
                     depreciationDTO.Month = periodDTO.Month;
                 }
 
-                depreciationDTOs.Add(depreciationDTO);
-            }
+                lock (depreciationDTOs)
+                {
+                    depreciationDTOs.Add(depreciationDTO);
+                }
+            });
+
             return depreciationDTOs;
         }
 
         public async Task<IEnumerable<FixedAssetYearDetailsDTO>> GetFixedAssetsYearDetailsAsync(Guid tenantId)
         {
-            List<FixedAssetYearDetailsDTO> fixedAssetYearDetailsDTOs = new();
-
             IEnumerable<FixedAssetDTO> fixedAssetsDTOs = await _fixedAssetService.GetFixedAssetsAsync();
 
-            IEnumerable<int> years = fixedAssetsDTOs.Select(f => f.CapitalizationDate.Year).Distinct();
+            List<FixedAssetYearDetailsDTO> fixedAssetYearDetailsDTOs = new();
 
-            foreach (int year in years)
+            foreach (int year in fixedAssetsDTOs.Select(f => f.CapitalizationDate.Year).Distinct())
             {
                 DateTime firstDayOfYear = new(year, 1, 1);
                 DateTime lastDayOfYear = new(year, 12, 31);
 
                 IEnumerable<DepreciationDTO> depreciationDTOs = await GetDepreciationsAsync(tenantId);
-
                 depreciationDTOs = depreciationDTOs.Where(d => d.Year == year);
 
                 List<DateTime> serviceDateTimes = await _arInvoiceLineService.GetListOfServiceDatesInPeriodAsync(firstDayOfYear, lastDayOfYear);
 
-                foreach (FixedAssetDTO fixedAssetDTO in fixedAssetsDTOs.Where(f => f.CapitalizationDate >= firstDayOfYear))
-                {
-                    FixedAssetYearDetailsDTO fixedAssetYearDetailsDTO = _mapper.Map<FixedAssetYearDetailsDTO>(fixedAssetDTO);
+                List<FixedAssetYearDetailsDTO> yearDetails = fixedAssetsDTOs
+                    .Where(f => f.CapitalizationDate >= firstDayOfYear)
+                    .AsParallel()
+                    .Select(fixedAssetDTO =>
+                    {
+                        FixedAssetYearDetailsDTO fixedAssetYearDetailsDTO = _mapper.Map<FixedAssetYearDetailsDTO>(fixedAssetDTO);
 
-                    IEnumerable<DepreciationDTO> fixedAssetdepreciationDTOs = depreciationDTOs.Where(d => d.FixedAssetId == fixedAssetDTO.Id);
+                        IEnumerable<DepreciationDTO> fixedAssetDepreciationDTOs = depreciationDTOs.Where(d => d.FixedAssetId == fixedAssetDTO.Id);
 
-                    double depreciationBeginningYear = depreciationDTOs.Where(d => d.Year < year).Sum(d => d.DepreciationAmount);
-                    double depreciationYear = depreciationDTOs.Where(d => d.Year == year).Sum(d => d.DepreciationAmount);
-                    double depreciationEndOfYear = depreciationBeginningYear + depreciationYear;
+                        double depreciationBeginningYear = depreciationDTOs.Where(d => d.Year < year).Sum(d => d.DepreciationAmount);
+                        double depreciationYear = depreciationDTOs.Where(d => d.Year == year).Sum(d => d.DepreciationAmount);
+                        double depreciationEndOfYear = depreciationBeginningYear + depreciationYear;
 
-                    fixedAssetYearDetailsDTO.Year = year;
-                    fixedAssetYearDetailsDTO.DepreciationBeginningYear = depreciationBeginningYear;
-                    fixedAssetYearDetailsDTO.DepreciationEndOfYear = depreciationEndOfYear;
-                    fixedAssetYearDetailsDTO.NetBookValueBeginningYear = fixedAssetDTO.AcquisitionAndProductionCosts - depreciationBeginningYear;
-                    fixedAssetYearDetailsDTO.NetBookValueEndOfYear = fixedAssetDTO.AcquisitionAndProductionCosts - depreciationEndOfYear;
-                    fixedAssetYearDetailsDTOs.Add(fixedAssetYearDetailsDTO);
-                }
+                        fixedAssetYearDetailsDTO.Year = year;
+                        fixedAssetYearDetailsDTO.DepreciationBeginningYear = depreciationBeginningYear;
+                        fixedAssetYearDetailsDTO.DepreciationEndOfYear = depreciationEndOfYear;
+                        fixedAssetYearDetailsDTO.NetBookValueBeginningYear = fixedAssetDTO.AcquisitionAndProductionCosts - depreciationBeginningYear;
+                        fixedAssetYearDetailsDTO.NetBookValueEndOfYear = fixedAssetDTO.AcquisitionAndProductionCosts - depreciationEndOfYear;
+
+                        return fixedAssetYearDetailsDTO;
+                    })
+                    .ToList();
+
+                fixedAssetYearDetailsDTOs.AddRange(yearDetails);
             }
+
             return fixedAssetYearDetailsDTOs;
         }
 
+
         public async Task<IEnumerable<DepreciationDTO>> GenerateDepreciationsAsync(Guid periodId, string userName)
         {
-            List<DepreciationDTO> depreciationDTOs = new();
-
             PeriodDTO periodDTO = await _periodService.GetPeriodByIdAsync(periodId);
-
-            DateTime firstDayOfPeriod = new(periodDTO.Year, periodDTO.Month, 1);
-            DateTime lastDayOfPeriod = new(periodDTO.Year, periodDTO.Month, 31);
+            DateTime firstDayOfPeriod = new DateTime(periodDTO.Year, periodDTO.Month, 1);
+            DateTime lastDayOfPeriod = new DateTime(periodDTO.Year, periodDTO.Month, DateTime.DaysInMonth(periodDTO.Year, periodDTO.Month));
 
             IEnumerable<FixedAssetDTO> fixedAssetDTOs = await _fixedAssetService.GetFixedAssetsAsync();
 
-            // Get list of service dates from ar invoices in period
             List<DateTime> serviceDateTimes = await _arInvoiceLineService.GetListOfServiceDatesInPeriodAsync(firstDayOfPeriod, lastDayOfPeriod);
-
-            if (serviceDateTimes.Count() == 0) return depreciationDTOs;
-
-            foreach (FixedAssetDTO fixedAssetDTO in fixedAssetDTOs.Where(f => f.CapitalizationDate <= lastDayOfPeriod))
+            if (serviceDateTimes.Count == 0)
             {
-                // claculate number of depreciation days 
-                int nbOfDepreciationDays = serviceDateTimes.Count(s => s >= fixedAssetDTO.CapitalizationDate);
-
-                // calculate depreciation per day
-                double depreciationPerDay = (fixedAssetDTO.DepreciationPercentagePerYear / 100) * (fixedAssetDTO.AcquisitionAndProductionCosts / 365);
-
-                // calculate depreciation
-                double depreciationInPeriod = nbOfDepreciationDays * depreciationPerDay;
-
-                // insert depreciation 
-                Depreciation depreciation = new()
-                {
-                    FixedAssetId = fixedAssetDTO.Id,
-                    PeriodId = periodId,
-                    DepreciationAmount = depreciationInPeriod,
-                    CreatedBy = userName,
-                    LastModificationBy = userName
-                };
-
-                depreciation = await _depreciationRepository.InsertDepreciationAsync(depreciation);
-
-                DepreciationDTO depreciationDTO = _mapper.Map<DepreciationDTO>(depreciation);
-
-                depreciationDTOs.Add(depreciationDTO);
+                return Enumerable.Empty<DepreciationDTO>();
             }
+
+            List<Task<DepreciationDTO>> depreciationTasks = fixedAssetDTOs
+                .Where(f => f.CapitalizationDate <= lastDayOfPeriod)
+                .Select(async fixedAssetDTO =>
+                {
+                    int nbOfDepreciationDays = serviceDateTimes.Count(s => s >= fixedAssetDTO.CapitalizationDate);
+                    double depreciationPerDay = (fixedAssetDTO.DepreciationPercentagePerYear / 100) * (fixedAssetDTO.AcquisitionAndProductionCosts / 365);
+                    double depreciationInPeriod = nbOfDepreciationDays * depreciationPerDay;
+
+                    Depreciation depreciation = new()
+                    {
+                        FixedAssetId = fixedAssetDTO.Id,
+                        PeriodId = periodId,
+                        DepreciationAmount = depreciationInPeriod,
+                        CreatedBy = userName,
+                        LastModificationBy = userName
+                    };
+
+                    depreciation = await _depreciationRepository.InsertDepreciationAsync(depreciation);
+                    DepreciationDTO depreciationDTO = _mapper.Map<DepreciationDTO>(depreciation);
+                    return depreciationDTO;
+                })
+                .ToList();
+
+            IEnumerable<DepreciationDTO> depreciationDTOs = await Task.WhenAll(depreciationTasks);
             return depreciationDTOs;
         }
+
+
     }
 }

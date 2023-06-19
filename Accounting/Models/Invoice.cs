@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+﻿
 
 namespace AccountingAPI.Models
 {
@@ -10,14 +10,5 @@ namespace AccountingAPI.Models
         public string Currency { get; set; }
         public double GrossAmount { get; set; }
         public double NetAmount { get; set; }
-
-        [JsonConstructor]
-        public Invoice()
-        {
-            RefNumber = string.Empty;
-            Currency = string.Empty;
-            GrossAmount = 0;
-            NetAmount = 0;
-        }
     }
 }

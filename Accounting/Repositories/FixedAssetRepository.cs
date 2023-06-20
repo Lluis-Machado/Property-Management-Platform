@@ -34,7 +34,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(" FROM FixedAssets");
             queryBuilder.Append(" WHERE Id = @fixedAssetId");
 
-            return await _context.Connection.QuerySingleOrDefaultAsync<FixedAsset?>(queryBuilder.ToString(), parameters);
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QuerySingleOrDefaultAsync<FixedAsset?>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<IEnumerable<FixedAsset>> GetFixedAssetsAsync(bool includeDeleted)
@@ -54,8 +55,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(" FROM FixedAssets");
             if (includeDeleted == false) queryBuilder.Append(" WHERE Deleted = 0");
 
-
-            return await _context.Connection.QueryAsync<FixedAsset>(queryBuilder.ToString());
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QueryAsync<FixedAsset>(queryBuilder.ToString());
         }
 
         public async Task<FixedAsset> InsertFixedAssetAsync(FixedAsset fixedAsset)
@@ -100,7 +101,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",@LastModificationBy");
             queryBuilder.Append(")");
 
-            return await _context.Connection.QuerySingleAsync<FixedAsset>(queryBuilder.ToString(), parameters);
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QuerySingleAsync<FixedAsset>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<int> SetDeletedFixedAssetAsync(Guid id, bool deleted)
@@ -116,7 +118,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(" SET Deleted = @deleted");
             queryBuilder.Append(" WHERE Id = @id");
 
-            return await _context.Connection.ExecuteAsync(queryBuilder.ToString(), parameters);
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
         }
 
         public async Task<FixedAsset> UpdateFixedAssetAsync(FixedAsset fixedAsset)
@@ -155,7 +158,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",INSERTED.LastModificationBy");
             queryBuilder.Append(" WHERE Id = @Id");
 
-            return await _context.Connection.QuerySingleAsync<FixedAsset>(queryBuilder.ToString(), parameters);
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QuerySingleAsync<FixedAsset>(queryBuilder.ToString(), parameters);
         }
     }
 }

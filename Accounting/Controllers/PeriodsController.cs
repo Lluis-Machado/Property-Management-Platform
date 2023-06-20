@@ -27,12 +27,12 @@ namespace AccountingAPI.Controllers
         // POST: Create period
         [HttpPost]
         [Route("tenants/{tenantId}/periods")]
-        [ProducesResponseType((int)HttpStatusCode.Ok)]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.Conflict)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
 
-        public async Task<ActionResult<IEnumerable<PeriodDTO>>> CreatePeriodsAsync([FromBody] CreatePeriodDTO createPeriodDTO, Guid tenantId)
+        public async Task<ActionResult<PeriodDTO>> CreatePeriodsAsync([FromBody] CreatePeriodDTO createPeriodDTO, Guid tenantId)
         {
             // request validations
             if (createPeriodDTO == null) return BadRequest("Incorrect body format");
@@ -49,9 +49,9 @@ namespace AccountingAPI.Controllers
                 }
             }
 
-            IEnumerable<PeriodDTO> periodDTOs = await _periodService.CreatePeriodsAsync(createPeriodDTO, tenantId, User?.Identity?.Name);
+           PeriodDTO periodDTO = await _periodService.CreatePeriodsAsync(createPeriodDTO, tenantId, User?.Identity?.Name);
 
-            return Ok(periodDTOs);
+            return Created($"periods/{periodDTO.Id}", periodDTO);
         }
 
         // GET: Get period(s)

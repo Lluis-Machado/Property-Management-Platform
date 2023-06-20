@@ -38,7 +38,8 @@ namespace AccountingAPI.Repositories
                 queryBuilder.Append(" FROM APInvoices ");
                 queryBuilder.Append(" WHERE Id = @invoiceId");
 
-                return await _context.Connection.QuerySingleOrDefaultAsync<APInvoice?>(queryBuilder.ToString(), parameters);
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QuerySingleOrDefaultAsync<APInvoice?>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<IEnumerable<APInvoice>> GetAPInvoicesAsync(bool includeDeleted = false)
@@ -59,7 +60,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(" FROM APInvoices");
             if (includeDeleted == false) queryBuilder.Append(" WHERE Deleted = 0");
 
-            return await _context.Connection.QueryAsync<APInvoice>(queryBuilder.ToString());   
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QueryAsync<APInvoice>(queryBuilder.ToString());   
         }
 
         public async Task<APInvoice> InsertAPInvoice(APInvoice invoice)
@@ -108,7 +110,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",@LastModificationBy");
             queryBuilder.Append(")");
 
-            return await _context.Connection.QuerySingleAsync<APInvoice>(queryBuilder.ToString(), parameters);
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QuerySingleAsync<APInvoice>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<APInvoice> UpdateAPInvoiceAsync(APInvoice invoice)
@@ -150,7 +153,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",INSERTED.LastModificationBy");
             queryBuilder.Append(" WHERE Id = @Id");
 
-            return await _context.Connection.QuerySingleAsync<APInvoice>(queryBuilder.ToString(), parameters);
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QuerySingleAsync<APInvoice>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<int> SetDeletedAPInvoiceAsync(Guid id, bool deleted)
@@ -166,7 +170,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(" SET Deleted = @deleted");
             queryBuilder.Append(" WHERE Id = @id");
 
-            return await _context.Connection.ExecuteAsync(queryBuilder.ToString(), parameters);
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
         }
     }
 }

@@ -35,8 +35,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(" FROM APInvoiceLines");
             if (includeDeleted == false) queryBuilder.Append(" WHERE Deleted = 0");
 
-
-            return await _context.Connection.QueryAsync<APInvoiceLine>(queryBuilder.ToString());
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QueryAsync<APInvoiceLine>(queryBuilder.ToString());
         }
 
         public async Task<APInvoiceLine> GetAPInvoiceLineByIdAsync(Guid invoiceLineId)
@@ -65,7 +65,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(" FROM APInvoiceLines");
             queryBuilder.Append(" WHERE Id = @invoiceLineId");
 
-            return await _context.Connection.QuerySingleAsync<APInvoiceLine>(queryBuilder.ToString(), parameters);
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QuerySingleAsync<APInvoiceLine>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<APInvoiceLine> InsertAPInvoiceLineAsync(APInvoiceLine invoiceLine)
@@ -130,7 +131,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",@LastModificationBy");
             queryBuilder.Append(")");
 
-            return await _context.Connection.QuerySingleAsync<APInvoiceLine>(queryBuilder.ToString(), parameters);
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QuerySingleAsync<APInvoiceLine>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<int> SetDeletedAPInvoiceLineAsync(Guid id, bool deleted)
@@ -146,7 +148,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(" SET Deleted = @deleted");
             queryBuilder.Append(" WHERE Id = @id");
 
-            return await _context.Connection.ExecuteAsync(queryBuilder.ToString(), parameters);
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
         }
 
         public async Task<APInvoiceLine> UpdateAPInvoiceLineAsync(APInvoiceLine invoiceLine)
@@ -200,7 +203,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",INSERTED.LastModificationBy");
             queryBuilder.Append(" WHERE Id = @Id");
 
-            return await _context.Connection.QuerySingleAsync<APInvoiceLine>(queryBuilder.ToString(), parameters);
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QuerySingleAsync<APInvoiceLine>(queryBuilder.ToString(), parameters);
         }
     }
 }

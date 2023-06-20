@@ -13,6 +13,7 @@ namespace AccountingAPI.DTOs
         public int Year { get; set; }
         public double DepreciationNumberOfDays { get; set; }
         public double DepreciationBeginningYear { get; set; }
+        public double DepreciationAtYear { get; set; }
         public double DepreciationEndOfYear { get; set; }
         public double NetBookValueBeginningYear { get; set; }
         public double NetBookValueEndOfYear { get; set; }

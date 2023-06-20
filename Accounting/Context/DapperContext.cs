@@ -6,13 +6,17 @@ namespace AccountingAPI.Context
     public class DapperContext :IDapperContext
     {
 
-        private readonly IDbConnection _connection;
+        private readonly string _connectionString;
+
 
         public DapperContext(string connectionString)
         {;
-            _connection = new SqlConnection(connectionString);
+            _connectionString = connectionString;
         }
 
-        public IDbConnection Connection => _connection;
+        public IDbConnection CreateConnection()
+        {
+            return new SqlConnection(_connectionString);
+        }
     }
 }

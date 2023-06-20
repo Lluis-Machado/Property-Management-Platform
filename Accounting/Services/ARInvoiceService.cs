@@ -148,7 +148,6 @@ namespace AccountingAPI.Services
             }
         }
 
-
         public async Task<int> SetDeletedARInvoiceAsync(Guid invoiceId, bool deleted)
         {
             return await _invoiceRepository.SetDeletedARInvoiceAsync(invoiceId, deleted);

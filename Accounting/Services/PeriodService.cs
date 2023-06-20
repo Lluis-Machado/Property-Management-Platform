@@ -18,32 +18,16 @@ namespace AccountingAPI.Services
             _mapper = mapper;
         }
 
-        public async Task<List<PeriodDTO>> CreatePeriodsAsync(CreatePeriodDTO createPeriodDTO, Guid tenantId, string userName)
+        public async Task<PeriodDTO> CreatePeriodsAsync(CreatePeriodDTO createPeriodDTO, Guid tenantId, string userName)
         {
-            List<PeriodDTO> periodDTOs = new();
+            Period period = _mapper.Map<Period>(createPeriodDTO);
+            period.TenantId = tenantId;
+            period.CreatedBy = userName;
+            period.LastModificationBy = userName;
 
-            await Task.Run(() =>
-            {
-                Parallel.For(1, 13, async month =>
-                {
-                    if (createPeriodDTO.Month == null || createPeriodDTO.Month == month)
-                    {
-                        Period period = _mapper.Map<Period>(createPeriodDTO);
-                        period.TenantId = tenantId;
-                        period.CreatedBy = userName;
-                        period.LastModificationBy = userName;
+            period = await _periodRepository.InsertPeriodAsync(period);
 
-                        period = await _periodRepository.InsertPeriodAsync(period);
-
-                        lock (periodDTOs)
-                        {
-                            periodDTOs.Add(_mapper.Map<PeriodDTO>(period));
-                        }
-                    }
-                });
-            });
-
-            return periodDTOs;
+            return _mapper.Map<PeriodDTO>(period);
         }
 
         public async Task<IEnumerable<PeriodDTO>> GetPeriodsAsync(Guid tenantId, bool includeDeleted = false)

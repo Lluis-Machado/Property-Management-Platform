@@ -49,7 +49,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",@CreatedBy");
             queryBuilder.Append(")");
 
-            return await _context.Connection.QuerySingleAsync<BusinessPartner>(queryBuilder.ToString(), parameters);
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QuerySingleAsync<BusinessPartner>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<BusinessPartner?> GetBusinessPartnerByIdAsync(Guid businessPartnerId)
@@ -62,7 +63,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append("SELECT * FROM BusinessPartners");
             queryBuilder.Append(" WHERE Id = @businessPartnerId");
 
-            return await _context.Connection.QuerySingleOrDefaultAsync<BusinessPartner?>(queryBuilder.ToString(), parameters);
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QuerySingleOrDefaultAsync<BusinessPartner?>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<IEnumerable<BusinessPartner>> GetBusinessPartnersAsync(bool includeDeleted)
@@ -71,7 +73,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append("SELECT * FROM BusinessPartners");
             if (includeDeleted == false) queryBuilder.Append(" WHERE Deleted = 0");
 
-            return await _context.Connection.QueryAsync<BusinessPartner>(queryBuilder.ToString());
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QueryAsync<BusinessPartner>(queryBuilder.ToString());
         }
 
         public async Task<int> SetDeletedBusinessPartnerAsync(Guid id, bool deleted)
@@ -87,7 +90,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(" SET Deleted = @deleted ");
             queryBuilder.Append(" WHERE Id = @id ");
 
-            return await _context.Connection.ExecuteAsync(queryBuilder.ToString(), parameters);
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
         }
 
         public async Task<BusinessPartner> UpdateBusinessPartnerAsync(BusinessPartner businessPartner)
@@ -117,7 +121,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",INSERTED.CreatedBy");
             queryBuilder.Append(" WHERE Id = @Id ");
 
-            return await _context.Connection.QuerySingleAsync<BusinessPartner>(queryBuilder.ToString(), parameters);
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QuerySingleAsync<BusinessPartner>(queryBuilder.ToString(), parameters);
         }
     }
 }

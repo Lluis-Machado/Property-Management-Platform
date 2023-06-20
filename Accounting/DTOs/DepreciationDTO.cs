@@ -2,6 +2,7 @@
 {
     public class DepreciationDTO
     {
+        public Guid Id { get; set; }
         public Guid FixedAssetId { get; set; }
         public Guid PeriodId { get; set; }
         public int Year { get; set; }

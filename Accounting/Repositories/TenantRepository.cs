@@ -1,6 +1,5 @@
 ﻿using AccountingAPI.Context;
 using AccountingAPI.Models;
-using AccountingAPI.DTOs;
 using Dapper;
 using System.Text;
 
@@ -40,7 +39,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",@LastModificationBy");
             queryBuilder.Append(")");
 
-            return await _context.Connection.QuerySingleAsync<Tenant>(queryBuilder.ToString(), parameters);
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QuerySingleAsync<Tenant>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<IEnumerable<Tenant>> GetTenantsAsync(bool includeDeleted = false)
@@ -56,7 +56,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(" FROM Tenants");
             if (!includeDeleted) queryBuilder.Append(" WHERE Deleted = 0");
 
-            return await _context.Connection.QueryAsync<Tenant>(queryBuilder.ToString());
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QueryAsync<Tenant>(queryBuilder.ToString());
         }
 
         public async Task<Tenant> GetTenantByIdAsync(Guid tenantId)
@@ -76,7 +77,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(" FROM Tenants");
             queryBuilder.Append(" WHERE Id = @tenantId");
 
-            return await _context.Connection.QuerySingleAsync<Tenant>(queryBuilder.ToString(), parameters);
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QuerySingleAsync<Tenant>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<int> SetDeletedTenantAsync(Guid id, bool deleted)
@@ -92,7 +94,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(" SET Deleted = @deleted");
             queryBuilder.Append(" WHERE Id = @id");
 
-            return await _context.Connection.ExecuteAsync(queryBuilder.ToString(), parameters);
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
         }
 
         public async Task<Tenant> UpdateTenantAsync(Tenant tenant)
@@ -120,7 +123,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",INSERTED.LastModificationBy");
             queryBuilder.Append(" WHERE Id = @Id");
 
-            return await _context.Connection.QuerySingleAsync<Tenant>(queryBuilder.ToString(), parameters);
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QuerySingleAsync<Tenant>(queryBuilder.ToString(), parameters);
         }
     }
 }

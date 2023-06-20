@@ -47,7 +47,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",@LastModificationBy");
             queryBuilder.Append(")");
 
-            return await _context.Connection.QuerySingleAsync<Depreciation>(queryBuilder.ToString(), parameters);
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QuerySingleAsync<Depreciation>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<IEnumerable<Depreciation>> GetDepreciationsAsync(bool includeDeleted = false)
@@ -65,7 +66,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(" FROM Depreciations");
             if (!includeDeleted) queryBuilder.Append(" WHERE Deleted = 0");
 
-            return await _context.Connection.QueryAsync<Depreciation>(queryBuilder.ToString());
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QueryAsync<Depreciation>(queryBuilder.ToString());
         }
 
         public async Task<Depreciation> GetDepreciationByIdAsync(Guid depreciationId)
@@ -87,7 +89,9 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(" FROM Depreciations");
             queryBuilder.Append(" WHERE Id = @depreciationId");
 
-            return await _context.Connection.QuerySingleAsync<Depreciation>(queryBuilder.ToString(), parameters);
+
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QuerySingleAsync<Depreciation>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<int> SetDeletedDepreciationAsync(Guid id, bool deleted)
@@ -103,7 +107,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(" SET Deleted = @deleted");
             queryBuilder.Append(" WHERE Id = @id");
 
-            return await _context.Connection.ExecuteAsync(queryBuilder.ToString(), parameters);
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
         }
 
         public async Task<Depreciation> UpdateDepreciationAsync(Depreciation depreciation)
@@ -111,17 +116,13 @@ namespace AccountingAPI.Repositories
             var parameters = new
             {
                 depreciation.Id,
-                depreciation.FixedAssetId,
-                depreciation.PeriodId,
                 depreciation.DepreciationAmount,
                 depreciation.LastModificationBy,
                 depreciation.LastModificationAt,
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("UPDATE Depreciations");
-            queryBuilder.Append(" SET FixedAssetId = @FixedAssetId");
-            queryBuilder.Append(",PeriodId = @PeriodId");
-            queryBuilder.Append(",DepreciationAmount = @DepreciationAmount");
+            queryBuilder.Append(" SET DepreciationAmount = @DepreciationAmount");
             queryBuilder.Append(",LastModificationAt = @LastModificationAt");
             queryBuilder.Append(",LastModificationBy = @LastModificationBy");
             queryBuilder.Append(" OUTPUT INSERTED.Id");
@@ -135,7 +136,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",INSERTED.LastModificationBy");
             queryBuilder.Append(" WHERE Id = @Id");
 
-            return await _context.Connection.QuerySingleAsync<Depreciation>(queryBuilder.ToString(), parameters);
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QuerySingleAsync<Depreciation>(queryBuilder.ToString(), parameters);
         }
     }
 }

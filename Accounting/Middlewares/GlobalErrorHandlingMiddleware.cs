@@ -1,6 +1,7 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 
-namespace Accounting.Middlewares
+namespace AccountingAPI.Middlewares
 {
     public class GlobalErrorHandlingMiddleware : IMiddleware
     {
@@ -20,7 +21,6 @@ namespace Accounting.Middlewares
             catch (Exception ex)
             {
                 _logger.LogError("Internal exception occurred: {@Exception}", ex);
-
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             }
         }

@@ -14,7 +14,7 @@ namespace AccountingUnitTests
     {
 
         private readonly Mock<ILogger<FixedAssetsController>> _mockLogger;
-        private readonly Mock<IValidator<FixedAsset>> _mockFixedAssetValidator;
+        private readonly Mock<IValidator<FixedAssetCreateDTO>> _mockFixedAssetValidator;
         private readonly Mock<IConfiguration> _mockConfiguration;
         private readonly Mock<IFixedAssetRepository> _mockFixedAssetRepo;
         private readonly Mock<IInvoiceRepository> _mockInvoiceRepo;
@@ -25,7 +25,7 @@ namespace AccountingUnitTests
         public FixedAssetsControllerTests()
         {
             _mockLogger = new Mock<ILogger<FixedAssetsController>>();
-            _mockFixedAssetValidator = new Mock<IValidator<FixedAsset>>();
+            _mockFixedAssetValidator = new Mock<IValidator<FixedAssetCreateDTO>>();
             _mockConfiguration = new Mock<IConfiguration>();
             _mockFixedAssetRepo = new Mock<IFixedAssetRepository>();
             _mockInvoiceRepo = new Mock<IInvoiceRepository>();
@@ -64,7 +64,7 @@ namespace AccountingUnitTests
             };
 
             _mockFixedAssetValidator
-                .Setup(v => v.ValidateAsync(It.IsAny<FixedAsset>(), CancellationToken.None))
+                .Setup(v => v.ValidateAsync(It.IsAny<FixedAssetCreateDTO>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
             _mockInvoiceRepo
@@ -76,7 +76,7 @@ namespace AccountingUnitTests
                 .ReturnsAsync(fakeDepreciationConfig);
 
             _mockFixedAssetRepo
-                .Setup(r => r.InsertFixedAssetAsync(It.IsAny<FixedAsset>()))
+                .Setup(r => r.InsertFixedAssetAsync(It.IsAny<FixedAssetCreateDTO>()))
                 .ReturnsAsync(fakeExpectedFixedAsset);
 
             // Act
@@ -131,7 +131,7 @@ namespace AccountingUnitTests
             var validationResult = new ValidationResult(new List<ValidationFailure> { new ValidationFailure("Name", "Name cannot be empty") });
 
             _mockFixedAssetValidator
-                .Setup(v => v.ValidateAsync(It.IsAny<FixedAsset>(), CancellationToken.None))
+                .Setup(v => v.ValidateAsync(It.IsAny<FixedAssetCreateDTO>(), CancellationToken.None))
                 .ReturnsAsync(validationResult);
 
             // Act
@@ -161,7 +161,7 @@ namespace AccountingUnitTests
             fakeInvoice = null;
 
             _mockFixedAssetValidator
-                .Setup(v => v.ValidateAsync(It.IsAny<FixedAsset>(), CancellationToken.None))
+                .Setup(v => v.ValidateAsync(It.IsAny<FixedAssetCreateDTO>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
             _mockInvoiceRepo
@@ -195,7 +195,7 @@ namespace AccountingUnitTests
             fakeDepreciationConfig = null;
 
             _mockFixedAssetValidator
-                .Setup(v => v.ValidateAsync(It.IsAny<FixedAsset>(), CancellationToken.None))
+                .Setup(v => v.ValidateAsync(It.IsAny<FixedAssetCreateDTO>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
             _mockInvoiceRepo
@@ -223,7 +223,7 @@ namespace AccountingUnitTests
         {
             // Arrange
             var fakeInvoice = new Invoice { Id = Guid.NewGuid() };
-            var fakeExpectedFixedAssets = new List<FixedAsset>()
+            var fakeExpectedFixedAssets = new List<FixedAssetCreateDTO>()
             {
                 new FixedAsset
                 {
@@ -262,7 +262,7 @@ namespace AccountingUnitTests
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
-            var actualFixedAssets = Assert.IsAssignableFrom<IEnumerable<FixedAsset>>(okResult.Value);
+            var actualFixedAssets = Assert.IsAssignableFrom<IEnumerable<FixedAssetCreateDTO>>(okResult.Value);
             Assert.Equal(fakeExpectedFixedAssets, actualFixedAssets);
         }
 
@@ -303,7 +303,7 @@ namespace AccountingUnitTests
             };
 
             _mockFixedAssetValidator
-                .Setup(v => v.ValidateAsync(It.IsAny<FixedAsset>(), CancellationToken.None))
+                .Setup(v => v.ValidateAsync(It.IsAny<FixedAssetCreateDTO>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
             _mockInvoiceRepo
@@ -370,7 +370,7 @@ namespace AccountingUnitTests
             var validationResult = new ValidationResult(new List<ValidationFailure> { new ValidationFailure("Name", "Name cannot be empty") });
 
             _mockFixedAssetValidator
-                .Setup(v => v.ValidateAsync(It.IsAny<FixedAsset>(), CancellationToken.None))
+                .Setup(v => v.ValidateAsync(It.IsAny<FixedAssetCreateDTO>(), CancellationToken.None))
                 .ReturnsAsync(validationResult);
 
             // Act
@@ -399,7 +399,7 @@ namespace AccountingUnitTests
             };
 
             _mockFixedAssetValidator
-                .Setup(v => v.ValidateAsync(It.IsAny<FixedAsset>(), CancellationToken.None))
+                .Setup(v => v.ValidateAsync(It.IsAny<FixedAssetCreateDTO>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
             _mockInvoiceRepo
@@ -411,7 +411,7 @@ namespace AccountingUnitTests
                 .ReturnsAsync(fakeDepreciationConfig);
 
             _mockFixedAssetRepo
-                .Setup(r => r.UpdateFixedAssetAsync(It.IsAny<FixedAsset>()))
+                .Setup(r => r.UpdateFixedAssetAsync(It.IsAny<FixedAssetCreateDTO>()))
                 .ReturnsAsync(0);
 
             // Act

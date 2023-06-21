@@ -18,7 +18,7 @@ namespace AccountingAPI.Services
             _mapper = mapper;
         }
 
-        public async Task<BusinessPartnerDTO> CreateBusinessPartnerAsync(CreateBusinessPartnerDTO createBusinessPartnerDTO, string userName, Guid tenantId)
+        public async Task<BusinessPartnerDTO> CreateBusinessPartnerAsync(CreateBusinessPartnerDTO createBusinessPartnerDTO, string? userName, Guid tenantId)
         {
             BusinessPartner businessPartner = _mapper.Map<BusinessPartner>(createBusinessPartnerDTO);
             businessPartner.CreatedBy = userName;
@@ -46,7 +46,7 @@ namespace AccountingAPI.Services
             return await _businessPartnerRepository.GetBusinessPartnerByIdAsync(BusinessPartnerId) != null;
         }
 
-        public async Task<BusinessPartnerDTO> UpdateBusinessPartnerAsync(CreateBusinessPartnerDTO createBusinessPartnerDTO, string userName, Guid businessPartnerId)
+        public async Task<BusinessPartnerDTO> UpdateBusinessPartnerAsync(CreateBusinessPartnerDTO createBusinessPartnerDTO, string? userName, Guid businessPartnerId)
         {
             BusinessPartner businessPartner = _mapper.Map<BusinessPartner>(createBusinessPartnerDTO);
             businessPartner.Id = businessPartnerId;

@@ -40,12 +40,9 @@ namespace AccountingAPI.Controllers
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
             // check if already exists
-            if (createPeriodDTO.Month != null)
+            if (await _periodService.CheckIfPeriodExistsAsync(tenantId, createPeriodDTO.Year, createPeriodDTO.Month))
             {
-                if (await _periodService.CheckIfPeriodExistsAsync(tenantId, createPeriodDTO.Year, (int)createPeriodDTO.Month))
-                {
-                    return Conflict("Period already exists");
-                }
+                return Conflict("Period already exists");
             }
 
             PeriodDTO periodDTO = await _periodService.CreatePeriodsAsync(createPeriodDTO, tenantId, User?.Identity?.Name);

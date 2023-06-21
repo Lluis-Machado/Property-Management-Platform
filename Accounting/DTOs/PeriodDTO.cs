@@ -6,7 +6,7 @@
         public Guid TenantId { get; set; }
         public int Year { get; set; }
         public int Month { get; set; }
-        public string Status { get; set; }
+        public string? Status { get; set; }
         public bool Deleted { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime LastModificationAt { get; set; }

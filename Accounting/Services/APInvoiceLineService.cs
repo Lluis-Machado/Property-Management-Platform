@@ -22,7 +22,7 @@ namespace AccountingAPI.Services
             _expenseCategoryService = expenseCategoryService;
         }
 
-        public async Task<APInvoiceLineDTO> CreateAPInvoiceLineAsync(CreateAPInvoiceLineDTO createInvoiceLineDTO, Guid invoiceId, DateTime invoiceDate, string userName)
+        public async Task<APInvoiceLineDTO> CreateAPInvoiceLineAsync(CreateAPInvoiceLineDTO createInvoiceLineDTO, Guid invoiceId, DateTime invoiceDate, string? userName)
         {
             APInvoiceLineDTO invoiceLineDTO = new();
 
@@ -79,7 +79,7 @@ namespace AccountingAPI.Services
             return aPInvoiceLineDTO;
         }
 
-        public async Task<APInvoiceLineDTO> UpdateAPInvoiceLineAsync(UpdateAPInvoiceLineDTO udpateInvoiceLineDTO, string userName, Guid invoiceLineId, DateTime invoiceDate, Guid? fixedAssetId = null)
+        public async Task<APInvoiceLineDTO> UpdateAPInvoiceLineAsync(UpdateAPInvoiceLineDTO udpateInvoiceLineDTO, string? userName, Guid invoiceLineId, DateTime invoiceDate, Guid? fixedAssetId = null)
         {
             APInvoiceLine invoiceLine = _mapper.Map<APInvoiceLine>(udpateInvoiceLineDTO);
             invoiceLine.FixedAssetId = fixedAssetId;

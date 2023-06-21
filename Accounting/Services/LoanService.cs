@@ -18,7 +18,7 @@ namespace AccountingAPI.Services
             _mapper = mapper;
         }
 
-        public async Task<LoanDTO> CreateLoanAsync(CreateLoanDTO createLoanDTO, string userName)
+        public async Task<LoanDTO> CreateLoanAsync(CreateLoanDTO createLoanDTO, string? userName)
         {
             Loan loan = _mapper.Map<Loan>(createLoanDTO);
             loan.CreatedBy = userName;
@@ -43,7 +43,7 @@ namespace AccountingAPI.Services
             return await _loanRepository.GetLoanByIdAsync(LoanId) != null;
         }
 
-        public async Task<LoanDTO> UpdateLoanAsync(CreateLoanDTO createLoanDTO, string userName)
+        public async Task<LoanDTO> UpdateLoanAsync(CreateLoanDTO createLoanDTO, string? userName)
         {
             Loan loan = _mapper.Map<Loan>(createLoanDTO);
             loan.LastModificationAt = DateTime.Now;

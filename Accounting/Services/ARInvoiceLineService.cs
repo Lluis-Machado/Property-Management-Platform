@@ -18,7 +18,7 @@ namespace AccountingAPI.Services
             _mapper = mapper;
         }
 
-        public async Task<ARInvoiceLineDTO> CreateARInvoiceLineAsync(CreateARInvoiceLineDTO createInvoiceLineDTO, Guid invoiceId, string userName)
+        public async Task<ARInvoiceLineDTO> CreateARInvoiceLineAsync(CreateARInvoiceLineDTO createInvoiceLineDTO, Guid invoiceId, string? userName)
         {
             ARInvoiceLineDTO invoiceLineDTO = new();
 
@@ -44,7 +44,7 @@ namespace AccountingAPI.Services
             return _mapper.Map<ARInvoiceLineDTO>(invoiceLine);
         }
 
-        public async Task<ARInvoiceLineDTO> UpdateARInvoiceLineAsync(UpdateARInvoiceLineDTO udpateInvoiceLineDTO, string userName, Guid invoiceLineId, Guid? fixedAssetId = null)
+        public async Task<ARInvoiceLineDTO> UpdateARInvoiceLineAsync(UpdateARInvoiceLineDTO udpateInvoiceLineDTO, string? userName, Guid invoiceLineId, Guid? fixedAssetId = null)
         {
             ARInvoiceLine invoiceLine = _mapper.Map<ARInvoiceLine>(udpateInvoiceLineDTO);
             invoiceLine.Id = invoiceLineId;

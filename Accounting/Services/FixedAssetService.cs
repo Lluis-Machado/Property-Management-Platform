@@ -18,7 +18,7 @@ namespace AccountingAPI.Services
             _fixedAssetRepository = fixedAssetRepository;
         }
 
-        public async Task<FixedAssetDTO> CreateFixedAssetAsync(CreateFixedAssetDTO createFixedAssetDTO, string userName)
+        public async Task<FixedAssetDTO> CreateFixedAssetAsync(CreateFixedAssetDTO createFixedAssetDTO, string? userName)
         {
             FixedAsset fixedAsset = _mapper.Map<FixedAsset>(createFixedAssetDTO);
             fixedAsset.CreatedBy = userName;
@@ -39,7 +39,7 @@ namespace AccountingAPI.Services
             return _mapper.Map<FixedAssetDTO>(fixedAsset);
         }
 
-        public async Task<FixedAssetDTO> UpdateFixedAssetAsync(UpdateFixedAssetDTO updateFixedAssetDTO, string userName, Guid fixedAssetId)
+        public async Task<FixedAssetDTO> UpdateFixedAssetAsync(UpdateFixedAssetDTO updateFixedAssetDTO, string? userName, Guid fixedAssetId)
         {
             FixedAsset fixedAsset = _mapper.Map<FixedAsset>(updateFixedAssetDTO);
             fixedAsset.Id = fixedAssetId;

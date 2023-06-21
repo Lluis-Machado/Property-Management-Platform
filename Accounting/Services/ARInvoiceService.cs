@@ -21,7 +21,7 @@ namespace AccountingAPI.Services
             _mapper = mapper;
         }
 
-        public async Task<ARInvoiceDTO> CreateARInvoiceAndLinesAsync(CreateARInvoiceDTO createInvoiceDTO, string userName, Guid businessPartnerId)
+        public async Task<ARInvoiceDTO> CreateARInvoiceAndLinesAsync(CreateARInvoiceDTO createInvoiceDTO, string? userName, Guid businessPartnerId)
         {
             using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -92,7 +92,7 @@ namespace AccountingAPI.Services
             return invoiceDTOs;
         }
 
-        public async Task<ARInvoiceDTO> UpdateARInvoiceAndLinesAsync(UpdateARInvoiceDTO updateInvoiceDTO, string userName, Guid invoiceId)
+        public async Task<ARInvoiceDTO> UpdateARInvoiceAndLinesAsync(UpdateARInvoiceDTO updateInvoiceDTO, string? userName, Guid invoiceId)
         {
             using var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 

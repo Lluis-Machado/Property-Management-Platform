@@ -18,7 +18,7 @@ namespace AccountingAPI.Services
             _mapper = mapper;
         }
 
-        public async Task<ExpenseCategoryDTO> CreateExpenseCategoryAsync(CreateExpenseCategoryDTO createExpenseCategoryDTO, string userName)
+        public async Task<ExpenseCategoryDTO> CreateExpenseCategoryAsync(CreateExpenseCategoryDTO createExpenseCategoryDTO, string? userName)
         {
             ExpenseCategory expenseCategory = _mapper.Map<ExpenseCategory>(createExpenseCategoryDTO);
             expenseCategory.CreatedBy = userName;
@@ -45,7 +45,7 @@ namespace AccountingAPI.Services
             return await _expenseCategoryRepo.GetExpenseCategoryByIdAsync(expenseCategoryId) != null;
         }
 
-        public async Task<ExpenseCategoryDTO> UpdateExpenseCategoryAsync(CreateExpenseCategoryDTO createExpenseCategoryDTO, string userName, Guid expenseCategoryId)
+        public async Task<ExpenseCategoryDTO> UpdateExpenseCategoryAsync(CreateExpenseCategoryDTO createExpenseCategoryDTO, string? userName, Guid expenseCategoryId)
         {
             ExpenseCategory expenseCategory = _mapper.Map<ExpenseCategory>(createExpenseCategoryDTO);
             expenseCategory.Id = expenseCategoryId;

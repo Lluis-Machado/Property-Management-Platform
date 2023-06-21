@@ -18,7 +18,7 @@ namespace AccountingAPI.Services
             _mapper = mapper;
         }
 
-        public async Task<TenantDTO> CreateTenantAsync(CreateTenantDTO createTenantDTO, string userName)
+        public async Task<TenantDTO> CreateTenantAsync(CreateTenantDTO createTenantDTO, string? userName)
         {
             Tenant tenant = _mapper.Map<Tenant>(createTenantDTO);
             tenant.CreatedBy = userName;
@@ -44,7 +44,7 @@ namespace AccountingAPI.Services
             return await _tenantRepository.GetTenantByIdAsync(TenantId) != null;
         }
 
-        public async Task<TenantDTO?> UpdateTenantAsync(CreateTenantDTO createTenantDTO, string userName, Guid tenantId)
+        public async Task<TenantDTO?> UpdateTenantAsync(CreateTenantDTO createTenantDTO, string? userName, Guid tenantId)
         {
             Tenant tenant = _mapper.Map<Tenant>(createTenantDTO);
             tenant.Id = tenantId;

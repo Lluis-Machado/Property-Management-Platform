@@ -18,7 +18,7 @@ namespace AccountingAPI.Services
             _mapper = mapper;
         }
 
-        public async Task<PeriodDTO> CreatePeriodsAsync(CreatePeriodDTO createPeriodDTO, Guid tenantId, string userName)
+        public async Task<PeriodDTO> CreatePeriodsAsync(CreatePeriodDTO createPeriodDTO, Guid tenantId, string? userName)
         {
             Period period = _mapper.Map<Period>(createPeriodDTO);
             period.TenantId = tenantId;
@@ -53,7 +53,7 @@ namespace AccountingAPI.Services
             return periodDTOs.Any(p => p.TenantId == tenantId && p.Year == year && p.Month == month);
         }
 
-        public async Task<PeriodDTO?> UpdatePeriodStatusAsync(UpdatePeriodDTO.PeriodStatus status, string userName, Guid periodId)
+        public async Task<PeriodDTO?> UpdatePeriodStatusAsync(UpdatePeriodDTO.PeriodStatus status, string? userName, Guid periodId)
         {
             Period? period = await _periodRepository.GetPeriodByIdAsync(periodId);
             period.Status = (int)status;

@@ -23,9 +23,10 @@ namespace AccountingAPI.Validators
                 .WithMessage("{PropertyName} cannot be empty.");
         }
 
-        private bool BeValidCurrencyCode(string currencyCode)
+        private bool BeValidCurrencyCode(string? currencyCode)
         {
-            return Enum.IsDefined(typeof(CurrencyCode), currencyCode);
+            if(currencyCode == null) return false;
+            return Enum.IsDefined(typeof(CurrencyCode), (string)currencyCode);
         }
 
         enum CurrencyCode

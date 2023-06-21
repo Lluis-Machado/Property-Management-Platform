@@ -100,7 +100,7 @@ namespace AccountingAPI.Services
             return fixedAssetYearDetailsDTOs;
         }
 
-        public async Task<IEnumerable<DepreciationDTO>> GenerateDepreciationsAsync(Guid periodId, string userName)
+        public async Task<IEnumerable<DepreciationDTO>> GenerateDepreciationsAsync(Guid periodId, string? userName)
         {
             PeriodDTO periodDTO = await _periodService.GetPeriodByIdAsync(periodId);
             DateTime firstDayOfPeriod = new(periodDTO.Year, periodDTO.Month, 1);
@@ -151,7 +151,7 @@ namespace AccountingAPI.Services
             return resultDepreciationDTOs;
         }
 
-        public async Task<DepreciationDTO> CreateDepreciationAsync(CreateDepreciationDTO createDepreciationDTO, Guid fixedAssetId, Guid periodId, string userName)
+        public async Task<DepreciationDTO> CreateDepreciationAsync(CreateDepreciationDTO createDepreciationDTO, Guid fixedAssetId, Guid periodId, string? userName)
         {
             Depreciation depreciation = new()
             {
@@ -166,7 +166,7 @@ namespace AccountingAPI.Services
             return await MapDepreciationPeriodData(depreciationDTO);
         }
 
-        public async Task<DepreciationDTO> UpdateDepreciationAsync(Guid depreciationId, UpdateDepreciationDTO updateDepreciationDTO, string userName)
+        public async Task<DepreciationDTO> UpdateDepreciationAsync(Guid depreciationId, UpdateDepreciationDTO updateDepreciationDTO, string? userName)
         {
             Depreciation depreciation = new()
             {

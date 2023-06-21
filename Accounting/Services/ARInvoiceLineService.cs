@@ -1,8 +1,7 @@
-﻿using AutoMapper;
-using AccountingAPI.Repositories;
-using AccountingAPI.DTOs;
+﻿using AccountingAPI.DTOs;
 using AccountingAPI.Models;
-using System.Net;
+using AccountingAPI.Repositories;
+using AutoMapper;
 
 namespace AccountingAPI.Services
 {
@@ -19,7 +18,7 @@ namespace AccountingAPI.Services
             _mapper = mapper;
         }
 
-        public async Task<ARInvoiceLineDTO> CreateARInvoiceLineAsync(CreateARInvoiceLineDTO createInvoiceLineDTO,Guid invoiceId, string userName)
+        public async Task<ARInvoiceLineDTO> CreateARInvoiceLineAsync(CreateARInvoiceLineDTO createInvoiceLineDTO, Guid invoiceId, string userName)
         {
             ARInvoiceLineDTO invoiceLineDTO = new();
 
@@ -31,7 +30,7 @@ namespace AccountingAPI.Services
 
             invoiceLine = await _invoiceLineRepository.InsertARInvoiceLineAsync(invoiceLine);
 
-            return _mapper.Map<ARInvoiceLineDTO>(invoiceLine);  
+            return _mapper.Map<ARInvoiceLineDTO>(invoiceLine);
         }
         public async Task<IEnumerable<ARInvoiceLineDTO>> GetARInvoiceLinesAsync(bool includeDeleted = false)
         {
@@ -65,7 +64,7 @@ namespace AccountingAPI.Services
 
             foreach (ARInvoiceLine arInvoiceLine in arInvoiceLines.Where(i => i.ServiceDateFrom > dateFrom || i.ServiceDateTo > dateTo))
             {
-                if (arInvoiceLine.ServiceDateFrom == null || arInvoiceLine.ServiceDateTo == null) continue; 
+                if (arInvoiceLine.ServiceDateFrom == null || arInvoiceLine.ServiceDateTo == null) continue;
 
                 for (DateTime dt = (DateTime)arInvoiceLine.ServiceDateFrom; dt <= arInvoiceLine.ServiceDateTo; dt = dt.AddDays(1))
                 {
@@ -77,7 +76,7 @@ namespace AccountingAPI.Services
 
         public async Task<int> SetDeletedARInvoiceLineAsync(Guid invoiceLineId, bool deleted)
         {
-            return await _invoiceLineRepository.SetDeletedARInvoiceLineAsync(invoiceLineId,deleted);
+            return await _invoiceLineRepository.SetDeletedARInvoiceLineAsync(invoiceLineId, deleted);
         }
     }
 }

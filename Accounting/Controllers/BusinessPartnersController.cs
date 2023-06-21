@@ -67,7 +67,7 @@ namespace AccountingAPI.Controllers
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
             // check if exists
-            if(! await _businessPartnerService.CheckIfBusinessPartnerExists(businessPartnerId)) return NotFound("Business Partner not found");
+            if (!await _businessPartnerService.CheckIfBusinessPartnerExists(businessPartnerId)) return NotFound("Business Partner not found");
 
             // update
             BusinessPartnerDTO businessPartnerDTO = await _businessPartnerService.UpdateBusinessPartnerAsync(createBusinessPartnerDTO, User?.Identity?.Name, businessPartnerId);

@@ -17,26 +17,26 @@ namespace AccountingAPI.Repositories
 
         public async Task<ARInvoice?> GetARInvoiceByIdAsync(Guid invoiceId)
         {
-                var parameters = new
-                {
-                    invoiceId
-                };
+            var parameters = new
+            {
+                invoiceId
+            };
 
-                StringBuilder queryBuilder = new();
-                queryBuilder.Append("SELECT Id");
-                queryBuilder.Append(",BusinessPartnerId");
-                queryBuilder.Append(",RefNumber");
-                queryBuilder.Append(",Date");
-                queryBuilder.Append(",Currency");
-                queryBuilder.Append(",GrossAmount");
-                queryBuilder.Append(",NetAmount");
-                queryBuilder.Append(",Deleted");
-                queryBuilder.Append(",CreatedAt");
-                queryBuilder.Append(",CreatedBy");
-                queryBuilder.Append(",LastModificationAt");
-                queryBuilder.Append(",LastModificationBy");
-                queryBuilder.Append(" FROM ARInvoices ");
-                queryBuilder.Append(" WHERE Id = @invoiceId");
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("SELECT Id");
+            queryBuilder.Append(",BusinessPartnerId");
+            queryBuilder.Append(",RefNumber");
+            queryBuilder.Append(",Date");
+            queryBuilder.Append(",Currency");
+            queryBuilder.Append(",GrossAmount");
+            queryBuilder.Append(",NetAmount");
+            queryBuilder.Append(",Deleted");
+            queryBuilder.Append(",CreatedAt");
+            queryBuilder.Append(",CreatedBy");
+            queryBuilder.Append(",LastModificationAt");
+            queryBuilder.Append(",LastModificationBy");
+            queryBuilder.Append(" FROM ARInvoices ");
+            queryBuilder.Append(" WHERE Id = @invoiceId");
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QuerySingleOrDefaultAsync<ARInvoice?>(queryBuilder.ToString(), parameters);
@@ -61,7 +61,7 @@ namespace AccountingAPI.Repositories
             if (includeDeleted == false) queryBuilder.Append(" WHERE Deleted = 0");
 
             using var connection = _context.CreateConnection(); // Create a new connection
-            return await connection.QueryAsync<ARInvoice>(queryBuilder.ToString());   
+            return await connection.QueryAsync<ARInvoice>(queryBuilder.ToString());
         }
 
         public async Task<ARInvoice> InsertARInvoice(ARInvoice invoice)

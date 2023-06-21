@@ -1,7 +1,7 @@
 ﻿
 namespace AccountingAPI.Models
 {
-    public class FixedAsset :BaseModel
+    public class FixedAsset : BaseModel
     {
         public Guid InvoiceLineId { get; set; }
         public string Description { get; set; }

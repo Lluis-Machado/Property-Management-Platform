@@ -1,6 +1,6 @@
 ﻿namespace AccountingAPI.Models
 {
-    public class Period :BaseModel
+    public class Period : BaseModel
     {
         public Guid TenantId { get; set; }
         public int Year { get; set; }

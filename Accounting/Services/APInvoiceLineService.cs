@@ -1,7 +1,7 @@
-﻿using AutoMapper;
-using AccountingAPI.Repositories;
-using AccountingAPI.DTOs;
+﻿using AccountingAPI.DTOs;
 using AccountingAPI.Models;
+using AccountingAPI.Repositories;
+using AutoMapper;
 
 namespace AccountingAPI.Services
 {
@@ -22,7 +22,7 @@ namespace AccountingAPI.Services
             _expenseCategoryService = expenseCategoryService;
         }
 
-        public async Task<APInvoiceLineDTO> CreateAPInvoiceLineAsync(CreateAPInvoiceLineDTO createInvoiceLineDTO,Guid invoiceId,DateTime invoiceDate, string userName)
+        public async Task<APInvoiceLineDTO> CreateAPInvoiceLineAsync(CreateAPInvoiceLineDTO createInvoiceLineDTO, Guid invoiceId, DateTime invoiceDate, string userName)
         {
             APInvoiceLineDTO invoiceLineDTO = new();
 
@@ -54,13 +54,13 @@ namespace AccountingAPI.Services
                 invoiceLineDTO.FixedAsset = fixedAssetDTO;
             }
 
-            return invoiceLineDTO;  
+            return invoiceLineDTO;
         }
         public async Task<IEnumerable<APInvoiceLineDTO>> GetAPInvoiceLinesAsync(bool includeDeleted = false)
         {
             List<APInvoiceLineDTO> aPInvoiceLineDTOs = new();
             IEnumerable<APInvoiceLine> invoiceLines = await _invoiceLineRepository.GetAPInvoiceLinesAsync(includeDeleted);
-            foreach(APInvoiceLine aPInvoiceLine in invoiceLines)
+            foreach (APInvoiceLine aPInvoiceLine in invoiceLines)
             {
                 APInvoiceLineDTO aPInvoiceLineDTO = _mapper.Map<APInvoiceLineDTO>(aPInvoiceLine);
                 aPInvoiceLineDTO.ExpenseCategory = await _expenseCategoryService.GetExpenseCategoryByIdAsync(aPInvoiceLine.ExpenseCategoryId);
@@ -79,7 +79,7 @@ namespace AccountingAPI.Services
             return aPInvoiceLineDTO;
         }
 
-        public async Task<APInvoiceLineDTO> UpdateAPInvoiceLineAsync(UpdateAPInvoiceLineDTO udpateInvoiceLineDTO, string userName, Guid invoiceLineId,DateTime invoiceDate, Guid? fixedAssetId = null)
+        public async Task<APInvoiceLineDTO> UpdateAPInvoiceLineAsync(UpdateAPInvoiceLineDTO udpateInvoiceLineDTO, string userName, Guid invoiceLineId, DateTime invoiceDate, Guid? fixedAssetId = null)
         {
             APInvoiceLine invoiceLine = _mapper.Map<APInvoiceLine>(udpateInvoiceLineDTO);
             invoiceLine.FixedAssetId = fixedAssetId;
@@ -136,7 +136,7 @@ namespace AccountingAPI.Services
 
         public async Task<int> SetDeletedAPInvoiceLineAsync(Guid invoiceLineId, bool deleted)
         {
-            return await _invoiceLineRepository.SetDeletedAPInvoiceLineAsync(invoiceLineId,deleted);
+            return await _invoiceLineRepository.SetDeletedAPInvoiceLineAsync(invoiceLineId, deleted);
         }
     }
 }

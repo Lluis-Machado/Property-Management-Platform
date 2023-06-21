@@ -1,7 +1,7 @@
-﻿using AccountingAPI.Repositories;
+﻿using AccountingAPI.DTOs;
 using AccountingAPI.Models;
+using AccountingAPI.Repositories;
 using AutoMapper;
-using AccountingAPI.DTOs;
 
 namespace AccountingAPI.Services
 {
@@ -43,7 +43,7 @@ namespace AccountingAPI.Services
 
         public async Task<bool> CheckIfBusinessPartnerExists(Guid BusinessPartnerId)
         {
-           return await _businessPartnerRepository.GetBusinessPartnerByIdAsync(BusinessPartnerId) != null;
+            return await _businessPartnerRepository.GetBusinessPartnerByIdAsync(BusinessPartnerId) != null;
         }
 
         public async Task<BusinessPartnerDTO> UpdateBusinessPartnerAsync(CreateBusinessPartnerDTO createBusinessPartnerDTO, string userName, Guid businessPartnerId)
@@ -58,7 +58,7 @@ namespace AccountingAPI.Services
 
         public async Task<int> SetDeletedBusinessPartnerAsync(Guid businessPartnerId, bool deleted)
         {
-            return await _businessPartnerRepository.SetDeletedBusinessPartnerAsync(businessPartnerId,deleted);
+            return await _businessPartnerRepository.SetDeletedBusinessPartnerAsync(businessPartnerId, deleted);
         }
     }
 }

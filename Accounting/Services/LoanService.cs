@@ -1,7 +1,7 @@
-﻿using AutoMapper;
-using AccountingAPI.Repositories;
+﻿using AccountingAPI.DTOs;
 using AccountingAPI.Models;
-using AccountingAPI.DTOs;
+using AccountingAPI.Repositories;
+using AutoMapper;
 
 namespace AccountingAPI.Services
 {
@@ -24,7 +24,7 @@ namespace AccountingAPI.Services
             loan.CreatedBy = userName;
             loan.LastModificationBy = userName;
             loan = await _loanRepository.InsertLoanAsync(loan);
-            return _mapper.Map<LoanDTO>(loan);  
+            return _mapper.Map<LoanDTO>(loan);
         }
         public async Task<IEnumerable<LoanDTO>> GetLoansAsync(bool includeDeleted = false)
         {
@@ -49,12 +49,12 @@ namespace AccountingAPI.Services
             loan.LastModificationAt = DateTime.Now;
             loan.LastModificationBy = userName;
             loan = await _loanRepository.UpdateLoanAsync(loan);
-           return _mapper.Map<LoanDTO>(loan);
+            return _mapper.Map<LoanDTO>(loan);
         }
 
         public async Task<int> SetDeletedLoanAsync(Guid loanId, bool deleted)
         {
-            return await _loanRepository.SetDeletedLoanAsync(loanId,deleted);
+            return await _loanRepository.SetDeletedLoanAsync(loanId, deleted);
         }
     }
 }

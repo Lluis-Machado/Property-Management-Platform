@@ -2,7 +2,7 @@
 
 namespace AccountingAPI.Models
 {
-    public class Invoice :BaseModel
+    public class Invoice : BaseModel
     {
         public Guid BusinessPartnerId { get; set; }
         public string RefNumber { get; set; }

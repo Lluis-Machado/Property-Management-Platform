@@ -1,7 +1,7 @@
 ﻿
 namespace AccountingAPI.Models
-{ 
-    public class InvoiceLine :BaseModel
+{
+    public class InvoiceLine : BaseModel
     {
         public Guid InvoiceId { get; set; }
         public string Description { get; set; }

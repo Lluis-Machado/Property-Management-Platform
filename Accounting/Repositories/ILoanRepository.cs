@@ -1,5 +1,4 @@
 ﻿using AccountingAPI.Models;
-using AccountingAPI.DTOs;
 
 namespace AccountingAPI.Repositories
 {

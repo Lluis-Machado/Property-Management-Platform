@@ -1,7 +1,7 @@
 ﻿
 namespace AccountingAPI.DTOs
 {
-    public class FixedAssetDTO 
+    public class FixedAssetDTO
     {
         public Guid Id { get; set; }
         public Guid InvoiceLineId { get; set; }

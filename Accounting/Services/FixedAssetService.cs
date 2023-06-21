@@ -1,8 +1,7 @@
-﻿using AccountingAPI.Repositories;
+﻿using AccountingAPI.DTOs;
 using AccountingAPI.Models;
-using System.Transactions;
+using AccountingAPI.Repositories;
 using AutoMapper;
-using AccountingAPI.DTOs;
 
 namespace AccountingAPI.Services
 {
@@ -31,7 +30,7 @@ namespace AccountingAPI.Services
         public async Task<IEnumerable<FixedAssetDTO>> GetFixedAssetsAsync()
         {
             IEnumerable<FixedAsset> fixedAssets = await _fixedAssetRepository.GetFixedAssetsAsync(true);
-            return _mapper.Map<IEnumerable<FixedAssetDTO>> (fixedAssets);
+            return _mapper.Map<IEnumerable<FixedAssetDTO>>(fixedAssets);
         }
 
         public async Task<FixedAssetDTO?> GetFixedAssetByIdAsync(Guid FixedAssetId)

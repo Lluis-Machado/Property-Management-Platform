@@ -1,7 +1,7 @@
-﻿using AutoMapper;
-using AccountingAPI.Repositories;
+﻿using AccountingAPI.DTOs;
 using AccountingAPI.Models;
-using AccountingAPI.DTOs;
+using AccountingAPI.Repositories;
+using AutoMapper;
 
 namespace AccountingAPI.Services
 {
@@ -25,7 +25,7 @@ namespace AccountingAPI.Services
             tenant.LastModificationBy = userName;
 
             tenant = await _tenantRepository.InsertTenantAsync(tenant);
-            return _mapper.Map<TenantDTO>(tenant);  
+            return _mapper.Map<TenantDTO>(tenant);
         }
         public async Task<IEnumerable<TenantDTO>> GetTenantsAsync(bool includeDeleted = false)
         {
@@ -52,12 +52,12 @@ namespace AccountingAPI.Services
             tenant.LastModificationBy = userName;
 
             tenant = await _tenantRepository.UpdateTenantAsync(tenant);
-           return _mapper.Map<TenantDTO>(tenant);
+            return _mapper.Map<TenantDTO>(tenant);
         }
 
         public async Task<int> SetDeletedTenantAsync(Guid tenantId, bool deleted)
         {
-            return await _tenantRepository.SetDeletedTenantAsync(tenantId,deleted);
+            return await _tenantRepository.SetDeletedTenantAsync(tenantId, deleted);
         }
     }
 }

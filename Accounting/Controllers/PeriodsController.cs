@@ -1,5 +1,4 @@
 ﻿using AccountingAPI.DTOs;
-using AccountingAPI.Models;
 using AccountingAPI.Services;
 using FluentValidation;
 using FluentValidation.Results;
@@ -49,7 +48,7 @@ namespace AccountingAPI.Controllers
                 }
             }
 
-           PeriodDTO periodDTO = await _periodService.CreatePeriodsAsync(createPeriodDTO, tenantId, User?.Identity?.Name);
+            PeriodDTO periodDTO = await _periodService.CreatePeriodsAsync(createPeriodDTO, tenantId, User?.Identity?.Name);
 
             return Created($"periods/{periodDTO.Id}", periodDTO);
         }
@@ -61,7 +60,7 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<IEnumerable<PeriodDTO>>> GetPeriodsAsync(Guid tenantId, [FromQuery] bool includeDeleted = false)
         {
-            return Ok(await _periodService.GetPeriodsAsync(tenantId,includeDeleted));
+            return Ok(await _periodService.GetPeriodsAsync(tenantId, includeDeleted));
         }
 
         // PATCH: update period
@@ -85,7 +84,7 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> DeleteAsync(Guid tenantId ,Guid periodId)
+        public async Task<IActionResult> DeleteAsync(Guid tenantId, Guid periodId)
         {
             // check if exists
             if (!await _periodService.CheckIfPeriodExistsByIdAsync(periodId)) return NotFound("Period not found");

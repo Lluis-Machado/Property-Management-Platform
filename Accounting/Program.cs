@@ -1,10 +1,10 @@
-using AccountingAPI.Context;
-using AccountingAPI.Middlewares;
-using AccountingAPI.DTOs;
-using AccountingAPI.Repositories;
-using AccountingAPI.Validators;
 using AccountingAPI.Configurations;
+using AccountingAPI.Context;
+using AccountingAPI.DTOs;
+using AccountingAPI.Middlewares;
+using AccountingAPI.Repositories;
 using AccountingAPI.Services;
+using AccountingAPI.Validators;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;

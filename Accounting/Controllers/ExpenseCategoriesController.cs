@@ -20,7 +20,7 @@ namespace AccountingAPI.Controllers
         {
             _expenseCategoryService = expenseCategoryRepository;
             _expenseCategoryValidator = expenseCategoryValidator;
-            _logger = logger; 
+            _logger = logger;
         }
 
         // POST: Create expenseCategory

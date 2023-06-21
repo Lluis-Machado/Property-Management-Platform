@@ -1,10 +1,10 @@
-﻿using AccountingAPI.Models;
-using AccountingAPI.DTOs;
+﻿using AccountingAPI.DTOs;
+using AccountingAPI.Models;
 using AutoMapper;
 
 namespace AccountingAPI.Configurations
 {
-    public class MappingProfile :Profile
+    public class MappingProfile : Profile
     {
         public MappingProfile()
         {
@@ -43,7 +43,7 @@ namespace AccountingAPI.Configurations
             CreateMap<CreateExpenseCategoryDTO, ExpenseCategory>();
 
             // Fixed Asset
-            CreateMap<FixedAsset,FixedAssetDTO>();
+            CreateMap<FixedAsset, FixedAssetDTO>();
             CreateMap<UpdateFixedAssetDTO, FixedAsset>();
             CreateMap<CreateFixedAssetDTO, FixedAsset>();
             CreateMap<FixedAssetDTO, FixedAssetYearDetailsDTO>();

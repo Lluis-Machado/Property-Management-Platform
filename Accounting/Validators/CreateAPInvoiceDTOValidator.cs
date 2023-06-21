@@ -1,6 +1,5 @@
 ﻿using AccountingAPI.DTOs;
 using FluentValidation;
-using System.Globalization;
 
 namespace AccountingAPI.Validators
 {

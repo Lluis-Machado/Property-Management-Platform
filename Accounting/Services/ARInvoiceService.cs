@@ -1,8 +1,8 @@
-﻿using AccountingAPI.Repositories;
-using AccountingAPI.DTOs;
-using System.Transactions;
-using AutoMapper;
+﻿using AccountingAPI.DTOs;
 using AccountingAPI.Models;
+using AccountingAPI.Repositories;
+using AutoMapper;
+using System.Transactions;
 
 namespace AccountingAPI.Services
 {
@@ -56,7 +56,7 @@ namespace AccountingAPI.Services
                 {
                     throw;
                 }
-            }       
+            }
         }
 
         public async Task<ARInvoiceDTO> GetARInvoiceByIdAsync(Guid invoiceId)
@@ -83,7 +83,7 @@ namespace AccountingAPI.Services
             List<ARInvoiceDTO> invoiceDTOs = new();
             IEnumerable<ARInvoiceLineDTO> invoiceLines = await _invoiceLineService.GetARInvoiceLinesAsync(includeDeleted);
             IEnumerable<Invoice> invoices = await _invoiceRepository.GetARInvoicesAsync(includeDeleted);
-            foreach(Invoice invoice in invoices)
+            foreach (Invoice invoice in invoices)
             {
                 ARInvoiceDTO invoiceDTO = _mapper.Map<ARInvoiceDTO>(invoice);
                 invoiceDTO.InvoiceLines = invoiceLines.Where(i => i.InvoiceId == invoice.Id).ToList();

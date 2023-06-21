@@ -1,6 +1,5 @@
 ﻿using AccountingAPI.DTOs;
 using AccountingAPI.Services;
-using AutoMapper;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;

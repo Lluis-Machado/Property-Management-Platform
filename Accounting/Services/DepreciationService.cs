@@ -1,7 +1,7 @@
-﻿using AutoMapper;
-using AccountingAPI.Repositories;
+﻿using AccountingAPI.DTOs;
 using AccountingAPI.Models;
-using AccountingAPI.DTOs;
+using AccountingAPI.Repositories;
+using AutoMapper;
 
 namespace AccountingAPI.Services
 {
@@ -32,7 +32,7 @@ namespace AccountingAPI.Services
             return depreciationDTO;
         }
 
-            public async Task<IEnumerable<DepreciationDTO>> GetDepreciationsAsync(Guid tenantId)
+        public async Task<IEnumerable<DepreciationDTO>> GetDepreciationsAsync(Guid tenantId)
         {
             IEnumerable<PeriodDTO> periodDTOs = await _periodService.GetPeriodsAsync(tenantId);
             IEnumerable<Depreciation> depreciations = await _depreciationRepository.GetDepreciationsAsync();
@@ -133,7 +133,7 @@ namespace AccountingAPI.Services
                         {
                             DepreciationAmount = depreciationInPeriod
                         };
-                       return await UpdateDepreciationAsync(depreciationDTO.Id, updateDepreciationDTO, userName);
+                        return await UpdateDepreciationAsync(depreciationDTO.Id, updateDepreciationDTO, userName);
                     }
                     else
                     {

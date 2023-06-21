@@ -30,7 +30,7 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<ARInvoiceDTO>> CreateARInvoiceAsync([FromBody] CreateARInvoiceDTO createARInvoiceDTO,Guid tenantId, Guid businessPartnerId)
+        public async Task<ActionResult<ARInvoiceDTO>> CreateARInvoiceAsync([FromBody] CreateARInvoiceDTO createARInvoiceDTO, Guid tenantId, Guid businessPartnerId)
         {
             // request validations
             if (createARInvoiceDTO == null) return BadRequest("Incorrect body format");

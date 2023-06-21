@@ -1,7 +1,7 @@
-﻿using AutoMapper;
-using AccountingAPI.Repositories;
+﻿using AccountingAPI.DTOs;
 using AccountingAPI.Models;
-using AccountingAPI.DTOs;
+using AccountingAPI.Repositories;
+using AutoMapper;
 
 namespace AccountingAPI.Services
 {
@@ -32,7 +32,7 @@ namespace AccountingAPI.Services
 
         public async Task<IEnumerable<PeriodDTO>> GetPeriodsAsync(Guid tenantId, bool includeDeleted = false)
         {
-            IEnumerable<Period> periods = await _periodRepository.GetPeriodsAsync(tenantId,includeDeleted);
+            IEnumerable<Period> periods = await _periodRepository.GetPeriodsAsync(tenantId, includeDeleted);
             return _mapper.Map<IEnumerable<Period>, List<PeriodDTO>>(periods);
         }
 
@@ -65,7 +65,7 @@ namespace AccountingAPI.Services
 
         public async Task<int> SetDeletedPeriodAsync(Guid periodId, bool deleted)
         {
-            return await _periodRepository.SetDeletedPeriodAsync(periodId,deleted);
+            return await _periodRepository.SetDeletedPeriodAsync(periodId, deleted);
         }
     }
 }

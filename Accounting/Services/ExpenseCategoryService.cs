@@ -1,7 +1,7 @@
-﻿using AutoMapper;
-using AccountingAPI.Repositories;
-using AccountingAPI.DTOs;
+﻿using AccountingAPI.DTOs;
 using AccountingAPI.Models;
+using AccountingAPI.Repositories;
+using AutoMapper;
 
 namespace AccountingAPI.Services
 {
@@ -58,7 +58,7 @@ namespace AccountingAPI.Services
 
         public async Task<int> SetDeletedExpenseCategoryAsync(Guid expenseCategoryId, bool deleted)
         {
-            return await _expenseCategoryRepo.SetDeletedExpenseCategoryAsync(expenseCategoryId,deleted);
+            return await _expenseCategoryRepo.SetDeletedExpenseCategoryAsync(expenseCategoryId, deleted);
         }
     }
 }

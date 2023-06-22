@@ -1,17 +1,14 @@
 ﻿using ContactsAPI.Models;
 using ContactsAPI.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace ContactsAPI.Controllers
 {
-   // [Authorize]
+    [Authorize]
     [ApiController]
     [Route("contacts")]
     public class ContactsController : ControllerBase

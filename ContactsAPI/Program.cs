@@ -1,16 +1,16 @@
 using ContactsAPI.Contexts;
+using ContactsAPI.DTOs;
 using ContactsAPI.Middelwares;
 using ContactsAPI.Models;
 using ContactsAPI.Repositories;
 using ContactsAPI.Services;
+using ContactsAPI.Validators;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using ContactsAPI.Validators;
 using Serilog;
 using System.Security.Claims;
-using ContactsAPI.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 

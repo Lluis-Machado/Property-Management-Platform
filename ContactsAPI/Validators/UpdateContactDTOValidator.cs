@@ -1,5 +1,5 @@
-﻿using FluentValidation;
-using ContactsAPI.Models;
+﻿using ContactsAPI.Models;
+using FluentValidation;
 
 namespace ContactsAPI.Validators
 {

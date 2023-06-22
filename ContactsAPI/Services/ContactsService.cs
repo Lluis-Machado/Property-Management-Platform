@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
-using AutoMapper;
-using OwnershipAPI.Models;
+﻿using AutoMapper;
+using ContactsAPI.DTOs;
+using ContactsAPI.Models;
 using ContactsAPI.Repositories;
 using FluentValidation;
-using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
-using ContactsAPI.Models;
-using ContactsAPI.DTOs;
+using OwnershipAPI.Models;
 using PropertyManagementAPI.Models;
 
 namespace ContactsAPI.Services
@@ -49,7 +44,7 @@ namespace ContactsAPI.Services
         public async Task<ActionResult<IEnumerable<ContactDTO>>> GetContactsAsync()
         {
             return new OkObjectResult(await _contactsRepo.GetAsync());
-        }        
+        }
 
         public async Task<ContactDTO> GetContactByIdAsync(Guid id)
         {
@@ -58,37 +53,44 @@ namespace ContactsAPI.Services
             var contactDTO = _mapper.Map<Contact, ContactDTO>(contact);
 
             return contactDTO;
-        } 
+        }
         public async Task<ContactDetailsDTO> GetContactWithProperties(Guid id)
         {
             var contact = await _contactsRepo.GetContactByIdAsync(id);
 
             var client = new OwnershipServiceClient();
-            List<Ownership> ownership = await client.GetOwnershipByIdAsync(id);
+            List<Ownership> ownership = await client.GetOwnershipByIdAsync(id) ?? new List<Ownership>();
 
             List<Property> properties = new List<Property>();
 
             var contactDTO = _mapper.Map<Contact, ContactDetailsDTO>(contact);
 
-
-            foreach (Ownership item in ownership)
-            {
-                var clientP = new PropertyServiceClient();
-                Property property = await clientP.GetPropertyByIdAsync(item.PropertyId);
-
-                properties.Add(property);
-                OwnershipInfoDTO ownershipInfo = new OwnershipInfoDTO()
+            if(ownership is not null)
+            { 
+                foreach (Ownership item in ownership)
                 {
-                    PropertyName = property.Name,
-                    Share = item.Share
-                };
+                    var clientP = new PropertyServiceClient();
+                    Property? property = await clientP.GetPropertyByIdAsync(item.PropertyId) ?? null;
+                    if(property is not null) 
+                    { 
+                        properties.Add(property);
+                        OwnershipInfoDTO ownershipInfo = new OwnershipInfoDTO()
+                        {
+                            PropertyName = property.Name ?? "na",
+                            Share = item.Share
+                        };
 
-                contactDTO.OwnershipInfo.Add(ownershipInfo);
+                        if (contactDTO.OwnershipInfo is not null)
+                        {
+                            contactDTO.OwnershipInfo.Add(ownershipInfo);
+                        }
+                    }
+                }
             }
 
             return contactDTO;
         }
- 
+
         public async Task<ActionResult<ContactDTO>> UpdateContactAsync(UpdateContactDTO updateContactDTO, Guid contactId)
         {
             var contact = _mapper.Map<UpdateContactDTO, Contact>(updateContactDTO);

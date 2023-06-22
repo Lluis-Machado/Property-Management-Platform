@@ -55,7 +55,7 @@ namespace TaxManagement.Repositories
 
         }
 
-        public async Task<IEnumerable<Declaration>> GetDeclarationsAsync(Guid declarantId)
+        public async Task<IEnumerable<Declaration>> GetDeclarationsAsync(Guid declarantId, bool includeDeleted = false)
         {
             var parameters = new { declarantId };
             StringBuilder queryBuilder = new();
@@ -69,6 +69,8 @@ namespace TaxManagement.Repositories
             queryBuilder.Append(",LastUpdateAt");
             queryBuilder.Append(" FROM Declarations");
             queryBuilder.Append(" WHERE DeclarantId = @declarantId");
+            if (includeDeleted == false) queryBuilder.Append(" AND Deleted = 0");
+
 
             var declarations = await _context
                 .CreateConnection()

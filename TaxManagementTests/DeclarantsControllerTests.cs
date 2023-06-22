@@ -7,25 +7,26 @@ using Moq;
 using TaxManagement.Controllers;
 using TaxManagement.Models;
 using TaxManagement.Repositories;
-
+using TaxManagementAPI.DTOs;
+using TaxManagementAPI.Services;
 
 namespace TaxManagementControllerTests
 {
     public class DeclarantsControllerTests
     {
         private readonly Mock<ILogger<DeclarantsController>> _mockLogger;
-        private readonly Mock<IValidator<Declarant>> _mockDeclarantValidator;
+        private readonly Mock<IValidator<DeclarantDTO>> _mockDeclarantValidator;
         private readonly Mock<IConfiguration> _mockConfiguration;
-        private readonly Mock<IDeclarantRepository> _mockDeclarantRepo;
+        private readonly Mock<IDeclarantService> _mockDeclarantService;
         private readonly DeclarantsController _declarantsController;
 
         public DeclarantsControllerTests()
         {
             _mockLogger = new Mock<ILogger<DeclarantsController>>();
-            _mockDeclarantValidator = new Mock<IValidator<Declarant>>();
+            _mockDeclarantValidator = new Mock<IValidator<DeclarantDTO>>();
             _mockConfiguration = new Mock<IConfiguration>();
-            _mockDeclarantRepo = new Mock<IDeclarantRepository>();
-            _declarantsController = new DeclarantsController(_mockDeclarantRepo.Object, _mockDeclarantValidator.Object, _mockLogger.Object);
+            _mockDeclarantService = new Mock<IDeclarantService>();
+            _declarantsController = new DeclarantsController(_mockDeclarantService.Object, _mockDeclarantValidator.Object, _mockLogger.Object);
         }
 
         #region Create
@@ -33,13 +34,15 @@ namespace TaxManagementControllerTests
         public async Task CreateAsync_ReturnsOkResult_WhenValidRequestIsMade()
         {
             // Arrange
-            var fakeDeclarant = new Declarant { Name = "fakeDeclarant" };
-            var fakeExpectedDeclarant = new Declarant { Name = "fakeDeclarant", Id = Guid.NewGuid(), Deleted = false };
+            var fakeDeclarant = new DeclarantDTO { Name = "fakeDeclarant", Id = Guid.NewGuid(), Deleted = false, CreatedByUser = "testuser" };
+            var fakeExpectedDeclarant = new DeclarantDTO { Name = "fakeDeclarant", Id = Guid.NewGuid(), Deleted = false, CreatedByUser = "testuser" };
 
-            _mockDeclarantValidator.Setup(v => v.ValidateAsync(It.IsAny<Declarant>(), CancellationToken.None))
+
+
+            _mockDeclarantValidator.Setup(v => v.ValidateAsync(It.IsAny<DeclarantDTO>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
-            _mockDeclarantRepo.Setup(r => r.InsertDeclarantAsync(It.IsAny<Declarant>()))
+            _mockDeclarantService.Setup(r => r.CreateDeclarantAsync(It.IsAny<DeclarantDTO>(), "testuser"))
                 .ReturnsAsync(fakeExpectedDeclarant);
 
             // Act
@@ -54,7 +57,7 @@ namespace TaxManagementControllerTests
         public async Task CreateAsync_ReturnsBadRequestResult_WhenIdFieldIsNotEmpty()
         {
             // Arrange
-            var fakeDeclarant = new Declarant { Name = "fakeDeclarant", Id = Guid.NewGuid() };
+            var fakeDeclarant = new DeclarantDTO { Name = "fakeDeclarant", Id = Guid.NewGuid() };
 
             // Act
             var result = await _declarantsController.CreateAsync(fakeDeclarant);
@@ -68,11 +71,11 @@ namespace TaxManagementControllerTests
         public async Task CreateAsync_ReturnsBadRequestResult_WhenValidationIsNotValid()
         {
             // Arrange
-            var fakeDeclarant = new Declarant { Name = "fakeDeclarant" };
+            var fakeDeclarant = new DeclarantDTO { Name = "fakeDeclarant" };
 
             var validationResult = new ValidationResult(new List<ValidationFailure> { new ValidationFailure("Name", "Name cannot be empty") });
             
-            _mockDeclarantValidator.Setup(v => v.ValidateAsync(It.IsAny<Declarant>(), CancellationToken.None))
+            _mockDeclarantValidator.Setup(v => v.ValidateAsync(It.IsAny<DeclarantDTO>(), CancellationToken.None))
             .ReturnsAsync(validationResult);
 
             // Act
@@ -128,9 +131,9 @@ namespace TaxManagementControllerTests
         public async Task UpdateAsync_ReturnsNoContent_WhenValidRequestIsMade()
         {
             // Arrange
-            var fakeDeclarant = new Declarant { Name = "fakeDeclarant", Id = Guid.NewGuid() };
+            var fakeDeclarant = new DeclarantDTO { Name = "fakeDeclarant", Id = Guid.NewGuid() };
 
-            _mockDeclarantValidator.Setup(v => v.ValidateAsync(It.IsAny<Declarant>(), CancellationToken.None))
+            _mockDeclarantValidator.Setup(v => v.ValidateAsync(It.IsAny<DeclarantDTO>(), CancellationToken.None))
             .ReturnsAsync(new ValidationResult());
 
             _mockDeclarantRepo.Setup(r => r.UpdateDeclarantAsync(fakeDeclarant))

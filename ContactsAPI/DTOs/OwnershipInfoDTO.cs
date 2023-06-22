@@ -5,8 +5,8 @@
         public string PropertyName { get; set; }
         public decimal Share { get; set; }
 
-        public OwnershipInfoDTO(string pName, decimal share) 
-        { 
+        public OwnershipInfoDTO(string pName, decimal share)
+        {
             PropertyName = pName;
             Share = share;
         }

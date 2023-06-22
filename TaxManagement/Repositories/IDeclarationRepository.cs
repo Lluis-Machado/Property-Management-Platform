@@ -5,7 +5,7 @@ namespace TaxManagement.Repositories
 {
     public interface IDeclarationRepository
     {
-        public Task<IEnumerable<Declaration>> GetDeclarationsAsync(Guid declarantId);
+        public Task<IEnumerable<Declaration>> GetDeclarationsAsync(Guid declarantId, bool includeDeleted = false);
         Task<Declaration> InsertDeclarationAsync(Declaration declaration);
         Task<Declaration> GetDeclarationByIdAsync(Guid id, Guid? declarantId = null);
         Task<Declaration> UpdateDeclarationAsync(Declaration declaration);

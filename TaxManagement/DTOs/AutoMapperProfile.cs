@@ -24,7 +24,6 @@ namespace TaxManagementAPI.DTOs
             CreateMap<Declaration, DeclarationDTO>();
             CreateMap<Declaration, CreateDeclarationDTO>();
             CreateMap<Declaration, UpdateDeclarationDTO>();
-
         }
 
     }

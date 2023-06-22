@@ -4,6 +4,7 @@ using System.Text;
 using TaxManagement.Context;
 using TaxManagement.Models;
 using TaxManagementAPI.DTOs;
+using static MongoDB.Driver.WriteConcern;
 
 namespace TaxManagement.Repositories
 {
@@ -47,11 +48,11 @@ namespace TaxManagement.Repositories
                          .CreateConnection()
                          .QuerySingleAsync<Declarant>(queryBuilder.ToString(), parameters);
            
-            return declarant;
+            return result;
 
         }
 
-        public async Task<IEnumerable<Declarant>> GetDeclarantsAsync()
+        public async Task<IEnumerable<Declarant>> GetDeclarantsAsync(bool includeDeleted = false)
         {
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");
@@ -62,6 +63,9 @@ namespace TaxManagement.Repositories
             queryBuilder.Append(",CreatedByUser");
             queryBuilder.Append(",LastUpdateByUser");
             queryBuilder.Append(" FROM Declarants ");
+            queryBuilder.Append(" Where Declarants ");
+            if (includeDeleted == false) queryBuilder.Append(" AND Deleted = 0");
+
             var result = await _context
                         .CreateConnection()
                         .QueryAsync<Declarant>(queryBuilder.ToString());
@@ -95,6 +99,9 @@ namespace TaxManagement.Repositories
 
         public async Task<Declarant> UpdateDeclarantAsync(Declarant declarant)
         {
+            var oldDeclarant = _context.CreateConnection().QuerySingleOrDefault<Declarant>("SELECT * FROM Declarants WHERE Id = @Id", new { Id = declarant.Id });
+
+
             var parameters = new
             {
                 declarant.Id,
@@ -114,6 +121,8 @@ namespace TaxManagement.Repositories
                 .CreateConnection()
                 .ExecuteAsync(queryBuilder.ToString(), parameters);
 
+
+            await CaptureChanges(declarant, oldDeclarant);
             return declarant;
         }
 
@@ -141,5 +150,50 @@ namespace TaxManagement.Repositories
 
             return declarant;
         }
+
+        private async Task CaptureChanges(Declarant newDeclarant, Declarant oldDeclarant)
+        {
+            if (newDeclarant == null || oldDeclarant == null)
+                return;
+
+            var properties = typeof(Declarant).GetProperties();
+            var changedFields = new List<string>();
+
+            foreach (var property in properties)
+            {
+                var newValue = property.GetValue(newDeclarant);
+                var oldValue = property.GetValue(oldDeclarant);
+
+                if (!Equals(newValue, oldValue))
+                {
+                    var fieldName = property.Name;
+                    var oldValueString = oldValue != null ? oldValue.ToString() : null;
+                    var newValueString = newValue != null ? newValue.ToString() : null;
+
+                    // Store the change in the HistoricalChanges table
+                    var parameters = new
+                    {
+                        EntityId = newDeclarant.Id,
+                        FieldName = fieldName,
+                        OldValue = oldValueString,
+                        NewValue = newValueString,
+                        ChangedBy = "CurrentUserName",
+                        ChangedDate = DateTime.Now
+                    };
+
+                    StringBuilder queryBuilder = new StringBuilder();
+                    queryBuilder.Append("INSERT INTO HistoricalChanges (");
+                    queryBuilder.Append("EntityId, FieldName, OldValue, NewValue, ChangedBy, ChangedDate)");
+                    queryBuilder.Append(" VALUES(");
+                    queryBuilder.Append("@EntityId, @FieldName, @OldValue, @NewValue, @ChangedBy, @ChangedDate)");
+
+                    await _context.CreateConnection().ExecuteAsync(queryBuilder.ToString(), parameters);
+
+                 //   changedFields.Add(fieldName);
+                }
+            }
+
+        }
+
     }
 }

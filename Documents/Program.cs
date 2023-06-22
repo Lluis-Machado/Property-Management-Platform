@@ -4,7 +4,9 @@ using Documents.Repositories;
 using Documents.Services.AzureBlobStorage;
 using Documents.Validators;
 using DocumentsAPI.Contexts;
+using DocumentsAPI.DTOs;
 using DocumentsAPI.Repositories;
+using DocumentsAPI.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Azure;
@@ -31,7 +33,11 @@ builder.Services.AddSingleton<DapperContext>();
 builder.Services.AddSingleton<AzureBlobStorageContext>();
 builder.Services.AddScoped<IDocumentRepository, AzureBlobStorage>();
 builder.Services.AddScoped<IArchiveRepository, AzureBlobStorage>();
+builder.Services.AddScoped<IFoldersService, FoldersService>();
 builder.Services.AddScoped<IFolderRepository, FolderRepository>();
+
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+
 
 builder.Services.AddAzureClients(clientBuilder =>
 {

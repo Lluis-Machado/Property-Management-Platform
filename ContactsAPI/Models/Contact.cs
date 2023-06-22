@@ -10,10 +10,11 @@
         public DateOnly NIEValidUntil { get; set; }
         public ContactData ContactData { get; set; }
 
-        public Contact() { 
-            FirstName = string.Empty; 
-            LastName = string.Empty; 
-            NIE = string.Empty;  
+        public Contact()
+        {
+            FirstName = string.Empty;
+            LastName = string.Empty;
+            NIE = string.Empty;
             BirthDay = new DateOnly();
             ResidentIn = string.Empty;
             NIEValidUntil = new DateOnly();

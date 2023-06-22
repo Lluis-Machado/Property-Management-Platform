@@ -1,7 +1,7 @@
-﻿using MongoDB.Driver;
-using ContactsAPI.Contexts;
+﻿using ContactsAPI.Contexts;
 using ContactsAPI.Models;
 using ContactsAPI.Repositories;
+using MongoDB.Driver;
 
 namespace ContactsAPI.Services
 {
@@ -22,7 +22,7 @@ namespace ContactsAPI.Services
 
         public async Task<List<Contact>> GetAsync()
         {
-            var filter = Builders<Contact>.Filter.Empty;
+            var filter = Builders<Contact>.Filter.Eq(x => x.Deleted, false);
 
             return await _collection.Find(filter)
                 .ToListAsync();

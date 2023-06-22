@@ -1,6 +1,5 @@
-﻿using MongoDB.Bson;
+﻿using ContactsAPI.Models;
 using MongoDB.Driver;
-using ContactsAPI.Models;
 
 namespace ContactsAPI.Repositories
 {

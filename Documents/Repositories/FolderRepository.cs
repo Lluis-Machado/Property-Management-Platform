@@ -134,35 +134,7 @@ namespace Documents.Repositories
 
         public List<TreeFolderItem> ToFolderTreeView(List<Folder> folders)
         {
-            List<TreeFolderItem> result = new();
-
-            List<Folder> rootFolders = folders.FindAll(f => f.ParentId == null).ToList();
-            List<Folder> childFolders = folders.FindAll(f => f.ParentId != null).ToList();
-
-            foreach (var rootFolder in rootFolders)
-            {
-                TreeFolderItem parentFolder = new(rootFolder);
-                AddChilds(ref parentFolder, childFolders);
-                result.Add(parentFolder);
-            }
-            return result;
+            throw new NotImplementedException();
         }
-
-        private void AddChilds(ref TreeFolderItem parentFolder, List<Folder> folders)
-        {
-            if (parentFolder == null) return;
-            Guid? parentId = parentFolder.Id;
-            List<Folder> childFolders = folders.FindAll(f => f.ParentId == parentId).ToList();
-            List<TreeFolderItem> treeChildFolders = new();
-            foreach (var childFolder in childFolders)
-            {
-                TreeFolderItem treeChildFolder = new(childFolder);
-                AddChilds(ref treeChildFolder, folders);
-                treeChildFolders.Add(treeChildFolder);
-            }
-            parentFolder.ChildFolders = treeChildFolders;
-        }
-
-
     }
 }

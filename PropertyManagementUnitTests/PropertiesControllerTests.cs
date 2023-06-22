@@ -6,30 +6,32 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using Moq;
 using PropertyManagementAPI.Controllers;
+using PropertyManagementAPI.DTOs;
 using PropertyManagementAPI.Models;
 using PropertyManagementAPI.Repositories;
+using PropertyManagementAPI.Services;
 
 namespace PropertyManagementUnitTests
 {
     public class PropertiesControllerTests
     {
         private readonly Mock<ILogger<PropertiesController>> _mockLogger;
-        private readonly Mock<IValidator<Property>> _mockPropertyValidator;
+        private readonly Mock<IPropertiesService> _mockService;
+        private readonly Mock<IValidator<PropertyDTO>> _mockPropertyValidator;
         private readonly Mock<IValidator<Address>> _mockAddressValidator;
         private readonly Mock<IConfiguration> _mockConfiguration;
-        private readonly Mock<IPropertiesRepository> _mockPropertiesRepo;
         private readonly Mock<UpdateResult> _mockUpdateResult;
         private readonly PropertiesController _propertiesController;
 
         public PropertiesControllerTests()
         {
             _mockLogger = new Mock<ILogger<PropertiesController>>();
-            _mockPropertyValidator = new Mock<IValidator<Property>>();
+            _mockService = new Mock<IPropertiesService>();
+            _mockPropertyValidator = new Mock<IValidator<PropertyDTO>>();
             _mockAddressValidator = new Mock<IValidator<Address>>();
             _mockConfiguration = new Mock<IConfiguration>();
-            _mockPropertiesRepo = new Mock<IPropertiesRepository>();
             _mockUpdateResult = new Mock<UpdateResult>();
-            _propertiesController = new PropertiesController(_mockPropertiesRepo.Object, _mockLogger.Object, _mockPropertyValidator.Object, _mockAddressValidator.Object);
+            _propertiesController = new PropertiesController(_mockService.Object, _mockPropertyValidator.Object);
         }
 
         #region Create
@@ -37,13 +39,13 @@ namespace PropertyManagementUnitTests
         public async Task CreateAsync_ReturnsOkResult_WhenValidRequestIsMade()
         {
             // Arrange
-            var fakeProperty = new Property { Name = "fakeProperty" };
-            var fakeExpectedProperty = new Property { Name = "fakeProperty", _id = Guid.NewGuid(), Deleted = false };
+            var fakeProperty = new PropertyDTO { Name = "fakeProperty" };
+            var fakeExpectedProperty = new PropertyDTO { Name = "fakeProperty", Id = Guid.NewGuid(), Deleted = false };
 
-            _mockPropertyValidator.Setup(v => v.ValidateAsync(It.IsAny<Property>(), CancellationToken.None))
+            _mockPropertyValidator.Setup(v => v.ValidateAsync(It.IsAny<PropertyDTO>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
-            _mockPropertiesRepo.Setup(r => r.InsertOneAsync(It.IsAny<Property>()))
+            _mockService.Setup(r => r.CreateProperty(It.IsAny<PropertyDTO>()))
                 .ReturnsAsync(fakeExpectedProperty);
 
             // Act
@@ -58,7 +60,7 @@ namespace PropertyManagementUnitTests
         public async Task CreateAsync_ReturnsOkResult_WhenIdFieldIsNotEmpty()
         {
             // Arrange
-            var fakeProperty = new Property { Name = "fakeProperty", _id = Guid.NewGuid() };
+            var fakeProperty = new PropertyDTO { Name = "fakeProperty", Id = Guid.NewGuid() };
 
             // Act
             var result = await _propertiesController.CreateAsync(fakeProperty);
@@ -72,11 +74,11 @@ namespace PropertyManagementUnitTests
         public async Task CreateAsync_ReturnsOkResult_WhenValidationIsNotValid()
         {
             // Arrange
-            var fakeProperty = new Property { Name = "fakeProperty" };
+            var fakeProperty = new PropertyDTO { Name = "fakeProperty" };
 
             var validationResult = new ValidationResult(new List<ValidationFailure> { new ValidationFailure("Name", "Name cannot be empty") });
 
-            _mockPropertyValidator.Setup(v => v.ValidateAsync(It.IsAny<Property>(), CancellationToken.None))
+            _mockPropertyValidator.Setup(v => v.ValidateAsync(It.IsAny<PropertyDTO>(), CancellationToken.None))
             .ReturnsAsync(validationResult);
 
 
@@ -97,12 +99,12 @@ namespace PropertyManagementUnitTests
             // Arrange
             var fakeExpectedProperties = new List<Property>()
             {
-                new Property { Name = "fakeProperty", _id = Guid.NewGuid(), Deleted = false },
-                new Property { Name = "fakeProperty", _id = Guid.NewGuid(), Deleted = false }
+                new Property { Name = "fakeProperty", Id = Guid.NewGuid(), Deleted = false },
+                new Property { Name = "fakeProperty", Id = Guid.NewGuid(), Deleted = false }
 
             };
 
-            _mockPropertiesRepo.Setup(r => r.GetAsync())
+            _mockService.Setup(r => r.GetAsync())
                 .ReturnsAsync(fakeExpectedProperties);
 
             // Act
@@ -118,7 +120,7 @@ namespace PropertyManagementUnitTests
         public async Task GetAsync_ReturnsInternalServerError_WhenExceptionThrown()
         {
             // Arrange
-            _mockPropertiesRepo.Setup(repo => repo.GetAsync()).ThrowsAsync(new Exception());
+            _mockService.Setup(repo => repo.GetProperties()).ThrowsAsync(new Exception());
 
             // Act
             async Task act() => await _propertiesController.GetAsync();
@@ -133,16 +135,16 @@ namespace PropertyManagementUnitTests
         public async Task UpdateAsync_ReturnsNoContent_WhenValidRequestIsMade()
         {
             // Arrange
-            var fakeProperty = new Property { Name = "fakeProperty", _id = Guid.NewGuid() };
+            var fakeProperty = new PropertyDTO { Name = "fakeProperty", Id = Guid.NewGuid() };
 
-            _mockPropertyValidator.Setup(v => v.ValidateAsync(It.IsAny<Property>(), CancellationToken.None))
+            _mockPropertyValidator.Setup(v => v.ValidateAsync(It.IsAny<PropertyDTO>(), CancellationToken.None))
             .ReturnsAsync(new ValidationResult());
 
             //_mockPropertiesRepo.Setup(r => r.UpdateAsync(fakeProperty))
             //    .ReturnsAsync(new UpdateResult());
 
             // Act
-            var result = await _propertiesController.UpdateAsync(fakeProperty, fakeProperty._id);
+            var result = await _propertiesController.UpdateAsync(fakeProperty.Id, fakeProperty);
 
             // Assert
             var noContentResult = Assert.IsType<NoContentResult>(result);
@@ -152,10 +154,10 @@ namespace PropertyManagementUnitTests
         public async Task UpdateAsync_ReturnsBadResuqest_WhenDeclarantIdDoesNotMatch()
         {
             // Arrange
-            var fakeProperty = new Property { Name = "fakeProperty", _id = Guid.NewGuid() };
+            var fakeProperty = new PropertyDTO { Name = "fakeProperty", Id = Guid.NewGuid() };
 
             // Act
-            var result = await _propertiesController.UpdateAsync(fakeProperty, Guid.NewGuid());
+            var result = await _propertiesController.UpdateAsync( Guid.NewGuid(), fakeProperty);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -166,14 +168,14 @@ namespace PropertyManagementUnitTests
         public async Task UpdateAsync_ReturnsBadResuqest_WhenDeclarantValidationNotValid()
         {
             // Arrange
-            var fakeProperty = new Property { Name = "fakeProperty", _id = Guid.NewGuid() };
+            var fakeProperty = new PropertyDTO { Name = "fakeProperty", Id = Guid.NewGuid() };
 
             var validationResult = new ValidationResult(new List<ValidationFailure> { new ValidationFailure("Name", "Name cannot be empty") });
-            _mockPropertyValidator.Setup(v => v.ValidateAsync(It.IsAny<Property>(), CancellationToken.None))
+            _mockPropertyValidator.Setup(v => v.ValidateAsync(It.IsAny<PropertyDTO>(), CancellationToken.None))
                                   .ReturnsAsync(validationResult);
 
             // Act
-            var result = await _propertiesController.UpdateAsync(fakeProperty, fakeProperty._id);
+            var result = await _propertiesController.UpdateAsync(fakeProperty.Id, fakeProperty);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -184,16 +186,16 @@ namespace PropertyManagementUnitTests
         public async Task UpdateAsync_ReturnsNotFound_WhenDeclarantNotFound()
         {
             // Arrange
-            var fakeProperty = new Property { Name = "fakeProperty", _id = Guid.NewGuid() };
+            var fakeProperty = new PropertyDTO { Name = "fakeProperty", Id = Guid.NewGuid() };
 
-            _mockPropertyValidator.Setup(v => v.ValidateAsync(It.IsAny<Property>(), CancellationToken.None))
+            _mockPropertyValidator.Setup(v => v.ValidateAsync(It.IsAny<PropertyDTO>(), CancellationToken.None))
             .ReturnsAsync(new ValidationResult());
 
             //_mockPropertyRepo.Setup(r => r.UpdateDeclarantAsync(It.IsAny<Property>()))
             //    .ReturnsAsync(0);
 
             // Act
-            var result = await _propertiesController.UpdateAsync(fakeProperty, fakeProperty._id);
+            var result = await _propertiesController.UpdateAsync(fakeProperty.Id, fakeProperty);
 
             // Assert
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);

@@ -29,6 +29,7 @@ builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
 builder.Services.AddSingleton<MongoContext>();
 builder.Services.AddScoped<IPropertiesRepository, PropertiesRepository>();
 builder.Services.AddScoped<IPropertiesService, PropertiesService>();
+
 builder.Services.AddScoped<IValidator<PropertyDTO>, PropertyValidator>();
 builder.Services.AddScoped<IValidator<CreatePropertyDTO>, CreatePropertyValidator>();
 builder.Services.AddScoped<IValidator<UpdatePropertyDTO>, UpdatePropertyValidator>();
@@ -83,11 +84,11 @@ builder.Services.AddAuthentication(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
+if (app.Environment.IsDevelopment())
+{
     app.UseSwagger();
     app.UseSwaggerUI();
-//}
+}
 
 app.UseHttpsRedirection();
 

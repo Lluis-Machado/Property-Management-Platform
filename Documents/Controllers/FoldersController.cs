@@ -9,7 +9,7 @@ using System.Net;
 
 namespace Documents.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     public class FoldersController : ControllerBase
     {
@@ -50,7 +50,7 @@ namespace Documents.Controllers
         [Route("{archiveId}/folders")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<FolderDTO>>> GetAsync(Guid archiveId, [FromQuery] bool includeDeleted = false)
+        public async Task<ActionResult<List<TreeFolderItem>>> GetAsync(Guid archiveId, [FromQuery] bool includeDeleted = false)
         {
             var folders = await _foldersService.GetFoldersAsync(archiveId, includeDeleted);
             //folders = _folderRepository.ToFolderTreeView(folders.ToList());

@@ -46,6 +46,11 @@ namespace OwnershipAPI.Services
             return new OkObjectResult(await _ownershipRepo.GetWithContactIdAsync(id));
         }
 
+        public async Task<ActionResult<IEnumerable<OwnershipDTO>>> GetOwnershipsOfPropertyAsync(Guid id)
+        {
+            return new OkObjectResult(await _ownershipRepo.GetWithPropertyIdAsync(id));
+        }
+
         public async Task<OwnershipDTO> GetOwnershipByIdAsync(Guid id)
         {
             // Assuming you have a repository or data access layer to fetch the contact by ID
@@ -54,14 +59,11 @@ namespace OwnershipAPI.Services
             // You can map the retrieved contact entity to a ContactDTO if needed
             var ownershipDTO = _mapper.Map<Ownership, OwnershipDTO>(ownership);
 
-
             return ownershipDTO;
         }
 
         public async Task<ActionResult<OwnershipDTO>> UpdateOwnershipAsync(OwnershipDTO ownershipDTO, Guid ownershipId)
         {
-            ownershipDTO.Id = ownershipId; // copy id to the object
-
             var ownership = _mapper.Map<OwnershipDTO, Ownership>(ownershipDTO);
 
             ownership = await _ownershipRepo.UpdateAsync(ownership);

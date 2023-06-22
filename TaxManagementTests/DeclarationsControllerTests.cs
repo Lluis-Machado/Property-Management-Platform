@@ -17,7 +17,7 @@ namespace TaxManagementControllerTests
         private readonly Mock<ILogger<DeclarationsController>> _mockLogger;
         private readonly Mock<IValidator<Declaration>> _mockDeclarationValidator;
         private readonly Mock<IConfiguration> _mockConfiguration;
-        private readonly Mock<IDeclarationRepository> _mockDeclarationRepo;
+        private readonly Mock<IDeclarationRepository> _mockService;
         private readonly Mock<IDeclarantRepository> _mockDeclarantRepo;
         private readonly DeclarationsController _declarationssController;
 
@@ -26,9 +26,9 @@ namespace TaxManagementControllerTests
             _mockLogger = new Mock<ILogger<DeclarationsController>>();
             _mockDeclarationValidator = new Mock<IValidator<Declaration>>();
             _mockConfiguration = new Mock<IConfiguration>();
-            _mockDeclarationRepo = new Mock<IDeclarationRepository>();
+            _mockService = new Mock<IDeclarationRepository>();
             _mockDeclarantRepo = new Mock<IDeclarantRepository>();
-            _declarationssController = new DeclarationsController(_mockDeclarationRepo.Object, _mockDeclarantRepo.Object, _mockDeclarationValidator.Object, _mockLogger.Object);
+            _declarationssController = new DeclarationsController(_mockService.Object, _mockDeclarantRepo.Object, _mockDeclarationValidator.Object, _mockLogger.Object);
         }
 
         #region Create
@@ -55,7 +55,7 @@ namespace TaxManagementControllerTests
             _mockDeclarationValidator.Setup(v => v.ValidateAsync(It.IsAny<Declaration>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());
 
-            _mockDeclarationRepo.Setup(r => r.InsertDeclarationAsync(It.IsAny<Declaration>()))
+            _mockService.Setup(r => r.InsertDeclarationAsync(It.IsAny<Declaration>()))
                 .ReturnsAsync(fakeExpectedDeclaration);
 
             // Act
@@ -143,7 +143,7 @@ namespace TaxManagementControllerTests
             _mockDeclarantRepo.Setup(v => v.GetDeclarantByIdAsync(It.IsAny<Guid>()))
                 .ReturnsAsync(fakeDeclarant);
 
-            _mockDeclarationRepo.Setup(r => r.GetDeclarationsAsync(It.IsAny<Guid>()))
+            _mockService.Setup(r => r.GetDeclarationsAsync(It.IsAny<Guid>()))
                 .ReturnsAsync(fakeExpectedDeclarations);
 
             // Act
@@ -164,7 +164,7 @@ namespace TaxManagementControllerTests
             _mockDeclarantRepo.Setup(v => v.GetDeclarantByIdAsync(It.IsAny<Guid>()))
                 .ReturnsAsync(fakeDeclarant);
 
-            _mockDeclarationRepo.Setup(repo => repo.GetDeclarationsAsync(It.IsAny<Guid>())).ThrowsAsync(new Exception());
+            _mockService.Setup(repo => repo.GetDeclarationsAsync(It.IsAny<Guid>())).ThrowsAsync(new Exception());
 
             // Act
             async Task act() => await _declarationssController.GetAsync(fakeDeclarant.Id);
@@ -189,7 +189,7 @@ namespace TaxManagementControllerTests
             _mockDeclarationValidator.Setup(v => v.ValidateAsync(It.IsAny<Declaration>(), CancellationToken.None))
                .ReturnsAsync(new ValidationResult());
 
-            _mockDeclarationRepo.Setup(r => r.UpdateDeclarationAsync(It.IsAny<Declaration>()))
+            _mockService.Setup(r => r.UpdateDeclarationAsync(It.IsAny<Declaration>()))
                 .ReturnsAsync(1);
 
             // Act
@@ -247,7 +247,7 @@ namespace TaxManagementControllerTests
             _mockDeclarationValidator.Setup(v => v.ValidateAsync(It.IsAny<Declaration>(), CancellationToken.None))
                .ReturnsAsync(new ValidationResult());
 
-            _mockDeclarationRepo.Setup(r => r.UpdateDeclarationAsync(It.IsAny<Declaration>()))
+            _mockService.Setup(r => r.UpdateDeclarationAsync(It.IsAny<Declaration>()))
                 .ReturnsAsync(0);
 
             // Act
@@ -267,7 +267,7 @@ namespace TaxManagementControllerTests
             var fakeDeclarant = new Declarant { Name = "fakeDeclarant", Id = Guid.NewGuid() };
             var fakeDeclaration = new Declaration { DeclarantId = fakeDeclarant.Id, Id = Guid.NewGuid() };
 
-            _mockDeclarationRepo.Setup(r => r.SetDeletedDeclarationAsync(It.IsAny<Guid>(), It.IsAny<bool>(), It.IsAny<string>()))
+            _mockService.Setup(r => r.SetDeletedDeclarationAsync(It.IsAny<Guid>(), It.IsAny<bool>(), It.IsAny<string>()))
                 .ReturnsAsync(1);
 
             // Act
@@ -285,7 +285,7 @@ namespace TaxManagementControllerTests
             var fakeDeclaration = new Declaration { DeclarantId = fakeDeclarant.Id, Id = Guid.NewGuid() };
 
 
-            _mockDeclarationRepo.Setup(r => r.SetDeletedDeclarationAsync(It.IsAny<Guid>(), It.IsAny<bool>(), It.IsAny<string>()))
+            _mockService.Setup(r => r.SetDeletedDeclarationAsync(It.IsAny<Guid>(), It.IsAny<bool>(), It.IsAny<string>()))
                 .ReturnsAsync(0);
 
             // Act
@@ -304,7 +304,7 @@ namespace TaxManagementControllerTests
             var fakeDeclarant = new Declarant { Name = "fakeDeclarant", Id = Guid.NewGuid() };
             var fakeDeclaration = new Declaration { DeclarantId = fakeDeclarant.Id, Id = Guid.NewGuid() };
 
-            _mockDeclarationRepo.Setup(r => r.SetDeletedDeclarationAsync(It.IsAny<Guid>(), It.IsAny<bool>(), It.IsAny<string>()))
+            _mockService.Setup(r => r.SetDeletedDeclarationAsync(It.IsAny<Guid>(), It.IsAny<bool>(), It.IsAny<string>()))
              .ReturnsAsync(1);
 
             // Act
@@ -322,7 +322,7 @@ namespace TaxManagementControllerTests
             var fakeDeclaration = new Declaration { DeclarantId = fakeDeclarant.Id, Id = Guid.NewGuid() };
 
 
-            _mockDeclarationRepo.Setup(r => r.SetDeletedDeclarationAsync(It.IsAny<Guid>(), It.IsAny<bool>(), It.IsAny<string>()))
+            _mockService.Setup(r => r.SetDeletedDeclarationAsync(It.IsAny<Guid>(), It.IsAny<bool>(), It.IsAny<string>()))
                 .ReturnsAsync(0);
 
             // Act

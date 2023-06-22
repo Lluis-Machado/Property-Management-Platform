@@ -6,6 +6,9 @@ using TaxManagement.Validators;
 using TaxManagementAPI.DTOs;
 using FluentValidation.Results;
 using AutoMapper;
+using TaxManagementAPI.Models;
+using MessagingContracts;
+using Newtonsoft.Json;
 
 namespace TaxManagementAPI.Services
 {
@@ -18,7 +21,6 @@ namespace TaxManagementAPI.Services
         {
             _declarantRepo = declarantRepo;
             _mapper = mapper;
-
         }
 
         public async Task<ActionResult<DeclarantDTO>> UpdateDeclarantAsync(UpdateDeclarantDTO updateDeclarantDTO, Guid declarantId, string lastUpdateByUser)
@@ -69,7 +71,7 @@ namespace TaxManagementAPI.Services
             return paginatedDeclarantsDTO;
         }
 
-        public async Task<IEnumerable<DeclarantDTO>> GetDeclarantsAsync()
+        public async Task<IEnumerable<DeclarantDTO>> GetDeclarantsAsync(bool includeDeleted = false)
         {
             var result = await _declarantRepo.GetDeclarantsAsync();
             IEnumerable<DeclarantDTO> resultDTO = _mapper.Map<IEnumerable<Declarant>, IEnumerable<DeclarantDTO>>(result);
@@ -92,10 +94,32 @@ namespace TaxManagementAPI.Services
             return declarantDTO;
         }
 
-        public async Task<bool> DeclarantExists(Guid declarantId)
+        public async Task<DeclarantDTO?> DeclarantExists(Guid declarantId)
         {
             Declarant? declarant = await _declarantRepo.GetDeclarantByIdAsync(declarantId);
-            return (declarant != null);
+            var declarantDTO = declarant != null ? _mapper.Map<Declarant, DeclarantDTO>(declarant) : null;
+
+            return declarantDTO;
+        }
+
+        public MessageContract CreateContract(Guid id, string action, object oldObject, object newObject, string userName)
+        {
+            var auditDTO = new Audit
+            {
+                Id = new Guid(),
+                EntityId = id,
+                Action = action,
+                OldObject = oldObject,
+                NewObject = newObject,
+                Timestamp = DateTime.UtcNow,
+                ChangedBy = userName
+            };
+
+            string json = JsonConvert.SerializeObject(auditDTO);
+
+            var message = new MessageContract { Payload = json };
+
+            return message;
         }
 
 

@@ -1,5 +1,6 @@
 using AutoMapper;
 using FluentValidation;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.IdentityModel.Tokens;
@@ -28,16 +29,14 @@ builder.Logging.AddSerilog(logger);
 builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
 
 // Add services to the container.
-builder.Services.AddScoped<DeclarantService>();
-builder.Services.AddScoped<DeclarationService>();
 
-builder.Services.AddScoped<IDeclarantService, DeclarantService>();
-builder.Services.AddScoped<IDeclarationService, DeclarationService>();
 
 builder.Services.AddSingleton<DapperContext>();
 builder.Services.AddScoped<IDeclarationRepository, DeclarationRepository>();
 builder.Services.AddScoped<IDeclarantRepository, DeclarantRepository>();
 
+builder.Services.AddScoped<IDeclarantService, DeclarantService>();
+builder.Services.AddScoped<IDeclarationService, DeclarationService>();
 
 builder.Services.AddScoped<IValidator<DeclarantDTO>, DeclarantValidator>();
 builder.Services.AddScoped<IValidator<CreateDeclarantDTO>, CreateDeclarantValidator>();
@@ -45,19 +44,11 @@ builder.Services.AddScoped<IValidator<UpdateDeclarantDTO>, UpdateDeclarantValida
 builder.Services.AddScoped<IValidator<DeclarationDTO>, DeclarationValidator>();
 builder.Services.AddScoped<IValidator<CreateDeclarationDTO>, CreateDeclarationValidator>();
 builder.Services.AddScoped<IValidator<UpdateDeclarationDTO>, UpdateDeclarationValidator>();
+
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-
-
-/*var config = new MapperConfiguration(cfg =>
-{
-    cfg.CreateMap<DeclarantDTO, Declarant>();
-    cfg.CreateMap<Declarant, DeclarantDTO>();
-    cfg.CreateMap<DeclarationDTO, Declaration>();
-    cfg.CreateMap<Declaration, DeclarationDTO>();
-});
-var mapper = config.CreateMapper();*/
-builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 builder.Services.AddSwaggerGen(opt =>
 {
@@ -106,16 +97,14 @@ builder.Services.AddAuthentication(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-app.UseSwagger();
-app.UseSwaggerUI(c =>
+if (app.Environment.IsDevelopment())
 {
-    c.ConfigObject.AdditionalItems.Add("persistAuthorization", "true");
-});
-//}
-
-
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.ConfigObject.AdditionalItems.Add("persistAuthorization", "true");
+    });
+}
 
 app.UseHttpsRedirection();
 

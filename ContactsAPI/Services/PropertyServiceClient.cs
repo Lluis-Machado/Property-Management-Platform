@@ -1,11 +1,7 @@
-﻿using OwnershipAPI.Models;
-using PropertyManagementAPI.Models;
-using System;
+﻿using PropertyManagementAPI.Models;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 public class PropertyServiceClient
 {
@@ -19,19 +15,22 @@ public class PropertyServiceClient
         _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     }
 
-    public async Task<Property> GetPropertyByIdAsync(Guid id)
+    public async Task<Property?> GetPropertyByIdAsync(Guid id)
     {
         var response = await _httpClient.GetAsync($"/properties/{id}");
         if (response.IsSuccessStatusCode)
         {
             var content = await response.Content.ReadAsStringAsync();
-            if(content == null)
+            if (string.IsNullOrEmpty(content))
+            {
                 return null;
+            }
             return JsonSerializer.Deserialize<Property>(content, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
         }
+
 
         if (response.StatusCode == HttpStatusCode.NotFound)
         {

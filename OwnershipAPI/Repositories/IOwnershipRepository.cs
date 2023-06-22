@@ -12,6 +12,7 @@ namespace OwnershipAPI.Repositories
         Task<UpdateResult> SetDeleteAsync(Guid ownership, bool deleted);
         Task<Ownership> GetOwnershipByIdAsync(Guid id);
         Task<List<Ownership>> GetWithContactIdAsync(Guid id);
+        Task<List<Ownership>> GetWithPropertyIdAsync(Guid id);
 
 
     }

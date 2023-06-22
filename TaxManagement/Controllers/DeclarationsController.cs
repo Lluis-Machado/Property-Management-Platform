@@ -4,14 +4,12 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using TaxManagement.Models;
-using TaxManagement.Repositories;
 using TaxManagementAPI.DTOs;
 using TaxManagementAPI.Services;
 
 namespace TaxManagement.Controllers
 {
-   // [Authorize]
+    [Authorize]
     public class DeclarationsController : Controller
     {
         private readonly ILogger<DeclarationsController> _logger;
@@ -56,17 +54,14 @@ namespace TaxManagement.Controllers
             ValidationResult validationResult = await _createDeclarationValidator.ValidateAsync(createDeclarationDTO);
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
             // declarant validation
-            if (!await _declarantService.DeclarantExists(declarantId)) return NotFound("Declarant not found");
+            var oldDeclarant = await _declarantService.DeclarantExists(declarantId);
+            if (oldDeclarant is null) return NotFound("Declarant not found");
 
-            //var declaration = _mapper.Map<CreateDeclarationDTO, Declaration>(createDeclarationDTO);
-
-            string userName = "aa";//User
+            string userName = User?.Identity?.Name ?? "na";
 
             var result = await _declarationService.CreateDeclarationAsync(createDeclarationDTO, userName);
 
             return result;
-
-
         }
 
         // GET: Get declaration(s)
@@ -74,12 +69,13 @@ namespace TaxManagement.Controllers
         [Route("{declarantId}/declarations")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<List<DeclarationDTO>>> GetAsync(Guid declarantId)
+        public async Task<ActionResult<List<DeclarationDTO>>> GetAsync(Guid declarantId, bool includeDeleted = false)
         {
             // declarant validation
-            if (!await _declarantService.DeclarantExists(declarantId)) return NotFound("Declarant not found");
+            var oldDeclarant = await _declarantService.DeclarantExists(declarantId);
+            if (oldDeclarant is null) return NotFound("Declarant not found");
 
-            return Ok(await _declarationService.GetDeclarationsAsync(declarantId));
+            return Ok(await _declarationService.GetDeclarationsAsync(declarantId, includeDeleted));
         }
 
         // POST: update declaration
@@ -96,18 +92,16 @@ namespace TaxManagement.Controllers
             if (updateDeclarationDTO.Id != declarationId) return BadRequest("Declaration Id from body incorrect");
 
             // declarant validation
-            if (!await _declarantService.DeclarantExists(declarantId)) return NotFound("Declarant not found");
+            var oldDeclarant = await _declarantService.DeclarantExists(declarantId);
+            if (oldDeclarant is null) return NotFound("Declarant not found");
 
             // declaration validation
             ValidationResult validationResult = await _updateDeclarationValidator.ValidateAsync(updateDeclarationDTO);
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
-            if (!await _declarationService.DeclarationExists(declarationId)) return NotFound("Declarant not found");
+            if (!await _declarationService.DeclarationExists(declarationId)) return NotFound("Declaration not found");
 
-            updateDeclarationDTO.Id = declarationId;
-            updateDeclarationDTO.LastUpdateByUser = "a";// User?.Identity?.Name;
+            updateDeclarationDTO.LastUpdateByUser = User?.Identity?.Name ?? "na";
             updateDeclarationDTO.LastUpdateAt = DateTime.Now;
-
-            //var declaration = _mapper.Map<DeclarationDTO, Declaration>(declarationDTO);
 
             var result = await _declarationService.UpdateDeclarationAsync(updateDeclarationDTO);
 
@@ -123,12 +117,14 @@ namespace TaxManagement.Controllers
         public async Task<IActionResult> DeleteAsync(Guid declarantId, Guid declarationId)
         {
             // declarant validation
-            if (!await _declarantService.DeclarantExists(declarantId)) return NotFound("Declarant not found");
+            var oldDeclarant = await _declarantService.DeclarantExists(declarantId);
+            if (oldDeclarant is null) return NotFound("Declarant not found");
 
             // declaration validation
-            if (!await _declarationService.DeclarationExists(declarationId)) return NotFound("Declarant not found");
+            if (!await _declarationService.DeclarationExists(declarationId)) return NotFound("Declaration not found");
 
-            string userName = "a";//User?.Identity?.Name
+            string userName = User?.Identity?.Name ?? "na";
+
             var result = await _declarationService.SetDeletedDeclarationAsync(declarantId, declarationId, true, userName);
 
             return Ok(result);
@@ -142,12 +138,14 @@ namespace TaxManagement.Controllers
         public async Task<IActionResult> UndeleteAsync(Guid declarantId, Guid declarationId)
         {
             // declarant validation
-            if (!await _declarantService.DeclarantExists(declarantId)) return NotFound("Declarant not found");
+            // declarant validation
+            var oldDeclarant = await _declarantService.DeclarantExists(declarantId);
+            if (oldDeclarant is null) return NotFound("Declarant not found");
 
             // declaration validation
-            if (!await _declarationService.DeclarationExists(declarationId)) return NotFound("Declarant not found");
+            if (!await _declarationService.DeclarationExists(declarationId)) return NotFound("Declaration not found");
 
-            string userName = "a";//User?.Identity?.Name
+            string userName = User?.Identity?.Name ?? "na";
             var result = await _declarationService.SetDeletedDeclarationAsync(declarantId, declarationId, false, userName);
 
             return Ok(result);

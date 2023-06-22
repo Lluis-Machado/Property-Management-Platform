@@ -58,6 +58,14 @@ namespace OwnershipAPI.Controllers
             return await _ownershipService.GetOwnershipsOfContactAsync(id);
         }
 
+        [HttpGet("{id}/property")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<IEnumerable<OwnershipDTO>>> GetOwnershipsOfPropertyAsync(Guid id)
+        {
+            return await _ownershipService.GetOwnershipsOfPropertyAsync(id);
+        }
+
         [HttpGet("{id}")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]

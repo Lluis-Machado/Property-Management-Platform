@@ -1,13 +1,8 @@
-﻿using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using FluentValidation;
 using TaxManagement.Models;
 using TaxManagement.Repositories;
-using TaxManagement.Validators;
 using TaxManagementAPI.DTOs;
-using FluentValidation.Results;
-using System.Security.Claims;
-using System.Xml.Linq;
-using AutoMapper;
 
 namespace TaxManagementAPI.Services
 {
@@ -22,7 +17,7 @@ namespace TaxManagementAPI.Services
             _declarationRepo = declarantRepo;
             _declarantRepo = declarationRepo;
             _declarationValidator = declarationValidator;
-            _mapper = mapper;            
+            _mapper = mapper;
         }
         public async Task<DeclarationDTO> CreateDeclarationAsync(CreateDeclarationDTO createDeclarationDTO, string userName)
         {
@@ -35,14 +30,13 @@ namespace TaxManagementAPI.Services
 
             var declarationDTO = _mapper.Map<Declaration, DeclarationDTO>(declaration);
 
-
             return declarationDTO;
         }
 
         public async Task<DeclarationDTO> UpdateDeclarationAsync(UpdateDeclarationDTO updateDeclarationDTO)
         {
             var declaration = _mapper.Map<UpdateDeclarationDTO, Declaration>(updateDeclarationDTO);
-                   
+
             declaration = await _declarationRepo.UpdateDeclarationAsync(declaration);
 
             var declarationDTO = _mapper.Map<Declaration, DeclarationDTO>(declaration);
@@ -58,7 +52,7 @@ namespace TaxManagementAPI.Services
             return declarationDTO;
         }
 
-        public async Task<IEnumerable<DeclarationDTO>> GetDeclarationsAsync(Guid declarantId)
+        public async Task<IEnumerable<DeclarationDTO>> GetDeclarationsAsync(Guid declarantId, bool includeDeleted = false)
         {
             var result = await _declarationRepo.GetDeclarationsAsync(declarantId);
 

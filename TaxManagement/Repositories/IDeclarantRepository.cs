@@ -7,7 +7,7 @@ namespace TaxManagement.Repositories
     {
         Task<Declarant> InsertDeclarantAsync(Declarant declarant);
         //Task<IEnumerable<Declarant>> GetDeclarantsAsync();
-        Task<IEnumerable<Declarant>> GetDeclarantsAsync();
+        Task<IEnumerable<Declarant>> GetDeclarantsAsync(bool includeDeleted = false);
         Task<Declarant?> GetDeclarantByIdAsync(Guid id);
 
         Task<Declarant> UpdateDeclarantAsync(Declarant declarant);

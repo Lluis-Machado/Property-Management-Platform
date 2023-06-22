@@ -1,109 +1,109 @@
-﻿using AccountingAPI.DTOs;
-using AccountingAPI.Services;
+﻿using Accounting.Models;
+using Accounting.Repositories;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
-namespace AccountingAPI.Controllers
+namespace Accounting.Controllers
 {
     [Authorize]
     public class BusinessPartnersController : Controller
     {
-        private readonly IBusinessPartnerService _businessPartnerService;
-        private readonly IValidator<CreateBusinessPartnerDTO> _businessPartnerValidator;
+        private readonly IBusinessPartnerRepository _businessPartnerRepo;
+        private readonly IValidator<BusinessPartner> _businessPartnerValidator;
         private readonly ILogger<BusinessPartnersController> _logger;
 
-        public BusinessPartnersController(IBusinessPartnerService businessPartnerServicesitory, IValidator<CreateBusinessPartnerDTO> businessPartnerValidator, ILogger<BusinessPartnersController> logger)
+        public BusinessPartnersController(IBusinessPartnerRepository businessPartnerRepository, IValidator<BusinessPartner> businessPartnerValidator, ILogger<BusinessPartnersController> logger)
         {
-            _businessPartnerService = businessPartnerServicesitory;
+            _businessPartnerRepo = businessPartnerRepository;
             _businessPartnerValidator = businessPartnerValidator;
             _logger = logger;
         }
 
         // POST: Create businessPartner
+
         [HttpPost]
-        [Route("tenants/{tenantId}/businessPartners")]
+        [Route("businessPartners")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<BusinessPartnerDTO>> CreateBusinessPartnerAsync([FromBody] CreateBusinessPartnerDTO createBusinessPartnerDTO, Guid tenantId)
+        public async Task<ActionResult<Guid>> CreateAsync([FromBody] BusinessPartner businessPartner)
         {
             // request validations
-            if (createBusinessPartnerDTO == null) return BadRequest("Incorrect body format");
+            if (businessPartner == null) return BadRequest("Incorrect body format");
+            if (businessPartner.Id != Guid.Empty) return BadRequest("BusinessPartner Id field must be empty");
 
-            ValidationResult validationResult = await _businessPartnerValidator.ValidateAsync(createBusinessPartnerDTO);
+            // businessPartner validation
+            ValidationResult validationResult = await _businessPartnerValidator.ValidateAsync(businessPartner);
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
-            BusinessPartnerDTO businessPartnerDTO = await _businessPartnerService.CreateBusinessPartnerAsync(createBusinessPartnerDTO, User?.Identity?.Name, tenantId);
-
-            return Created($"businessPartners/{businessPartnerDTO.Id}", businessPartnerDTO);
+            businessPartner = await _businessPartnerRepo.InsertBusinessPartnerAsync(businessPartner);
+            return Created($"businessPartners/{businessPartner.Id}", businessPartner);
         }
 
         // GET: Get businessPartner(s)
+
         [HttpGet]
-        [Route("tenants/{tenantId}/businessPartners")]
+        [Route("businessPartners")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<BusinessPartnerDTO>>> GetBusinessPartnersAsync([FromQuery] bool includeDeleted = false)
+        public async Task<ActionResult<IEnumerable<BusinessPartner>>> GetAsync([FromQuery] bool includeDeleted = false)
         {
-            return Ok(await _businessPartnerService.GetBusinessPartnersAsync(includeDeleted));
+            return Ok(await _businessPartnerRepo.GetBusinessPartnersAsync(includeDeleted));
         }
 
         // PATCH: update businessPartner
+
         [HttpPatch]
-        [Route("tenants/{tenantId}/businessPartners/{businessPartnerId}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [Route("businessPartners/{businessPartnerId}")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<BusinessPartnerDTO>> UpdateBusinessPartneAsync([FromBody] CreateBusinessPartnerDTO createBusinessPartnerDTO, Guid businessPartnerId)
+        public async Task<ActionResult> UpdateAsync([FromBody] BusinessPartner businessPartner, Guid businessPartnerId)
         {
             // request validations
-            if (createBusinessPartnerDTO == null) return BadRequest("Incorrect body format");
+            if (businessPartner == null) return BadRequest("Incorrect body format");
+            if (businessPartner.Id != businessPartnerId) return BadRequest("BusinessPartner Id from body incorrect");
 
-            ValidationResult validationResult = await _businessPartnerValidator.ValidateAsync(createBusinessPartnerDTO);
+            // businessPartner validation
+            ValidationResult validationResult = await _businessPartnerValidator.ValidateAsync(businessPartner);
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
-            // check if exists
-            if(! await _businessPartnerService.CheckIfBusinessPartnerExists(businessPartnerId)) return NotFound("Business Partner not found");
+            businessPartner.Id = businessPartnerId; // copy id to businessPartner object
 
-            // update
-            BusinessPartnerDTO businessPartnerDTO = await _businessPartnerService.UpdateBusinessPartnerAsync(createBusinessPartnerDTO, User?.Identity?.Name, businessPartnerId);
-
-            return Ok(businessPartnerDTO);
+            int result = await _businessPartnerRepo.UpdateBusinessPartnerAsync(businessPartner);
+            if (result == 0) return NotFound("BusinessPartner not found");
+            return NoContent();
         }
 
         // DELETE: delete businessPartner
+
         [HttpDelete]
-        [Route("tenants/{tenantId}/businessPartners/{businessPartnerId}")]
+        [Route("businessPartners/{businessPartnerId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> DeleteBusinessPartnerAsync(Guid businessPartnerId)
+        public async Task<IActionResult> DeleteAsync(Guid businessPartnerId)
         {
-            // check if exists
-            if (!await _businessPartnerService.CheckIfBusinessPartnerExists(businessPartnerId)) return NotFound("Business Partner not found");
-
-            await _businessPartnerService.SetDeletedBusinessPartnerAsync(businessPartnerId, true);
-
+            int result = await _businessPartnerRepo.SetDeleteBusinessPartnerAsync(businessPartnerId, true);
+            if (result == 0) return NotFound("BusinessPartner not found");
             return NoContent();
         }
 
         // POST: undelete businessPartner
+
         [HttpPost]
-        [Route("tenants/{tenantId}/businessPartners/{businessPartnerId}/undelete")]
+        [Route("businessPartners/{businessPartnerId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> UndeleteBusinessPartnerAsync(Guid businessPartnerId)
+        public async Task<IActionResult> UndeleteAsync(Guid businessPartnerId)
         {
-            // check if exists
-            if (!await _businessPartnerService.CheckIfBusinessPartnerExists(businessPartnerId)) return NotFound("Business Partner not found");
-
-            await _businessPartnerService.SetDeletedBusinessPartnerAsync(businessPartnerId, false);
-
+            int result = await _businessPartnerRepo.SetDeleteBusinessPartnerAsync(businessPartnerId, false);
+            if (result == 0) return NotFound("BusinessPartner not found");
             return NoContent();
         }
     }

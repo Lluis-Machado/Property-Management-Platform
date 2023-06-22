@@ -1,13 +1,13 @@
-﻿using AccountingAPI.Models;
+﻿using Accounting.Models;
 
-namespace AccountingAPI.Repositories
+namespace Accounting.Repositories
 {
     public interface ITenantRepository
     {
         Task<Tenant> InsertTenantAsync(Tenant tenant);
-        Task<IEnumerable<Tenant>> GetTenantsAsync(bool includeDeleted = false);
+        Task<IEnumerable<Tenant>> GetTenantsAsync(bool includeDeleted);
         Task<Tenant> GetTenantByIdAsync(Guid tenantId);
-        Task<Tenant> UpdateTenantAsync(Tenant tenant);
-        Task<int> SetDeletedTenantAsync(Guid id, bool deleted);
+        Task<int> UpdateTenantAsync(Tenant tenant);
+        Task<int> SetDeleteTenantAsync(Guid id, bool deleted);
     }
 }

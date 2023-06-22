@@ -1,13 +1,13 @@
-﻿using AccountingAPI.Models;
+﻿using Accounting.Models;
 
-namespace AccountingAPI.Repositories
+namespace Accounting.Repositories
 {
     public interface IBusinessPartnerRepository
     {
         Task<BusinessPartner> InsertBusinessPartnerAsync(BusinessPartner businessPartner);
         Task<IEnumerable<BusinessPartner>> GetBusinessPartnersAsync(bool includeDeleted);
         Task<BusinessPartner?> GetBusinessPartnerByIdAsync(Guid businessPartnerId);
-        Task<BusinessPartner> UpdateBusinessPartnerAsync(BusinessPartner businessPartner);
-        Task<int> SetDeletedBusinessPartnerAsync(Guid id, bool deleted);
+        Task<int> UpdateBusinessPartnerAsync(BusinessPartner businessPartner);
+        Task<int> SetDeleteBusinessPartnerAsync(Guid id, bool deleted);
     }
 }

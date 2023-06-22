@@ -1,10 +1,8 @@
-using AccountingAPI.Context;
-using AccountingAPI.Middlewares;
-using AccountingAPI.DTOs;
-using AccountingAPI.Repositories;
-using AccountingAPI.Validators;
-using AccountingAPI.Configurations;
-using AccountingAPI.Services;
+using Accounting.Context;
+using Accounting.Middlewares;
+using Accounting.Models;
+using Accounting.Repositories;
+using Accounting.Validators;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -26,56 +24,34 @@ builder.Logging.AddSerilog(logger);
 builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
 
 // Add services to the container.
-builder.Services.AddSingleton<IDapperContext>(provider =>
-{
-    return new DapperContext(builder.Configuration.GetConnectionString("SqlConnection"));
-});
+builder.Services.AddSingleton<DapperContext>();
 
-builder.Services.AddScoped<ITenantService, TenantService>();
-builder.Services.AddScoped<ITenantRepository, TenantRepository>();
-builder.Services.AddScoped<IValidator<CreateTenantDTO>, CreateTenantDTOValidator>();
-
-builder.Services.AddScoped<IPeriodService, PeriodService>();
-builder.Services.AddScoped<IPeriodRepository, PeriodRepository>();
-builder.Services.AddScoped<IValidator<CreatePeriodDTO>, CreatePeriodDTOValidator>();
-
-builder.Services.AddScoped<IDepreciationService, DepreciationService>();
-builder.Services.AddScoped<IDepreciationRepository, DepreciationRepository>();
-
-builder.Services.AddScoped<IFixedAssetService, FixedAssetService>();
-builder.Services.AddScoped<IFixedAssetRepository, FixedAssetRepository>();
-
-builder.Services.AddScoped<IBusinessPartnerService, BusinessPartnerService>();
 builder.Services.AddScoped<IBusinessPartnerRepository, BusinessPartnerRepository>();
-builder.Services.AddScoped<IValidator<CreateBusinessPartnerDTO>, CreateBusinessPartnerDTOValidator>();
+builder.Services.AddScoped<IValidator<BusinessPartner>, BusinessPartnerValidator>();
 
-builder.Services.AddScoped<IAPInvoiceService, APInvoiceService>();
-builder.Services.AddScoped<IAPInvoiceRepository, APInvoiceRepository>();
-builder.Services.AddScoped<IValidator<CreateAPInvoiceDTO>, CreateAPInvoiceDTOValidator>();
-builder.Services.AddScoped<IValidator<UpdateAPInvoiceDTO>, UpdateAPInvoiceDTOValidator>();
+builder.Services.AddScoped<ITenantRepository, TenantRepository>();
+builder.Services.AddScoped<IValidator<Tenant>, TenantValidator>();
 
-builder.Services.AddScoped<IARInvoiceService, ARInvoiceService>();
-builder.Services.AddScoped<IARInvoiceRepository, ARInvoiceRepository>();
-builder.Services.AddScoped<IValidator<CreateARInvoiceDTO>, CreateARInvoiceDTOValidator>();
-builder.Services.AddScoped<IValidator<UpdateARInvoiceDTO>, UpdateARInvoiceDTOValidator>();
-
-builder.Services.AddScoped<IAPInvoiceLineRepository, APInvoiceLineRepository>();
-builder.Services.AddScoped<IAPInvoiceLineService, APInvoiceLineService>();
-builder.Services.AddScoped<IValidator<CreateAPInvoiceLineDTO>, CreateAPInvoiceLineDTOValidator>();
-
-builder.Services.AddScoped<IARInvoiceLineRepository, ARInvoiceLineRepository>();
-builder.Services.AddScoped<IARInvoiceLineService, ARInvoiceLineService>();
-builder.Services.AddScoped<IValidator<CreateARInvoiceLineDTO>, CreateARInvoiceLineDTOValidator>();
-
-builder.Services.AddScoped<IExpenseCategoryService, ExpenseCategoryService>();
-builder.Services.AddScoped<IExpenseCategoryRepository, ExpenseCategoryRepository>();
-builder.Services.AddScoped<IValidator<CreateExpenseCategoryDTO>, CreateExpenseCategoryDTOValidator>();
-
-builder.Services.AddScoped<ILoanService, LoanService>();
 builder.Services.AddScoped<ILoanRepository, LoanRepository>();
-builder.Services.AddScoped<IValidator<CreateLoanDTO>, CreateLoanDTOValidator>();
+builder.Services.AddScoped<IValidator<Loan>, LoanValidator>();
 
-builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
+builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+builder.Services.AddScoped<IValidator<Invoice>, InvoiceValidator>();
+
+builder.Services.AddScoped<IInvoiceLineRepository, InvoiceLineRepository>();
+builder.Services.AddScoped<IValidator<InvoiceLine>, InvoiceLineValidator>();
+
+builder.Services.AddScoped<IExpenseTypeRepository, ExpenseTypeRepository>();
+builder.Services.AddScoped<IValidator<ExpenseType>, ExpenseTypeValidator>();
+
+builder.Services.AddScoped<IFixedAssetRepository, FixedAssetRepository>();
+builder.Services.AddScoped<IValidator<FixedAsset>, FixedAssetValidator>();
+
+builder.Services.AddScoped<IDepreciationRepository, DepreciationRepository>();
+builder.Services.AddScoped<IValidator<Depreciation>, DepreciationValidator>();
+
+builder.Services.AddScoped<IDepreciationConfigRepository, DepreciationConfigRepository>();
+builder.Services.AddScoped<IValidator<DepreciationConfig>, DepreciationConfigValidator>();
 
 builder.Services.AddControllers();
 

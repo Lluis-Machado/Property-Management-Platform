@@ -1,22 +1,18 @@
 ﻿using System.Data;
 using System.Data.SqlClient;
 
-namespace AccountingAPI.Context
+namespace Accounting.Context
 {
-    public class DapperContext :IDapperContext
+    public class DapperContext
     {
-
+        private readonly IConfiguration _configuration;
         private readonly string _connectionString;
-
-
-        public DapperContext(string connectionString)
-        {;
-            _connectionString = connectionString;
-        }
-
-        public IDbConnection CreateConnection()
+        public DapperContext(IConfiguration configuration)
         {
-            return new SqlConnection(_connectionString);
+            _configuration = configuration;
+            _connectionString = _configuration.GetConnectionString("SqlConnection");
         }
+        public IDbConnection CreateConnection()
+            => new SqlConnection(_connectionString);
     }
 }

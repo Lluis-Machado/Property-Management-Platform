@@ -18,7 +18,7 @@ namespace AccountingUnitTests
         private readonly Mock<IConfiguration> _mockConfiguration;
         private readonly Mock<IInvoiceLineRepository> _mockInvoiceLineRepo;
         private readonly Mock<IInvoiceRepository> _mockInvoiceRepo;
-        private readonly Mock<IExpenseTypeRepository> _mockExpenseTypeRepo;
+        private readonly Mock<IExpenseCategoryRepository> _mockExpenseTypeRepo;
         private readonly InvoiceLinesController _invoiceLinesController;
     
         public InvoiceLinesControllerTests() 
@@ -28,7 +28,7 @@ namespace AccountingUnitTests
             _mockConfiguration = new Mock<IConfiguration>();
             _mockInvoiceLineRepo = new Mock<IInvoiceLineRepository>();
             _mockInvoiceRepo = new Mock<IInvoiceRepository>();
-            _mockExpenseTypeRepo = new Mock<IExpenseTypeRepository>();
+            _mockExpenseTypeRepo = new Mock<IExpenseCategoryRepository>();
             _invoiceLinesController = new InvoiceLinesController(_mockInvoiceLineRepo.Object, _mockInvoiceRepo.Object, _mockExpenseTypeRepo.Object, _mockInvoiceLineValidator.Object, _mockLogger.Object);
         }
 
@@ -39,7 +39,7 @@ namespace AccountingUnitTests
         {
             // Arrange
             var fakeInvoice = new Invoice { Id = Guid.NewGuid()};
-            var fakeExpenseType = new ExpenseType { Id = Guid.NewGuid()};
+            var fakeExpenseType = new ExpenseCategory { Id = Guid.NewGuid()};
             var fakeInvoiceLine = new InvoiceLine
             {
                 LineNumber = 0,
@@ -98,7 +98,7 @@ namespace AccountingUnitTests
         {
             // Arrange
             var fakeInvoice = new Invoice { Id = Guid.NewGuid() };
-            var fakeExpenseType = new ExpenseType { Id = Guid.NewGuid() };
+            var fakeExpenseType = new ExpenseCategory { Id = Guid.NewGuid() };
             var fakeInvoiceLine = new InvoiceLine
             {
                 LineNumber = 0,
@@ -127,7 +127,7 @@ namespace AccountingUnitTests
         {
             // Arrange
             var fakeInvoice = new Invoice { Id = Guid.NewGuid()};
-            var fakeExpenseType = new ExpenseType { Id = Guid.NewGuid() };
+            var fakeExpenseType = new ExpenseCategory { Id = Guid.NewGuid() };
             var fakeInvoiceLine = new InvoiceLine
             {
                 LineNumber = 0,
@@ -161,7 +161,7 @@ namespace AccountingUnitTests
         {
             // Arrange
             var fakeInvoice = new Invoice { Id = Guid.NewGuid() };
-            var fakeExpenseType = new ExpenseType { Id = Guid.NewGuid() };
+            var fakeExpenseType = new ExpenseCategory { Id = Guid.NewGuid() };
             var fakeInvoiceLine = new InvoiceLine
             {
                 LineNumber = 0,
@@ -199,7 +199,7 @@ namespace AccountingUnitTests
         {
             // Arrange
             var fakeInvoice = new Invoice { Id = Guid.NewGuid() };
-            var fakeExpenseType = new ExpenseType { Id = Guid.NewGuid() };
+            var fakeExpenseType = new ExpenseCategory { Id = Guid.NewGuid() };
             var fakeInvoiceLine = new InvoiceLine
             {
                 LineNumber = 0,
@@ -315,7 +315,7 @@ namespace AccountingUnitTests
         {
             // Arrange
             var fakeInvoice = new Invoice { Id = Guid.NewGuid() };
-            var fakeExpenseType = new ExpenseType { Id = Guid.NewGuid() };
+            var fakeExpenseType = new ExpenseCategory { Id = Guid.NewGuid() };
             var fakeInvoiceLine = new InvoiceLine
             {
                 LineNumber = 0,
@@ -359,7 +359,7 @@ namespace AccountingUnitTests
         {
             // Arrange
             var fakeInvoice = new Invoice { Id = Guid.NewGuid() };
-            var fakeExpenseType = new ExpenseType { Id = Guid.NewGuid() };
+            var fakeExpenseType = new ExpenseCategory { Id = Guid.NewGuid() };
             var fakeInvoiceLine = new InvoiceLine
             {
                 LineNumber = 0,
@@ -388,7 +388,7 @@ namespace AccountingUnitTests
         {
             // Arrange
             var fakeInvoice = new Invoice { Id = Guid.NewGuid() };
-            var fakeExpenseType = new ExpenseType { Id = Guid.NewGuid() };
+            var fakeExpenseType = new ExpenseCategory { Id = Guid.NewGuid() };
             var fakeInvoiceLine = new InvoiceLine
             {
                 LineNumber = 0,
@@ -423,7 +423,7 @@ namespace AccountingUnitTests
         {
             // Arrange
             var fakeInvoice = new Invoice { Id = Guid.NewGuid() };
-            var fakeExpenseType = new ExpenseType { Id = Guid.NewGuid() };
+            var fakeExpenseType = new ExpenseCategory { Id = Guid.NewGuid() };
             var fakeInvoiceLine = new InvoiceLine
             {
                 LineNumber = 0,

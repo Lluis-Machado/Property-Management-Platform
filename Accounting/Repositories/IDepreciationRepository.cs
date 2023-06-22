@@ -1,15 +1,13 @@
-﻿using Accounting.Models;
+﻿using AccountingAPI.Models;
 
-namespace Accounting.Repositories
+namespace AccountingAPI.Repositories
 {
     public interface IDepreciationRepository
     {
         Task<Depreciation> InsertDepreciationAsync(Depreciation depreciation);
-        Task<IEnumerable<Depreciation>> GetDepreciationsAsync(bool includeDeleted);
+        Task<IEnumerable<Depreciation>> GetDepreciationsAsync(bool includeDeleted = false);
         Task<Depreciation> GetDepreciationByIdAsync(Guid depreciationId);
-        Task<IEnumerable<Depreciation>> GetDepreciationByFAandPeriodAsync(Guid fixedAssetId, bool includeDeleted, DateTime? periodStart, DateTime? periodEnd);
-        Task<int> UpdateDepreciationAsync(Depreciation depreciation);
-        Task<int> SetDeleteDepreciationAsync(Guid id, bool deleted);
-        Task<int> UpdateTotalDepreciationForFixedAsset(Guid fixedAssetId);
+        Task<Depreciation> UpdateDepreciationAsync(Depreciation depreciation);
+        Task<int> SetDeletedDepreciationAsync(Guid id, bool deleted);
     }
 }

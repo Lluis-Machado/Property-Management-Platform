@@ -7,7 +7,7 @@
 
     <IsPackable>false</IsPackable>
 
-    <Configurations>Development</Configurations>
+    <Configurations>Development;Production</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

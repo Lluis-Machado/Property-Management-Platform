@@ -44,8 +44,11 @@ var app = builder.Build();
 // Enable CORS
 app.UseCors("AllowAllOrigins");
 
-app.UseAuthentication();
+if (app.Environment.IsDevelopment())
+    File.Copy("ocelot.Development.json", "ocelot.json", true);
 
 app.UseOcelot().Wait();
+
+app.UseAuthentication();
 
 app.Run();

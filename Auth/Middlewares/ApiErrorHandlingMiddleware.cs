@@ -19,7 +19,7 @@ namespace Authentication.Middlewares
             }
             catch (ApiException ex)
             {
-                _logger.LogError("ApiException ocurred: {@ErrorMessage}", ex.ErrorMessage);
+                _logger.LogError("ApiException ocurred: {@ErrorMessage}", ex);
 
                 context.Response.StatusCode = (int)ex.StatusCode;
                 context.Response.ContentType = "text/html";

@@ -9,19 +9,22 @@ namespace Authentication.Services.Auth0
     {
         private readonly HttpClient _httpClient;
         private readonly Auth0Settings _auth0Settings;
+        private readonly ManagementTokenManager _tokenManager;
         private const string API_SUFFIX = "/api/v2/roles";
 
-        public RolesAPI(HttpClient httpClient, Auth0Settings auth0Settings)
+        public RolesAPI(HttpClient httpClient, Auth0Settings auth0Settings, ManagementTokenManager tokenManager)
         {
             _httpClient = httpClient;
             _auth0Settings = auth0Settings;
+            _tokenManager = tokenManager;
         }
 
         #region BASIC_CRUD
+
         public async Task<List<object>> GetRolesListAsync()
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"{_auth0Settings.BaseUrl}{API_SUFFIX}");
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _tokenManager.GetTokenAsync());
 
             var response = await _httpClient.SendAsync(request);
             var responseContent = await response.Content.ReadAsStringAsync();
@@ -37,7 +40,7 @@ namespace Authentication.Services.Auth0
         public async Task<object> GetRoleAsync(string roleId)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"{_auth0Settings.BaseUrl}{API_SUFFIX}/{roleId}");
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _tokenManager.GetTokenAsync());
 
             var response = await _httpClient.SendAsync(request);
             var responseContent = await response.Content.ReadAsStringAsync();
@@ -58,7 +61,7 @@ namespace Authentication.Services.Auth0
             };
 
             // Add the access token to the request headers
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _tokenManager.GetTokenAsync());
 
             var response = await _httpClient.SendAsync(request);
             var responseContent = await response.Content.ReadAsStringAsync();
@@ -78,7 +81,7 @@ namespace Authentication.Services.Auth0
                 Content = JsonContent.Create(roleUpdate)
             };
 
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _tokenManager.GetTokenAsync());
 
             var response = await _httpClient.SendAsync(request);
             var responseContent = await response.Content.ReadAsStringAsync();
@@ -94,7 +97,7 @@ namespace Authentication.Services.Auth0
         public async Task DeleteRoleAsync(string roleId)
         {
             var request = new HttpRequestMessage(HttpMethod.Delete, $"{_auth0Settings.BaseUrl}{API_SUFFIX}/{roleId}");
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _tokenManager.GetTokenAsync());
 
             var response = await _httpClient.SendAsync(request);
 
@@ -110,7 +113,7 @@ namespace Authentication.Services.Auth0
         public async Task<List<object>> GetRolePermissionsAsync(string roleId)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"{_auth0Settings.BaseUrl}{API_SUFFIX}/{roleId}/permissions");
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _tokenManager.GetTokenAsync());
 
             var response = await _httpClient.SendAsync(request);
             var responseContent = await response.Content.ReadAsStringAsync();
@@ -130,7 +133,7 @@ namespace Authentication.Services.Auth0
                 Content = JsonContent.Create(new { permissions })
             };
 
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _tokenManager.GetTokenAsync());
 
             var response = await _httpClient.SendAsync(request);
 
@@ -148,7 +151,7 @@ namespace Authentication.Services.Auth0
                 Content = JsonContent.Create(new { permissions })
             };
 
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _tokenManager.GetTokenAsync());
 
             var response = await _httpClient.SendAsync(request);
 

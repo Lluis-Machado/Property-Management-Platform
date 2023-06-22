@@ -1,13 +1,14 @@
-﻿using Accounting.Models;
+﻿using AccountingAPI.Models;
+using AccountingAPI.DTOs;
 
-namespace Accounting.Repositories
+namespace AccountingAPI.Repositories
 {
     public interface ILoanRepository
     {
         Task<Loan> InsertLoanAsync(Loan loan);
         Task<IEnumerable<Loan>> GetLoansAsync(bool includeDeleted);
         Task<Loan> GetLoanByIdAsync(Guid loanId);
-        Task<int> UpdateLoanAsync(Loan loan);
-        Task<int> SetDeleteLoanAsync(Guid id, bool deleted);
+        Task<Loan> UpdateLoanAsync(Loan loan);
+        Task<int> SetDeletedLoanAsync(Guid id, bool deleted);
     }
 }

@@ -103,17 +103,21 @@ namespace AccountingAPI.Repositories
             return await connection.QuerySingleAsync<Period>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<int> SetDeletedPeriodAsync(Guid id, bool deleted)
+        public async Task<int> SetDeletedPeriodAsync(Guid id, bool deleted, string userName)
         {
             var parameters = new
             {
                 id,
-                deleted
+                deleted,
+                lastModificationBy = userName,
+                lastModificationAt = DateTime.Now,
             };
 
             StringBuilder queryBuilder = new();
             queryBuilder.Append("UPDATE Periods");
             queryBuilder.Append(" SET Deleted = @deleted");
+            queryBuilder.Append(",LastModificationAt = @lastModificationAt");
+            queryBuilder.Append(",LastModificationBy = @lastModificationBy");
             queryBuilder.Append(" WHERE Id = @id");
 
             using var connection = _context.CreateConnection(); // Create a new connection

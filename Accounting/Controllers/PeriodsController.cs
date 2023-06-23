@@ -77,7 +77,10 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> DeleteAsync(Guid tenantId, Guid periodId)
         {
-            await _periodService.SetDeletedPeriodAsync(tenantId, periodId, true);
+            // Check user
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
+
+            await _periodService.SetDeletedPeriodAsync(tenantId, periodId, true, userName);
 
             return NoContent();
         }
@@ -89,8 +92,11 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UndeleteAsync(Guid tenantId, Guid periodId)
-        { 
-            await _periodService.SetDeletedPeriodAsync(tenantId, periodId, false);
+        {
+            // Check user
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
+
+            await _periodService.SetDeletedPeriodAsync(tenantId, periodId, false, userName);
 
             return NoContent();
         }

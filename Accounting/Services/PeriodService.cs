@@ -77,12 +77,12 @@ namespace AccountingAPI.Services
             return _mapper.Map<PeriodDTO>(period);
         }
 
-        public async Task<int> SetDeletedPeriodAsync(Guid tenantId, Guid periodId, bool deleted)
+        public async Task<int> SetDeletedPeriodAsync(Guid tenantId, Guid periodId, bool deleted,string userName)
         {
             // check if exists
             await GetPeriodByIdAsync(tenantId, periodId);
 
-            return await _periodRepository.SetDeletedPeriodAsync(periodId, deleted);
+            return await _periodRepository.SetDeletedPeriodAsync(periodId, deleted, userName);
         }
     }
 }

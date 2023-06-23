@@ -24,9 +24,9 @@ namespace AccountingAPI.Services
             _arInvoiceLineService = arInvoiceLineService;
         }
 
-        private async Task<DepreciationDTO> MapDepreciationPeriodData(DepreciationDTO depreciationDTO)
+        private async Task<DepreciationDTO> MapDepreciationPeriodData(Guid tenantId, DepreciationDTO depreciationDTO)
         {
-            PeriodDTO periodDTO = await _periodService.GetPeriodByIdAsync(depreciationDTO.PeriodId);
+            PeriodDTO periodDTO = await _periodService.GetPeriodByIdAsync(tenantId, depreciationDTO.PeriodId);
             depreciationDTO.Year = periodDTO.Year;
             depreciationDTO.Month = periodDTO.Month;
             return depreciationDTO;
@@ -100,9 +100,9 @@ namespace AccountingAPI.Services
             return fixedAssetYearDetailsDTOs;
         }
 
-        public async Task<IEnumerable<DepreciationDTO>> GenerateDepreciationsAsync(Guid periodId, string? userName)
+        public async Task<IEnumerable<DepreciationDTO>> GenerateDepreciationsAsync(Guid tenantId, Guid periodId, string userName)
         {
-            PeriodDTO periodDTO = await _periodService.GetPeriodByIdAsync(periodId);
+            PeriodDTO periodDTO = await _periodService.GetPeriodByIdAsync(tenantId, periodId);
             DateTime firstDayOfPeriod = new(periodDTO.Year, periodDTO.Month, 1);
             DateTime lastDayOfPeriod = new(periodDTO.Year, periodDTO.Month, DateTime.DaysInMonth(periodDTO.Year, periodDTO.Month));
 
@@ -133,7 +133,7 @@ namespace AccountingAPI.Services
                         {
                             DepreciationAmount = depreciationInPeriod
                         };
-                        return await UpdateDepreciationAsync(depreciationDTO.Id, updateDepreciationDTO, userName);
+                        return await UpdateDepreciationAsync(tenantId,depreciationDTO.Id, updateDepreciationDTO, userName);
                     }
                     else
                     {
@@ -142,7 +142,7 @@ namespace AccountingAPI.Services
                         {
                             DepreciationAmount = depreciationInPeriod
                         };
-                        return await CreateDepreciationAsync(createDepreciationDTO, fixedAssetDTO.Id, periodId, userName);
+                        return await CreateDepreciationAsync(tenantId,createDepreciationDTO, fixedAssetDTO.Id, periodId, userName);
                     }
                 })
                 .ToList();
@@ -151,7 +151,7 @@ namespace AccountingAPI.Services
             return resultDepreciationDTOs;
         }
 
-        public async Task<DepreciationDTO> CreateDepreciationAsync(CreateDepreciationDTO createDepreciationDTO, Guid fixedAssetId, Guid periodId, string? userName)
+        public async Task<DepreciationDTO> CreateDepreciationAsync(Guid tenantId, CreateDepreciationDTO createDepreciationDTO, Guid fixedAssetId, Guid periodId, string userName)
         {
             Depreciation depreciation = new()
             {
@@ -163,10 +163,10 @@ namespace AccountingAPI.Services
             };
             depreciation = await _depreciationRepository.InsertDepreciationAsync(depreciation);
             DepreciationDTO depreciationDTO = _mapper.Map<DepreciationDTO>(depreciation);
-            return await MapDepreciationPeriodData(depreciationDTO);
+            return await MapDepreciationPeriodData(tenantId, depreciationDTO);
         }
 
-        public async Task<DepreciationDTO> UpdateDepreciationAsync(Guid depreciationId, UpdateDepreciationDTO updateDepreciationDTO, string? userName)
+        public async Task<DepreciationDTO> UpdateDepreciationAsync(Guid tenantId, Guid depreciationId, UpdateDepreciationDTO updateDepreciationDTO, string userName)
         {
             Depreciation depreciation = new()
             {
@@ -177,7 +177,7 @@ namespace AccountingAPI.Services
             };
             depreciation = await _depreciationRepository.UpdateDepreciationAsync(depreciation);
             DepreciationDTO depreciationDTO = _mapper.Map<DepreciationDTO>(depreciation);
-            return await MapDepreciationPeriodData(depreciationDTO);
+            return await MapDepreciationPeriodData(tenantId, depreciationDTO);
         }
 
 

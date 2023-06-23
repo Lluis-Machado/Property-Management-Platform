@@ -6,7 +6,7 @@ namespace AccountingAPI.Repositories
     {
         Task<Period> InsertPeriodAsync(Period period);
         Task<IEnumerable<Period>> GetPeriodsAsync(Guid tenantId, bool includeDeleted = false);
-        Task<Period> GetPeriodByIdAsync(Guid periodId);
+        Task<Period?> GetPeriodByIdAsync(Guid tenantId, Guid periodId);
         Task<Period> UpdatePeriodAsync(Period period);
         Task<int> SetDeletedPeriodAsync(Guid id, bool deleted);
     }

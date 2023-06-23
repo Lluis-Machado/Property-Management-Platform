@@ -1,7 +1,6 @@
 ﻿using AccountingAPI.DTOs;
 using AccountingAPI.Services;
-using FluentValidation;
-using FluentValidation.Results;
+using AccountingAPI.Validators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -12,13 +11,11 @@ namespace AccountingAPI.Controllers
     public class LoansController : Controller
     {
         private readonly ILoanService _loanService;
-        private readonly IValidator<CreateLoanDTO> _loanValidator;
         private readonly ILogger<LoansController> _logger;
 
-        public LoansController(ILoanService loanService, IValidator<CreateLoanDTO> loanValidator, ILogger<LoansController> logger)
+        public LoansController(ILoanService loanService, ILogger<LoansController> logger)
         {
             _loanService = loanService;
-            _loanValidator = loanValidator;
             _logger = logger;
         }
 
@@ -33,11 +30,10 @@ namespace AccountingAPI.Controllers
             // request validations
             if (createLoanDTO == null) return BadRequest("Incorrect body format");
 
-            // loan validator
-            ValidationResult validationResult = await _loanValidator.ValidateAsync(createLoanDTO);
-            if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
+            // Check user
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            LoanDTO loanDTO = await _loanService.CreateLoanAsync(createLoanDTO, User?.Identity?.Name);
+            LoanDTO loanDTO = await _loanService.CreateLoanAsync(createLoanDTO, userName);
             return Created($"loans/{loanDTO.Id}", loanDTO);
         }
 
@@ -46,9 +42,9 @@ namespace AccountingAPI.Controllers
         [Route("tenants/{tenantId}/loans")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<LoanDTO>>> GetAsync([FromQuery] bool includeDeleted = false)
+        public async Task<ActionResult<IEnumerable<LoanDTO>>> GetAsync(Guid tenantId, [FromQuery] bool includeDeleted = false)
         {
-            return Ok(await _loanService.GetLoansAsync(includeDeleted));
+            return Ok(await _loanService.GetLoansAsync(tenantId, includeDeleted));
         }
 
         // PATCH: update loan
@@ -58,19 +54,15 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<LoanDTO>> UpdateAsync([FromBody] CreateLoanDTO createLoanDTO, Guid loanId)
+        public async Task<ActionResult<LoanDTO>> UpdateAsync(Guid tenantId, [FromBody] UpdateLoanDTO updateLoanDTO, Guid loanId)
         {
             // request validations
-            if (createLoanDTO == null) return BadRequest("Incorrect body format");
+            if (updateLoanDTO == null) return BadRequest("Incorrect body format");
 
-            // loan validation
-            ValidationResult validationResult = await _loanValidator.ValidateAsync(createLoanDTO);
-            if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
+            // Check user
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            // check if exists
-            if (!await _loanService.CheckIfLoanExistsAsync(loanId)) return NotFound("Loan not found");
-
-            LoanDTO loanDTO = await _loanService.UpdateLoanAsync(createLoanDTO, User?.Identity?.Name);
+            LoanDTO loanDTO = await _loanService.UpdateLoanAsync(tenantId, loanId, updateLoanDTO, userName);
 
             return Ok(loanDTO);
         }
@@ -81,12 +73,9 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> DeleteAsync(Guid loanId)
+        public async Task<IActionResult> DeleteAsync(Guid tenantId, Guid loanId)
         {
-            // check if exists
-            if (!await _loanService.CheckIfLoanExistsAsync(loanId)) return NotFound("Loan not found");
-
-            await _loanService.SetDeletedLoanAsync(loanId, true);
+            await _loanService.SetDeletedLoanAsync(tenantId,loanId, true);
 
             return NoContent();
         }
@@ -97,12 +86,9 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> UndeleteAsync(Guid loanId)
+        public async Task<IActionResult> UndeleteAsync(Guid tenantId, Guid loanId)
         {
-            // check if exists
-            if (!await _loanService.CheckIfLoanExistsAsync(loanId)) return NotFound("Loan not found");
-
-            await _loanService.SetDeletedLoanAsync(loanId, false);
+            await _loanService.SetDeletedLoanAsync(tenantId, loanId, false);
 
             return NoContent();
         }

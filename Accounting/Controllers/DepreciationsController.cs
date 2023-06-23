@@ -27,7 +27,7 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<IEnumerable<DepreciationDTO>>> GenerateDepreciationsAsync(Guid tenantId, Guid periodId)
         {
-            return Ok(await _depreciationService.GenerateDepreciationsAsync(periodId, User?.Identity?.Name));
+            return Ok(await _depreciationService.GenerateDepreciationsAsync(tenantId, periodId, User?.Identity?.Name));
         }
     }
 }

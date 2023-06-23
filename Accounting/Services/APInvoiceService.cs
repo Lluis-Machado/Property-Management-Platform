@@ -2,6 +2,8 @@
 using AccountingAPI.Models;
 using AccountingAPI.Repositories;
 using AutoMapper;
+using FluentValidation;
+using FluentValidation.Results;
 using System.Transactions;
 
 namespace AccountingAPI.Services
@@ -10,19 +12,25 @@ namespace AccountingAPI.Services
     {
         private readonly IAPInvoiceRepository _invoiceRepository;
         private readonly IAPInvoiceLineService _invoiceLineService;
+        private readonly IValidator<CreateAPInvoiceDTO> _createAPInvoiceDTOValidator;
+        private readonly IValidator<UpdateAPInvoiceDTO> _updateAPInvoiceDTOValidator;
         private readonly IMapper _mapper;
         private readonly ILogger<APInvoiceService> _logger;
 
-        public APInvoiceService(IAPInvoiceRepository invoiceRepository, ILogger<APInvoiceService> logger, IAPInvoiceLineService invoiceLineService, IMapper mapper)
+        public APInvoiceService(IAPInvoiceRepository invoiceRepository, ILogger<APInvoiceService> logger, IAPInvoiceLineService invoiceLineService, IMapper mapper, IValidator<CreateAPInvoiceDTO> createAPInvoiceDTOValidator, IValidator<UpdateAPInvoiceDTO> updateAPInvoiceDTOValidator)
         {
             _invoiceRepository = invoiceRepository;
             _logger = logger;
             _invoiceLineService = invoiceLineService;
             _mapper = mapper;
+            _createAPInvoiceDTOValidator = createAPInvoiceDTOValidator;
+            _updateAPInvoiceDTOValidator = updateAPInvoiceDTOValidator;
         }
 
-        public async Task<APInvoiceDTO> CreateAPInvoiceAndLinesAsync(CreateAPInvoiceDTO createInvoiceDTO, string? userName, Guid businessPartnerId)
+        public async Task<APInvoiceDTO> CreateAPInvoiceAndLinesAsync(CreateAPInvoiceDTO createInvoiceDTO, string userName, Guid businessPartnerId)
         {
+            await _createAPInvoiceDTOValidator.ValidateAndThrowAsync(createInvoiceDTO);
+
             using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
@@ -92,7 +100,7 @@ namespace AccountingAPI.Services
             return invoiceDTOs;
         }
 
-        public async Task<APInvoiceDTO> UpdateAPInvoiceAndLinesAsync(UpdateAPInvoiceDTO updateInvoiceDTO, string? userName, Guid invoiceId)
+        public async Task<APInvoiceDTO> UpdateAPInvoiceAndLinesAsync(UpdateAPInvoiceDTO updateInvoiceDTO, string userName, Guid invoiceId)
         {
             using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -148,7 +156,7 @@ namespace AccountingAPI.Services
             }
         }
 
-        public async Task<int> SetDeletedAPInvoiceAsync(Guid invoiceId, bool deleted)
+        public async Task<int> SetDeletedAPInvoiceAsync(Guid invoiceId, bool deleted, string userName)
         {
             return await _invoiceRepository.SetDeletedAPInvoiceAsync(invoiceId, deleted);
         }

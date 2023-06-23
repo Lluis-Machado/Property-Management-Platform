@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using AccountingAPI.Exceptions;
+using FluentValidation;
+using System.Net;
 
 namespace AccountingAPI.Middlewares
 {
@@ -16,6 +18,18 @@ namespace AccountingAPI.Middlewares
             try
             {
                 await next(context);
+            }
+            catch (NotFoundException ex)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                context.Response.ContentType = "text/plain";
+                await context.Response.WriteAsync(ex.Message);
+            }
+            catch (ValidationException ex)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                context.Response.ContentType = "text/plain";
+                await context.Response.WriteAsync(string.Join("\n", ex.Errors.Select(e => e.ErrorMessage)));
             }
             catch (Exception ex)
             {

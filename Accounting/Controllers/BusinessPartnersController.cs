@@ -1,5 +1,6 @@
 ﻿using AccountingAPI.DTOs;
 using AccountingAPI.Services;
+using AccountingAPI.Validators;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
@@ -33,10 +34,13 @@ namespace AccountingAPI.Controllers
             // request validations
             if (createBusinessPartnerDTO == null) return BadRequest("Incorrect body format");
 
+            // Check user
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
+
             ValidationResult validationResult = await _businessPartnerValidator.ValidateAsync(createBusinessPartnerDTO);
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
-            BusinessPartnerDTO businessPartnerDTO = await _businessPartnerService.CreateBusinessPartnerAsync(createBusinessPartnerDTO, User?.Identity?.Name, tenantId);
+            BusinessPartnerDTO businessPartnerDTO = await _businessPartnerService.CreateBusinessPartnerAsync(createBusinessPartnerDTO, userName, tenantId);
 
             return Created($"businessPartners/{businessPartnerDTO.Id}", businessPartnerDTO);
         }
@@ -63,6 +67,9 @@ namespace AccountingAPI.Controllers
             // request validations
             if (createBusinessPartnerDTO == null) return BadRequest("Incorrect body format");
 
+            // Check user
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
+
             ValidationResult validationResult = await _businessPartnerValidator.ValidateAsync(createBusinessPartnerDTO);
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
@@ -70,7 +77,7 @@ namespace AccountingAPI.Controllers
             if (!await _businessPartnerService.CheckIfBusinessPartnerExists(businessPartnerId)) return NotFound("Business Partner not found");
 
             // update
-            BusinessPartnerDTO businessPartnerDTO = await _businessPartnerService.UpdateBusinessPartnerAsync(createBusinessPartnerDTO, User?.Identity?.Name, businessPartnerId);
+            BusinessPartnerDTO businessPartnerDTO = await _businessPartnerService.UpdateBusinessPartnerAsync(createBusinessPartnerDTO, userName, businessPartnerId);
 
             return Ok(businessPartnerDTO);
         }
@@ -83,6 +90,9 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> DeleteBusinessPartnerAsync(Guid businessPartnerId)
         {
+            // Check user
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
+
             // check if exists
             if (!await _businessPartnerService.CheckIfBusinessPartnerExists(businessPartnerId)) return NotFound("Business Partner not found");
 
@@ -99,6 +109,9 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UndeleteBusinessPartnerAsync(Guid businessPartnerId)
         {
+            // Check user
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
+
             // check if exists
             if (!await _businessPartnerService.CheckIfBusinessPartnerExists(businessPartnerId)) return NotFound("Business Partner not found");
 

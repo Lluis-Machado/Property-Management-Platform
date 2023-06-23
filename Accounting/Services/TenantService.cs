@@ -1,32 +1,43 @@
 ﻿using AccountingAPI.DTOs;
+using AccountingAPI.Exceptions;
 using AccountingAPI.Models;
 using AccountingAPI.Repositories;
 using AutoMapper;
+using FluentValidation;
 
 namespace AccountingAPI.Services
 {
     public class TenantService : ITenantService
     {
         private readonly ITenantRepository _tenantRepository;
+        private readonly IValidator<CreateTenantDTO> _createTenantDTOValidator;
+        private readonly IValidator<UpdateTenantDTO> _updateTenantDTOValidator;
         private readonly IMapper _mapper;
         private readonly ILogger<TenantService> _logger;
 
-        public TenantService(ITenantRepository tenantRepository, ILogger<TenantService> logger, IMapper mapper)
+        public TenantService(ITenantRepository tenantRepository, IValidator<CreateTenantDTO> createTenantDTOValidator, ILogger<TenantService> logger, IMapper mapper, IValidator<UpdateTenantDTO> updateTenantDTOValidator)
         {
             _tenantRepository = tenantRepository;
+            _createTenantDTOValidator = createTenantDTOValidator;
             _logger = logger;
             _mapper = mapper;
+            _updateTenantDTOValidator = updateTenantDTOValidator;
         }
 
-        public async Task<TenantDTO> CreateTenantAsync(CreateTenantDTO createTenantDTO, string? userName)
+        public async Task<TenantDTO> CreateTenantAsync(CreateTenantDTO createTenantDTO, string userName)
         {
+            // validation
+            await _createTenantDTOValidator.ValidateAndThrowAsync(createTenantDTO);
+
             Tenant tenant = _mapper.Map<Tenant>(createTenantDTO);
             tenant.CreatedBy = userName;
             tenant.LastModificationBy = userName;
 
             tenant = await _tenantRepository.InsertTenantAsync(tenant);
+
             return _mapper.Map<TenantDTO>(tenant);
         }
+
         public async Task<IEnumerable<TenantDTO>> GetTenantsAsync(bool includeDeleted = false)
         {
             IEnumerable<Tenant> tenants = await _tenantRepository.GetTenantsAsync(includeDeleted);
@@ -35,28 +46,36 @@ namespace AccountingAPI.Services
 
         public async Task<TenantDTO> GetTenantByIdAsync(Guid TenantId)
         {
-            Tenant tenant = await _tenantRepository.GetTenantByIdAsync(TenantId);
+            Tenant? tenant = await _tenantRepository.GetTenantByIdAsync(TenantId);
+
+            if (tenant is null) throw new NotFoundException("Tenant");
+
             return _mapper.Map<TenantDTO>(tenant);
         }
 
-        public async Task<bool> CheckIfTenantExistsAsync(Guid TenantId)
+        public async Task<TenantDTO> UpdateTenantAsync(UpdateTenantDTO updateTenantDTO, string userName, Guid tenantId)
         {
-            return await _tenantRepository.GetTenantByIdAsync(TenantId) != null;
-        }
+            // validation
+            await _updateTenantDTOValidator.ValidateAndThrowAsync(updateTenantDTO);
 
-        public async Task<TenantDTO?> UpdateTenantAsync(CreateTenantDTO createTenantDTO, string? userName, Guid tenantId)
-        {
-            Tenant tenant = _mapper.Map<Tenant>(createTenantDTO);
-            tenant.Id = tenantId;
+            // check if exists
+            await GetTenantByIdAsync(tenantId);
+
+            Tenant tenant = _mapper.Map<Tenant>(updateTenantDTO);
+            tenant.Name = updateTenantDTO.Name;
             tenant.LastModificationAt = DateTime.Now;
             tenant.LastModificationBy = userName;
 
             tenant = await _tenantRepository.UpdateTenantAsync(tenant);
+
             return _mapper.Map<TenantDTO>(tenant);
         }
 
         public async Task<int> SetDeletedTenantAsync(Guid tenantId, bool deleted)
         {
+            // check if exists
+            await GetTenantByIdAsync(tenantId);
+
             return await _tenantRepository.SetDeletedTenantAsync(tenantId, deleted);
         }
     }

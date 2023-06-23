@@ -35,7 +35,7 @@ namespace AccountingAPI.Repositories
             return await connection.QuerySingleOrDefaultAsync<ExpenseCategory?>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<IEnumerable<ExpenseCategory>> GetExpenseCategoriesAsync(bool includeDeleted)
+        public async Task<IEnumerable<ExpenseCategory>> GetExpenseCategoriesAsync(bool includeDeleted = false)
         {
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");

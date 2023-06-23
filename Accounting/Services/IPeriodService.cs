@@ -4,12 +4,10 @@ namespace AccountingAPI.Services
 {
     public interface IPeriodService
     {
-        Task<PeriodDTO> CreatePeriodsAsync(CreatePeriodDTO createPeriodDTO, Guid TenantId, string? userName);
+        Task<PeriodDTO> CreatePeriodAsync(CreatePeriodDTO createPeriodDTO, Guid TenantId, string userName);
         Task<IEnumerable<PeriodDTO>> GetPeriodsAsync(Guid tenantId, bool includeDeleted = false);
-        Task<PeriodDTO> GetPeriodByIdAsync(Guid PeriodId);
-        Task<bool> CheckIfPeriodExistsByIdAsync(Guid periodId);
-        Task<bool> CheckIfPeriodExistsAsync(Guid tenantId, int year, int month);
-        Task<PeriodDTO?> UpdatePeriodStatusAsync(UpdatePeriodDTO.PeriodStatus status, string? userName, Guid periodId);
-        Task<int> SetDeletedPeriodAsync(Guid tenantId, bool deleted);
+        Task<PeriodDTO> GetPeriodByIdAsync(Guid tenantId, Guid periodId);
+        Task<PeriodDTO> UpdatePeriodStatusAsync(Guid tenantId, Guid periodId,UpdatePeriodDTO updatePeriodDTO, string userName);
+        Task<int> SetDeletedPeriodAsync(Guid tenantId,Guid period, bool deleted);
     }
 }

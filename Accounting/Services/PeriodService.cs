@@ -1,25 +1,40 @@
 ﻿using AccountingAPI.DTOs;
+using AccountingAPI.Exceptions;
 using AccountingAPI.Models;
 using AccountingAPI.Repositories;
 using AutoMapper;
+using FluentValidation;
 
 namespace AccountingAPI.Services
 {
     public class PeriodService : IPeriodService
     {
         private readonly IPeriodRepository _periodRepository;
+        private readonly IValidator<CreatePeriodDTO> _createPeriodDTOValidator;
+        private readonly IValidator<UpdatePeriodDTO> _updatePeriodDTOValidator;
         private readonly IMapper _mapper;
         private readonly ILogger<PeriodService> _logger;
 
-        public PeriodService(IPeriodRepository periodRepository, ILogger<PeriodService> logger, IMapper mapper)
+        public PeriodService(IPeriodRepository periodRepository, ILogger<PeriodService> logger, IMapper mapper, IValidator<CreatePeriodDTO> createPeriodDTOValidator, IValidator<UpdatePeriodDTO> updatePeriodDTOValidator)
         {
             _periodRepository = periodRepository;
+            _createPeriodDTOValidator = createPeriodDTOValidator;
+            _updatePeriodDTOValidator = updatePeriodDTOValidator;
             _logger = logger;
             _mapper = mapper;
         }
 
-        public async Task<PeriodDTO> CreatePeriodsAsync(CreatePeriodDTO createPeriodDTO, Guid tenantId, string? userName)
+        public async Task<PeriodDTO> CreatePeriodAsync(CreatePeriodDTO createPeriodDTO, Guid tenantId, string userName)
         {
+            // validation
+            await _createPeriodDTOValidator.ValidateAndThrowAsync(createPeriodDTO);
+
+            IEnumerable<PeriodDTO> periodDTOs = await GetPeriodsAsync(tenantId);
+            
+            bool exists = periodDTOs.Any(p => p.Year == createPeriodDTO.Year && p.Month == createPeriodDTO.Month);
+
+            if (exists) throw new ConflictException("Period already exists");
+
             Period period = _mapper.Map<Period>(createPeriodDTO);
             period.TenantId = tenantId;
             period.CreatedBy = userName;
@@ -36,35 +51,37 @@ namespace AccountingAPI.Services
             return _mapper.Map<IEnumerable<Period>, List<PeriodDTO>>(periods);
         }
 
-        public async Task<PeriodDTO> GetPeriodByIdAsync(Guid periodId)
+        public async Task<PeriodDTO> GetPeriodByIdAsync(Guid tenantId, Guid periodId)
         {
-            Period period = await _periodRepository.GetPeriodByIdAsync(periodId);
+            Period? period = await _periodRepository.GetPeriodByIdAsync(tenantId, periodId);
+
+            if (period is null) throw new NotFoundException("Period");
+
             return _mapper.Map<PeriodDTO>(period);
         }
 
-        public async Task<bool> CheckIfPeriodExistsByIdAsync(Guid periodId)
+        public async Task<PeriodDTO> UpdatePeriodStatusAsync(Guid tenantId, Guid periodId, UpdatePeriodDTO updatePeriodDTO, string userName)
         {
-            return await _periodRepository.GetPeriodByIdAsync(periodId) != null;
-        }
+            // validation
+            await _updatePeriodDTOValidator.ValidateAndThrowAsync(updatePeriodDTO);
 
-        public async Task<bool> CheckIfPeriodExistsAsync(Guid tenantId, int year, int month)
-        {
-            IEnumerable<PeriodDTO> periodDTOs = await GetPeriodsAsync(tenantId);
-            return periodDTOs.Any(p => p.TenantId == tenantId && p.Year == year && p.Month == month);
-        }
+            // check if exists
+            await GetPeriodByIdAsync(tenantId, periodId);
 
-        public async Task<PeriodDTO?> UpdatePeriodStatusAsync(UpdatePeriodDTO.PeriodStatus status, string? userName, Guid periodId)
-        {
-            Period? period = await _periodRepository.GetPeriodByIdAsync(periodId);
-            period.Status = (int)status;
+            Period period = _mapper.Map<Period>(updatePeriodDTO);
             period.LastModificationAt = DateTime.Now;
             period.LastModificationBy = userName;
+
             period = await _periodRepository.UpdatePeriodAsync(period);
+
             return _mapper.Map<PeriodDTO>(period);
         }
 
-        public async Task<int> SetDeletedPeriodAsync(Guid periodId, bool deleted)
+        public async Task<int> SetDeletedPeriodAsync(Guid tenantId, Guid periodId, bool deleted)
         {
+            // check if exists
+            await GetPeriodByIdAsync(tenantId, periodId);
+
             return await _periodRepository.SetDeletedPeriodAsync(periodId, deleted);
         }
     }

@@ -5,12 +5,12 @@ using System.Text;
 
 namespace AccountingAPI.Repositories
 {
-    public class APInvoiceRepository : IAPInvoiceRepository
+    public class APInvoicesRepository : IAPInvoiceRepository
     {
 
         private readonly IDapperContext _context;
 
-        public APInvoiceRepository(IDapperContext context)
+        public APInvoicesRepository(IDapperContext context)
         {
             _context = context;
         }

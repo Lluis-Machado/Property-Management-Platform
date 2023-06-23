@@ -77,10 +77,11 @@ namespace AccountingAPI.Repositories
             return await connection.QueryAsync<Period>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<Period> GetPeriodByIdAsync(Guid periodId)
+        public async Task<Period?> GetPeriodByIdAsync(Guid tenantId, Guid periodId)
         {
             var parameters = new
             {
+                tenantId,
                 periodId
             };
             StringBuilder queryBuilder = new();
@@ -95,7 +96,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",LastModificationAt");
             queryBuilder.Append(",LastModificationBy");
             queryBuilder.Append(" FROM Periods");
-            queryBuilder.Append(" WHERE Id = @periodId");
+            queryBuilder.Append(" WHERE tenantId = @tenantId");
+            queryBuilder.Append(" AND Id = @periodId");
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QuerySingleAsync<Period>(queryBuilder.ToString(), parameters);

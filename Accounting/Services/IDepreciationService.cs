@@ -7,6 +7,6 @@ namespace AccountingAPI.Services
     {
         Task<IEnumerable<DepreciationDTO>> GetDepreciationsAsync(Guid tenantId);
         Task<IEnumerable<FixedAssetYearDetailsDTO>> GetFixedAssetsYearDetailsAsync(Guid tenantId, int year);
-        Task<IEnumerable<DepreciationDTO>> GenerateDepreciationsAsync(Guid periodId, string? userName);
+        Task<IEnumerable<DepreciationDTO>> GenerateDepreciationsAsync(Guid tenantId, Guid periodId, string? userName);
     }
 }

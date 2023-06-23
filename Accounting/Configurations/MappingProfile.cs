@@ -10,10 +10,22 @@ namespace AccountingAPI.Configurations
         {
             // Tenant
             CreateMap<Tenant, TenantDTO>();
+            CreateMap<UpdateTenantDTO, Tenant>();
             CreateMap<CreateTenantDTO, Tenant>();
+
+            // Period
+            CreateMap<Period, PeriodDTO>();
+            CreateMap<UpdatePeriodDTO, Period>();
+            CreateMap<CreatePeriodDTO, Period>();
+
+            //Loan
+            CreateMap<Loan, LoanDTO>();
+            CreateMap<CreateLoanDTO, Loan>();
+            CreateMap<UpdateLoanDTO, Loan>();
 
             //Business Partner
             CreateMap<BusinessPartner, BusinessPartnerDTO>();
+            CreateMap<BusinessPartnerDTO, BusinessPartner>();
             CreateMap<CreateBusinessPartnerDTO, BusinessPartner>();
 
             // AP Invoice
@@ -56,9 +68,6 @@ namespace AccountingAPI.Configurations
             // Fixed Asset
             CreateMap<Depreciation, DepreciationDTO>();
 
-            //Loan
-            CreateMap<Loan, LoanDTO>();
-            CreateMap<CreateLoanDTO, Loan>();
         }
     }
 }

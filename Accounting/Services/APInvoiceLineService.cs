@@ -56,6 +56,7 @@ namespace AccountingAPI.Services
 
             return invoiceLineDTO;
         }
+
         public async Task<IEnumerable<APInvoiceLineDTO>> GetAPInvoiceLinesAsync(bool includeDeleted = false)
         {
             List<APInvoiceLineDTO> aPInvoiceLineDTOs = new();

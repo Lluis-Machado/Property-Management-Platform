@@ -38,7 +38,7 @@ namespace AccountingAPI.Repositories
             return await connection.QuerySingleOrDefaultAsync<FixedAsset?>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<IEnumerable<FixedAsset>> GetFixedAssetsAsync(bool includeDeleted)
+        public async Task<IEnumerable<FixedAsset>> GetFixedAssetsAsync(bool includeDeleted = false)
         {
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");

@@ -14,10 +14,11 @@ namespace AccountingAPI.Repositories
             _context = context;
         }
 
-        public async Task<Loan> GetLoanByIdAsync(Guid loanId)
+        public async Task<Loan> GetLoanByIdAsync(Guid tenantId, Guid loanId)
         {
             var parameters = new
             {
+                tenantId,
                 loanId
             };
             StringBuilder queryBuilder = new();
@@ -30,14 +31,19 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",LastModificationDate");
             queryBuilder.Append(",LastModificationBy");
             queryBuilder.Append(" FROM Loans");
-            queryBuilder.Append(" WHERE Id = @loanId");
+            queryBuilder.Append(" WHERE tenantId = @tenantId");
+            queryBuilder.Append(" AND Id = @loanId");
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QuerySingleAsync<Loan>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<IEnumerable<Loan>> GetLoansAsync(bool includeDeleted)
+        public async Task<IEnumerable<Loan>> GetLoansAsync(Guid tenantId, bool includeDeleted = false)
         {
+            var parameters = new
+            {
+                tenantId
+            };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");
             queryBuilder.Append(",BusinessPartnerId");
@@ -48,7 +54,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",LastModificationDate");
             queryBuilder.Append(",LastModificationBy");
             queryBuilder.Append(" FROM Loans");
-            if (includeDeleted == false) queryBuilder.Append(" WHERE Deleted = 0");
+            queryBuilder.Append(" WHERE TenantId = @tenantId");
+            if (includeDeleted == false) queryBuilder.Append(" AND Deleted = 0");
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QueryAsync<Loan>(queryBuilder.ToString());

@@ -67,7 +67,7 @@ namespace AccountingAPI.Repositories
             return await connection.QuerySingleOrDefaultAsync<BusinessPartner?>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<IEnumerable<BusinessPartner>> GetBusinessPartnersAsync(bool includeDeleted)
+        public async Task<IEnumerable<BusinessPartner>> GetBusinessPartnersAsync(bool includeDeleted = false)
         {
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT * FROM BusinessPartners");

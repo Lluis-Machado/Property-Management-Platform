@@ -1,6 +1,4 @@
-﻿using TaxManagement.Models;
-
-namespace TaxManagementAPI.DTOs
+﻿namespace TaxManagementAPI.DTOs
 {
     public class DeclarantDTO
     {

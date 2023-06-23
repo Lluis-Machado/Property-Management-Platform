@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using TaxManagement.Controllers;
 using TaxManagement.Models;
-using TaxManagement.Repositories;
 using TaxManagementAPI.DTOs;
 using TaxManagementAPI.Services;
 
@@ -74,7 +73,7 @@ namespace TaxManagementControllerTests
             var fakeDeclarant = new DeclarantDTO { Name = "fakeDeclarant" };
 
             var validationResult = new ValidationResult(new List<ValidationFailure> { new ValidationFailure("Name", "Name cannot be empty") });
-            
+
             _mockDeclarantValidator.Setup(v => v.ValidateAsync(It.IsAny<DeclarantDTO>(), CancellationToken.None))
             .ReturnsAsync(validationResult);
 

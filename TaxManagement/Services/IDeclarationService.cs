@@ -1,10 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using TaxManagement.Models;
-using TaxManagement.Repositories;
-using TaxManagement.Validators;
-using TaxManagementAPI.DTOs;
-using FluentValidation;
-using FluentValidation.Results;
+﻿using TaxManagementAPI.DTOs;
 
 namespace TaxManagementAPI.Services
 {

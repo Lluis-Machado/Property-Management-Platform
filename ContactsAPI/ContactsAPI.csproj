@@ -47,7 +47,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OwnershipAPI\OwnershipAPI.csproj" />
     <ProjectReference Include="..\PropertyManagementAPI\PropertyManagementAPI.csproj" />
   </ItemGroup>
 

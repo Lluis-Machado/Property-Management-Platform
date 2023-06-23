@@ -1,7 +1,4 @@
-﻿using static TaxManagement.Models.Declaration;
-using TaxManagement.Models;
-
-namespace TaxManagementAPI.DTOs
+﻿namespace TaxManagementAPI.DTOs
 {
     public class DeclarationDetailedDTO : DeclarationDTO
     {

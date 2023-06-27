@@ -83,9 +83,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(" INNER JOIN APInvoiceLines ON APInvoiceLines.Id = FixedAssets.InvoiceLineId");
             queryBuilder.Append(" INNER JOIN APInvoices ON APInvoices.Id = APInvoiceLines.InvoiceId");
             queryBuilder.Append(" INNER JOIN BusinessPartners ON BusinessPartners.Id = APInvoices.BusinessPartnerId");
-            queryBuilder.Append(" FROM FixedAssets");
             queryBuilder.Append(" WHERE BusinessPartners.TenantId = @tenantId");
-            queryBuilder.Append(" AND Deleted = @deleted");
+            if(!includeDeleted) queryBuilder.Append(" AND FixedAssets.Deleted = @deleted");
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QueryAsync<FixedAsset>(queryBuilder.ToString(), parameters);
@@ -114,8 +113,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(" INNER JOIN APInvoiceLines ON APInvoiceLines.Id = FixedAssets.InvoiceLineId");
             queryBuilder.Append(" INNER JOIN APInvoices ON APInvoices.Id = APInvoiceLines.InvoiceId");
             queryBuilder.Append(" INNER JOIN BusinessPartners ON BusinessPartners.Id = APInvoices.BusinessPartnerId");
-            queryBuilder.Append(" WHERE tenantId = @fixedAssetId");
-            queryBuilder.Append(" AND Id = @fixedAssetId");
+            queryBuilder.Append(" WHERE FixedAssets.tenantId = @tenantId");
+            queryBuilder.Append(" AND FixedAssets.Id = @fixedAssetId");
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QuerySingleOrDefaultAsync<FixedAsset?>(queryBuilder.ToString(), parameters);

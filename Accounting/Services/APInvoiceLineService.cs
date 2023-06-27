@@ -33,8 +33,6 @@ namespace AccountingAPI.Services
             // validation
             await _createAPInvoiceLineDTOValidator.ValidateAndThrowAsync(createInvoiceLineDTO);
 
-            APInvoiceLineDTO invoiceLineDTO = new();
-
             APInvoiceLine invoiceLine = _mapper.Map<APInvoiceLine>(createInvoiceLineDTO);
             invoiceLine.TotalPrice = createInvoiceLineDTO.UnitPrice * createInvoiceLineDTO.Quantity;
             invoiceLine.InvoiceId = invoiceId;
@@ -42,6 +40,8 @@ namespace AccountingAPI.Services
             invoiceLine.LastModificationBy = userName;
 
             invoiceLine = await _invoiceLineRepository.InsertAPInvoiceLineAsync(invoiceLine);
+
+            APInvoiceLineDTO invoiceLineDTO = _mapper.Map<APInvoiceLineDTO>(invoiceLine);
 
             ExpenseCategoryDTO expenseCategoryDTO = await _expenseCategoryService.GetExpenseCategoryByIdAsync(invoiceLine.ExpenseCategoryId);
 
@@ -66,12 +66,16 @@ namespace AccountingAPI.Services
         public async Task<IEnumerable<APInvoiceLineDTO>> GetAPInvoiceLinesAsync(Guid tenantId, bool includeDeleted = false)
         {
             List<APInvoiceLineDTO> aPInvoiceLineDTOs = new();
+
             IEnumerable<APInvoiceLine> invoiceLines = await _invoiceLineRepository.GetAPInvoiceLinesAsync(tenantId, includeDeleted);
+            IEnumerable<ExpenseCategoryDTO> expenseCategoryDTOs = await _expenseCategoryService.GetExpenseCategoriesAsync(true);
+            IEnumerable<FixedAssetDTO> fixedAssetDTOs = await _fixedAssetService.GetFixedAssetsAsync(tenantId, true);
+
             foreach (APInvoiceLine aPInvoiceLine in invoiceLines)
             {
                 APInvoiceLineDTO aPInvoiceLineDTO = _mapper.Map<APInvoiceLineDTO>(aPInvoiceLine);
-                aPInvoiceLineDTO.ExpenseCategory = await _expenseCategoryService.GetExpenseCategoryByIdAsync(aPInvoiceLine.ExpenseCategoryId);
-                if (aPInvoiceLine.FixedAssetId is not null) aPInvoiceLineDTO.FixedAsset = await _fixedAssetService.GetFixedAssetByIdAsync(tenantId, (Guid)aPInvoiceLine.FixedAssetId);
+                aPInvoiceLineDTO.ExpenseCategory = expenseCategoryDTOs.First(e => e.Id == aPInvoiceLine.ExpenseCategoryId);
+                if (aPInvoiceLine.FixedAssetId is not null) aPInvoiceLineDTO.FixedAsset = fixedAssetDTOs.First(f => f.InvoiceLineId == aPInvoiceLine.Id);
                 aPInvoiceLineDTOs.Add(aPInvoiceLineDTO);
             }
             return aPInvoiceLineDTOs;

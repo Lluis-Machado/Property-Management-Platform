@@ -70,11 +70,11 @@ namespace AccountingAPI.Repositories
             return await connection.QuerySingleAsync<ARInvoiceLine>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<IEnumerable<ARInvoiceLine>> GetARInvoiceLinesAsync(Guid tenanId, bool includeDeleted = false)
+        public async Task<IEnumerable<ARInvoiceLine>> GetARInvoiceLinesAsync(Guid tenantId, bool includeDeleted = false)
         {
             var parameters = new
             {
-                tenanId,
+                tenantId,
                 deleted = includeDeleted?1:0
             };
 
@@ -97,7 +97,7 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(" INNER JOIN ARInvoices ON ARInvoices.Id = ARInvoiceLines.InvoiceId");
             queryBuilder.Append(" INNER JOIN BusinessPartners ON BusinessPartners.Id = ARInvoices.BusinessPartnerId");
             queryBuilder.Append(" WHERE BusinessPartners.TenantId = @tenantId");
-            queryBuilder.Append(" AND Deleted = @deleted");
+            if (!includeDeleted) queryBuilder.Append(" AND ARInvoiceLines.Deleted = @deleted");
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QueryAsync<ARInvoiceLine>(queryBuilder.ToString(), parameters);

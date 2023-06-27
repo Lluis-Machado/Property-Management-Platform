@@ -45,6 +45,11 @@ namespace AccountingAPI.Repositories
 
         public async Task<IEnumerable<Tenant>> GetTenantsAsync(bool includeDeleted = false)
         {
+            var parameters = new
+            {
+              deleted = includeDeleted?1:0
+            };
+
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");
             queryBuilder.Append(",Name");
@@ -54,18 +59,19 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",LastModificationAt");
             queryBuilder.Append(",LastModificationBy");
             queryBuilder.Append(" FROM Tenants");
-            if (!includeDeleted) queryBuilder.Append(" WHERE Deleted = 0");
+            if (!includeDeleted) queryBuilder.Append(" WHERE Deleted = @deleted");
 
             using var connection = _context.CreateConnection(); // Create a new connection
-            return await connection.QueryAsync<Tenant>(queryBuilder.ToString());
+            return await connection.QueryAsync<Tenant>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<Tenant> GetTenantByIdAsync(Guid tenantId)
+        public async Task<Tenant?> GetTenantByIdAsync(Guid tenantId)
         {
             var parameters = new
             {
                 tenantId
             };
+
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");
             queryBuilder.Append(",Name");
@@ -78,7 +84,7 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(" WHERE Id = @tenantId");
 
             using var connection = _context.CreateConnection(); // Create a new connection
-            return await connection.QuerySingleAsync<Tenant>(queryBuilder.ToString(), parameters);
+            return await connection.QuerySingleAsync<Tenant?>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<Tenant> UpdateTenantAsync(Tenant tenant)

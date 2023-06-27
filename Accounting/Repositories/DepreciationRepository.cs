@@ -75,7 +75,7 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(" INNER JOIN APInvoices ON APInvoices.Id = APInvoiceLines.InvoiceId");
             queryBuilder.Append(" INNER JOIN BusinessPartners ON BusinessPartners.Id = APInvoices.BusinessPartnerId");
             queryBuilder.Append(" WHERE BusinessPartners.TenantId = @tenantId");
-            queryBuilder.Append(" AND Deleted = 0");
+            if (!includeDeleted) queryBuilder.Append(" AND Depreciations.Deleted = @deleted");
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QueryAsync<Depreciation>(queryBuilder.ToString(), parameters);
@@ -111,23 +111,6 @@ namespace AccountingAPI.Repositories
             return await connection.QuerySingleAsync<Depreciation>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<int> SetDeletedDepreciationAsync(Guid id, bool deleted)
-        {
-            var parameters = new
-            {
-                id,
-                deleted
-            };
-
-            StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE Depreciations");
-            queryBuilder.Append(" SET Deleted = @deleted");
-            queryBuilder.Append(" WHERE Id = @id");
-
-            using var connection = _context.CreateConnection(); // Create a new connection
-            return await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
-        }
-
         public async Task<Depreciation> UpdateDepreciationAsync(Depreciation depreciation)
         {
             var parameters = new
@@ -155,6 +138,23 @@ namespace AccountingAPI.Repositories
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QuerySingleAsync<Depreciation>(queryBuilder.ToString(), parameters);
+        }
+
+        public async Task<int> SetDeletedDepreciationAsync(Guid id, bool deleted)
+        {
+            var parameters = new
+            {
+                id,
+                deleted
+            };
+
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("UPDATE Depreciations");
+            queryBuilder.Append(" SET Deleted = @deleted");
+            queryBuilder.Append(" WHERE Id = @id");
+
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
         }
     }
 }

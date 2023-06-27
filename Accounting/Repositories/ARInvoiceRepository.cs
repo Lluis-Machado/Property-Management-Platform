@@ -89,7 +89,7 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(" FROM ARInvoices");
             queryBuilder.Append(" INNER JOIN BusinessPartners ON BusinessPartners.Id = ARInvoices.BusinessPartnerId");
             queryBuilder.Append(" WHERE BusinessPartners.TenantId = @tenantId");
-            queryBuilder.Append(" AND Deleted = @deleted");
+            if (!includeDeleted) queryBuilder.Append(" AND ARInvoices.Deleted = @deleted");
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QueryAsync<ARInvoice>(queryBuilder.ToString(), parameters);

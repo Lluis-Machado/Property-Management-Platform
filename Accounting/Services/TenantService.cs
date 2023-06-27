@@ -62,6 +62,7 @@ namespace AccountingAPI.Services
             await GetTenantByIdAsync(tenantId);
 
             Tenant tenant = _mapper.Map<Tenant>(updateTenantDTO);
+            tenant.Id = tenantId;
             tenant.Name = updateTenantDTO.Name;
             tenant.LastModificationAt = DateTime.Now;
             tenant.LastModificationBy = userName;

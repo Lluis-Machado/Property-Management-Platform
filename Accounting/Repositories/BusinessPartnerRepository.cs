@@ -72,7 +72,7 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",LastModificationBy");
             queryBuilder.Append(" FROM BusinessPartners");
             queryBuilder.Append(" WHERE tenantId = @tenantId");
-            queryBuilder.Append(" AND Deleted = 0");
+            if (!includeDeleted) queryBuilder.Append(" AND Deleted = @deleted");
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QueryAsync<BusinessPartner>(queryBuilder.ToString(), parameters);
@@ -95,6 +95,7 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",CreatedBy");
             queryBuilder.Append(",LastModificationAt");
             queryBuilder.Append(",LastModificationBy");
+            queryBuilder.Append(" FROM BusinessPartners");
             queryBuilder.Append(" WHERE tenantId = @tenantId");
             queryBuilder.Append(" AND Id = @businessPartnerId");
 

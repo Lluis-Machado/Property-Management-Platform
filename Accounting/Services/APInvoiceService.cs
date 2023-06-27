@@ -13,12 +13,19 @@ namespace AccountingAPI.Services
     {
         private readonly IAPInvoiceRepository _invoiceRepository;
         private readonly IAPInvoiceLineService _invoiceLineService;
+        private readonly IBusinessPartnerService _businessPartnerService;
         private readonly IValidator<CreateAPInvoiceDTO> _createAPInvoiceDTOValidator;
         private readonly IValidator<UpdateAPInvoiceDTO> _updateAPInvoiceDTOValidator;
         private readonly IMapper _mapper;
         private readonly ILogger<APInvoiceService> _logger;
 
-        public APInvoiceService(IAPInvoiceRepository invoiceRepository, ILogger<APInvoiceService> logger, IAPInvoiceLineService invoiceLineService, IMapper mapper, IValidator<CreateAPInvoiceDTO> createAPInvoiceDTOValidator, IValidator<UpdateAPInvoiceDTO> updateAPInvoiceDTOValidator)
+        public APInvoiceService(IAPInvoiceRepository invoiceRepository
+            , ILogger<APInvoiceService> logger
+            , IAPInvoiceLineService invoiceLineService
+            , IMapper mapper
+            , IValidator<CreateAPInvoiceDTO> createAPInvoiceDTOValidator
+            , IValidator<UpdateAPInvoiceDTO> updateAPInvoiceDTOValidator
+            , IBusinessPartnerService businessPartnerService)
         {
             _invoiceRepository = invoiceRepository;
             _logger = logger;
@@ -26,6 +33,7 @@ namespace AccountingAPI.Services
             _mapper = mapper;
             _createAPInvoiceDTOValidator = createAPInvoiceDTOValidator;
             _updateAPInvoiceDTOValidator = updateAPInvoiceDTOValidator;
+            _businessPartnerService = businessPartnerService;
         }
 
         public async Task<APInvoiceDTO> CreateAPInvoiceAndLinesAsync(Guid tenantId, Guid businessPartnerId, CreateAPInvoiceDTO createInvoiceDTO, string userName)
@@ -49,6 +57,7 @@ namespace AccountingAPI.Services
                     invoice = await _invoiceRepository.InsertAPInvoice(invoice);
 
                     APInvoiceDTO invoiceDTO = _mapper.Map<APInvoiceDTO>(invoice);
+                    invoiceDTO.BusinessPartner = await _businessPartnerService.GetBusinessPartnerByIdAsync(tenantId, businessPartnerId);
 
                     // insert invoice lines
                     foreach (CreateAPInvoiceLineDTO createInvoiceLineDTO in createInvoiceDTO.InvoiceLines)

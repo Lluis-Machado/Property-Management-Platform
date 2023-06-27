@@ -56,7 +56,8 @@ namespace AccountingAPI.Repositories
         {
             var parameters = new
             {
-                tenantId
+                tenantId,
+                deleted = includeDeleted? 1:0
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");
@@ -71,7 +72,7 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",LastModificationBy");
             queryBuilder.Append(" FROM Periods");
             queryBuilder.Append(" WHERE TenantId = @tenantId");
-            if (!includeDeleted) queryBuilder.Append(" AND Deleted = 0");
+            if (!includeDeleted) queryBuilder.Append(" AND Deleted = @deleted");
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QueryAsync<Period>(queryBuilder.ToString(), parameters);

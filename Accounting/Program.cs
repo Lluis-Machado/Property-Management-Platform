@@ -59,18 +59,28 @@ builder.Services.AddScoped<ILoanService, LoanService>();
 
 // Validators
 builder.Services.AddScoped<IValidator<CreateTenantDTO>, CreateTenantDTOValidator>();
-builder.Services.AddScoped<IValidator<UpdateTenantDTO>, UpdateTenantDTOValidator>();
-builder.Services.AddScoped<IValidator<CreatePeriodDTO>, CreatePeriodDTOValidator>();
 builder.Services.AddScoped<IValidator<CreateBusinessPartnerDTO>, CreateBusinessPartnerDTOValidator>();
 builder.Services.AddScoped<IValidator<CreateAPInvoiceDTO>, CreateAPInvoiceDTOValidator>();
-builder.Services.AddScoped<IValidator<UpdateAPInvoiceDTO>, UpdateAPInvoiceDTOValidator>();
 builder.Services.AddScoped<IValidator<CreateARInvoiceDTO>, CreateARInvoiceDTOValidator>();
-builder.Services.AddScoped<IValidator<UpdateARInvoiceDTO>, UpdateARInvoiceDTOValidator>();
+builder.Services.AddScoped<IValidator<CreatePeriodDTO>, CreatePeriodDTOValidator>();
 builder.Services.AddScoped<IValidator<CreateAPInvoiceLineDTO>, CreateAPInvoiceLineDTOValidator>();
 builder.Services.AddScoped<IValidator<CreateARInvoiceLineDTO>, CreateARInvoiceLineDTOValidator>();
 builder.Services.AddScoped<IValidator<CreateExpenseCategoryDTO>, CreateExpenseCategoryDTOValidator>();
 builder.Services.AddScoped<IValidator<CreateLoanDTO>, CreateLoanDTOValidator>();
+builder.Services.AddScoped<IValidator<CreateFixedAssetDTO>, CreateFixedAssetDTOValidator>();
+builder.Services.AddScoped<IValidator<CreateDepreciationDTO>, CreateDepreciationDTOValidator>();
+//
+builder.Services.AddScoped<IValidator<UpdateTenantDTO>, UpdateTenantDTOValidator>();
+builder.Services.AddScoped<IValidator<UpdateBusinessPartnerDTO>, UpdateBusinessPartnerDTOValidator>();
+builder.Services.AddScoped<IValidator<UpdateAPInvoiceDTO>, UpdateAPInvoiceDTOValidator>();
+builder.Services.AddScoped<IValidator<UpdateARInvoiceDTO>, UpdateARInvoiceDTOValidator>();
+builder.Services.AddScoped<IValidator<UpdatePeriodDTO>, UpdatePeriodDTOValidator>();
+builder.Services.AddScoped<IValidator<UpdateAPInvoiceLineDTO>, UpdateAPInvoiceLineDTOValidator>();
+builder.Services.AddScoped<IValidator<UpdateARInvoiceLineDTO>, UpdateARInvoiceLineDTOValidator>();
+builder.Services.AddScoped<IValidator<UpdateExpenseCategoryDTO>, UpdateExpenseCategoryDTOValidator>();
 builder.Services.AddScoped<IValidator<UpdateLoanDTO>, UpdateLoanDTOValidator>();
+builder.Services.AddScoped<IValidator<UpdateFixedAssetDTO>, UpdateFixedAssetDTOValidator>();
+builder.Services.AddScoped<IValidator<UpdateDepreciationDTO>, UpdateDepreciationDTOValidator>();
 
 // AutoMapper
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());

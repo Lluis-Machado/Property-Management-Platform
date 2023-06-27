@@ -81,55 +81,68 @@ namespace AccountingAPI.Repositories
 
         public async Task<IEnumerable<APInvoiceLine>> GetAPInvoiceLinesAsync(Guid tenantId, bool includeDeleted = false)
         {
+            var parameters = new
+            {
+                tenantId,
+                deleted = includeDeleted?1:0
+            };
+
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT Id");
-            queryBuilder.Append(",InvoiceId");
-            queryBuilder.Append(",Description");
-            queryBuilder.Append(",Tax");
-            queryBuilder.Append(",Quantity");
-            queryBuilder.Append(",UnitPrice");
-            queryBuilder.Append(",TotalPrice");
-            queryBuilder.Append(",ExpenseCategoryId");
-            queryBuilder.Append(",ServiceDateFrom");
-            queryBuilder.Append(",ServiceDateTo");
-            queryBuilder.Append(",FixedAssetId");
-            queryBuilder.Append(",Deleted");
-            queryBuilder.Append(",CreatedAt");
-            queryBuilder.Append(",CreatedBy");
-            queryBuilder.Append(",LastModificationAt");
-            queryBuilder.Append(",LastModificationBy");
+            queryBuilder.Append("SELECT APInvoiceLines.Id");
+            queryBuilder.Append(",APInvoiceLines.InvoiceId");
+            queryBuilder.Append(",APInvoiceLines.Description");
+            queryBuilder.Append(",APInvoiceLines.Tax");
+            queryBuilder.Append(",APInvoiceLines.Quantity");
+            queryBuilder.Append(",APInvoiceLines.UnitPrice");
+            queryBuilder.Append(",APInvoiceLines.TotalPrice");
+            queryBuilder.Append(",APInvoiceLines.ExpenseCategoryId");
+            queryBuilder.Append(",APInvoiceLines.ServiceDateFrom");
+            queryBuilder.Append(",APInvoiceLines.ServiceDateTo");
+            queryBuilder.Append(",APInvoiceLines.FixedAssetId");
+            queryBuilder.Append(",APInvoiceLines.Deleted");
+            queryBuilder.Append(",APInvoiceLines.CreatedAt");
+            queryBuilder.Append(",APInvoiceLines.CreatedBy");
+            queryBuilder.Append(",APInvoiceLines.LastModificationAt");
+            queryBuilder.Append(",APInvoiceLines.LastModificationBy");
             queryBuilder.Append(" FROM APInvoiceLines");
-            if (includeDeleted == false) queryBuilder.Append(" WHERE Deleted = 0");
+            queryBuilder.Append(" INNER JOIN APInvoices ON APInvoices.Id = APInvoiceLines.InvoiceId");
+            queryBuilder.Append(" INNER JOIN BusinessPartners ON BusinessPartners.Id = APInvoices.BusinessPartnerId");
+            queryBuilder.Append(" WHERE BusinessPartners.TenantId = @tenantId");
+            if (!includeDeleted) queryBuilder.Append(" AND APInvoiceLines.Deleted = @deleted");
 
             using var connection = _context.CreateConnection(); // Create a new connection
-            return await connection.QueryAsync<APInvoiceLine>(queryBuilder.ToString());
+            return await connection.QueryAsync<APInvoiceLine>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<APInvoiceLine> GetAPInvoiceLineByIdAsync(Guid tenantId, Guid invoiceLineId)
         {
             var parameters = new
             {
+                tenantId,
                 invoiceLineId
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT Id");
-            queryBuilder.Append(",InvoiceId");
-            queryBuilder.Append(",Description");
-            queryBuilder.Append(",Tax");
-            queryBuilder.Append(",Quantity");
-            queryBuilder.Append(",UnitPrice");
-            queryBuilder.Append(",TotalPrice");
-            queryBuilder.Append(",ExpenseCategoryId");
-            queryBuilder.Append(",ServiceDateFrom");
-            queryBuilder.Append(",ServiceDateTo");
-            queryBuilder.Append(",FixedAssetId");
-            queryBuilder.Append(",Deleted");
-            queryBuilder.Append(",CreatedAt");
-            queryBuilder.Append(",CreatedBy");
-            queryBuilder.Append(",LastModificationAt");
-            queryBuilder.Append(",LastModificationBy");
+            queryBuilder.Append("SELECT APInvoiceLines.Id");
+            queryBuilder.Append(",APInvoiceLines.InvoiceId");
+            queryBuilder.Append(",APInvoiceLines.Description");
+            queryBuilder.Append(",APInvoiceLines.Tax");
+            queryBuilder.Append(",APInvoiceLines.Quantity");
+            queryBuilder.Append(",APInvoiceLines.UnitPrice");
+            queryBuilder.Append(",APInvoiceLines.TotalPrice");
+            queryBuilder.Append(",APInvoiceLines.ExpenseCategoryId");
+            queryBuilder.Append(",APInvoiceLines.ServiceDateFrom");
+            queryBuilder.Append(",APInvoiceLines.ServiceDateTo");
+            queryBuilder.Append(",APInvoiceLines.FixedAssetId");
+            queryBuilder.Append(",APInvoiceLines.Deleted");
+            queryBuilder.Append(",APInvoiceLines.CreatedAt");
+            queryBuilder.Append(",APInvoiceLines.CreatedBy");
+            queryBuilder.Append(",APInvoiceLines.LastModificationAt");
+            queryBuilder.Append(",APInvoiceLines.LastModificationBy");
             queryBuilder.Append(" FROM APInvoiceLines");
-            queryBuilder.Append(" WHERE Id = @invoiceLineId");
+            queryBuilder.Append(" INNER JOIN APInvoices ON APInvoices.Id = APInvoiceLines.InvoiceId");
+            queryBuilder.Append(" INNER JOIN BusinessPartners ON BusinessPartners.Id = APInvoices.BusinessPartnerId");
+            queryBuilder.Append(" WHERE BusinessPartners.TenantId = @tenantId");
+            queryBuilder.Append(" AND Id = @invoiceLineId");
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QuerySingleAsync<APInvoiceLine>(queryBuilder.ToString(), parameters);

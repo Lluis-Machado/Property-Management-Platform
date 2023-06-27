@@ -37,6 +37,11 @@ namespace AccountingAPI.Repositories
 
         public async Task<IEnumerable<ExpenseCategory>> GetExpenseCategoriesAsync(bool includeDeleted = false)
         {
+            var parameters = new
+            {
+                deleted = includeDeleted? 1:0
+            };
+
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");
             queryBuilder.Append(",ExpenseTypeCode");
@@ -47,7 +52,7 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",LastModificationAt");
             queryBuilder.Append(",LastModificationBy");
             queryBuilder.Append(" FROM ExpenseCategories");
-            if (includeDeleted == false) queryBuilder.Append(" WHERE Deleted = 0");
+            if (!includeDeleted) queryBuilder.Append(" WHERE Deleted = @deleted");
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QueryAsync<ExpenseCategory>(queryBuilder.ToString());

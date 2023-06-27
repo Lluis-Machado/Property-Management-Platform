@@ -1,22 +1,28 @@
 ﻿using AccountingAPI.DTOs;
+using AccountingAPI.Exceptions;
 using AccountingAPI.Models;
 using AccountingAPI.Repositories;
 using AutoMapper;
+using FluentValidation;
 
 namespace AccountingAPI.Services
 {
     public class DepreciationService : IDepreciationService
     {
         private readonly IDepreciationRepository _depreciationRepository;
+        private readonly IValidator<CreateDepreciationDTO> _createDepreciationDTOValidator;
+        private readonly IValidator<UpdateDepreciationDTO> _updateDepreciationDTOValidator;
         private readonly IPeriodService _periodService;
         private readonly IARInvoiceLineService _arInvoiceLineService;
         private readonly IFixedAssetService _fixedAssetService;
         private readonly IMapper _mapper;
         private readonly ILogger<DepreciationService> _logger;
 
-        public DepreciationService(IDepreciationRepository depreciationRepository, ILogger<DepreciationService> logger, IMapper mapper, IFixedAssetService fixedAssetService, IARInvoiceLineService arInvoiceLineService, IPeriodService periodService)
+        public DepreciationService(IDepreciationRepository depreciationRepository, IValidator<CreateDepreciationDTO> createDepreciationDTOValidator, IValidator<UpdateDepreciationDTO> updateDepreciationDTOValidator, ILogger<DepreciationService> logger, IMapper mapper, IFixedAssetService fixedAssetService, IARInvoiceLineService arInvoiceLineService, IPeriodService periodService)
         {
             _depreciationRepository = depreciationRepository;
+            _createDepreciationDTOValidator = createDepreciationDTOValidator;
+            _updateDepreciationDTOValidator = updateDepreciationDTOValidator;
             _periodService = periodService;
             _logger = logger;
             _mapper = mapper;
@@ -24,18 +30,30 @@ namespace AccountingAPI.Services
             _arInvoiceLineService = arInvoiceLineService;
         }
 
-        private async Task<DepreciationDTO> MapDepreciationPeriodData(Guid tenantId, DepreciationDTO depreciationDTO)
+        public async Task<DepreciationDTO> CreateDepreciationAsync(Guid tenantId, CreateDepreciationDTO createDepreciationDTO, Guid fixedAssetId, Guid periodId, string userName)
         {
-            PeriodDTO periodDTO = await _periodService.GetPeriodByIdAsync(tenantId, depreciationDTO.PeriodId);
-            depreciationDTO.Year = periodDTO.Year;
-            depreciationDTO.Month = periodDTO.Month;
-            return depreciationDTO;
+            // validation
+            await _createDepreciationDTOValidator.ValidateAndThrowAsync(createDepreciationDTO);
+
+            Depreciation depreciation = new()
+            {
+                FixedAssetId = fixedAssetId,
+                PeriodId = periodId,
+                DepreciationAmount = createDepreciationDTO.DepreciationAmount,
+                CreatedBy = userName,
+                LastModificationBy = userName
+            };
+            depreciation = await _depreciationRepository.InsertDepreciationAsync(depreciation);
+
+            DepreciationDTO depreciationDTO = _mapper.Map<DepreciationDTO>(depreciation);
+
+            return await MapDepreciationPeriodData(tenantId, depreciationDTO);
         }
 
         public async Task<IEnumerable<DepreciationDTO>> GetDepreciationsAsync(Guid tenantId)
         {
             IEnumerable<PeriodDTO> periodDTOs = await _periodService.GetPeriodsAsync(tenantId);
-            IEnumerable<Depreciation> depreciations = await _depreciationRepository.GetDepreciationsAsync();
+            IEnumerable<Depreciation> depreciations = await _depreciationRepository.GetDepreciationsAsync(tenantId);
 
             List<DepreciationDTO> depreciationDTOs = new();
 
@@ -59,6 +77,44 @@ namespace AccountingAPI.Services
             return depreciationDTOs;
         }
 
+        public async Task<DepreciationDTO> GetDepreciationByIdAsync(Guid tenantId, Guid depreciationId)
+        {
+            Depreciation? depreciation = await _depreciationRepository.GetDepreciationByIdAsync(tenantId, depreciationId);
+
+            if (depreciation is null) throw new NotFoundException("Depreciation");
+
+            return _mapper.Map<DepreciationDTO>(depreciation);
+        }
+
+        public async Task<DepreciationDTO> UpdateDepreciationAsync(Guid tenantId, Guid depreciationId, UpdateDepreciationDTO updateDepreciationDTO, string userName)
+        {
+            // validation
+            await _updateDepreciationDTOValidator.ValidateAndThrowAsync(updateDepreciationDTO);
+
+            // check if exists
+            await GetDepreciationByIdAsync(tenantId, depreciationId);
+
+            Depreciation depreciation = new()
+            {
+                Id = depreciationId,
+                DepreciationAmount = updateDepreciationDTO.DepreciationAmount,
+                LastModificationAt = DateTime.Now,
+                LastModificationBy = userName
+            };
+            depreciation = await _depreciationRepository.UpdateDepreciationAsync(depreciation);
+            DepreciationDTO depreciationDTO = _mapper.Map<DepreciationDTO>(depreciation);
+
+            return await MapDepreciationPeriodData(tenantId, depreciationDTO);
+        }
+
+        private async Task<DepreciationDTO> MapDepreciationPeriodData(Guid tenantId, DepreciationDTO depreciationDTO)
+        {
+            PeriodDTO periodDTO = await _periodService.GetPeriodByIdAsync(tenantId, depreciationDTO.PeriodId);
+            depreciationDTO.Year = periodDTO.Year;
+            depreciationDTO.Month = periodDTO.Month;
+            return depreciationDTO;
+        }
+
         public async Task<IEnumerable<FixedAssetYearDetailsDTO>> GetFixedAssetsYearDetailsAsync(Guid tenantId, int year)
         {
             List<FixedAssetYearDetailsDTO> fixedAssetYearDetailsDTOs = new();
@@ -66,11 +122,11 @@ namespace AccountingAPI.Services
             DateTime firstDayOfYear = new(year, 1, 1);
             DateTime lastDayOfYear = new(year, 12, 31);
 
-            IEnumerable<FixedAssetDTO> fixedAssetsDTOs = await _fixedAssetService.GetFixedAssetsAsync();
+            IEnumerable<FixedAssetDTO> fixedAssetsDTOs = await _fixedAssetService.GetFixedAssetsAsync(tenantId);
 
             IEnumerable<DepreciationDTO> depreciationDTOs = await GetDepreciationsAsync(tenantId);
 
-            List<DateTime> serviceDateTimes = await _arInvoiceLineService.GetListOfServiceDatesInPeriodAsync(firstDayOfYear, lastDayOfYear);
+            List<DateTime> serviceDateTimes = await _arInvoiceLineService.GetListOfServiceDatesInPeriodAsync(tenantId, firstDayOfYear, lastDayOfYear);
 
             List<FixedAssetYearDetailsDTO> yearDetails = fixedAssetsDTOs
                 .Where(f => f.CapitalizationDate <= lastDayOfYear)
@@ -108,9 +164,9 @@ namespace AccountingAPI.Services
 
             IEnumerable<DepreciationDTO> depreciationDTOs = await GetDepreciationsAsync(periodDTO.TenantId);
 
-            IEnumerable<FixedAssetDTO> fixedAssetDTOs = await _fixedAssetService.GetFixedAssetsAsync();
+            IEnumerable<FixedAssetDTO> fixedAssetDTOs = await _fixedAssetService.GetFixedAssetsAsync(tenantId);
 
-            List<DateTime> serviceDateTimes = await _arInvoiceLineService.GetListOfServiceDatesInPeriodAsync(firstDayOfPeriod, lastDayOfPeriod);
+            List<DateTime> serviceDateTimes = await _arInvoiceLineService.GetListOfServiceDatesInPeriodAsync(tenantId, firstDayOfPeriod, lastDayOfPeriod);
             if (serviceDateTimes.Count == 0)
             {
                 return Enumerable.Empty<DepreciationDTO>();
@@ -150,36 +206,5 @@ namespace AccountingAPI.Services
             IEnumerable<DepreciationDTO> resultDepreciationDTOs = await Task.WhenAll(depreciationTasks);
             return resultDepreciationDTOs;
         }
-
-        public async Task<DepreciationDTO> CreateDepreciationAsync(Guid tenantId, CreateDepreciationDTO createDepreciationDTO, Guid fixedAssetId, Guid periodId, string userName)
-        {
-            Depreciation depreciation = new()
-            {
-                FixedAssetId = fixedAssetId,
-                PeriodId = periodId,
-                DepreciationAmount = createDepreciationDTO.DepreciationAmount,
-                CreatedBy = userName,
-                LastModificationBy = userName
-            };
-            depreciation = await _depreciationRepository.InsertDepreciationAsync(depreciation);
-            DepreciationDTO depreciationDTO = _mapper.Map<DepreciationDTO>(depreciation);
-            return await MapDepreciationPeriodData(tenantId, depreciationDTO);
-        }
-
-        public async Task<DepreciationDTO> UpdateDepreciationAsync(Guid tenantId, Guid depreciationId, UpdateDepreciationDTO updateDepreciationDTO, string userName)
-        {
-            Depreciation depreciation = new()
-            {
-                Id = depreciationId,
-                DepreciationAmount = updateDepreciationDTO.DepreciationAmount,
-                LastModificationAt = DateTime.Now,
-                LastModificationBy = userName
-            };
-            depreciation = await _depreciationRepository.UpdateDepreciationAsync(depreciation);
-            DepreciationDTO depreciationDTO = _mapper.Map<DepreciationDTO>(depreciation);
-            return await MapDepreciationPeriodData(tenantId, depreciationDTO);
-        }
-
-
     }
 }

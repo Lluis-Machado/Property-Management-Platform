@@ -6,9 +6,8 @@ namespace AccountingAPI.Services
     {
         Task<ExpenseCategoryDTO> CreateExpenseCategoryAsync(CreateExpenseCategoryDTO createExpenseCategoryDTO, string userName);
         Task<IEnumerable<ExpenseCategoryDTO>> GetExpenseCategoriesAsync(bool includeDeleted = false);
-        Task<bool> CheckIfExpenseCategoryExistsAsync(Guid expenseCategoryId);
-        Task<ExpenseCategoryDTO?> GetExpenseCategoryByIdAsync(Guid expenseCategoryId);
-        Task<ExpenseCategoryDTO> UpdateExpenseCategoryAsync(CreateExpenseCategoryDTO createExpenseCategoryDTO, string userName, Guid expenseCategoryId);
-        Task<int> SetDeletedExpenseCategoryAsync(Guid expenseCategoryId, bool deleted);
+        Task<ExpenseCategoryDTO> GetExpenseCategoryByIdAsync(Guid expenseCategoryId);
+        Task<ExpenseCategoryDTO> UpdateExpenseCategoryAsync(Guid expenseCategoryId, UpdateExpenseCategoryDTO updateExpenseCategoryDTO, string userName);
+        Task SetDeletedExpenseCategoryAsync(Guid expenseCategoryId, bool deleted, string userName);
     }
 }

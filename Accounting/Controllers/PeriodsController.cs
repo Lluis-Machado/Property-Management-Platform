@@ -4,7 +4,6 @@ using AccountingAPI.Validators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using static AccountingAPI.DTOs.UpdatePeriodDTO;
 
 namespace AccountingAPI.Controllers
 {
@@ -28,7 +27,7 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.Conflict)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
 
-        public async Task<ActionResult<PeriodDTO>> CreatePeriodsAsync([FromBody] CreatePeriodDTO createPeriodDTO, Guid tenantId)
+        public async Task<ActionResult<PeriodDTO>> CreatePeriodAsync(Guid tenantId, [FromBody] CreatePeriodDTO createPeriodDTO)
         {
             // request validations
             if (createPeriodDTO == null) return BadRequest("Incorrect body format");
@@ -36,7 +35,7 @@ namespace AccountingAPI.Controllers
             // Check user
             string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            PeriodDTO periodDTO = await _periodService.CreatePeriodAsync(createPeriodDTO, tenantId, userName);
+            PeriodDTO periodDTO = await _periodService.CreatePeriodAsync(tenantId, createPeriodDTO, userName);
 
             return Created($"periods/{periodDTO.Id}", periodDTO);
         }
@@ -69,7 +68,7 @@ namespace AccountingAPI.Controllers
             return Ok(await _periodService.UpdatePeriodStatusAsync(tenantId, periodId, updatePeriodDTO, userName));
         }
 
-        // DELETE: delete period
+        // DELETE: Delete period
         [HttpDelete]
         [Route("tenants/{tenantId}/periods/{periodId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
@@ -85,7 +84,7 @@ namespace AccountingAPI.Controllers
             return NoContent();
         }
 
-        // POST: undelete period
+        // POST: Undelete period
         [HttpPost]
         [Route("tenants/{tenantId}/periods/{periodId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.OK)]

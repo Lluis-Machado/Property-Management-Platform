@@ -51,44 +51,61 @@ namespace AccountingAPI.Repositories
             return await connection.QuerySingleAsync<Depreciation>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<IEnumerable<Depreciation>> GetDepreciationsAsync(bool includeDeleted = false)
-        {
-            StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT Id");
-            queryBuilder.Append(",FixedAssetId");
-            queryBuilder.Append(",PeriodId");
-            queryBuilder.Append(",DepreciationAmount");
-            queryBuilder.Append(",Deleted");
-            queryBuilder.Append(",CreatedAt");
-            queryBuilder.Append(",CreatedBy");
-            queryBuilder.Append(",LastModificationAt");
-            queryBuilder.Append(",LastModificationBy");
-            queryBuilder.Append(" FROM Depreciations");
-            if (!includeDeleted) queryBuilder.Append(" WHERE Deleted = 0");
-
-            using var connection = _context.CreateConnection(); // Create a new connection
-            return await connection.QueryAsync<Depreciation>(queryBuilder.ToString());
-        }
-
-        public async Task<Depreciation> GetDepreciationByIdAsync(Guid depreciationId)
+        public async Task<IEnumerable<Depreciation>> GetDepreciationsAsync(Guid tenantId, bool includeDeleted = false)
         {
             var parameters = new
             {
+                tenantId,
+                deleted = includeDeleted? 1:0
+            };
+
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("SELECT Depreciations.Id");
+            queryBuilder.Append(",Depreciations.FixedAssetId");
+            queryBuilder.Append(",Depreciations.PeriodId");
+            queryBuilder.Append(",Depreciations.DepreciationAmount");
+            queryBuilder.Append(",Depreciations.Deleted");
+            queryBuilder.Append(",Depreciations.CreatedAt");
+            queryBuilder.Append(",Depreciations.CreatedBy");
+            queryBuilder.Append(",Depreciations.LastModificationAt");
+            queryBuilder.Append(",Depreciations.LastModificationBy");
+            queryBuilder.Append(" FROM Depreciations");
+            queryBuilder.Append(" INNER JOIN FixedAssets ON FixedAssets.Id = Depreciations.FixedAssetId");
+            queryBuilder.Append(" INNER JOIN APInvoiceLines ON APInvoiceLines.Id = FixedAssets.InvoiceLineId");
+            queryBuilder.Append(" INNER JOIN APInvoices ON APInvoices.Id = APInvoiceLines.InvoiceId");
+            queryBuilder.Append(" INNER JOIN BusinessPartners ON BusinessPartners.Id = APInvoices.BusinessPartnerId");
+            queryBuilder.Append(" WHERE BusinessPartners.TenantId = @tenantId");
+            queryBuilder.Append(" AND Deleted = 0");
+
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QueryAsync<Depreciation>(queryBuilder.ToString(), parameters);
+        }
+
+        public async Task<Depreciation> GetDepreciationByIdAsync(Guid tenantId, Guid depreciationId)
+        {
+            var parameters = new
+            {
+                tenantId,
                 depreciationId
             };
-            StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT Id");
-            queryBuilder.Append(",FixedAssetId");
-            queryBuilder.Append(",PeriodId");
-            queryBuilder.Append(",DepreciationAmount");
-            queryBuilder.Append(",Deleted");
-            queryBuilder.Append(",CreatedAt");
-            queryBuilder.Append(",CreatedBy");
-            queryBuilder.Append(",LastModificationAt");
-            queryBuilder.Append(",LastModificationBy");
-            queryBuilder.Append(" FROM Depreciations");
-            queryBuilder.Append(" WHERE Id = @depreciationId");
 
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("SELECT Depreciations.Id");
+            queryBuilder.Append(",Depreciations.FixedAssetId");
+            queryBuilder.Append(",Depreciations.PeriodId");
+            queryBuilder.Append(",Depreciations.DepreciationAmount");
+            queryBuilder.Append(",Depreciations.Deleted");
+            queryBuilder.Append(",Depreciations.CreatedAt");
+            queryBuilder.Append(",Depreciations.CreatedBy");
+            queryBuilder.Append(",Depreciations.LastModificationAt");
+            queryBuilder.Append(",Depreciations.LastModificationBy");
+            queryBuilder.Append(" FROM Depreciations");
+            queryBuilder.Append(" INNER JOIN FixedAssets ON FixedAssets.Id = Depreciations.FixedAssetId");
+            queryBuilder.Append(" INNER JOIN APInvoiceLines ON APInvoiceLines.Id = FixedAssets.InvoiceLineId");
+            queryBuilder.Append(" INNER JOIN APInvoices ON APInvoices.Id = APInvoiceLines.InvoiceId");
+            queryBuilder.Append(" INNER JOIN BusinessPartners ON BusinessPartners.Id = APInvoices.BusinessPartnerId");
+            queryBuilder.Append(" WHERE Depreciations.Id = @depreciationId");
+            queryBuilder.Append(" AND BusinessPartners.TenantId = @tenantId");
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QuerySingleAsync<Depreciation>(queryBuilder.ToString(), parameters);

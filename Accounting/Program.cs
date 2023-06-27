@@ -37,7 +37,7 @@ builder.Services.AddScoped<IPeriodRepository, PeriodRepository>();
 builder.Services.AddScoped<IDepreciationRepository, DepreciationRepository>();
 builder.Services.AddScoped<IFixedAssetRepository, FixedAssetRepository>();
 builder.Services.AddScoped<IBusinessPartnerRepository, BusinessPartnerRepository>();
-builder.Services.AddScoped<IAPInvoiceRepository, APInvoicesRepository>();
+builder.Services.AddScoped<IAPInvoiceRepository, APInvoiceRepository>();
 builder.Services.AddScoped<IARInvoiceRepository, ARInvoiceRepository>();
 builder.Services.AddScoped<IAPInvoiceLineRepository, APInvoiceLinesRepository>();
 builder.Services.AddScoped<IARInvoiceLineRepository, ARInvoiceLinesRepository>();

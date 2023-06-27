@@ -7,7 +7,7 @@ namespace AccountingAPI.Services
         Task<TenantDTO> CreateTenantAsync(CreateTenantDTO createTenantDTO, string userName);
         Task<IEnumerable<TenantDTO>> GetTenantsAsync(bool includeDeleted = false);
         Task<TenantDTO> GetTenantByIdAsync(Guid TenantId);
-        Task<TenantDTO> UpdateTenantAsync(UpdateTenantDTO updateTenantDTO, string userName, Guid tenantId);
-        Task<int> SetDeletedTenantAsync(Guid tenantId, bool deleted);
+        Task<TenantDTO> UpdateTenantAsync(Guid tenantId, UpdateTenantDTO updateTenantDTO, string userName);
+        Task SetDeletedTenantAsync(Guid tenantId, bool deleted, string userName);
     }
 }

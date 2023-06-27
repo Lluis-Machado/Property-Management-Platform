@@ -24,7 +24,7 @@ namespace AccountingAPI.Services
             _mapper = mapper;
         }
 
-        public async Task<PeriodDTO> CreatePeriodAsync(CreatePeriodDTO createPeriodDTO, Guid tenantId, string userName)
+        public async Task<PeriodDTO> CreatePeriodAsync(Guid tenantId, CreatePeriodDTO createPeriodDTO, string userName)
         {
             // validation
             await _createPeriodDTOValidator.ValidateAndThrowAsync(createPeriodDTO);
@@ -77,12 +77,12 @@ namespace AccountingAPI.Services
             return _mapper.Map<PeriodDTO>(period);
         }
 
-        public async Task<int> SetDeletedPeriodAsync(Guid tenantId, Guid periodId, bool deleted,string userName)
+        public async Task SetDeletedPeriodAsync(Guid tenantId, Guid periodId, bool deleted,string userName)
         {
             // check if exists
             await GetPeriodByIdAsync(tenantId, periodId);
 
-            return await _periodRepository.SetDeletedPeriodAsync(periodId, deleted, userName);
+            await _periodRepository.SetDeletedPeriodAsync(periodId, deleted, userName);
         }
     }
 }

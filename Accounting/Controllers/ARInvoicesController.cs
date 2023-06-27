@@ -1,8 +1,6 @@
 ﻿using AccountingAPI.DTOs;
 using AccountingAPI.Services;
 using AccountingAPI.Validators;
-using FluentValidation;
-using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -13,16 +11,12 @@ namespace AccountingAPI.Controllers
     public class ARInvoicesController : Controller
     {
         private readonly IARInvoiceService _arInvoiceService;
-        private readonly IValidator<CreateARInvoiceDTO> _createARInvoiceDTOValidator;
-        private readonly IValidator<UpdateARInvoiceDTO> _updateARInvoiceDTOValidator;
         private readonly ILogger<ARInvoicesController> _logger;
 
-        public ARInvoicesController(IARInvoiceService arInvoiceService, IValidator<CreateARInvoiceDTO> createARInvoiceDTOValidator, ILogger<ARInvoicesController> logger, IValidator<UpdateARInvoiceDTO> updateARInvoiceDTOValidator)
+        public ARInvoicesController(IARInvoiceService arInvoiceService, ILogger<ARInvoicesController> logger)
         {
-            _createARInvoiceDTOValidator = createARInvoiceDTOValidator;
             _arInvoiceService = arInvoiceService;
             _logger = logger;
-            _updateARInvoiceDTOValidator = updateARInvoiceDTOValidator;
         }
 
         // POST: Create ARInvoice
@@ -31,7 +25,7 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<ARInvoiceDTO>> CreateARInvoiceAsync([FromBody] CreateARInvoiceDTO createARInvoiceDTO, Guid tenantId, Guid businessPartnerId)
+        public async Task<ActionResult<ARInvoiceDTO>> CreateARInvoiceAsync(Guid tenantId, Guid businessPartnerId, [FromBody] CreateARInvoiceDTO createARInvoiceDTO)
         {
             // request validations
             if (createARInvoiceDTO == null) return BadRequest("Incorrect body format");
@@ -39,33 +33,19 @@ namespace AccountingAPI.Controllers
             // Check user
             string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            // invoice validation
-            ValidationResult validationResult = await _createARInvoiceDTOValidator.ValidateAsync(createARInvoiceDTO);
-            if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
-
-            ARInvoiceDTO invoiceDTO = await _arInvoiceService.CreateARInvoiceAndLinesAsync(createARInvoiceDTO, userName, businessPartnerId);
+            ARInvoiceDTO invoiceDTO = await _arInvoiceService.CreateARInvoiceAndLinesAsync(tenantId, businessPartnerId, createARInvoiceDTO, userName);
             return Created($"arinvoices/{invoiceDTO.Id}", invoiceDTO);
         }
 
-        //// GET: Read AP invoice(s)
-        //[HttpGet]
-        //[Route("tenants/{tenantId}/arinvoices")]
-        //[ProducesResponseType((int)HttpStatusCode.OK)]
-        //[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        //public async Task<ActionResult<IEnumerable<ARInvoiceDTO>>> GetARInvoicesAsync(Guid tenantId, [FromQuery] bool includeDeleted = false)
-        //{
-        //    return Ok(await _arInvoiceService.GetARInvoicesAsync(tenantId, includeDeleted));
-        //}
-
-        //// GET: Read AP invoice
-        //[HttpGet]
-        //[Route("tenants/{tenantId}/arinvoices/{invoiceId}")]
-        //[ProducesResponseType((int)HttpStatusCode.OK)]
-        //[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        //public async Task<ActionResult<IEnumerable<ARInvoiceDTO>>> GetARInvoiceByIdAsync(Guid tenantId, Guid invoiceId)
-        //{
-        //    return Ok(await _arInvoiceService.GetA(tenantId, includeDeleted));
-        //}
+        // GET: Get AP invoice(s)
+        [HttpGet]
+        [Route("tenants/{tenantId}/arinvoices")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<IEnumerable<ARInvoiceDTO>>> GetARInvoicesAsync(Guid tenantId, [FromQuery] bool includeDeleted = false)
+        {
+            return Ok(await _arInvoiceService.GetARInvoicesAsync(tenantId, includeDeleted));
+        }
 
         // PATCH: update invoice
         [HttpPatch]
@@ -74,7 +54,7 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult> UpdateARInvoiceAsync([FromBody] UpdateARInvoiceDTO updateARInvoiceDTO, Guid invoiceId)
+        public async Task<ActionResult> UpdateARInvoiceAsync(Guid tenantId, Guid invoiceId, [FromBody] UpdateARInvoiceDTO updateARInvoiceDTO)
         {
             // request validations
             if (updateARInvoiceDTO == null) return BadRequest("Incorrect body format");
@@ -82,14 +62,7 @@ namespace AccountingAPI.Controllers
             // Check user
             string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            // invoice validation
-            ValidationResult validationResult = await _updateARInvoiceDTOValidator.ValidateAsync(updateARInvoiceDTO);
-            if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
-
-            // check if exists
-            if (!await _arInvoiceService.CheckIfARInvoiceExistsAsync(invoiceId)) return NotFound("Invoice not found");
-
-            ARInvoiceDTO invoiceDTO = await _arInvoiceService.UpdateARInvoiceAndLinesAsync(updateARInvoiceDTO, userName, invoiceId);
+            ARInvoiceDTO invoiceDTO = await _arInvoiceService.UpdateARInvoiceAndLinesAsync(tenantId,invoiceId, updateARInvoiceDTO, userName);
             return Ok(invoiceDTO);
         }
 
@@ -99,15 +72,12 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> DeleteAsync(Guid invoiceId)
+        public async Task<IActionResult> DeleteAsync(Guid tenantId, Guid invoiceId)
         {
             // Check user
             string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            // check if exists
-            if (!await _arInvoiceService.CheckIfARInvoiceExistsAsync(invoiceId)) return NotFound("Invoice not found");
-
-            await _arInvoiceService.SetDeletedARInvoiceAsync(invoiceId, true);
+            await _arInvoiceService.SetDeletedARInvoiceAsync(tenantId, invoiceId, true, userName);
 
             return NoContent();
         }
@@ -118,15 +88,12 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> UndeleteAsync(Guid invoiceId)
+        public async Task<IActionResult> UndeleteAsync(Guid tenantId, Guid invoiceId)
         {
             // Check user
             string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            // check if exists
-            if (!await _arInvoiceService.CheckIfARInvoiceExistsAsync(invoiceId)) return NotFound("Invoice not found");
-
-            await _arInvoiceService.SetDeletedARInvoiceAsync(invoiceId, false);
+            await _arInvoiceService.SetDeletedARInvoiceAsync(tenantId, invoiceId, false, userName);
 
             return NoContent();
         }

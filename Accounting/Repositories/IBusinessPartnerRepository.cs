@@ -5,9 +5,9 @@ namespace AccountingAPI.Repositories
     public interface IBusinessPartnerRepository
     {
         Task<BusinessPartner> InsertBusinessPartnerAsync(BusinessPartner businessPartner);
-        Task<IEnumerable<BusinessPartner>> GetBusinessPartnersAsync(bool includeDeleted = false);
-        Task<BusinessPartner?> GetBusinessPartnerByIdAsync(Guid businessPartnerId);
+        Task<IEnumerable<BusinessPartner>> GetBusinessPartnersAsync(Guid tenantId, bool includeDeleted = false);
+        Task<BusinessPartner?> GetBusinessPartnerByIdAsync(Guid tenantId, Guid businessPartnerId);
         Task<BusinessPartner> UpdateBusinessPartnerAsync(BusinessPartner businessPartner);
-        Task<int> SetDeletedBusinessPartnerAsync(Guid id, bool deleted);
+        Task<int> SetDeletedBusinessPartnerAsync(Guid id, bool deleted, string userName);
     }
 }

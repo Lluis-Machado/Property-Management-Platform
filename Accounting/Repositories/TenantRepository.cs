@@ -81,23 +81,6 @@ namespace AccountingAPI.Repositories
             return await connection.QuerySingleAsync<Tenant>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<int> SetDeletedTenantAsync(Guid id, bool deleted)
-        {
-            var parameters = new
-            {
-                id,
-                deleted
-            };
-
-            StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE Tenants");
-            queryBuilder.Append(" SET Deleted = @deleted");
-            queryBuilder.Append(" WHERE Id = @id");
-
-            using var connection = _context.CreateConnection(); // Create a new connection
-            return await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
-        }
-
         public async Task<Tenant> UpdateTenantAsync(Tenant tenant)
         {
             var parameters = new
@@ -126,5 +109,28 @@ namespace AccountingAPI.Repositories
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QuerySingleAsync<Tenant>(queryBuilder.ToString(), parameters);
         }
+
+        public async Task<int> SetDeletedTenantAsync(Guid id, bool deleted, string userName)
+        {
+            var parameters = new
+            {
+                id,
+                deleted,
+                lastModificationBy = userName,
+                lastModificationAt = DateTime.Now,
+            };
+
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("UPDATE Tenants");
+            queryBuilder.Append(" SET Deleted = @deleted");
+            queryBuilder.Append(",LastModificationAt = @lastModificationAt");
+            queryBuilder.Append(",LastModificationBy = @lastModificationBy");
+            queryBuilder.Append(" WHERE Id = @id");
+
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
+        }
+
+
     }
 }

@@ -53,7 +53,7 @@ namespace AccountingAPI.Services
             return _mapper.Map<TenantDTO>(tenant);
         }
 
-        public async Task<TenantDTO> UpdateTenantAsync(UpdateTenantDTO updateTenantDTO, string userName, Guid tenantId)
+        public async Task<TenantDTO> UpdateTenantAsync(Guid tenantId, UpdateTenantDTO updateTenantDTO, string userName)
         {
             // validation
             await _updateTenantDTOValidator.ValidateAndThrowAsync(updateTenantDTO);
@@ -71,12 +71,12 @@ namespace AccountingAPI.Services
             return _mapper.Map<TenantDTO>(tenant);
         }
 
-        public async Task<int> SetDeletedTenantAsync(Guid tenantId, bool deleted)
+        public async Task SetDeletedTenantAsync(Guid tenantId, bool deleted, string userName)
         {
             // check if exists
             await GetTenantByIdAsync(tenantId);
 
-            return await _tenantRepository.SetDeletedTenantAsync(tenantId, deleted);
+            await _tenantRepository.SetDeletedTenantAsync(tenantId, deleted, userName);
         }
     }
 }

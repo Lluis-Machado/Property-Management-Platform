@@ -1,5 +1,6 @@
 ﻿using AccountingAPI.DTOs;
 using AccountingAPI.Services;
+using AccountingAPI.Validators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -18,7 +19,7 @@ namespace AccountingAPI.Controllers
             _logger = logger;
         }
 
-        // POST: Create depreciation
+        // POST: Create depreciations
         [HttpPost]
         [Route("tenants/{tenantId}/periods/{periodId}/depreciations")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
@@ -27,7 +28,10 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<IEnumerable<DepreciationDTO>>> GenerateDepreciationsAsync(Guid tenantId, Guid periodId)
         {
-            return Ok(await _depreciationService.GenerateDepreciationsAsync(tenantId, periodId, User?.Identity?.Name));
+            // Check user
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
+
+            return Ok(await _depreciationService.GenerateDepreciationsAsync(tenantId, periodId, userName));
         }
     }
 }

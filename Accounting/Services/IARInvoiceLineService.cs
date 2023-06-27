@@ -4,11 +4,11 @@ namespace AccountingAPI.Services
 {
     public interface IARInvoiceLineService
     {
-        Task<ARInvoiceLineDTO> CreateARInvoiceLineAsync(CreateARInvoiceLineDTO createInvoiceLineDTO, Guid invoiceId, string? userName);
-        Task<IEnumerable<ARInvoiceLineDTO>> GetARInvoiceLinesAsync(bool includeDeleted = false);
-        Task<ARInvoiceLineDTO> GetARInvoiceLineByIdAsync(Guid InvoiceLineId);
-        Task<ARInvoiceLineDTO> UpdateARInvoiceLineAsync(UpdateARInvoiceLineDTO updateInvoiceLineDTO, string? userName, Guid invoiceLineId, Guid? fixedAssetId = null);
-        Task<int> SetDeletedARInvoiceLineAsync(Guid invoiceLineId, bool deleted);
-        Task<List<DateTime>> GetListOfServiceDatesInPeriodAsync(DateTime dateFrom, DateTime dateTo);
+        Task<ARInvoiceLineDTO> CreateARInvoiceLineAsync(Guid tenantId, Guid invoiceId, CreateARInvoiceLineDTO createInvoiceLineDTO, string userName);
+        Task<IEnumerable<ARInvoiceLineDTO>> GetARInvoiceLinesAsync(Guid tenantId, bool includeDeleted = false);
+        Task<ARInvoiceLineDTO> GetARInvoiceLineByIdAsync(Guid tenantId, Guid InvoiceLineId);
+        Task<ARInvoiceLineDTO> UpdateARInvoiceLineAsync(Guid tenantId, Guid invoiceLineId, UpdateARInvoiceLineDTO updateInvoiceLineDTO, string? userName, Guid? fixedAssetId = null);
+        Task SetDeletedARInvoiceLineAsync(Guid tenantId, Guid invoiceLineId, bool deleted, string userName);
+        Task<List<DateTime>> GetListOfServiceDatesInPeriodAsync(Guid tenantId, DateTime dateFrom, DateTime dateTo);
     }
 }

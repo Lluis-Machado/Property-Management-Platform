@@ -1,25 +1,34 @@
 ﻿using AccountingAPI.DTOs;
+using AccountingAPI.Exceptions;
 using AccountingAPI.Models;
 using AccountingAPI.Repositories;
 using AutoMapper;
+using FluentValidation;
 
 namespace AccountingAPI.Services
 {
     public class ExpenseCategoryService : IExpenseCategoryService
     {
         private readonly IExpenseCategoryRepository _expenseCategoryRepo;
+        private readonly IValidator<CreateExpenseCategoryDTO> _createExpenseCategoryDTOValidator;
+        private readonly IValidator<UpdateExpenseCategoryDTO> _updateExpenseCategoryDTOValidator;
         private readonly IMapper _mapper;
         private readonly ILogger<ExpenseCategoryService> _logger;
 
-        public ExpenseCategoryService(IExpenseCategoryRepository expenseCategoryRepo, ILogger<ExpenseCategoryService> logger, IMapper mapper)
+        public ExpenseCategoryService(IExpenseCategoryRepository expenseCategoryRepo, IValidator<CreateExpenseCategoryDTO> createExpenseCategoryDTOValidator, IValidator<UpdateExpenseCategoryDTO> updateExpenseCategoryDTOValidator, ILogger<ExpenseCategoryService> logger, IMapper mapper)
         {
             _expenseCategoryRepo = expenseCategoryRepo;
+            _createExpenseCategoryDTOValidator = createExpenseCategoryDTOValidator;
+            _updateExpenseCategoryDTOValidator = updateExpenseCategoryDTOValidator;
             _logger = logger;
             _mapper = mapper;
         }
 
         public async Task<ExpenseCategoryDTO> CreateExpenseCategoryAsync(CreateExpenseCategoryDTO createExpenseCategoryDTO, string? userName)
         {
+            // validation
+            await _createExpenseCategoryDTOValidator.ValidateAndThrowAsync(createExpenseCategoryDTO);
+
             ExpenseCategory expenseCategory = _mapper.Map<ExpenseCategory>(createExpenseCategoryDTO);
             expenseCategory.CreatedBy = userName;
             expenseCategory.LastModificationBy = userName;
@@ -27,6 +36,7 @@ namespace AccountingAPI.Services
             expenseCategory = await _expenseCategoryRepo.InsertExpenseCategoryAsync(expenseCategory);
             return _mapper.Map<ExpenseCategoryDTO>(expenseCategory);
         }
+
         public async Task<IEnumerable<ExpenseCategoryDTO>> GetExpenseCategoriesAsync(bool includeDeleted = false)
         {
             IEnumerable<ExpenseCategory> expenseCategories = await _expenseCategoryRepo.GetExpenseCategoriesAsync(includeDeleted);
@@ -36,18 +46,21 @@ namespace AccountingAPI.Services
         public async Task<ExpenseCategoryDTO?> GetExpenseCategoryByIdAsync(Guid expenseCategoryId)
         {
             ExpenseCategory? expenseCategory = await _expenseCategoryRepo.GetExpenseCategoryByIdAsync(expenseCategoryId);
-            if (expenseCategory == null) return null;
+            
+            if (expenseCategory is null) throw new NotFoundException("Expense Category");
+            
             return _mapper.Map<ExpenseCategoryDTO>(expenseCategory);
         }
 
-        public async Task<bool> CheckIfExpenseCategoryExistsAsync(Guid expenseCategoryId)
+        public async Task<ExpenseCategoryDTO> UpdateExpenseCategoryAsync(Guid expenseCategoryId, UpdateExpenseCategoryDTO updateExpenseCategoryDTO, string userName)
         {
-            return await _expenseCategoryRepo.GetExpenseCategoryByIdAsync(expenseCategoryId) != null;
-        }
+            // validation
+            await _updateExpenseCategoryDTOValidator.ValidateAndThrowAsync(updateExpenseCategoryDTO);
 
-        public async Task<ExpenseCategoryDTO> UpdateExpenseCategoryAsync(CreateExpenseCategoryDTO createExpenseCategoryDTO, string? userName, Guid expenseCategoryId)
-        {
-            ExpenseCategory expenseCategory = _mapper.Map<ExpenseCategory>(createExpenseCategoryDTO);
+            // check if exists
+            await GetExpenseCategoryByIdAsync(expenseCategoryId);
+
+            ExpenseCategory expenseCategory = _mapper.Map<ExpenseCategory>(updateExpenseCategoryDTO);
             expenseCategory.Id = expenseCategoryId;
             expenseCategory.LastModificationAt = DateTime.Now;
             expenseCategory.LastModificationBy = userName;
@@ -56,9 +69,12 @@ namespace AccountingAPI.Services
             return _mapper.Map<ExpenseCategoryDTO>(expenseCategory);
         }
 
-        public async Task<int> SetDeletedExpenseCategoryAsync(Guid expenseCategoryId, bool deleted)
+        public async Task SetDeletedExpenseCategoryAsync(Guid expenseCategoryId, bool deleted, string userName)
         {
-            return await _expenseCategoryRepo.SetDeletedExpenseCategoryAsync(expenseCategoryId, deleted);
+            // check if exists
+            await GetExpenseCategoryByIdAsync(expenseCategoryId);
+
+            await _expenseCategoryRepo.SetDeletedExpenseCategoryAsync(expenseCategoryId, deleted, userName);
         }
     }
 }

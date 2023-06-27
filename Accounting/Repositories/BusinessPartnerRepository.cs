@@ -53,45 +53,53 @@ namespace AccountingAPI.Repositories
             return await connection.QuerySingleAsync<BusinessPartner>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<BusinessPartner?> GetBusinessPartnerByIdAsync(Guid businessPartnerId)
+        public async Task<IEnumerable<BusinessPartner>> GetBusinessPartnersAsync(Guid tenantId, bool includeDeleted = false)
         {
             var parameters = new
             {
+                tenantId,
+                deleted = includeDeleted? 1:0
+            };
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("SELECT Id");
+            queryBuilder.Append(",Name");
+            queryBuilder.Append(",VATNumber");
+            queryBuilder.Append(",TenantId");
+            queryBuilder.Append(",Deleted");
+            queryBuilder.Append(",CreatedAt");
+            queryBuilder.Append(",CreatedBy");
+            queryBuilder.Append(",LastModificationAt");
+            queryBuilder.Append(",LastModificationBy");
+            queryBuilder.Append(" FROM BusinessPartners");
+            queryBuilder.Append(" WHERE tenantId = @tenantId");
+            queryBuilder.Append(" AND Deleted = 0");
+
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QueryAsync<BusinessPartner>(queryBuilder.ToString(), parameters);
+        }
+
+        public async Task<BusinessPartner?> GetBusinessPartnerByIdAsync(Guid tenantId, Guid businessPartnerId)
+        {
+            var parameters = new
+            {
+                tenantId,
                 businessPartnerId
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT * FROM BusinessPartners");
-            queryBuilder.Append(" WHERE Id = @businessPartnerId");
+            queryBuilder.Append("SELECT Id");
+            queryBuilder.Append(",Name");
+            queryBuilder.Append(",VATNumber");
+            queryBuilder.Append(",TenantId");
+            queryBuilder.Append(",Deleted");
+            queryBuilder.Append(",CreatedAt");
+            queryBuilder.Append(",CreatedBy");
+            queryBuilder.Append(",LastModificationAt");
+            queryBuilder.Append(",LastModificationBy");
+            queryBuilder.Append(" WHERE tenantId = @tenantId");
+            queryBuilder.Append(" AND Id = @businessPartnerId");
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QuerySingleOrDefaultAsync<BusinessPartner?>(queryBuilder.ToString(), parameters);
-        }
-
-        public async Task<IEnumerable<BusinessPartner>> GetBusinessPartnersAsync(bool includeDeleted = false)
-        {
-            StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT * FROM BusinessPartners");
-            if (includeDeleted == false) queryBuilder.Append(" WHERE Deleted = 0");
-
-            using var connection = _context.CreateConnection(); // Create a new connection
-            return await connection.QueryAsync<BusinessPartner>(queryBuilder.ToString());
-        }
-
-        public async Task<int> SetDeletedBusinessPartnerAsync(Guid id, bool deleted)
-        {
-            var parameters = new
-            {
-                id,
-                deleted
-            };
-
-            StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE BusinessPartners");
-            queryBuilder.Append(" SET Deleted = @deleted ");
-            queryBuilder.Append(" WHERE Id = @id ");
-
-            using var connection = _context.CreateConnection(); // Create a new connection
-            return await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
         }
 
         public async Task<BusinessPartner> UpdateBusinessPartnerAsync(BusinessPartner businessPartner)
@@ -124,5 +132,28 @@ namespace AccountingAPI.Repositories
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QuerySingleAsync<BusinessPartner>(queryBuilder.ToString(), parameters);
         }
+
+        public async Task<int> SetDeletedBusinessPartnerAsync(Guid id, bool deleted, string userName)
+        {
+            var parameters = new
+            {
+                id,
+                deleted,
+                lastModificationBy = userName,
+                lastModificationAt = DateTime.Now,
+            };
+
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("UPDATE BusinessPartners");
+            queryBuilder.Append(" SET Deleted = @deleted ");
+            queryBuilder.Append(",LastModificationBy = @lastModificationBy");
+            queryBuilder.Append(",LastModificationAt = @lastModificationAt");
+            queryBuilder.Append(" WHERE Id = @id ");
+
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
+        }
+
+       
     }
 }

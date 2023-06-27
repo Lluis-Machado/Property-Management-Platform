@@ -27,7 +27,7 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<APInvoiceDTO>> CreateAPInvoiceAsync([FromBody] CreateAPInvoiceDTO createAPInvoiceDTO, Guid tenantId, Guid businessPartnerId)
+        public async Task<ActionResult<APInvoiceDTO>> CreateAPInvoiceAsync(Guid tenantId, Guid businessPartnerId, [FromBody] CreateAPInvoiceDTO createAPInvoiceDTO)
         {
             // request validations
             if (createAPInvoiceDTO is null) return BadRequest("Incorrect body format");
@@ -35,19 +35,19 @@ namespace AccountingAPI.Controllers
             // Check user
             string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            APInvoiceDTO aPInvoiceDTO = await _apInvoiceService.CreateAPInvoiceAndLinesAsync(createAPInvoiceDTO, userName, businessPartnerId);
+            APInvoiceDTO aPInvoiceDTO = await _apInvoiceService.CreateAPInvoiceAndLinesAsync(tenantId, businessPartnerId, createAPInvoiceDTO, userName);
            
             return Created($"apinvoices/{aPInvoiceDTO.Id}", aPInvoiceDTO);
         }
 
-        // GET: Read AP invoice(s)
+        // GET: Get AP invoice(s)
         [HttpGet]
         [Route("tenants/{tenantId}/apinvoices")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<IEnumerable<APInvoiceDTO>>> GetAPInvoicesAsync(Guid tenantId, [FromQuery] bool includeDeleted = false)
         {
-            return Ok(await _apInvoiceService.GetAPInvoicesAsync(includeDeleted));
+            return Ok(await _apInvoiceService.GetAPInvoicesAsync(tenantId, includeDeleted));
         }
 
         // PATCH: Update invoice
@@ -57,7 +57,7 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult> UpdateAPInvoiceAsync([FromBody] UpdateAPInvoiceDTO updateAPInvoiceDTO,Guid tenantId, Guid invoiceId)
+        public async Task<ActionResult> UpdateAPInvoiceAsync(Guid tenantId, Guid invoiceId, [FromBody] UpdateAPInvoiceDTO updateAPInvoiceDTO)
         {
             // request validations
             if (updateAPInvoiceDTO == null) return BadRequest("Incorrect body format");
@@ -75,9 +75,12 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> DeleteAsync(Guid invoiceId)
+        public async Task<IActionResult> DeleteAsync(Guid tenantId, Guid invoiceId)
         {
-            await _apInvoiceService.SetDeletedAPInvoiceAsync(invoiceId, true, userName);
+            // Check user
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
+
+            await _apInvoiceService.SetDeletedAPInvoiceAsync(tenantId, invoiceId, true, userName);
 
             return NoContent();
         }
@@ -88,15 +91,12 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> UndeleteAsync(Guid invoiceId)
+        public async Task<IActionResult> UndeleteAsync(Guid tenantId, Guid invoiceId)
         {
             // Check user
             string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            // check if exists
-            if (!await _apInvoiceService.CheckIfAPInvoiceExistsAsync(invoiceId)) return NotFound("Invoice not found");
-
-            await _apInvoiceService.SetDeletedAPInvoiceAsync(invoiceId, false, userName);
+            await _apInvoiceService.SetDeletedAPInvoiceAsync(tenantId, invoiceId, false, userName);
 
             return NoContent();
         }

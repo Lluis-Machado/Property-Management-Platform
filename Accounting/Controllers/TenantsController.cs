@@ -55,7 +55,7 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<TenantDTO>> UpdateTenantAsync([FromBody] UpdateTenantDTO updateTenantDTO, Guid tenantId)
+        public async Task<ActionResult<TenantDTO>> UpdateTenantAsync(Guid tenantId, [FromBody] UpdateTenantDTO updateTenantDTO)
         {
             // request validations
             if (updateTenantDTO == null) return BadRequest("Incorrect body format");
@@ -63,7 +63,7 @@ namespace AccountingAPI.Controllers
             // Check user
             string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            return Ok(await _tenantService.UpdateTenantAsync(updateTenantDTO, userName, tenantId));
+            return Ok(await _tenantService.UpdateTenantAsync(tenantId, updateTenantDTO, userName));
         }
 
         // DELETE: Delete tenant
@@ -74,7 +74,10 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> DeleteAsync(Guid tenantId)
         {
-            await _tenantService.SetDeletedTenantAsync(tenantId, true);
+            // Check user
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
+
+            await _tenantService.SetDeletedTenantAsync(tenantId, true, userName);
 
             return NoContent();
         }
@@ -87,7 +90,10 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UndeleteAsync(Guid tenantId)
         {
-            await _tenantService.SetDeletedTenantAsync(tenantId, false);
+            // Check user
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
+
+            await _tenantService.SetDeletedTenantAsync(tenantId, false, userName);
 
             return NoContent();
         }

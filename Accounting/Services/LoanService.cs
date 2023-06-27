@@ -24,7 +24,7 @@ namespace AccountingAPI.Services
             _mapper = mapper;
         }
 
-        public async Task<LoanDTO> CreateLoanAsync(CreateLoanDTO createLoanDTO, string userName)
+        public async Task<LoanDTO> CreateLoanAsync(Guid tenantId,Guid BusinessPartnerId, CreateLoanDTO createLoanDTO, string userName)
         {
             // validation
             await _createLoanDTOValidator.ValidateAndThrowAsync(createLoanDTO);
@@ -37,6 +37,7 @@ namespace AccountingAPI.Services
 
             return _mapper.Map<LoanDTO>(loan);
         }
+
         public async Task<IEnumerable<LoanDTO>> GetLoansAsync(Guid tenantId, bool includeDeleted = false)
         {
             IEnumerable<Loan> loans = await _loanRepository.GetLoansAsync(tenantId, includeDeleted);
@@ -69,12 +70,12 @@ namespace AccountingAPI.Services
             return _mapper.Map<LoanDTO>(loan);
         }
 
-        public async Task<int> SetDeletedLoanAsync(Guid tenantId, Guid loanId, bool deleted)
+        public async Task SetDeletedLoanAsync(Guid tenantId, Guid loanId, bool deleted, string userName)
         {
             // check if exists
             await GetLoanByIdAsync(tenantId, loanId);
 
-            return await _loanRepository.SetDeletedLoanAsync(loanId, deleted);
+            await _loanRepository.SetDeletedLoanAsync(loanId, deleted);
         }
     }
 }

@@ -25,7 +25,7 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<LoanDTO>> CreateAsync([FromBody] CreateLoanDTO createLoanDTO, Guid businessPartnerId)
+        public async Task<ActionResult<LoanDTO>> CreateAsync(Guid tenantId, Guid businessPartnerId, [FromBody] CreateLoanDTO createLoanDTO)
         {
             // request validations
             if (createLoanDTO == null) return BadRequest("Incorrect body format");
@@ -33,7 +33,7 @@ namespace AccountingAPI.Controllers
             // Check user
             string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            LoanDTO loanDTO = await _loanService.CreateLoanAsync(createLoanDTO, userName);
+            LoanDTO loanDTO = await _loanService.CreateLoanAsync(tenantId, businessPartnerId, createLoanDTO, userName);
             return Created($"loans/{loanDTO.Id}", loanDTO);
         }
 
@@ -54,7 +54,7 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<LoanDTO>> UpdateAsync(Guid tenantId, [FromBody] UpdateLoanDTO updateLoanDTO, Guid loanId)
+        public async Task<ActionResult<LoanDTO>> UpdateAsync(Guid tenantId, Guid loanId, [FromBody] UpdateLoanDTO updateLoanDTO)
         {
             // request validations
             if (updateLoanDTO == null) return BadRequest("Incorrect body format");
@@ -75,7 +75,10 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> DeleteAsync(Guid tenantId, Guid loanId)
         {
-            await _loanService.SetDeletedLoanAsync(tenantId,loanId, true);
+            // Check user
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
+
+            await _loanService.SetDeletedLoanAsync(tenantId,loanId, true, userName);
 
             return NoContent();
         }
@@ -88,7 +91,10 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UndeleteAsync(Guid tenantId, Guid loanId)
         {
-            await _loanService.SetDeletedLoanAsync(tenantId, loanId, false);
+            // Check user
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
+
+            await _loanService.SetDeletedLoanAsync(tenantId, loanId, false, userName);
 
             return NoContent();
         }

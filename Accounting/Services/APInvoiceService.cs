@@ -130,7 +130,7 @@ namespace AccountingAPI.Services
                     // check Add/Update invoice lines 
                     foreach (UpdateAPInvoiceLineDTO updateInvoiceLineDTO in updateInvoiceDTO.InvoiceLines)
                     {
-                        if (updateInvoiceLineDTO.Id != null)
+                        if (updateInvoiceLineDTO.Id is not null)
                         {
                             // Update invoice line
                             APInvoiceLineDTO updatedInvoiceLine = await _invoiceLineService.UpdateAPInvoiceLineAsync(tenantId, (Guid)updateInvoiceLineDTO.Id, updateInvoiceLineDTO, userName, invoice.Date);

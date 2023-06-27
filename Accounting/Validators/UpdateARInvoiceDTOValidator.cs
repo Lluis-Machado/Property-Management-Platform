@@ -20,7 +20,7 @@ namespace AccountingAPI.Validators
               .Must(BeValidCurrencyCode).WithMessage("Invalid {PropertyName} code.");
 
             RuleFor(Invoice => Invoice.InvoiceLines)
-                .Must(list => list != null && list.Count > 0)
+                .Must(list => list is not null && list.Count > 0)
                 .WithMessage("{PropertyName} cannot be empty.");
         }
 

@@ -10,13 +10,13 @@ namespace AccountingAPI.Configurations
         {
             // Tenant
             CreateMap<Tenant, TenantDTO>();
-            CreateMap<UpdateTenantDTO, Tenant>();
             CreateMap<CreateTenantDTO, Tenant>();
+            CreateMap<UpdateTenantDTO, Tenant>();
 
             // Period
             CreateMap<Period, PeriodDTO>();
-            CreateMap<UpdatePeriodDTO, Period>();
             CreateMap<CreatePeriodDTO, Period>();
+            CreateMap<UpdatePeriodDTO, Period>();
 
             //Loan
             CreateMap<Loan, LoanDTO>();
@@ -25,48 +25,49 @@ namespace AccountingAPI.Configurations
 
             //Business Partner
             CreateMap<BusinessPartner, BusinessPartnerDTO>();
-            CreateMap<BusinessPartnerDTO, BusinessPartner>();
             CreateMap<CreateBusinessPartnerDTO, BusinessPartner>();
+            CreateMap<UpdateBusinessPartnerDTO, BusinessPartner>();
 
             // AP Invoice
             CreateMap<APInvoice, APInvoiceDTO>();
-            CreateMap<APInvoiceDTO, APInvoice>();
             CreateMap<CreateAPInvoiceDTO, APInvoice>();
+            CreateMap<UpdateAPInvoiceDTO, APInvoice>();
 
             // AP Invoice Line
             CreateMap<APInvoiceLine, APInvoiceLineDTO>();
             CreateMap<CreateAPInvoiceLineDTO, APInvoiceLine>();
-            CreateMap<CreateAPInvoiceLineDTO, UpdateAPInvoiceLineDTO>();
             CreateMap<UpdateAPInvoiceLineDTO, APInvoiceLine>();
 
             // AR Invoice
             CreateMap<ARInvoice, ARInvoiceDTO>();
-            CreateMap<ARInvoiceDTO, ARInvoice>();
             CreateMap<CreateARInvoiceDTO, ARInvoice>();
+            CreateMap<UpdateARInvoiceDTO, ARInvoice>();
 
             // AP Invoice Line
             CreateMap<ARInvoiceLine, ARInvoiceLineDTO>();
             CreateMap<CreateARInvoiceLineDTO, ARInvoiceLine>();
-            CreateMap<CreateARInvoiceLineDTO, UpdateARInvoiceLineDTO>();
             CreateMap<UpdateARInvoiceLineDTO, ARInvoiceLine>();
 
             // Expense Category
             CreateMap<ExpenseCategory, ExpenseCategoryDTO>();
             CreateMap<CreateExpenseCategoryDTO, ExpenseCategory>();
+            CreateMap<UpdateExpenseCategoryDTO, ExpenseCategory>();
 
             // Fixed Asset
             CreateMap<FixedAsset, FixedAssetDTO>();
-            CreateMap<UpdateFixedAssetDTO, FixedAsset>();
             CreateMap<CreateFixedAssetDTO, FixedAsset>();
+            CreateMap<UpdateFixedAssetDTO, FixedAsset>();
             CreateMap<FixedAssetDTO, FixedAssetYearDetailsDTO>();
 
             // Fixed Asset
             CreateMap<Period, PeriodDTO>();
-            CreateMap<UpdatePeriodDTO, Period>();
             CreateMap<CreatePeriodDTO, Period>();
+            CreateMap<UpdatePeriodDTO, Period>();
 
-            // Fixed Asset
+            // Depreciation
             CreateMap<Depreciation, DepreciationDTO>();
+            CreateMap<CreateDepreciationDTO, Depreciation>();
+            CreateMap<UpdateDepreciationDTO, Depreciation>();
 
         }
     }

@@ -62,7 +62,7 @@ namespace AccountingAPI.Services
                 PeriodDTO? periodDTO = periodDTOs.FirstOrDefault(p => p.Id == depreciation.PeriodId);
                 DepreciationDTO depreciationDTO = _mapper.Map<DepreciationDTO>(depreciation);
 
-                if (periodDTO != null)
+                if (periodDTO is not null)
                 {
                     depreciationDTO.Year = periodDTO.Year;
                     depreciationDTO.Month = periodDTO.Month;
@@ -182,7 +182,7 @@ namespace AccountingAPI.Services
 
                     // check if depreciation exists
                     DepreciationDTO? depreciationDTO = depreciationDTOs.FirstOrDefault(d => d.FixedAssetId == fixedAssetDTO.Id && d.PeriodId == periodId);
-                    if (depreciationDTO != null)
+                    if (depreciationDTO is not null)
                     {
                         // update depreciation
                         UpdateDepreciationDTO updateDepreciationDTO = new()

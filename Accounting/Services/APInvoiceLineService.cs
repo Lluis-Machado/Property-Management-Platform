@@ -120,8 +120,6 @@ namespace AccountingAPI.Services
 
             APInvoiceLineDTO aPInvoiceLineDTO = _mapper.Map<APInvoiceLineDTO>(invoiceLine);
 
-            FixedAssetDTO? fixedAssetDTO = null;
-
             if (udpateInvoiceLineDTO.ExpenseCategoryType == "Asset")
             {
                 // check if fixed asset already exists
@@ -135,7 +133,7 @@ namespace AccountingAPI.Services
                         AcquisitionAndProductionCosts = invoiceLine.TotalPrice,
                         DepreciationPercentagePerYear = udpateInvoiceLineDTO.DepreciationRatePerYear
                     };
-                    fixedAssetDTO = await _fixedAssetService.UpdateFixedAssetAsync(tenantId, (Guid)invoiceLine.FixedAssetId, updateFixedAssetDTO, userName);
+                    aPInvoiceLineDTO.FixedAsset = await _fixedAssetService.UpdateFixedAssetAsync(tenantId, (Guid)invoiceLine.FixedAssetId, updateFixedAssetDTO, userName);
                 }
                 else
                 {
@@ -147,18 +145,17 @@ namespace AccountingAPI.Services
                         AcquisitionAndProductionCosts = invoiceLine.TotalPrice,
                         DepreciationPercentagePerYear = udpateInvoiceLineDTO.DepreciationRatePerYear
                     };
-                    fixedAssetDTO = await _fixedAssetService.CreateFixedAssetAsync(tenantId, createFixedAssetDTO, userName);
+                    aPInvoiceLineDTO.FixedAsset = await _fixedAssetService.CreateFixedAssetAsync(tenantId, createFixedAssetDTO, userName);
                 }
             }
             else
             {
-                if (invoiceLine.FixedAssetId != null)
+                if (invoiceLine.FixedAssetId is not null)
                 {
                     // delete fixed asset
                     await _fixedAssetService.SetDeletedFixedAssetAsync(tenantId, (Guid)invoiceLine.FixedAssetId, true, userName);
                 }
             }
-            aPInvoiceLineDTO.FixedAsset = fixedAssetDTO;
 
             return aPInvoiceLineDTO;
         }

@@ -11,7 +11,6 @@ namespace AccountingAPI.DTOs
         public double AcquisitionAndProductionCosts { get; set; }
         public double DepreciationPercentagePerYear { get; set; }
         public int Year { get; set; }
-        public double DepreciationNumberOfDays { get; set; }
         public double DepreciationBeginningYear { get; set; }
         public double DepreciationAtYear { get; set; }
         public double DepreciationEndOfYear { get; set; }

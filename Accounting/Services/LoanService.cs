@@ -62,6 +62,7 @@ namespace AccountingAPI.Services
             await GetLoanByIdAsync(tenantId, loanId);
 
             Loan loan = _mapper.Map<Loan>(updateLoanDTO);
+            loan.Id = loanId;
             loan.LastModificationAt = DateTime.Now;
             loan.LastModificationBy = userName;
 

@@ -69,6 +69,7 @@ namespace AccountingAPI.Services
             await GetPeriodByIdAsync(tenantId, periodId);
 
             Period period = _mapper.Map<Period>(updatePeriodDTO);
+            period.Id = periodId;
             period.LastModificationAt = DateTime.Now;
             period.LastModificationBy = userName;
 

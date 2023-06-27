@@ -80,12 +80,14 @@ namespace AccountingAPI.Services
         public async Task<IEnumerable<APInvoiceDTO>> GetAPInvoicesAsync(Guid tenantId, bool includeDeleted = false)
         {
             List<APInvoiceDTO> invoiceDTOs = new();
-            IEnumerable<APInvoiceLineDTO> invoiceLines = await _invoiceLineService.GetAPInvoiceLinesAsync(tenantId, includeDeleted);
+            IEnumerable<APInvoiceLineDTO> invoiceLinesDTOs = await _invoiceLineService.GetAPInvoiceLinesAsync(tenantId, includeDeleted);
+            IEnumerable<BusinessPartnerDTO> businessPartnerDTOs = await _businessPartnerService.GetBusinessPartnersAsync(tenantId, includeDeleted);
             IEnumerable<Invoice> invoices = await _invoiceRepository.GetAPInvoicesAsync(tenantId, includeDeleted);
             foreach (Invoice invoice in invoices)
             {
                 APInvoiceDTO invoiceDTO = _mapper.Map<APInvoiceDTO>(invoice);
-                invoiceDTO.InvoiceLines = invoiceLines.Where(i => i.InvoiceId == invoice.Id).ToList();
+                invoiceDTO.InvoiceLines = invoiceLinesDTOs.Where(i => i.InvoiceId == invoice.Id).ToList();
+                invoiceDTO.BusinessPartner = businessPartnerDTOs.First(b => b.Id == invoice.BusinessPartnerId);
                 invoiceDTOs.Add(invoiceDTO);
             }
             return invoiceDTOs;

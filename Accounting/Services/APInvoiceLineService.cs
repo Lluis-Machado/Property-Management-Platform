@@ -28,10 +28,13 @@ namespace AccountingAPI.Services
             _expenseCategoryService = expenseCategoryService;
         }
 
-        public async Task<APInvoiceLineDTO> CreateAPInvoiceLineAsync(Guid tenantId, Guid invoiceId, CreateAPInvoiceLineDTO createInvoiceLineDTO, DateTime invoiceDate, string? userName)
+        public async Task<APInvoiceLineDTO> CreateAPInvoiceLineAsync(Guid tenantId, Guid invoiceId, CreateAPInvoiceLineDTO createInvoiceLineDTO, DateTime invoiceDate, string userName)
         {
             // validation
             await _createAPInvoiceLineDTOValidator.ValidateAndThrowAsync(createInvoiceLineDTO);
+
+            // check if expense category exists
+            ExpenseCategoryDTO expenseCategoryDTO = await _expenseCategoryService.GetExpenseCategoryByIdAsync(createInvoiceLineDTO.ExpenseCategoryId);
 
             APInvoiceLine invoiceLine = _mapper.Map<APInvoiceLine>(createInvoiceLineDTO);
             invoiceLine.TotalPrice = createInvoiceLineDTO.UnitPrice * createInvoiceLineDTO.Quantity;
@@ -43,7 +46,7 @@ namespace AccountingAPI.Services
 
             APInvoiceLineDTO invoiceLineDTO = _mapper.Map<APInvoiceLineDTO>(invoiceLine);
 
-            ExpenseCategoryDTO expenseCategoryDTO = await _expenseCategoryService.GetExpenseCategoryByIdAsync(invoiceLine.ExpenseCategoryId);
+            invoiceLineDTO.ExpenseCategory = expenseCategoryDTO;
 
             if (expenseCategoryDTO.ExpenseTypeCode == "Asset")
             {

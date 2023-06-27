@@ -28,7 +28,7 @@ namespace AccountingAPI.Controllers
         public async Task<ActionResult<TenantDTO>> CreateTenantAsync([FromBody] CreateTenantDTO createTenantDTO)
         {
             // request validations
-            if (createTenantDTO == null) return BadRequest("Incorrect body format");
+            if (createTenantDTO is null) return BadRequest("Incorrect body format");
 
             // Check user
             string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
@@ -58,7 +58,7 @@ namespace AccountingAPI.Controllers
         public async Task<ActionResult<TenantDTO>> UpdateTenantAsync(Guid tenantId, [FromBody] UpdateTenantDTO updateTenantDTO)
         {
             // request validations
-            if (updateTenantDTO == null) return BadRequest("Incorrect body format");
+            if (updateTenantDTO is null) return BadRequest("Incorrect body format");
 
             // Check user
             string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);

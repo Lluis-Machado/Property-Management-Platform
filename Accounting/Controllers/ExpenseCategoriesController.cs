@@ -29,7 +29,7 @@ namespace AccountingAPI.Controllers
         public async Task<ActionResult<ExpenseCategoryDTO>> CreateExpenseCategoryAsync([FromBody] CreateExpenseCategoryDTO createExpenseCategoryDTO)
         {
             // request validations
-            if (createExpenseCategoryDTO == null) return BadRequest("Incorrect body format");
+            if (createExpenseCategoryDTO is null) return BadRequest("Incorrect body format");
 
             // Check user
             string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
@@ -59,7 +59,7 @@ namespace AccountingAPI.Controllers
         public async Task<ActionResult<ExpenseCategoryDTO>> UpdateExpenseCategoryAsync(Guid tenantId, Guid expenseCategoryId, [FromBody] UpdateExpenseCategoryDTO updateExpenseCategoryDTO)
         {
             // request validations
-            if (updateExpenseCategoryDTO == null) return BadRequest("Incorrect body format");
+            if (updateExpenseCategoryDTO is null) return BadRequest("Incorrect body format");
 
             // Check user
             string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);

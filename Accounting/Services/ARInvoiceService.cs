@@ -27,7 +27,7 @@ namespace AccountingAPI.Services
             _mapper = mapper;
         }
 
-        public async Task<ARInvoiceDTO> CreateARInvoiceAndLinesAsync(Guid tenantId, Guid businessPartnerId, CreateARInvoiceDTO createInvoiceDTO, string? userName)
+        public async Task<ARInvoiceDTO> CreateARInvoiceAndLinesAsync(Guid tenantId, Guid businessPartnerId, CreateARInvoiceDTO createInvoiceDTO, string userName)
         {
             // validation
             await _createARInvoiceDTOValidator.ValidateAndThrowAsync(createInvoiceDTO);

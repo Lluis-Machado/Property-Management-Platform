@@ -6,7 +6,7 @@ namespace AccountingAPI.Validators
     {
         public static string GetValidatedUserName(string? username)
         {
-            if (username == null) throw new UserIdentityException();
+            if (username is null) throw new UserIdentityException();
             return username;
         }
     }

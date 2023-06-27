@@ -88,7 +88,7 @@ namespace AccountingAPI.Services
 
             foreach (ARInvoiceLine arInvoiceLine in arInvoiceLines.Where(i => i.ServiceDateFrom > dateFrom || i.ServiceDateTo > dateTo))
             {
-                if (arInvoiceLine.ServiceDateFrom == null || arInvoiceLine.ServiceDateTo == null) continue;
+                if (arInvoiceLine.ServiceDateFrom is null || arInvoiceLine.ServiceDateTo is null) continue;
 
                 for (DateTime dt = (DateTime)arInvoiceLine.ServiceDateFrom; dt <= arInvoiceLine.ServiceDateTo; dt = dt.AddDays(1))
                 {

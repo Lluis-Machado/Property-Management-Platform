@@ -24,7 +24,7 @@ namespace AccountingAPI.Services
             _mapper = mapper;
         }
 
-        public async Task<ExpenseCategoryDTO> CreateExpenseCategoryAsync(CreateExpenseCategoryDTO createExpenseCategoryDTO, string? userName)
+        public async Task<ExpenseCategoryDTO> CreateExpenseCategoryAsync(CreateExpenseCategoryDTO createExpenseCategoryDTO, string userName)
         {
             // validation
             await _createExpenseCategoryDTOValidator.ValidateAndThrowAsync(createExpenseCategoryDTO);
@@ -43,7 +43,7 @@ namespace AccountingAPI.Services
             return _mapper.Map<IEnumerable<ExpenseCategoryDTO>>(expenseCategories);
         }
 
-        public async Task<ExpenseCategoryDTO?> GetExpenseCategoryByIdAsync(Guid expenseCategoryId)
+        public async Task<ExpenseCategoryDTO> GetExpenseCategoryByIdAsync(Guid expenseCategoryId)
         {
             ExpenseCategory? expenseCategory = await _expenseCategoryRepo.GetExpenseCategoryByIdAsync(expenseCategoryId);
             

@@ -24,7 +24,7 @@ namespace AccountingAPI.Services
             _mapper = mapper;
         }
 
-        public async Task<BusinessPartnerDTO> CreateBusinessPartnerAsync(Guid tenantId, CreateBusinessPartnerDTO createBusinessPartnerDTO, string? userName)
+        public async Task<BusinessPartnerDTO> CreateBusinessPartnerAsync(Guid tenantId, CreateBusinessPartnerDTO createBusinessPartnerDTO, string userName)
         {
             // validation
             await _createBusinessPartnerDTOValidator.ValidateAndThrowAsync(createBusinessPartnerDTO);

@@ -28,7 +28,7 @@ namespace AccountingAPI.Controllers
         public async Task<ActionResult<ARInvoiceDTO>> CreateARInvoiceAsync(Guid tenantId, Guid businessPartnerId, [FromBody] CreateARInvoiceDTO createARInvoiceDTO)
         {
             // request validations
-            if (createARInvoiceDTO == null) return BadRequest("Incorrect body format");
+            if (createARInvoiceDTO is null) return BadRequest("Incorrect body format");
 
             // Check user
             string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
@@ -57,7 +57,7 @@ namespace AccountingAPI.Controllers
         public async Task<ActionResult> UpdateARInvoiceAsync(Guid tenantId, Guid invoiceId, [FromBody] UpdateARInvoiceDTO updateARInvoiceDTO)
         {
             // request validations
-            if (updateARInvoiceDTO == null) return BadRequest("Incorrect body format");
+            if (updateARInvoiceDTO is null) return BadRequest("Incorrect body format");
 
             // Check user
             string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);

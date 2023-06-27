@@ -28,7 +28,7 @@ namespace AccountingAPI.Controllers
         public async Task<ActionResult<BusinessPartnerDTO>> CreateBusinessPartnerAsync(Guid tenantId, [FromBody] CreateBusinessPartnerDTO createBusinessPartnerDTO)
         {
             // request validations
-            if (createBusinessPartnerDTO == null) return BadRequest("Incorrect body format");
+            if (createBusinessPartnerDTO is null) return BadRequest("Incorrect body format");
 
             // Check user
             string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
@@ -58,7 +58,7 @@ namespace AccountingAPI.Controllers
         public async Task<ActionResult<BusinessPartnerDTO>> UpdateBusinessPartneAsync(Guid tenantId, Guid businessPartnerId, [FromBody] UpdateBusinessPartnerDTO updateBusinessPartnerDTO)
         {
             // request validations
-            if (updateBusinessPartnerDTO == null) return BadRequest("Incorrect body format");
+            if (updateBusinessPartnerDTO is null) return BadRequest("Incorrect body format");
 
             // Check user
             string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);

@@ -30,7 +30,7 @@ namespace AccountingAPI.Controllers
         public async Task<ActionResult<PeriodDTO>> CreatePeriodAsync(Guid tenantId, [FromBody] CreatePeriodDTO createPeriodDTO)
         {
             // request validations
-            if (createPeriodDTO == null) return BadRequest("Incorrect body format");
+            if (createPeriodDTO is null) return BadRequest("Incorrect body format");
 
             // Check user
             string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
@@ -60,7 +60,7 @@ namespace AccountingAPI.Controllers
         public async Task<ActionResult<PeriodDTO>> UpdatePeriodAsync(Guid tenantId,Guid periodId, UpdatePeriodDTO updatePeriodDTO)
         {
             // request validations
-            if (updatePeriodDTO == null) return BadRequest("Incorrect body format");
+            if (updatePeriodDTO is null) return BadRequest("Incorrect body format");
 
             // Check user
             string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);

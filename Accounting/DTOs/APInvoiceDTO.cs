@@ -19,6 +19,7 @@
         public APInvoiceDTO()
         {
             InvoiceLines = new List<APInvoiceLineDTO>();
+            BusinessPartner = new();
         }
     }
 }

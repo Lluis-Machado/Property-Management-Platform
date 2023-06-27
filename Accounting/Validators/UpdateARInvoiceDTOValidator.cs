@@ -26,7 +26,7 @@ namespace AccountingAPI.Validators
 
         private bool BeValidCurrencyCode(string? currencyCode)
         {
-            if (currencyCode == null) return false;
+            if (currencyCode is null) return false;
             return Enum.IsDefined(typeof(CurrencyCode), (string)currencyCode);
         }
 

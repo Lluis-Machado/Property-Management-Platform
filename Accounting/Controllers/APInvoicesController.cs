@@ -58,7 +58,7 @@ namespace AccountingAPI.Controllers
         public async Task<ActionResult> UpdateAPInvoiceAsync(Guid tenantId, Guid invoiceId, [FromBody] UpdateAPInvoiceDTO updateAPInvoiceDTO)
         {
             // request validations
-            if (updateAPInvoiceDTO == null) return BadRequest("Incorrect body format");
+            if (updateAPInvoiceDTO is null) return BadRequest("Incorrect body format");
 
             // Check user
             string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);

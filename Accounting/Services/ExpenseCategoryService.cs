@@ -46,9 +46,9 @@ namespace AccountingAPI.Services
         public async Task<ExpenseCategoryDTO> GetExpenseCategoryByIdAsync(Guid expenseCategoryId)
         {
             ExpenseCategory? expenseCategory = await _expenseCategoryRepo.GetExpenseCategoryByIdAsync(expenseCategoryId);
-            
+
             if (expenseCategory is null) throw new NotFoundException("Expense Category");
-            
+
             return _mapper.Map<ExpenseCategoryDTO>(expenseCategory);
         }
 

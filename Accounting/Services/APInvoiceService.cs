@@ -4,7 +4,6 @@ using AccountingAPI.Models;
 using AccountingAPI.Repositories;
 using AutoMapper;
 using FluentValidation;
-using FluentValidation.Results;
 using System.Transactions;
 
 namespace AccountingAPI.Services

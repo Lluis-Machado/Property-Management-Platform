@@ -189,7 +189,7 @@ namespace AccountingAPI.Services
                         {
                             DepreciationAmount = depreciationInPeriod
                         };
-                        return await UpdateDepreciationAsync(tenantId,depreciationDTO.Id, updateDepreciationDTO, userName);
+                        return await UpdateDepreciationAsync(tenantId, depreciationDTO.Id, updateDepreciationDTO, userName);
                     }
                     else
                     {
@@ -198,7 +198,7 @@ namespace AccountingAPI.Services
                         {
                             DepreciationAmount = depreciationInPeriod
                         };
-                        return await CreateDepreciationAsync(tenantId,createDepreciationDTO, fixedAssetDTO.Id, periodId, userName);
+                        return await CreateDepreciationAsync(tenantId, createDepreciationDTO, fixedAssetDTO.Id, periodId, userName);
                     }
                 })
                 .ToList();

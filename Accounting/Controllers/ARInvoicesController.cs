@@ -62,7 +62,7 @@ namespace AccountingAPI.Controllers
             // Check user
             string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            ARInvoiceDTO invoiceDTO = await _arInvoiceService.UpdateARInvoiceAndLinesAsync(tenantId,invoiceId, updateARInvoiceDTO, userName);
+            ARInvoiceDTO invoiceDTO = await _arInvoiceService.UpdateARInvoiceAndLinesAsync(tenantId, invoiceId, updateARInvoiceDTO, userName);
             return Ok(invoiceDTO);
         }
 

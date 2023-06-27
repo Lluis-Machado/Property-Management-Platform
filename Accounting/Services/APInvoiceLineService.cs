@@ -102,7 +102,7 @@ namespace AccountingAPI.Services
             return aPInvoiceLineDTO;
         }
 
-        public async Task<APInvoiceLineDTO> UpdateAPInvoiceLineAsync(Guid tenantId, Guid invoiceLineId, UpdateAPInvoiceLineDTO udpateInvoiceLineDTO, string userName,  DateTime invoiceDate, Guid? fixedAssetId = null)
+        public async Task<APInvoiceLineDTO> UpdateAPInvoiceLineAsync(Guid tenantId, Guid invoiceLineId, UpdateAPInvoiceLineDTO udpateInvoiceLineDTO, string userName, DateTime invoiceDate, Guid? fixedAssetId = null)
         {
             // validation
             await _updateAPInvoiceLineDTOValidator.ValidateAndThrowAsync(udpateInvoiceLineDTO);

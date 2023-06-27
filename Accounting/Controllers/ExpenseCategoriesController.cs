@@ -44,7 +44,7 @@ namespace AccountingAPI.Controllers
         [Route("expenseCategories")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<ExpenseCategory>>> GetExpenseCategoriesAsync(Guid tenantId, [FromQuery] bool includeDeleted = false)
+        public async Task<ActionResult<IEnumerable<ExpenseCategory>>> GetExpenseCategoriesAsync([FromQuery] bool includeDeleted = false)
         {
             return Ok(await _expenseCategoryService.GetExpenseCategoriesAsync(includeDeleted));
         }
@@ -56,7 +56,7 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<ExpenseCategoryDTO>> UpdateExpenseCategoryAsync(Guid tenantId, Guid expenseCategoryId, [FromBody] UpdateExpenseCategoryDTO updateExpenseCategoryDTO)
+        public async Task<ActionResult<ExpenseCategoryDTO>> UpdateExpenseCategoryAsync(Guid expenseCategoryId, [FromBody] UpdateExpenseCategoryDTO updateExpenseCategoryDTO)
         {
             // request validations
             if (updateExpenseCategoryDTO is null) return BadRequest("Incorrect body format");
@@ -92,7 +92,7 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UndeleteExpenseCategoryAsync(Guid expenseCategoryId)
-        {        
+        {
             // Check user
             string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 

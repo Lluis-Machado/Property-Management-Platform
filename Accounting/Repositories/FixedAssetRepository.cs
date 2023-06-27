@@ -64,7 +64,7 @@ namespace AccountingAPI.Repositories
             var parameters = new
             {
                 tenantId,
-                deleted = includeDeleted? 1 : 0
+                deleted = includeDeleted ? 1 : 0
             };
 
             StringBuilder queryBuilder = new();
@@ -84,7 +84,7 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(" INNER JOIN APInvoices ON APInvoices.Id = APInvoiceLines.InvoiceId");
             queryBuilder.Append(" INNER JOIN BusinessPartners ON BusinessPartners.Id = APInvoices.BusinessPartnerId");
             queryBuilder.Append(" WHERE BusinessPartners.TenantId = @tenantId");
-            if(!includeDeleted) queryBuilder.Append(" AND FixedAssets.Deleted = @deleted");
+            if (!includeDeleted) queryBuilder.Append(" AND FixedAssets.Deleted = @deleted");
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QueryAsync<FixedAsset>(queryBuilder.ToString(), parameters);
@@ -120,7 +120,7 @@ namespace AccountingAPI.Repositories
             return await connection.QuerySingleOrDefaultAsync<FixedAsset?>(queryBuilder.ToString(), parameters);
         }
 
-      
+
         public async Task<FixedAsset> UpdateFixedAssetAsync(FixedAsset fixedAsset)
         {
             var parameters = new
@@ -168,7 +168,7 @@ namespace AccountingAPI.Repositories
                 id,
                 deleted,
                 lastModificationAt = DateTime.Now,
-                lastModificationBy = userName,    
+                lastModificationBy = userName,
             };
 
             StringBuilder queryBuilder = new();
@@ -182,6 +182,6 @@ namespace AccountingAPI.Repositories
             return await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
         }
 
-       
+
     }
 }

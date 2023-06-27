@@ -24,7 +24,7 @@ namespace AccountingAPI.Services
             _mapper = mapper;
         }
 
-        public async Task<LoanDTO> CreateLoanAsync(Guid tenantId,Guid BusinessPartnerId, CreateLoanDTO createLoanDTO, string userName)
+        public async Task<LoanDTO> CreateLoanAsync(Guid tenantId, Guid BusinessPartnerId, CreateLoanDTO createLoanDTO, string userName)
         {
             // validation
             await _createLoanDTOValidator.ValidateAndThrowAsync(createLoanDTO);

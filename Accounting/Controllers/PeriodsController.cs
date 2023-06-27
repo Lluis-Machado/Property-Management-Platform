@@ -57,7 +57,7 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<PeriodDTO>> UpdatePeriodAsync(Guid tenantId,Guid periodId, UpdatePeriodDTO updatePeriodDTO)
+        public async Task<ActionResult<PeriodDTO>> UpdatePeriodAsync(Guid tenantId, Guid periodId, UpdatePeriodDTO updatePeriodDTO)
         {
             // request validations
             if (updatePeriodDTO is null) return BadRequest("Incorrect body format");

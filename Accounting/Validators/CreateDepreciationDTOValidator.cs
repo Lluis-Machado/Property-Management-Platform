@@ -5,7 +5,8 @@ namespace AccountingAPI.Validators
 {
     public class CreateDepreciationDTOValidator : AbstractValidator<CreateDepreciationDTO>
     {
-        public CreateDepreciationDTOValidator() { 
+        public CreateDepreciationDTOValidator()
+        {
         }
     }
 }

@@ -57,7 +57,7 @@ namespace AccountingAPI.Repositories
             var parameters = new
             {
                 tenantId,
-                deleted = includeDeleted? 1:0
+                deleted = includeDeleted ? 1 : 0
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");

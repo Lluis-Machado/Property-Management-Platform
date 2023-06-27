@@ -39,16 +39,16 @@ namespace AccountingAPI.Services
         }
         public async Task<IEnumerable<BusinessPartnerDTO>> GetBusinessPartnersAsync(Guid tenantId, bool includeDeleted = false)
         {
-            IEnumerable<BusinessPartner> businessPartners = await _businessPartnerRepository.GetBusinessPartnersAsync(tenantId,includeDeleted);
+            IEnumerable<BusinessPartner> businessPartners = await _businessPartnerRepository.GetBusinessPartnersAsync(tenantId, includeDeleted);
             return _mapper.Map<IEnumerable<BusinessPartnerDTO>>(businessPartners);
         }
 
         public async Task<BusinessPartnerDTO> GetBusinessPartnerByIdAsync(Guid tenantId, Guid BusinessPartnerId)
         {
             BusinessPartner? businessPartner = await _businessPartnerRepository.GetBusinessPartnerByIdAsync(tenantId, BusinessPartnerId);
-            
+
             if (businessPartner is null) throw new NotFoundException("Business Partner");
-            
+
             return _mapper.Map<BusinessPartnerDTO>(businessPartner);
         }
 
@@ -73,7 +73,7 @@ namespace AccountingAPI.Services
         {
             // check if exists
             await GetBusinessPartnerByIdAsync(tenantId, businessPartnerId);
-            
+
             await _businessPartnerRepository.SetDeletedBusinessPartnerAsync(businessPartnerId, deleted, userName);
         }
     }

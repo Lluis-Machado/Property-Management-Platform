@@ -75,7 +75,7 @@ namespace AccountingAPI.Repositories
             var parameters = new
             {
                 tenantId,
-                deleted = includeDeleted?1:0
+                deleted = includeDeleted ? 1 : 0
             };
 
             StringBuilder queryBuilder = new();
@@ -135,7 +135,7 @@ namespace AccountingAPI.Repositories
             return await connection.QuerySingleAsync<ARInvoiceLine>(queryBuilder.ToString(), parameters);
         }
 
-       
+
 
         public async Task<ARInvoiceLine> UpdateARInvoiceLineAsync(ARInvoiceLine invoiceLine)
         {

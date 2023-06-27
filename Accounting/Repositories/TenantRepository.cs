@@ -47,7 +47,7 @@ namespace AccountingAPI.Repositories
         {
             var parameters = new
             {
-              deleted = includeDeleted?1:0
+                deleted = includeDeleted ? 1 : 0
             };
 
             StringBuilder queryBuilder = new();

@@ -30,7 +30,7 @@ namespace AccountingAPI.Services
             await _createPeriodDTOValidator.ValidateAndThrowAsync(createPeriodDTO);
 
             IEnumerable<PeriodDTO> periodDTOs = await GetPeriodsAsync(tenantId);
-            
+
             bool exists = periodDTOs.Any(p => p.Year == createPeriodDTO.Year && p.Month == createPeriodDTO.Month);
 
             if (exists) throw new ConflictException("Period already exists");
@@ -77,7 +77,7 @@ namespace AccountingAPI.Services
             return _mapper.Map<PeriodDTO>(period);
         }
 
-        public async Task SetDeletedPeriodAsync(Guid tenantId, Guid periodId, bool deleted,string userName)
+        public async Task SetDeletedPeriodAsync(Guid tenantId, Guid periodId, bool deleted, string userName)
         {
             // check if exists
             await GetPeriodByIdAsync(tenantId, periodId);

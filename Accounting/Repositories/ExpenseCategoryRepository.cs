@@ -39,7 +39,7 @@ namespace AccountingAPI.Repositories
         {
             var parameters = new
             {
-                deleted = includeDeleted? 1:0
+                deleted = includeDeleted ? 1 : 0
             };
 
             StringBuilder queryBuilder = new();
@@ -55,7 +55,7 @@ namespace AccountingAPI.Repositories
             if (!includeDeleted) queryBuilder.Append(" WHERE Deleted = @deleted");
 
             using var connection = _context.CreateConnection(); // Create a new connection
-            return await connection.QueryAsync<ExpenseCategory>(queryBuilder.ToString());
+            return await connection.QueryAsync<ExpenseCategory>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<ExpenseCategory> InsertExpenseCategoryAsync(ExpenseCategory expenseType)

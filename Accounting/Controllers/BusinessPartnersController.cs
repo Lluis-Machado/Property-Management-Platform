@@ -96,7 +96,7 @@ namespace AccountingAPI.Controllers
             // Check user
             string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            await _businessPartnerService.SetDeletedBusinessPartnerAsync(tenantId,businessPartnerId, false, userName);
+            await _businessPartnerService.SetDeletedBusinessPartnerAsync(tenantId, businessPartnerId, false, userName);
 
             return NoContent();
         }

@@ -34,7 +34,7 @@ namespace AccountingAPI.Controllers
             string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
             APInvoiceDTO aPInvoiceDTO = await _apInvoiceService.CreateAPInvoiceAndLinesAsync(tenantId, businessPartnerId, createAPInvoiceDTO, userName);
-           
+
             return Created($"apinvoices/{aPInvoiceDTO.Id}", aPInvoiceDTO);
         }
 

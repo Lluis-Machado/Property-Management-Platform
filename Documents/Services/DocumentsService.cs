@@ -1,12 +1,7 @@
 ﻿using Documents.Models;
 using DocumentsAPI.Repositories;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 
 namespace Documents.Services
 {
@@ -36,7 +31,7 @@ namespace Documents.Services
 
         }
 
-        public async Task<IEnumerable<Document>> GetDocumentsAsync(Guid archiveId, int pSize = 100 , bool includeDeleted = false)
+        public async Task<IEnumerable<Document>> GetDocumentsAsync(Guid archiveId, int pSize = 100, bool includeDeleted = false)
         {
             return await _documentsRepository.GetDocumentsFlatListingAsync(archiveId, 100, includeDeleted);
         }

@@ -4,7 +4,8 @@ namespace DocumentsAPI.Repositories
 {
     public interface IFolderRepository
     {
-        Task<Folder> GetFolderByIdAsync(Guid archiveId, int folderId);
+        Task<bool> CheckFolderExists(Guid folderId);
+        Task<Folder> GetFolderByIdAsync(Guid archiveId, Guid folderId);
         Task<Folder> GetFolderById(Guid folderId);
         Task<IEnumerable<Folder>> GetFoldersAsync(Guid archiveId, bool includeDeleted = false);
         Task<Folder> InsertFolderAsync(Folder folder);

@@ -19,15 +19,15 @@ namespace DocumentsAPI.Services
 
         }
 
-        public bool CheckFolderExist(Guid folderId)
+        public async Task<bool> CheckFolderExist(Guid folderId)
         {
-
-            var folder = _folderRepository.GetFolderById(folderId);
-            return folder != null; 
+            return await _folderRepository.CheckFolderExists(folderId);
         }
 
         public async Task<ActionResult<FolderDTO>> UpdateFolderAsync(FolderDTO folderDTO, string userName)
         {
+            if (!await CheckFolderExist(folderDTO.Id)) throw new Exception($"Folder {folderDTO.Id} not found");
+
             var folder = _mapper.Map<FolderDTO, Folder>(folderDTO);
 
             folder.LastUpdateByUser = userName;
@@ -42,13 +42,17 @@ namespace DocumentsAPI.Services
 
         public async Task<FolderDTO> DeleteFolderAsync(Guid folderId, string userName)
         {
+            if (!await CheckFolderExist(folderId)) throw new Exception($"Folder {folderId} not found");
+
             var result = await _folderRepository.SetDeleteFolderAsync(folderId, true, userName);
             var folderDTO = _mapper.Map<Folder, FolderDTO>(result);
 
             return folderDTO;
-        }      
+        }
         public async Task<FolderDTO> UnDeleteFolderAsync(Guid folderId, string userName)
         {
+            if (!await CheckFolderExist(folderId)) throw new Exception($"Folder {folderId} not found");
+
             var result = await _folderRepository.SetDeleteFolderAsync(folderId, false, userName);
             var folderDTO = _mapper.Map<Folder, FolderDTO>(result);
 
@@ -63,20 +67,18 @@ namespace DocumentsAPI.Services
             return ToFolderTreeView(result.ToList());
         }
 
-        public async Task<FolderDTO> CreateFolderAsync(Guid ArchiveId, FolderDTO folderDTO, string userName)
+        public async Task<Folder> CreateFolderAsync(Guid archiveId, CreateFolderDTO createFolderDTO, string userName)
         {
-            var folder = _mapper.Map<FolderDTO, Folder>(folderDTO);
+            var folder = _mapper.Map<CreateFolderDTO, Folder>(createFolderDTO);
 
+            folder.ArchiveId = archiveId;
             folder.CreatedByUser = userName;
             folder.LastUpdateByUser = userName;
             folder.LastUpdateAt = DateTime.UtcNow;
-            folder.ArchiveId = ArchiveId;
 
             folder = await _folderRepository.InsertFolderAsync(folder);
 
-            folderDTO = _mapper.Map<Folder, FolderDTO>(folder);
-
-            return folderDTO;
+            return folder;
         }
 
         public List<TreeFolderItem> ToFolderTreeView(List<Folder> folders)

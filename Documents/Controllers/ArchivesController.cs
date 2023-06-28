@@ -1,26 +1,23 @@
-﻿using Documents.Models;
+﻿using Archives.Services;
+using Documents.Models;
 using FluentValidation;
 using FluentValidation.Results;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Threading.Tasks;
-using Archives.Services;
-using Documents.Validators;
 
 namespace Archives.Controllers
 {
+#if DEVELOPMENT == false
     [Authorize]
+#endif
     [ApiController]
     public class ArchivesController : ControllerBase
     {
-        private readonly ArchivesService _archivesService;
+        private readonly IArchivesService _archivesService;
         private readonly IValidator<Archive> _archiveValidator;
 
 
-        public ArchivesController(ArchivesService archivesService,
+        public ArchivesController(IArchivesService archivesService,
             IValidator<Archive> archiveValidator)
         {
             _archivesService = archivesService;
@@ -55,7 +52,7 @@ namespace Archives.Controllers
         public async Task<ActionResult<IEnumerable<Archive>>> GetAsync([FromQuery] bool includeDeleted = false)
         {
             IEnumerable<Archive> archives = await _archivesService.GetArchivesAsync(includeDeleted);
-            return Ok(archives);           
+            return Ok(archives);
         }
 
         // DELETE: Delete archive

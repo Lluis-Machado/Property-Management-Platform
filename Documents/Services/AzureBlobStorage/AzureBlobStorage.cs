@@ -1,5 +1,4 @@
 ﻿using Azure;
-using Azure.Identity;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Documents.Models;
@@ -10,9 +9,9 @@ using System.Net;
 namespace Documents.Services.AzureBlobStorage
 {
 
-    public class AzureBlobStorage: IDocumentRepository, IArchiveRepository
+    public class AzureBlobStorage : IDocumentRepository, IArchiveRepository
     {
-        private AzureBlobStorageContext _context { get; set;}
+        private AzureBlobStorageContext _context { get; set; }
 
         public AzureBlobStorage(AzureBlobStorageContext context)
         {
@@ -25,7 +24,7 @@ namespace Documents.Services.AzureBlobStorage
         {
             Dictionary<string, string> metadata = new();
 
-            if(archive.Name != null) metadata.Add("display_name", archive.Name);
+            if (archive.Name != null) metadata.Add("display_name", archive.Name);
 
             BlobContainerClient blobContainerClient = _context.GetBlobContainerClient(archive.Id.ToString());
             await blobContainerClient.CreateAsync(default, metadata);
@@ -166,7 +165,7 @@ namespace Documents.Services.AzureBlobStorage
             {
                 {"display_name", newDocumentName},
             };
-  
+
             // delete
             Response<BlobInfo> responseBlobInfo = await blobClient.SetMetadataAsync(blobMetadata);
             Response response = responseBlobInfo.GetRawResponse();

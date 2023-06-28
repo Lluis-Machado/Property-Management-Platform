@@ -1,8 +1,8 @@
-﻿using DocumentsAPI.Contexts;
+﻿using Dapper;
+using DocumentsAPI.Contexts;
 using DocumentsAPI.Models;
-using System.Text;
 using DocumentsAPI.Repositories;
-using Dapper;
+using System.Text;
 
 namespace Documents.Repositories
 {
@@ -16,7 +16,24 @@ namespace Documents.Repositories
             _context = context;
         }
 
-        public async Task<Folder> GetFolderByIdAsync(Guid archiveId, int folderId)
+        public async Task<bool> CheckFolderExists(Guid folderId)
+        {
+            var parameters = new
+            {
+                folderId
+            };
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("SELECT Id FROM Folders");
+            queryBuilder.Append(" WHERE Id = @folderId");
+
+            var result = await _context
+                .CreateConnection()
+                .QuerySingleOrDefaultAsync<Folder>(queryBuilder.ToString(), parameters);
+
+            return result != default;
+        }
+
+        public async Task<Folder> GetFolderByIdAsync(Guid archiveId, Guid folderId)
         {
             var parameters = new
             {
@@ -24,9 +41,20 @@ namespace Documents.Repositories
                 folderId
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT * FROM Folders");
+            queryBuilder.Append("SELECT ");
+            queryBuilder.Append(" Id");
+            queryBuilder.Append(",ArchiveId");
+            queryBuilder.Append(",Name");
+            queryBuilder.Append(",ParentId");
+            queryBuilder.Append(",HasDocument");
+            queryBuilder.Append(",Deleted");
+            queryBuilder.Append(",CreatedAt");
+            queryBuilder.Append(",CreatedByUser");
+            queryBuilder.Append(",LastUpdateAt");
+            queryBuilder.Append(",LastUpdateByUser");
+            queryBuilder.Append(" FROM Folders");
             queryBuilder.Append(" WHERE ArchiveId = @archiveId");
-            queryBuilder.Append(" AND FolderId = @folderId");
+            queryBuilder.Append(" AND Id = @folderId");
 
             return await _context
                 .CreateConnection()
@@ -40,9 +68,20 @@ namespace Documents.Repositories
                 folderId
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT * FROM Folders");
+            queryBuilder.Append("SELECT ");
+            queryBuilder.Append(" Id");
+            queryBuilder.Append(",ArchiveId");
+            queryBuilder.Append(",Name");
+            queryBuilder.Append(",ParentId");
+            queryBuilder.Append(",HasDocument");
+            queryBuilder.Append(",Deleted");
+            queryBuilder.Append(",CreatedAt");
+            queryBuilder.Append(",CreatedByUser");
+            queryBuilder.Append(",LastUpdateAt");
+            queryBuilder.Append(",LastUpdateByUser");
+            queryBuilder.Append(" FROM Folders");
             queryBuilder.Append(" WHERE ArchiveId = @archiveId");
-            queryBuilder.Append(" AND FolderId = @folderId");
+            queryBuilder.Append(" AND Id = @folderId");
 
             return await _context
                 .CreateConnection()
@@ -56,7 +95,18 @@ namespace Documents.Repositories
                 archiveId,
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT * FROM Folders");
+            queryBuilder.Append("SELECT ");
+            queryBuilder.Append(" Id");
+            queryBuilder.Append(",ArchiveId");
+            queryBuilder.Append(",Name");
+            queryBuilder.Append(",ParentId");
+            queryBuilder.Append(",HasDocument");
+            queryBuilder.Append(",Deleted");
+            queryBuilder.Append(",CreatedAt");
+            queryBuilder.Append(",CreatedByUser");
+            queryBuilder.Append(",LastUpdateAt");
+            queryBuilder.Append(",LastUpdateByUser");
+            queryBuilder.Append(" FROM Folders");
             queryBuilder.Append(" WHERE ArchiveId = @archiveId");
             if (includeDeleted == false) queryBuilder.Append(" AND Deleted = 0");
 
@@ -71,18 +121,24 @@ namespace Documents.Repositories
             {
                 folder.ArchiveId,
                 folder.Name,
-                folder.ParentId
+                folder.ParentId,
+                folder.CreatedByUser,
+                folder.LastUpdateByUser
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("INSERT INTO Folders (");
             queryBuilder.Append(" ArchiveId");
             queryBuilder.Append(" ,Name");
             queryBuilder.Append(" ,ParentId");
+            queryBuilder.Append(" ,CreatedByUser");
+            queryBuilder.Append(" ,LastUpdateByUser");
             queryBuilder.Append(" )OUTPUT INSERTED.*");
             queryBuilder.Append(" VALUES(");
             queryBuilder.Append(" @ArchiveId");
             queryBuilder.Append(" ,@Name");
             queryBuilder.Append(" ,@ParentId");
+            queryBuilder.Append(" ,@CreatedByUser");
+            queryBuilder.Append(" ,@LastUpdateByUser");
             queryBuilder.Append(" )");
 
             return await _context
@@ -102,8 +158,7 @@ namespace Documents.Repositories
             StringBuilder queryBuilder = new();
             queryBuilder.Append("UPDATE Folders ");
             queryBuilder.Append("SET Deleted = @deleted ");
-            queryBuilder.Append("SET LastUpdateByUser = @userName ");
-            queryBuilder.Append(" OUTPUT INSERTED.* ");
+            queryBuilder.Append(", LastUpdateByUser = @userName ");
             queryBuilder.Append(" WHERE Id = @id ");
 
             return await _context
@@ -120,11 +175,10 @@ namespace Documents.Repositories
                 folder.ParentId,
             };
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE BusinessPartners ");
+            queryBuilder.Append("UPDATE Folders ");
             queryBuilder.Append("SET Name = @Name ");
             queryBuilder.Append(" ,Deleted = @Deleted ");
             queryBuilder.Append(" ,ParentId = @ParentId ");
-            queryBuilder.Append(" OUTPUT INSERTED.* ");
             queryBuilder.Append(" WHERE Id = @Id ");
 
             return await _context

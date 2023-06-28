@@ -1,16 +1,9 @@
 ﻿using Documents.Models;
 using DocumentsAPI.Repositories;
-using FluentValidation;
-using FluentValidation.Results;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
 
 namespace Archives.Services
 {
-    public class ArchivesService
+    public class ArchivesService : IArchivesService
     {
         private readonly ILogger<ArchivesService> _logger;
         private readonly IArchiveRepository _archiveRepository;

@@ -7,8 +7,14 @@ namespace DocumentsAPI.DTOs
     {
         public AutoMapperProfile()
         {
-            CreateMap<FolderDTO, Folder>();
             CreateMap<Folder, FolderDTO>();
+            CreateMap<FolderDTO, Folder>();
+
+            CreateMap<Folder, CreateFolderDTO>();
+            CreateMap<CreateFolderDTO, Folder>();
+
+            CreateMap<Folder, UpdateFolderDTO>();
+            CreateMap<UpdateFolderDTO, Folder>();
         }
 
     }

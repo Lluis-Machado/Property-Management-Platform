@@ -7,10 +7,13 @@ namespace DocumentsAPI.Contexts
     public class AzureBlobStorageContext
     {
         private readonly IConfiguration _configuration;
+        private readonly ILogger<AzureBlobStorageContext> _logger;
         private readonly string _connectionString;
-        public AzureBlobStorageContext(IConfiguration configuration)
+        public AzureBlobStorageContext(IConfiguration configuration, ILogger<AzureBlobStorageContext> logger)
         {
             _configuration = configuration;
+            _logger = logger;
+
             _connectionString = $"https://{_configuration.GetValue<string>("AzureBlobStorage:StorageAccount")}.blob.core.windows.net";
         }
 
@@ -21,6 +24,7 @@ namespace DocumentsAPI.Contexts
 
         public BlobServiceClient GetBlobServiceClient()
         {
+            _logger.LogInformation($"Azure Connection string: {_connectionString}");
             return new(new Uri(_connectionString), new DefaultAzureCredential());
         }
 

@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Net;
-using System.Text.Json;
+﻿using System.Net;
 
 namespace Documents.Middelwares
 {
-    public class GlobalErrorHandlingMiddleware: IMiddleware
+    public class GlobalErrorHandlingMiddleware : IMiddleware
     {
         private readonly ILogger<GlobalErrorHandlingMiddleware> _logger;
 
@@ -21,7 +19,7 @@ namespace Documents.Middelwares
             }
             catch (Exception e)
             {
-                _logger.LogError("Internal exception ocurred: {@Exception}",e);
+                _logger.LogError("Internal exception ocurred: {@Exception}", e);
 
                 //ProblemDetails problem = new()
                 //{

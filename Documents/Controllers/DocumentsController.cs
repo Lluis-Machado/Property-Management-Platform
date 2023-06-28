@@ -1,22 +1,23 @@
 using Documents.Models;
 using Documents.Services;
 using DocumentsAPI.Repositories;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace Documents.Controllers
 {
+#if DEVELOPMENT == false
     [Authorize]
+#endif
     [ApiController]
     public class DocumentsController : ControllerBase
     {
         private readonly ILogger<DocumentsController> _logger;
-        private readonly IConfiguration _config ;
+        private readonly IConfiguration _config;
         private readonly IDocumentRepository _documentsRepository;
         private readonly IDocumentsService _documentsService;
 
-        public DocumentsController(IConfiguration config, IDocumentRepository documentsRepository, ILogger<DocumentsController> logger,IDocumentsService documentsService)
+        public DocumentsController(IConfiguration config, IDocumentRepository documentsRepository, ILogger<DocumentsController> logger, IDocumentsService documentsService)
         {
             _config = config;
             _documentsRepository = documentsRepository;

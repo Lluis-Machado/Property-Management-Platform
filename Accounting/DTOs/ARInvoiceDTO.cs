@@ -3,11 +3,11 @@
     public class ARInvoiceDTO
     {
         public Guid Id { get; set; }
-        public string? RefNumber { get; set; }
+        public string RefNumber { get; set; }
         public DateTime Date { get; set; }
-        public string? Currency { get; set; }
-        public double GrossAmount { get; set; }
-        public double NetAmount { get; set; }
+        public string Currency { get; set; }
+        public decimal GrossAmount { get; set; }
+        public decimal NetAmount { get; set; }
         public List<ARInvoiceLineDTO> InvoiceLines { get; set; }
         public bool Deleted { get; set; }
         public DateTime CreatedAt { get; set; }

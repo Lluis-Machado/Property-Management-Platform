@@ -1,6 +1,7 @@
 using Documents.Models;
 using Documents.Services;
 using DocumentsAPI.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -62,7 +63,7 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<IEnumerable<Document>>> GetDocumentsAsync(Guid archiveId, [FromQuery] Guid? folderId = null, [FromQuery] bool includeDeleted = false)
         {
-            return Ok(await _documentsService.GetDocumentsAsync(archiveId, 100, includeDeleted));
+            return Ok(await _documentsService.GetDocumentsAsync(archiveId, 100, folderId, includeDeleted));
         }
 
         // GET: Download document

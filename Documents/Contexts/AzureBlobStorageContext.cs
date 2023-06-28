@@ -24,7 +24,6 @@ namespace DocumentsAPI.Contexts
 
         public BlobServiceClient GetBlobServiceClient()
         {
-            _logger.LogInformation($"Azure Connection string: {_connectionString}");
             return new(new Uri(_connectionString), new DefaultAzureCredential());
         }
 

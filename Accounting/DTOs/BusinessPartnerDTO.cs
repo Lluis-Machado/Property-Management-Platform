@@ -17,6 +17,7 @@ namespace AccountingAPI.DTOs
         public BusinessPartnerDTO()
         {
             Name = string.Empty;
+            VATNumber = string.Empty;
             CreatedBy = string.Empty;
             LastModificationBy = string.Empty;
         }

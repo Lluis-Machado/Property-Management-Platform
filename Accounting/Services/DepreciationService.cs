@@ -137,9 +137,9 @@ namespace AccountingAPI.Services
 
                     IEnumerable<DepreciationDTO> fixedAssetDepreciationDTOs = depreciationDTOs.Where(d => d.FixedAssetId == fixedAssetDTO.Id);
 
-                    double depreciationBeginningYear = fixedAssetDepreciationDTOs.Where(d => d.Year < year).Sum(d => d.DepreciationAmount);
-                    double depreciationYear = fixedAssetDepreciationDTOs.Where(d => d.Year == year).Sum(d => d.DepreciationAmount);
-                    double depreciationEndOfYear = depreciationBeginningYear + depreciationYear;
+                    decimal depreciationBeginningYear = fixedAssetDepreciationDTOs.Where(d => d.Year < year).Sum(d => d.DepreciationAmount);
+                    decimal depreciationYear = fixedAssetDepreciationDTOs.Where(d => d.Year == year).Sum(d => d.DepreciationAmount);
+                    decimal depreciationEndOfYear = depreciationBeginningYear + depreciationYear;
 
                     fixedAssetYearDetailsDTO.Year = year;
                     fixedAssetYearDetailsDTO.DepreciationAtYear = depreciationYear;
@@ -177,8 +177,8 @@ namespace AccountingAPI.Services
                 .Select(async fixedAssetDTO =>
                 {
                     int nbOfDepreciationDays = serviceDateTimes.Count(s => s >= fixedAssetDTO.CapitalizationDate);
-                    double depreciationPerDay = (fixedAssetDTO.DepreciationPercentagePerYear / 100) * (fixedAssetDTO.AcquisitionAndProductionCosts / 365);
-                    double depreciationInPeriod = nbOfDepreciationDays * depreciationPerDay;
+                    decimal depreciationPerDay = (fixedAssetDTO.DepreciationPercentagePerYear / 100) * (fixedAssetDTO.AcquisitionAndProductionCosts / 365);
+                    decimal depreciationInPeriod = nbOfDepreciationDays * depreciationPerDay;
 
                     // check if depreciation exists
                     DepreciationDTO? depreciationDTO = depreciationDTOs.FirstOrDefault(d => d.FixedAssetId == fixedAssetDTO.Id && d.PeriodId == periodId);

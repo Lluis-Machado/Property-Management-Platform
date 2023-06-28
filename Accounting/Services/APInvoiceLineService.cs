@@ -46,7 +46,7 @@ namespace AccountingAPI.Services
 
             APInvoiceLineDTO invoiceLineDTO = _mapper.Map<APInvoiceLineDTO>(invoiceLine);
 
-            invoiceLineDTO.ExpenseCategory = expenseCategoryDTO;
+            invoiceLineDTO.ExpenseCategory = _mapper.Map<BasicExpenseCategoryDTO>(expenseCategoryDTO);
 
             if (expenseCategoryDTO.ExpenseTypeCode == "Asset")
             {

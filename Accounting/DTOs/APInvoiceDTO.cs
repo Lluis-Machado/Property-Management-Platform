@@ -3,7 +3,7 @@
     public class APInvoiceDTO
     {
         public Guid Id { get; set; }
-        public BusinessPartnerDTO BusinessPartner { get; set; }
+        public BasicBusinessPartnerDTO BusinessPartner { get; set; }
         public string RefNumber { get; set; }
         public DateTime Date { get; set; }
         public string Currency { get; set; }
@@ -18,7 +18,7 @@
 
         public APInvoiceDTO()
         {
-            InvoiceLines = new List<APInvoiceLineDTO>();
+            InvoiceLines = new();
             BusinessPartner = new();
             RefNumber = string.Empty;
             Currency = string.Empty;

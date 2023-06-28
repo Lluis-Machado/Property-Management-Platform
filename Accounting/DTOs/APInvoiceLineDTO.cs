@@ -9,7 +9,7 @@
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
         public decimal TotalPrice { get; set; }
-        public ExpenseCategoryDTO ExpenseCategory { get; set; }
+        public BasicExpenseCategoryDTO ExpenseCategory { get; set; }
         public DateTime ServiceDateFrom { get; set; }
         public DateTime ServiceDateTo { get; set; }
         public FixedAssetDTO? FixedAsset { get; set; }
@@ -22,7 +22,7 @@
         public APInvoiceLineDTO()
         {
             Description = string.Empty;
-            ExpenseCategory = new ExpenseCategoryDTO();
+            ExpenseCategory = new();
             CreatedBy = string.Empty;
             LastModificationBy = string.Empty;
         }

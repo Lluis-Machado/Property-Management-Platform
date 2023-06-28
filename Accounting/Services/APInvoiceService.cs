@@ -56,8 +56,8 @@ namespace AccountingAPI.Services
                     invoice = await _invoiceRepository.InsertAPInvoice(invoice);
 
                     APInvoiceDTO invoiceDTO = _mapper.Map<APInvoiceDTO>(invoice);
-                    invoiceDTO.BusinessPartner = await _businessPartnerService.GetBusinessPartnerByIdAsync(tenantId, businessPartnerId);
-
+                    BusinessPartnerDTO businessPartnerDTO = await _businessPartnerService.GetBusinessPartnerByIdAsync(tenantId, businessPartnerId);
+                    invoiceDTO.BusinessPartner = _mapper.Map<BasicBusinessPartnerDTO>(businessPartnerDTO);
                     // insert invoice lines
                     Parallel.ForEach(createInvoiceDTO.InvoiceLines, async (createInvoiceLineDTO) =>
                     {
@@ -90,8 +90,8 @@ namespace AccountingAPI.Services
             {
                 APInvoiceDTO invoiceDTO = _mapper.Map<APInvoiceDTO>(invoice);
                 invoiceDTO.InvoiceLines = invoiceLinesDTOs.Where(i => i.InvoiceId == invoice.Id).ToList();
-                invoiceDTO.BusinessPartner = businessPartnerDTOs.First(b => b.Id == invoice.BusinessPartnerId);
-
+                BusinessPartnerDTO businessPartnerDTO = businessPartnerDTOs.First(b => b.Id == invoice.BusinessPartnerId);
+                invoiceDTO.BusinessPartner = _mapper.Map<BasicBusinessPartnerDTO>(businessPartnerDTO);
                 lock (invoiceDTOs) // Lock access to the shared collection
                 {
                     invoiceDTOs.Add(invoiceDTO);

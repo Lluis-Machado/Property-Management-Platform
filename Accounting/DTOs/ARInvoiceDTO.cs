@@ -3,7 +3,7 @@
     public class ARInvoiceDTO
     {
         public Guid Id { get; set; }
-        public BusinessPartnerDTO BusinessPartner { get; set; }
+        public BasicBusinessPartnerDTO BusinessPartner { get; set; }
         public string RefNumber { get; set; }
         public DateTime Date { get; set; }
         public string Currency { get; set; }
@@ -18,7 +18,7 @@
 
         public ARInvoiceDTO()
         {
-            InvoiceLines = new List<ARInvoiceLineDTO>();
+            InvoiceLines = new();
             BusinessPartner = new();
             RefNumber = string.Empty;
             Currency = string.Empty;

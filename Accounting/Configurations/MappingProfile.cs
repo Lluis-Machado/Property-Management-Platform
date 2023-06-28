@@ -27,6 +27,7 @@ namespace AccountingAPI.Configurations
             CreateMap<BusinessPartner, BusinessPartnerDTO>();
             CreateMap<CreateBusinessPartnerDTO, BusinessPartner>();
             CreateMap<UpdateBusinessPartnerDTO, BusinessPartner>();
+            CreateMap<BusinessPartnerDTO, BasicBusinessPartnerDTO>();
 
             // AP Invoice
             CreateMap<APInvoice, APInvoiceDTO>();
@@ -52,6 +53,7 @@ namespace AccountingAPI.Configurations
             CreateMap<ExpenseCategory, ExpenseCategoryDTO>();
             CreateMap<CreateExpenseCategoryDTO, ExpenseCategory>();
             CreateMap<UpdateExpenseCategoryDTO, ExpenseCategory>();
+            CreateMap<ExpenseCategoryDTO, BasicExpenseCategoryDTO>();
 
             // Fixed Asset
             CreateMap<FixedAsset, FixedAssetDTO>();

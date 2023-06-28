@@ -77,7 +77,8 @@ namespace AccountingAPI.Services
             Parallel.ForEach(invoiceLines, aPInvoiceLine =>
             {
                 APInvoiceLineDTO aPInvoiceLineDTO = _mapper.Map<APInvoiceLineDTO>(aPInvoiceLine);
-                aPInvoiceLineDTO.ExpenseCategory = expenseCategoryDTOs.First(e => e.Id == aPInvoiceLine.ExpenseCategoryId);
+                ExpenseCategoryDTO expenseCategoryDTO = expenseCategoryDTOs.First(e => e.Id == aPInvoiceLine.ExpenseCategoryId);
+                aPInvoiceLineDTO.ExpenseCategory = _mapper.Map<BasicExpenseCategoryDTO>(expenseCategoryDTO);
                 if (aPInvoiceLine.FixedAssetId is not null)
                     aPInvoiceLineDTO.FixedAsset = fixedAssetDTOs.First(f => f.InvoiceLineId == aPInvoiceLine.Id);
                 aPInvoiceLineDTOs.Add(aPInvoiceLineDTO);

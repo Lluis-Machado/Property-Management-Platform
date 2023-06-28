@@ -74,13 +74,15 @@ namespace AccountingAPI.Services
             IEnumerable<ExpenseCategoryDTO> expenseCategoryDTOs = await _expenseCategoryService.GetExpenseCategoriesAsync(true);
             IEnumerable<FixedAssetDTO> fixedAssetDTOs = await _fixedAssetService.GetFixedAssetsAsync(tenantId, true);
 
-            foreach (APInvoiceLine aPInvoiceLine in invoiceLines)
+            Parallel.ForEach(invoiceLines, aPInvoiceLine =>
             {
                 APInvoiceLineDTO aPInvoiceLineDTO = _mapper.Map<APInvoiceLineDTO>(aPInvoiceLine);
                 aPInvoiceLineDTO.ExpenseCategory = expenseCategoryDTOs.First(e => e.Id == aPInvoiceLine.ExpenseCategoryId);
-                if (aPInvoiceLine.FixedAssetId is not null) aPInvoiceLineDTO.FixedAsset = fixedAssetDTOs.First(f => f.InvoiceLineId == aPInvoiceLine.Id);
+                if (aPInvoiceLine.FixedAssetId is not null)
+                    aPInvoiceLineDTO.FixedAsset = fixedAssetDTOs.First(f => f.InvoiceLineId == aPInvoiceLine.Id);
                 aPInvoiceLineDTOs.Add(aPInvoiceLineDTO);
-            }
+            });
+
             return aPInvoiceLineDTOs;
         }
 

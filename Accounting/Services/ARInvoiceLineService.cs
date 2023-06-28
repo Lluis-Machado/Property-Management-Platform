@@ -86,16 +86,29 @@ namespace AccountingAPI.Services
 
             List<DateTime> serviceDates = new();
 
-            foreach (ARInvoiceLine arInvoiceLine in arInvoiceLines.Where(i => i.ServiceDateFrom > dateFrom || i.ServiceDateTo > dateTo))
+            await Task.Run(() =>
             {
-                if (arInvoiceLine.ServiceDateFrom is null || arInvoiceLine.ServiceDateTo is null) continue;
+                object lockObject = new();
 
-                for (DateTime dt = (DateTime)arInvoiceLine.ServiceDateFrom; dt <= arInvoiceLine.ServiceDateTo; dt = dt.AddDays(1))
+                Parallel.ForEach(arInvoiceLines.Where(i => i.ServiceDateFrom > dateFrom || i.ServiceDateTo > dateTo), arInvoiceLine =>
                 {
-                    if (!serviceDates.Contains(dt)) serviceDates.Add(dt);
-                }
-            }
+                    if (arInvoiceLine.ServiceDateFrom is null || arInvoiceLine.ServiceDateTo is null) return;
+
+                    for (DateTime dt = (DateTime)arInvoiceLine.ServiceDateFrom; dt <= arInvoiceLine.ServiceDateTo; dt = dt.AddDays(1))
+                    {
+                        lock (lockObject)
+                        {
+                            if (!serviceDates.Contains(dt))
+                            {
+                                serviceDates.Add(dt);
+                            }
+                        }
+                    }
+                });
+            });
+
             return serviceDates;
         }
+
     }
 }

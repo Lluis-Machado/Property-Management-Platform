@@ -59,12 +59,15 @@ namespace AccountingAPI.Services
                     invoiceDTO.BusinessPartner = await _businessPartnerService.GetBusinessPartnerByIdAsync(tenantId, businessPartnerId);
 
                     // insert invoice lines
-                    foreach (CreateAPInvoiceLineDTO createInvoiceLineDTO in createInvoiceDTO.InvoiceLines)
+                    Parallel.ForEach(createInvoiceDTO.InvoiceLines, async (createInvoiceLineDTO) =>
                     {
                         APInvoiceLineDTO invoiceLineDTO = await _invoiceLineService.CreateAPInvoiceLineAsync(tenantId, invoiceDTO.Id, createInvoiceLineDTO, invoice.Date, userName);
 
-                        invoiceDTO.InvoiceLines.Add(invoiceLineDTO);
-                    }
+                        lock (invoiceDTO.InvoiceLines) // Lock access to the shared collection
+                        {
+                            invoiceDTO.InvoiceLines.Add(invoiceLineDTO);
+                        }
+                    });
 
                     transaction.Complete();
 
@@ -83,13 +86,17 @@ namespace AccountingAPI.Services
             IEnumerable<APInvoiceLineDTO> invoiceLinesDTOs = await _invoiceLineService.GetAPInvoiceLinesAsync(tenantId, includeDeleted);
             IEnumerable<BusinessPartnerDTO> businessPartnerDTOs = await _businessPartnerService.GetBusinessPartnersAsync(tenantId, includeDeleted);
             IEnumerable<Invoice> invoices = await _invoiceRepository.GetAPInvoicesAsync(tenantId, includeDeleted);
-            foreach (Invoice invoice in invoices)
+            Parallel.ForEach(invoices, (invoice) =>
             {
                 APInvoiceDTO invoiceDTO = _mapper.Map<APInvoiceDTO>(invoice);
                 invoiceDTO.InvoiceLines = invoiceLinesDTOs.Where(i => i.InvoiceId == invoice.Id).ToList();
                 invoiceDTO.BusinessPartner = businessPartnerDTOs.First(b => b.Id == invoice.BusinessPartnerId);
-                invoiceDTOs.Add(invoiceDTO);
-            }
+
+                lock (invoiceDTOs) // Lock access to the shared collection
+                {
+                    invoiceDTOs.Add(invoiceDTO);
+                }
+            });
             return invoiceDTOs;
         }
 

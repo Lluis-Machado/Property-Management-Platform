@@ -73,12 +73,12 @@ namespace AccountingAPI.Services
             List<ARInvoiceDTO> invoiceDTOs = new();
             IEnumerable<ARInvoiceLineDTO> invoiceLines = await _invoiceLineService.GetARInvoiceLinesAsync(tenantId, includeDeleted);
             IEnumerable<Invoice> invoices = await _invoiceRepository.GetARInvoicesAsync(tenantId, includeDeleted);
-            foreach (Invoice invoice in invoices)
+            Parallel.ForEach(invoices, (invoice) =>
             {
                 ARInvoiceDTO invoiceDTO = _mapper.Map<ARInvoiceDTO>(invoice);
                 invoiceDTO.InvoiceLines = invoiceLines.Where(i => i.InvoiceId == invoice.Id).ToList();
                 invoiceDTOs.Add(invoiceDTO);
-            }
+            });
             return invoiceDTOs;
         }
 

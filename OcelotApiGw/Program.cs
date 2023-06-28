@@ -68,9 +68,6 @@ app.UseHttpsRedirection();
 // Enable CORS
 app.UseCors("AllowAllOrigins");
 
-if (app.Environment.IsDevelopment())
-    File.Copy("ocelot.Development.json", "ocelot.json", true);
-
 app.UseOcelot().Wait();
 
 app.UseAuthentication();

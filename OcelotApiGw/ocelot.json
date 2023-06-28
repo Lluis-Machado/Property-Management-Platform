@@ -10,7 +10,7 @@
         }
       ],
       "UpstreamPathTemplate": "/auth/{everything}",
-      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE" ],
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
       "SwaggerKey": "auth"
     },
     {
@@ -23,7 +23,7 @@
         }
       ],
       "UpstreamPathTemplate": "/tax-Management/{everything}",
-      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE" ],
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
       "SwaggerKey": "tax-Management"
     },
     {
@@ -36,7 +36,7 @@
         }
       ],
       "UpstreamPathTemplate": "/documents/{everything}",
-      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE" ],
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
       "SwaggerKey": "documents"
     },
     {
@@ -49,7 +49,7 @@
         }
       ],
       "UpstreamPathTemplate": "/logs/{everything}",
-      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE" ],
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
       "SwaggerKey": "logs"
     },
     {
@@ -62,7 +62,7 @@
         }
       ],
       "UpstreamPathTemplate": "/accounting/{everything}",
-      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE" ],
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
       "SwaggerKey": "accounting"
     }
   ],

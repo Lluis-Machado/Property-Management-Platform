@@ -1,4 +1,5 @@
 ﻿using AccountingAPI.DTOs;
+using AccountingAPI.Utilities;
 using FluentValidation;
 
 namespace AccountingAPI.Validators
@@ -8,22 +9,12 @@ namespace AccountingAPI.Validators
         public CreatePeriodDTOValidator()
         {
             RuleFor(Period => Period.Year)
-                .Must(BeAValidYear)
+                .Must(ValidationHelpers.IsAValidYear)
                 .WithMessage("Invalid {PropertyName}");
 
             RuleFor(Period => Period.Month)
-                 .Must(BeAValidMonth)
+                 .Must(ValidationHelpers.IsAValidMonth)
                 .WithMessage("Invalid {PropertyName}");
-        }
-
-        private bool BeAValidYear(int year)
-        {
-            return year >= 1900 && year <= DateTime.Now.Year; // Modify the range if needed
-        }
-
-        private bool BeAValidMonth(int month)
-        {
-            return month >= 1 && month <= 12;
         }
     }
 }

@@ -19,6 +19,12 @@ namespace AccountingAPI.Middlewares
             {
                 await next(context);
             }
+            catch (ConflictException ex)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.Conflict;
+                context.Response.ContentType = "text/plain";
+                await context.Response.WriteAsync(ex.Message);
+            }
             catch (NotFoundException ex)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;

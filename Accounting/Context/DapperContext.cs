@@ -11,7 +11,6 @@ namespace AccountingAPI.Context
 
         public DapperContext(string connectionString)
         {
-            ;
             _connectionString = connectionString;
         }
 

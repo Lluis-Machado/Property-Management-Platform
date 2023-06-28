@@ -8,21 +8,12 @@ namespace AccountingAPI.Validators
         public CreateExpenseCategoryDTOValidator()
         {
             RuleFor(Type => Type.ExpenseTypeCode)
-                .IsEnumName(typeof(ExpenseType))
+                .IsEnumName(typeof(Utilities.ExpenseTypeCodes.ExpenseType))
                 .WithMessage("Invalid {PropertyName}");
 
             RuleFor(Type => Type.Name)
                 .Length(3, 255)
                 .WithMessage("{PropertyName} must be from {MinLength} to {MaxLength} characters long");
-        }
-
-        private enum ExpenseType
-        {
-            UAT,
-            UAV,
-            BAT,
-            BAV,
-            Asset
         }
     }
 }

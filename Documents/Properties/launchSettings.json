@@ -8,7 +8,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development",
         "AZURE_USERNAME": "lluis@itcplatform.de"
       },
-      "applicationUrl": "http://localhost:5079",
+      "applicationUrl": "http://localhost:7079",
       "dotnetRunMessages": true
     },
     "IIS Express": {

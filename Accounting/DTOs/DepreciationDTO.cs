@@ -7,6 +7,6 @@
         public Guid PeriodId { get; set; }
         public int Year { get; set; }
         public int Month { get; set; }
-        public double DepreciationAmount { get; set; }
+        public decimal DepreciationAmount { get; set; }
     }
 }

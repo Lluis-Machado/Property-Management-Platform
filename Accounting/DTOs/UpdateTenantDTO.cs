@@ -2,6 +2,11 @@
 {
     public class UpdateTenantDTO
     {
-        public string? Name { get; set; }
+        public string Name { get; set; }
+
+        public UpdateTenantDTO()
+        {
+            Name = string.Empty;
+        }
     }
 }

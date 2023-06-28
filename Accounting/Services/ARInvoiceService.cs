@@ -12,18 +12,20 @@ namespace AccountingAPI.Services
     {
         private readonly IARInvoiceRepository _invoiceRepository;
         private readonly IARInvoiceLineService _invoiceLineService;
+        private readonly IBusinessPartnerService _businessPartnerService;
         private readonly IValidator<CreateARInvoiceDTO> _createARInvoiceDTOValidator;
         private readonly IValidator<UpdateARInvoiceDTO> _updateARInvoiceDTOValidator;
         private readonly IMapper _mapper;
         private readonly ILogger<ARInvoiceService> _logger;
 
-        public ARInvoiceService(IARInvoiceRepository invoiceRepository, IValidator<CreateARInvoiceDTO> createARInvoiceDTOValidator, IValidator<UpdateARInvoiceDTO> updateARInvoiceDTOValidator, ILogger<ARInvoiceService> logger, IARInvoiceLineService invoiceLineService, IMapper mapper)
+        public ARInvoiceService(IARInvoiceRepository invoiceRepository, IValidator<CreateARInvoiceDTO> createARInvoiceDTOValidator, IValidator<UpdateARInvoiceDTO> updateARInvoiceDTOValidator, ILogger<ARInvoiceService> logger, IARInvoiceLineService invoiceLineService, IMapper mapper, IBusinessPartnerService businessPartnerService)
         {
             _invoiceRepository = invoiceRepository;
             _createARInvoiceDTOValidator = createARInvoiceDTOValidator;
             _updateARInvoiceDTOValidator = updateARInvoiceDTOValidator;
             _logger = logger;
             _invoiceLineService = invoiceLineService;
+            _businessPartnerService = businessPartnerService;
             _mapper = mapper;
         }
 
@@ -73,10 +75,13 @@ namespace AccountingAPI.Services
             List<ARInvoiceDTO> invoiceDTOs = new();
             IEnumerable<ARInvoiceLineDTO> invoiceLines = await _invoiceLineService.GetARInvoiceLinesAsync(tenantId, includeDeleted);
             IEnumerable<Invoice> invoices = await _invoiceRepository.GetARInvoicesAsync(tenantId, includeDeleted);
+            IEnumerable<BusinessPartnerDTO> businessPartnerDTOs = await _businessPartnerService.GetBusinessPartnersAsync(tenantId, includeDeleted);
             Parallel.ForEach(invoices, (invoice) =>
             {
                 ARInvoiceDTO invoiceDTO = _mapper.Map<ARInvoiceDTO>(invoice);
                 invoiceDTO.InvoiceLines = invoiceLines.Where(i => i.InvoiceId == invoice.Id).ToList();
+                BusinessPartnerDTO businessPartnerDTO = businessPartnerDTOs.First(b => b.Id == invoice.BusinessPartnerId);
+                invoiceDTO.BusinessPartner = _mapper.Map<BasicBusinessPartnerDTO>(businessPartnerDTO);
                 invoiceDTOs.Add(invoiceDTO);
             });
             return invoiceDTOs;

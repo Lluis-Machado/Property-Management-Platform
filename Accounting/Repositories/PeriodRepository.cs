@@ -56,7 +56,8 @@ namespace AccountingAPI.Repositories
         {
             var parameters = new
             {
-                tenantId
+                tenantId,
+                deleted = includeDeleted ? 1 : 0
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");
@@ -71,16 +72,17 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",LastModificationBy");
             queryBuilder.Append(" FROM Periods");
             queryBuilder.Append(" WHERE TenantId = @tenantId");
-            if (!includeDeleted) queryBuilder.Append(" AND Deleted = 0");
+            if (!includeDeleted) queryBuilder.Append(" AND Deleted = @deleted");
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QueryAsync<Period>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<Period> GetPeriodByIdAsync(Guid periodId)
+        public async Task<Period?> GetPeriodByIdAsync(Guid tenantId, Guid periodId)
         {
             var parameters = new
             {
+                tenantId,
                 periodId
             };
             StringBuilder queryBuilder = new();
@@ -95,23 +97,28 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",LastModificationAt");
             queryBuilder.Append(",LastModificationBy");
             queryBuilder.Append(" FROM Periods");
-            queryBuilder.Append(" WHERE Id = @periodId");
+            queryBuilder.Append(" WHERE tenantId = @tenantId");
+            queryBuilder.Append(" AND Id = @periodId");
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QuerySingleAsync<Period>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<int> SetDeletedPeriodAsync(Guid id, bool deleted)
+        public async Task<int> SetDeletedPeriodAsync(Guid id, bool deleted, string userName)
         {
             var parameters = new
             {
                 id,
-                deleted
+                deleted,
+                lastModificationBy = userName,
+                lastModificationAt = DateTime.Now,
             };
 
             StringBuilder queryBuilder = new();
             queryBuilder.Append("UPDATE Periods");
             queryBuilder.Append(" SET Deleted = @deleted");
+            queryBuilder.Append(",LastModificationAt = @lastModificationAt");
+            queryBuilder.Append(",LastModificationBy = @lastModificationBy");
             queryBuilder.Append(" WHERE Id = @id");
 
             using var connection = _context.CreateConnection(); // Create a new connection

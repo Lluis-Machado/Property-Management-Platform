@@ -4,10 +4,9 @@ namespace AccountingAPI.Services
 {
     public interface IAPInvoiceService
     {
-        Task<APInvoiceDTO> CreateAPInvoiceAndLinesAsync(CreateAPInvoiceDTO createInvoiceDTO, string userName, Guid businessPartnerId);
-        Task<IEnumerable<APInvoiceDTO>> GetAPInvoicesAsync(bool includeDeleted = false);
-        Task<bool> CheckIfAPInvoiceExistsAsync(Guid invoiceId);
-        Task<APInvoiceDTO> UpdateAPInvoiceAndLinesAsync(UpdateAPInvoiceDTO updateInvoiceDTO, string userName, Guid invoiceId);
-        Task<int> SetDeletedAPInvoiceAsync(Guid invoiceId, bool deleted);
+        Task<APInvoiceDTO> CreateAPInvoiceAndLinesAsync(Guid tenantId, Guid businessPartnerId, CreateAPInvoiceDTO createInvoiceDTO, string userName);
+        Task<IEnumerable<APInvoiceDTO>> GetAPInvoicesAsync(Guid tenantId, bool includeDeleted = false, int? page = null, int? pageSize= null);
+        Task<APInvoiceDTO> UpdateAPInvoiceAndLinesAsync(Guid tenantId, Guid invoiceId, UpdateAPInvoiceDTO updateInvoiceDTO, string userName);
+        Task SetDeletedAPInvoiceAsync(Guid tenantId, Guid invoiceId, bool deleted, string userName);
     }
 }

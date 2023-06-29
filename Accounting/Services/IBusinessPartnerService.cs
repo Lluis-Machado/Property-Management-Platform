@@ -4,11 +4,10 @@ namespace AccountingAPI.Services
 {
     public interface IBusinessPartnerService
     {
-        Task<BusinessPartnerDTO> CreateBusinessPartnerAsync(CreateBusinessPartnerDTO createBusinessPartnerDTO, string userName, Guid tenantId);
-        Task<IEnumerable<BusinessPartnerDTO>> GetBusinessPartnersAsync(bool includeDeleted = false);
-        Task<BusinessPartnerDTO?> GetBusinessPartnerByIdAsync(Guid businessPartnerId);
-        Task<bool> CheckIfBusinessPartnerExists(Guid BusinessPartnerId);
-        Task<BusinessPartnerDTO> UpdateBusinessPartnerAsync(CreateBusinessPartnerDTO createBusinessPartnerDTO, string userName, Guid businessPartnerId);
-        Task<int> SetDeletedBusinessPartnerAsync(Guid businessPartnerId, bool deleted);
+        Task<BusinessPartnerDTO> CreateBusinessPartnerAsync(Guid tenantId, CreateBusinessPartnerDTO createBusinessPartnerDTO, string userName);
+        Task<IEnumerable<BusinessPartnerDTO>> GetBusinessPartnersAsync(Guid tenantId, bool includeDeleted = false, int? page = null, int? pageSize = null);
+        Task<BusinessPartnerDTO> GetBusinessPartnerByIdAsync(Guid tenantId, Guid businessPartnerId);
+        Task<BusinessPartnerDTO> UpdateBusinessPartnerAsync(Guid tenantId, Guid businessPartnerId, UpdateBusinessPartnerDTO createBusinessPartnerDTO, string userName);
+        Task SetDeletedBusinessPartnerAsync(Guid tenantId, Guid businessPartnerId, bool deleted, string userName);
     }
 }

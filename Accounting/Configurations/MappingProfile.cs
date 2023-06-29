@@ -1,64 +1,76 @@
-﻿using AccountingAPI.Models;
-using AccountingAPI.DTOs;
+﻿using AccountingAPI.DTOs;
+using AccountingAPI.Models;
 using AutoMapper;
 
 namespace AccountingAPI.Configurations
 {
-    public class MappingProfile :Profile
+    public class MappingProfile : Profile
     {
         public MappingProfile()
         {
             // Tenant
             CreateMap<Tenant, TenantDTO>();
             CreateMap<CreateTenantDTO, Tenant>();
+            CreateMap<UpdateTenantDTO, Tenant>();
+
+            // Period
+            CreateMap<Period, PeriodDTO>();
+            CreateMap<CreatePeriodDTO, Period>();
+            CreateMap<UpdatePeriodDTO, Period>();
+
+            //Loan
+            CreateMap<Loan, LoanDTO>();
+            CreateMap<CreateLoanDTO, Loan>();
+            CreateMap<UpdateLoanDTO, Loan>();
 
             //Business Partner
             CreateMap<BusinessPartner, BusinessPartnerDTO>();
             CreateMap<CreateBusinessPartnerDTO, BusinessPartner>();
+            CreateMap<UpdateBusinessPartnerDTO, BusinessPartner>();
+            CreateMap<BusinessPartnerDTO, BasicBusinessPartnerDTO>();
 
             // AP Invoice
             CreateMap<APInvoice, APInvoiceDTO>();
-            CreateMap<APInvoiceDTO, APInvoice>();
             CreateMap<CreateAPInvoiceDTO, APInvoice>();
+            CreateMap<UpdateAPInvoiceDTO, APInvoice>();
 
             // AP Invoice Line
             CreateMap<APInvoiceLine, APInvoiceLineDTO>();
             CreateMap<CreateAPInvoiceLineDTO, APInvoiceLine>();
-            CreateMap<CreateAPInvoiceLineDTO, UpdateAPInvoiceLineDTO>();
             CreateMap<UpdateAPInvoiceLineDTO, APInvoiceLine>();
 
             // AR Invoice
             CreateMap<ARInvoice, ARInvoiceDTO>();
-            CreateMap<ARInvoiceDTO, ARInvoice>();
             CreateMap<CreateARInvoiceDTO, ARInvoice>();
+            CreateMap<UpdateARInvoiceDTO, ARInvoice>();
 
             // AP Invoice Line
             CreateMap<ARInvoiceLine, ARInvoiceLineDTO>();
             CreateMap<CreateARInvoiceLineDTO, ARInvoiceLine>();
-            CreateMap<CreateARInvoiceLineDTO, UpdateARInvoiceLineDTO>();
             CreateMap<UpdateARInvoiceLineDTO, ARInvoiceLine>();
 
             // Expense Category
             CreateMap<ExpenseCategory, ExpenseCategoryDTO>();
             CreateMap<CreateExpenseCategoryDTO, ExpenseCategory>();
+            CreateMap<UpdateExpenseCategoryDTO, ExpenseCategory>();
+            CreateMap<ExpenseCategoryDTO, BasicExpenseCategoryDTO>();
 
             // Fixed Asset
-            CreateMap<FixedAsset,FixedAssetDTO>();
-            CreateMap<UpdateFixedAssetDTO, FixedAsset>();
+            CreateMap<FixedAsset, FixedAssetDTO>();
             CreateMap<CreateFixedAssetDTO, FixedAsset>();
+            CreateMap<UpdateFixedAssetDTO, FixedAsset>();
             CreateMap<FixedAssetDTO, FixedAssetYearDetailsDTO>();
 
             // Fixed Asset
             CreateMap<Period, PeriodDTO>();
-            CreateMap<UpdatePeriodDTO, Period>();
             CreateMap<CreatePeriodDTO, Period>();
+            CreateMap<UpdatePeriodDTO, Period>();
 
-            // Fixed Asset
+            // Depreciation
             CreateMap<Depreciation, DepreciationDTO>();
+            CreateMap<CreateDepreciationDTO, Depreciation>();
+            CreateMap<UpdateDepreciationDTO, Depreciation>();
 
-            //Loan
-            CreateMap<Loan, LoanDTO>();
-            CreateMap<CreateLoanDTO, Loan>();
         }
     }
 }

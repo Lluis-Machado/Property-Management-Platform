@@ -5,12 +5,14 @@
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
         public string MobilePhoneNumber { get; set; }
+        public string Address { get; set; }
 
         public ContactData()
         {
-            Email = String.Empty;
-            PhoneNumber = String.Empty;
-            MobilePhoneNumber = String.Empty;
+            Email = string.Empty;
+            PhoneNumber = string.Empty;
+            MobilePhoneNumber = string.Empty;
+            Address = string.Empty;
         }
     }
 }

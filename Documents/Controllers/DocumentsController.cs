@@ -1,4 +1,5 @@
 using Documents.Models;
+using Documents.Services;
 using DocumentsAPI.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -6,19 +7,23 @@ using System.Net;
 
 namespace Documents.Controllers
 {
+#if DEVELOPMENT == false
     [Authorize]
+#endif
     [ApiController]
     public class DocumentsController : ControllerBase
     {
         private readonly ILogger<DocumentsController> _logger;
-        private readonly IConfiguration _config ;
+        private readonly IConfiguration _config;
         private readonly IDocumentRepository _documentsRepository;
+        private readonly IDocumentsService _documentsService;
 
-        public DocumentsController(IConfiguration config, IDocumentRepository documentsRepository, ILogger<DocumentsController> logger)
+        public DocumentsController(IConfiguration config, IDocumentRepository documentsRepository, ILogger<DocumentsController> logger, IDocumentsService documentsService)
         {
             _config = config;
             _documentsRepository = documentsRepository;
             _logger = logger;
+            _documentsService = documentsService;
         }
 
         // POST: Upload document(s)
@@ -38,14 +43,7 @@ namespace Documents.Controllers
             int maxNbOfFiles = _config.GetValue<int>("Files:MaxNbOfUploadFiles");
             if (files.Length > maxNbOfFiles) return BadRequest($"Maximal number of files ({maxNbOfFiles}) exceeded");
 
-            var documents = new List<CreateDocumentStatus>();
-
-            await Parallel.ForEachAsync(files, async (file, CancellationToken) =>
-            {
-                Stream fileStream = file.OpenReadStream();
-                HttpStatusCode status = await _documentsRepository.UploadDocumentAsync(archiveId, file.FileName, fileStream, folderId);
-                documents.Add(new CreateDocumentStatus(file.FileName, status));
-            });
+            List<CreateDocumentStatus> documents = await _documentsService.UploadAsync(archiveId, files, folderId);
 
             if (documents.Any(doc => doc.Status != HttpStatusCode.OK))
             {
@@ -65,7 +63,7 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<IEnumerable<Document>>> GetDocumentsAsync(Guid archiveId, [FromQuery] Guid? folderId = null, [FromQuery] bool includeDeleted = false)
         {
-            return Ok(await _documentsRepository.GetDocumentsFlatListingAsync(archiveId, 100, includeDeleted));
+            return Ok(await _documentsService.GetDocumentsAsync(archiveId, 100, folderId, includeDeleted));
         }
 
         // GET: Download document
@@ -76,7 +74,8 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<FileContentResult> DownloadAsync(Guid archiveId, Guid documentId)
         {
-            byte[] byteArray = await _documentsRepository.DownloadDocumentAsync(archiveId, documentId);
+            var results = await _documentsService.DownloadAsync(archiveId, documentId);
+            byte[] byteArray = results.FileContents;
             return File(byteArray, "application/pdf");
         }
 
@@ -88,7 +87,7 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> DeleteAsync(Guid archiveId, Guid documentId)
         {
-            await _documentsRepository.DeleteDocumentAsync(archiveId, documentId);
+            await _documentsService.DeleteAsync(archiveId, documentId);
             return NoContent();
         }
 
@@ -100,7 +99,7 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UndeleteAsync(Guid archiveId, Guid documentId)
         {
-            await _documentsRepository.UndeleteDocumentAsync(archiveId, documentId);
+            await _documentsService.UndeleteAsync(archiveId, documentId);
             return NoContent();
         }
 
@@ -112,7 +111,7 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> RenameAsync(Guid archiveId, Guid documentId, [FromForm] string documentName)
         {
-            await _documentsRepository.RenameDocumentAsync(archiveId, documentId, documentName);
+            await _documentsService.RenameAsync(archiveId, documentId, documentName);
             return NoContent();
         }
 
@@ -124,7 +123,7 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> CopyAsync(Guid archiveId, Guid documentId, [FromForm] string documentName)
         {
-            await _documentsRepository.CopyDocumentAsync(archiveId, documentId, documentName);
+            await _documentsService.CopyAsync(archiveId, documentId, documentName);
             return NoContent();
         }
 

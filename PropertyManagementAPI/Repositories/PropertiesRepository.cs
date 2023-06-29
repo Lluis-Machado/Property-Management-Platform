@@ -29,40 +29,40 @@ namespace PropertyManagementAPI.Services
                 .ToListAsync();
         }
 
-        public async Task<List<Property>> GetByContactIdAsync(Guid contactId)
+        public async Task<Property> GetPropertyByIdAsync(Guid propertyId)
         {
-            IMongoQueryable<Property> properties = _collection.AsQueryable();
-            return await properties.Where(p => p.Owners.Any(o => o.ContactId == contactId))
-                   .ToListAsync();
+            var filter = Builders<Property>.Filter.Eq(p => p.Id, propertyId);
+
+            return await _collection.Find(filter)
+                .FirstOrDefaultAsync();
         }
 
         public async Task<Property> GetByIdAsync(Guid propertyId)
         {
             var filter = Builders<Property>.Filter
-                .Eq(actualProperty => actualProperty._id, propertyId);
+                .Eq(actualProperty => actualProperty.Id, propertyId);
 
             return await _collection.Find(filter)
                 .FirstAsync();
         }
 
-        public async Task<UpdateResult> UpdateAsync(Property property)
+        public async Task<Property> UpdateAsync(Property property)
         {
-            var filter = Builders<Property>.Filter
-                .Eq(actualProperty => actualProperty._id, property._id);
+            var filter = Builders<Property>.Filter.Eq(actualProperty => actualProperty.Id, property.Id);
 
-            var update = Builders<Property>.Update
-                .Set(actualProperty => actualProperty.Name, property.Name)
-                .Set(actualProperty => actualProperty.Address, property.Address);
+            await _collection.ReplaceOneAsync(filter, property);
 
-            return await _collection.UpdateOneAsync(filter, update);
+            return property;
         }
 
-        public async Task<UpdateResult> SetDeleteDeclarantAsync(Guid propertyId, bool deleted)
+        public async Task<UpdateResult> SetDeleteDeclarantAsync(Guid propertyId, bool deleted, string lastUser)
         {
             var filter = Builders<Property>.Filter
-                .Eq(actualProperty => actualProperty._id, propertyId);
+                .Eq(actualProperty => actualProperty.Id, propertyId);
 
             var update = Builders<Property>.Update
+                .Set(actualProperty => actualProperty.LastUpdateByUser, lastUser)
+                .Set(actualProperty => actualProperty.LastUpdateAt, DateTime.UtcNow)
                 .Set(actualProperty => actualProperty.Deleted, deleted);
 
             return await _collection.UpdateOneAsync(filter, update);

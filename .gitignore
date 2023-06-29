@@ -237,7 +237,7 @@ ClientBin/
 *.dbproj.schemaview
 *.jfm
 *.pfx
-*.publishsettings
+#*.publishsettings
 orleans.codegen.cs
 
 # Including strong name files can present a security risk
@@ -361,3 +361,4 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+AuditTrailAPI

@@ -2,7 +2,7 @@
 
 namespace Documents.Middelwares
 {
-    public class AzureErrorHandlingMiddleware: IMiddleware
+    public class AzureErrorHandlingMiddleware : IMiddleware
     {
         private readonly ILogger<AzureErrorHandlingMiddleware> _logger;
 
@@ -16,7 +16,7 @@ namespace Documents.Middelwares
                 {"ContainerAlreadyExists", "Archive already exists"},
                 {"ContainerNotFound", "Archive not found"},
                 {"BlobNotFound", "Document not found"},
-                
+
             };
         }
 

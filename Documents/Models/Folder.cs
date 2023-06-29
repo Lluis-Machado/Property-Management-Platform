@@ -2,15 +2,15 @@
 
 namespace DocumentsAPI.Models
 {
-    public class Folder
+    public class Folder : BaseModel
     {
-        public Guid Id { get; set; }
         public Guid ArchiveId { get; set; }
         public string? Name { get; set; }
         public Guid? ParentId { get; set; }
-        public bool Deleted { get; set; }
+        public bool HasDocument { get; set; }
+
 
         [JsonConstructor]
         public Folder() { }
     }
- }
+}

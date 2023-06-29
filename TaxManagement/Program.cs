@@ -6,9 +6,10 @@ using Serilog;
 using System.Security.Claims;
 using TaxManagement.Context;
 using TaxManagement.Middelwares;
-using TaxManagement.Models;
 using TaxManagement.Repositories;
 using TaxManagement.Validators;
+using TaxManagementAPI.DTOs;
+using TaxManagementAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,16 +25,31 @@ builder.Logging.AddSerilog(logger);
 builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
 
 // Add services to the container.
+
+
 builder.Services.AddSingleton<DapperContext>();
 builder.Services.AddScoped<IDeclarationRepository, DeclarationRepository>();
 builder.Services.AddScoped<IDeclarantRepository, DeclarantRepository>();
-builder.Services.AddScoped<IValidator<Declarant>, DeclarantValidator>();
-builder.Services.AddScoped<IValidator<Declaration>, DeclarationValidator>();
+
+builder.Services.AddScoped<IDeclarantService, DeclarantService>();
+builder.Services.AddScoped<IDeclarationService, DeclarationService>();
+
+builder.Services.AddScoped<IValidator<DeclarantDTO>, DeclarantValidator>();
+builder.Services.AddScoped<IValidator<CreateDeclarantDTO>, CreateDeclarantValidator>();
+builder.Services.AddScoped<IValidator<UpdateDeclarantDTO>, UpdateDeclarantValidator>();
+builder.Services.AddScoped<IValidator<DeclarationDTO>, DeclarationValidator>();
+builder.Services.AddScoped<IValidator<CreateDeclarationDTO>, CreateDeclarationValidator>();
+builder.Services.AddScoped<IValidator<UpdateDeclarationDTO>, UpdateDeclarationValidator>();
+
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen(opt =>
 {
     opt.SwaggerDoc("v1", new OpenApiInfo { Title = "MyAPI", Version = "v1" });
+    opt.EnableAnnotations();
     opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -77,14 +93,14 @@ builder.Services.AddAuthentication(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-app.UseSwagger();
-app.UseSwaggerUI(c =>
+if (app.Environment.IsDevelopment())
 {
-    c.ConfigObject.AdditionalItems.Add("persistAuthorization", "true");
-});
-//}
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.ConfigObject.AdditionalItems.Add("persistAuthorization", "true");
+    });
+}
 
 app.UseHttpsRedirection();
 

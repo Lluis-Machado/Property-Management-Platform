@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
-using TaxManagement.Models;
+using TaxManagementAPI.DTOs;
 
 namespace TaxManagement.Validators
 {
-    public class DeclarationValidator : AbstractValidator<Declaration>
+    public class DeclarationValidator : AbstractValidator<DeclarationDTO>
     {
         public DeclarationValidator()
         {

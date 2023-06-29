@@ -8,9 +8,9 @@ namespace PropertyManagementAPI.Repositories
     {
         Task<Property> InsertOneAsync(Property property);
         Task<List<Property>> GetAsync();
-        Task<List<Property>> GetByContactIdAsync(Guid contactId);
+        Task<Property> GetPropertyByIdAsync(Guid propertyId);
         Task<Property> GetByIdAsync(Guid propertyId);
-        Task<UpdateResult> UpdateAsync(Property property);
-        Task<UpdateResult> SetDeleteDeclarantAsync(Guid property, bool deleted);
+        Task<Property> UpdateAsync(Property property);
+        Task<UpdateResult> SetDeleteDeclarantAsync(Guid propertyId, bool deleted, string lastUser);
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Azure;
-using Azure.Identity;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Documents.Models;
@@ -10,13 +9,15 @@ using System.Net;
 namespace Documents.Services.AzureBlobStorage
 {
 
-    public class AzureBlobStorage: IDocumentRepository, IArchiveRepository
+    public class AzureBlobStorage : IDocumentRepository, IArchiveRepository
     {
-        private AzureBlobStorageContext _context { get; set;}
+        private AzureBlobStorageContext _context { get; set; }
+        private static ILogger<AzureBlobStorage> _logger { get; set; }
 
-        public AzureBlobStorage(AzureBlobStorageContext context)
+        public AzureBlobStorage(AzureBlobStorageContext context, ILogger<AzureBlobStorage> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         #region Archives
@@ -25,7 +26,7 @@ namespace Documents.Services.AzureBlobStorage
         {
             Dictionary<string, string> metadata = new();
 
-            if(archive.Name != null) metadata.Add("display_name", archive.Name);
+            if (archive.Name != null) metadata.Add("display_name", archive.Name);
 
             BlobContainerClient blobContainerClient = _context.GetBlobContainerClient(archive.Id.ToString());
             await blobContainerClient.CreateAsync(default, metadata);
@@ -103,13 +104,13 @@ namespace Documents.Services.AzureBlobStorage
             return (HttpStatusCode)response.Status;
         }
 
-        public async Task<IEnumerable<Document>> GetDocumentsFlatListingAsync(Guid archiveId, int? segmentSize, bool includeDeleted = false)
+        public async Task<IEnumerable<Document>> GetDocumentsFlatListingAsync(Guid archiveId, int? segmentSize, Guid? folderId = null, bool includeDeleted = false)
         {
             BlobContainerClient blobContainerClient = _context.GetBlobContainerClient(archiveId.ToString());
 
             // Call the listing operation and return pages of the specified size.
             BlobStates blobStates = includeDeleted ? BlobStates.Deleted : BlobStates.None;
-            var resultSegment = blobContainerClient.GetBlobsAsync(default, blobStates).AsPages(default, segmentSize);
+            var resultSegment = blobContainerClient.GetBlobsAsync(BlobTraits.Metadata, blobStates).AsPages(default, segmentSize);
 
             // Enumerate the blobs returned for each page.
             List<Document> documents = new();
@@ -117,6 +118,10 @@ namespace Documents.Services.AzureBlobStorage
             {
                 foreach (BlobItem blobItem in blobPage.Values)
                 {
+                    // TODO: This is currently filtering after getting all the blobs. Ideally, we should filter in the Azure query.
+                    // It can be done by configuring Azure Search, but I ain't got time for that now
+                    if (folderId != null && blobItem.Metadata["folder_id"] != folderId.ToString())
+                        continue;
                     Document document = MapDocument(blobItem);
                     documents.Add(document);
                 }
@@ -166,7 +171,7 @@ namespace Documents.Services.AzureBlobStorage
             {
                 {"display_name", newDocumentName},
             };
-  
+
             // delete
             Response<BlobInfo> responseBlobInfo = await blobClient.SetMetadataAsync(blobMetadata);
             Response response = responseBlobInfo.GetRawResponse();
@@ -218,15 +223,22 @@ namespace Documents.Services.AzureBlobStorage
 
         private static Document MapDocument(BlobItem blobItem)
         {
-            string documentName = blobItem.Metadata["display_Name"];
+            _logger.LogInformation($"ITEM NAME - {blobItem.Name}");
+            foreach (var metadata in blobItem.Metadata)
+            {
+                _logger.LogInformation($"METADATA - {metadata.Key} : {metadata.Value}");
+            }
+            string documentName = blobItem.Metadata["display_name"];
+
             Document document = new()
             {
-                Id = blobItem.Name,
+                DocumentId = blobItem.Name,
                 Name = documentName,
+                FolderId = string.IsNullOrEmpty(blobItem.Metadata["folder_id"]) ? null : new Guid(blobItem.Metadata["folder_id"]),
                 Extension = documentName.Contains('.') ? documentName[documentName.LastIndexOf('.')..] : "",
                 ContentLength = blobItem.Properties.ContentLength,
-                CreatedOn = blobItem.Properties.CreatedOn,
-                LastModified = blobItem.Properties.LastModified,
+                CreatedAt = blobItem.Properties.CreatedOn.GetValueOrDefault().DateTime,
+                LastUpdateAt = blobItem.Properties.LastModified.GetValueOrDefault().DateTime,
 
             };
             return document;

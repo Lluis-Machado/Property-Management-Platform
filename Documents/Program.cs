@@ -1,10 +1,14 @@
+using Archives.Services;
 using Documents.Middelwares;
 using Documents.Models;
 using Documents.Repositories;
+using Documents.Services;
 using Documents.Services.AzureBlobStorage;
 using Documents.Validators;
 using DocumentsAPI.Contexts;
+using DocumentsAPI.DTOs;
 using DocumentsAPI.Repositories;
+using DocumentsAPI.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Azure;
@@ -30,8 +34,14 @@ builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
 builder.Services.AddSingleton<DapperContext>();
 builder.Services.AddSingleton<AzureBlobStorageContext>();
 builder.Services.AddScoped<IDocumentRepository, AzureBlobStorage>();
+builder.Services.AddScoped<IDocumentsService, DocumentsService>();
 builder.Services.AddScoped<IArchiveRepository, AzureBlobStorage>();
+builder.Services.AddScoped<IArchivesService, ArchivesService>();
+builder.Services.AddScoped<IFoldersService, FoldersService>();
 builder.Services.AddScoped<IFolderRepository, FolderRepository>();
+
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+
 
 builder.Services.AddAzureClients(clientBuilder =>
 {
@@ -39,13 +49,15 @@ builder.Services.AddAzureClients(clientBuilder =>
     clientBuilder.AddQueueServiceClient(builder.Configuration["AzureStorageConnectionString:queue"], preferMsi: true);
 });
 
+builder.Configuration.AddUserSecrets<Program>();
+
 // Validators
 builder.Services.AddScoped<IValidator<Archive>, ArchiveValidator>();
 
 // Swagger
 builder.Services.AddSwaggerGen(opt =>
 {
-    opt.SwaggerDoc("v1", new OpenApiInfo { Title = "MyAPI", Version = "v1" });
+    opt.SwaggerDoc("v1", new OpenApiInfo { Title = "Documents API", Version = "v1" });
     opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -94,11 +106,11 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 //{
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.ConfigObject.AdditionalItems.Add("persistAuthorization", "true");
-    });
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.ConfigObject.AdditionalItems.Add("persistAuthorization", "true");
+});
 //}
 
 app.UseHttpsRedirection();

@@ -25,7 +25,7 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<LoanDTO>> CreateAsync(Guid tenantId, Guid businessPartnerId, [FromBody] CreateLoanDTO createLoanDTO)
+        public async Task<ActionResult<LoanDTO>> CreateLoanAsync(Guid tenantId, Guid businessPartnerId, [FromBody] CreateLoanDTO createLoanDTO)
         {
             // request validations
             if (createLoanDTO is null) return BadRequest("Incorrect body format");
@@ -42,9 +42,9 @@ namespace AccountingAPI.Controllers
         [Route("tenants/{tenantId}/loans")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<LoanDTO>>> GetAsync(Guid tenantId, [FromQuery] bool includeDeleted = false)
+        public async Task<ActionResult<IEnumerable<LoanDTO>>> GetLoansAsync(Guid tenantId, [FromQuery] int? page = null, [FromQuery] int? pageSize = null, [FromQuery] bool includeDeleted = false)
         {
-            return Ok(await _loanService.GetLoansAsync(tenantId, includeDeleted));
+            return Ok(await _loanService.GetLoansAsync(tenantId,page, pageSize, includeDeleted));
         }
 
         // PATCH: update loan
@@ -54,7 +54,7 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<LoanDTO>> UpdateAsync(Guid tenantId, Guid loanId, [FromBody] UpdateLoanDTO updateLoanDTO)
+        public async Task<ActionResult<LoanDTO>> UpdateLoanAsync(Guid tenantId, Guid loanId, [FromBody] UpdateLoanDTO updateLoanDTO)
         {
             // request validations
             if (updateLoanDTO is null) return BadRequest("Incorrect body format");
@@ -73,7 +73,7 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> DeleteAsync(Guid tenantId, Guid loanId)
+        public async Task<IActionResult> DeleteLoanAsync(Guid tenantId, Guid loanId)
         {
             // Check user
             string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);

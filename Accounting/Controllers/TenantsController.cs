@@ -43,9 +43,9 @@ namespace AccountingAPI.Controllers
         [Route("tenants")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<TenantDTO>>> GetTenantsAsync([FromQuery] bool includeDeleted = false)
+        public async Task<ActionResult<IEnumerable<TenantDTO>>> GetTenantsAsync([FromQuery] bool includeDeleted = false, [FromQuery] int? page = null, [FromQuery] int? pageSize = null)
         {
-            return Ok(await _tenantService.GetTenantsAsync(includeDeleted));
+            return Ok(await _tenantService.GetTenantsAsync(includeDeleted, page, pageSize));
         }
 
         // PATCH: Update tenant

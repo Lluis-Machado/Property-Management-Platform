@@ -42,9 +42,9 @@ namespace AccountingAPI.Controllers
         [Route("tenants/{tenantId}/arinvoices")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<ARInvoiceDTO>>> GetARInvoicesAsync(Guid tenantId, [FromQuery] bool includeDeleted = false)
+        public async Task<ActionResult<IEnumerable<ARInvoiceDTO>>> GetARInvoicesAsync(Guid tenantId, [FromQuery] bool includeDeleted = false, [FromQuery] int? page = null, [FromQuery] int? pageSize = null)
         {
-            return Ok(await _arInvoiceService.GetARInvoicesAsync(tenantId, includeDeleted));
+            return Ok(await _arInvoiceService.GetARInvoicesAsync(tenantId, includeDeleted, page, pageSize));
         }
 
         // PATCH: update invoice

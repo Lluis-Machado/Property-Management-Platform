@@ -43,9 +43,9 @@ namespace AccountingAPI.Controllers
         [Route("tenants/{tenantId}/businessPartners")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<BusinessPartnerDTO>>> GetBusinessPartnersAsync(Guid tenantId, [FromQuery] bool includeDeleted = false)
+        public async Task<ActionResult<IEnumerable<BusinessPartnerDTO>>> GetBusinessPartnersAsync(Guid tenantId, [FromQuery] bool includeDeleted = false, [FromQuery] int? page = null, [FromQuery] int? pageSize = null)
         {
-            return Ok(await _businessPartnerService.GetBusinessPartnersAsync(tenantId, includeDeleted));
+            return Ok(await _businessPartnerService.GetBusinessPartnersAsync(tenantId, includeDeleted, page, pageSize));
         }
 
         // PATCH: Update businessPartner

@@ -2,6 +2,7 @@
 using AccountingAPI.Exceptions;
 using AccountingAPI.Models;
 using AccountingAPI.Repositories;
+using AccountingAPI.Utilities;
 using AutoMapper;
 using FluentValidation;
 
@@ -38,9 +39,12 @@ namespace AccountingAPI.Services
             return _mapper.Map<TenantDTO>(tenant);
         }
 
-        public async Task<IEnumerable<TenantDTO>> GetTenantsAsync(bool includeDeleted = false)
+        public async Task<IEnumerable<TenantDTO>> GetTenantsAsync(bool includeDeleted = false, int? page = null, int? pageSize = null)
         {
             IEnumerable<Tenant> tenants = await _tenantRepository.GetTenantsAsync(includeDeleted);
+
+            Pagination.Paginate(ref tenants, page, pageSize);
+
             return _mapper.Map<IEnumerable<Tenant>, List<TenantDTO>>(tenants);
         }
 

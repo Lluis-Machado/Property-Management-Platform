@@ -2,6 +2,7 @@
 using AccountingAPI.Exceptions;
 using AccountingAPI.Models;
 using AccountingAPI.Repositories;
+using AccountingAPI.Utilities;
 using AutoMapper;
 using FluentValidation;
 using System.Transactions;
@@ -80,12 +81,15 @@ namespace AccountingAPI.Services
             }
         }
 
-        public async Task<IEnumerable<APInvoiceDTO>> GetAPInvoicesAsync(Guid tenantId, bool includeDeleted = false)
+        public async Task<IEnumerable<APInvoiceDTO>> GetAPInvoicesAsync(Guid tenantId, bool includeDeleted = false, int? page = null, int? pageSize = null)
         {
             List<APInvoiceDTO> invoiceDTOs = new();
-            IEnumerable<APInvoiceLineDTO> invoiceLinesDTOs = await _invoiceLineService.GetAPInvoiceLinesAsync(tenantId, includeDeleted);
-            IEnumerable<BusinessPartnerDTO> businessPartnerDTOs = await _businessPartnerService.GetBusinessPartnersAsync(tenantId, includeDeleted);
             IEnumerable<Invoice> invoices = await _invoiceRepository.GetAPInvoicesAsync(tenantId, includeDeleted);
+
+            Pagination.Paginate(ref invoices, page, pageSize);
+
+            IEnumerable<APInvoiceLineDTO> invoiceLinesDTOs = await _invoiceLineService.GetAPInvoiceLinesAsync(tenantId, includeDeleted);
+            IEnumerable<BusinessPartnerDTO> businessPartnerDTOs = await _businessPartnerService.GetBusinessPartnersAsync(tenantId, includeDeleted);      
             Parallel.ForEach(invoices, (invoice) =>
             {
                 APInvoiceDTO invoiceDTO = _mapper.Map<APInvoiceDTO>(invoice);

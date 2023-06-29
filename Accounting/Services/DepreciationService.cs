@@ -2,6 +2,7 @@
 using AccountingAPI.Exceptions;
 using AccountingAPI.Models;
 using AccountingAPI.Repositories;
+using AccountingAPI.Utilities;
 using AutoMapper;
 using FluentValidation;
 
@@ -115,14 +116,14 @@ namespace AccountingAPI.Services
             return depreciationDTO;
         }
 
-        public async Task<IEnumerable<FixedAssetYearDetailsDTO>> GetFixedAssetsYearDetailsAsync(Guid tenantId, int year)
+        public async Task<IEnumerable<FixedAssetYearDetailsDTO>> GetFixedAssetsYearDetailsAsync(Guid tenantId, int year, bool includeDeleted = false,  int? page = null, int? pageSize = null)
         {
             List<FixedAssetYearDetailsDTO> fixedAssetYearDetailsDTOs = new();
 
             DateTime firstDayOfYear = new(year, 1, 1);
             DateTime lastDayOfYear = new(year, 12, 31);
 
-            IEnumerable<FixedAssetDTO> fixedAssetsDTOs = await _fixedAssetService.GetFixedAssetsAsync(tenantId);
+            IEnumerable<FixedAssetDTO> fixedAssetsDTOs = await _fixedAssetService.GetFixedAssetsAsync(tenantId, includeDeleted, page, pageSize);
 
             IEnumerable<DepreciationDTO> depreciationDTOs = await GetDepreciationsAsync(tenantId);
 
@@ -153,7 +154,12 @@ namespace AccountingAPI.Services
                 .ToList();
 
             fixedAssetYearDetailsDTOs.AddRange(yearDetails);
-            return fixedAssetYearDetailsDTOs;
+
+            IEnumerable<FixedAssetYearDetailsDTO> enumFixedAssetYearDetailsDTOs = fixedAssetYearDetailsDTOs.AsEnumerable();
+
+            Pagination.Paginate(ref enumFixedAssetYearDetailsDTOs, page, pageSize);
+
+            return enumFixedAssetYearDetailsDTOs;
         }
 
         public async Task<IEnumerable<DepreciationDTO>> GenerateDepreciationsAsync(Guid tenantId, Guid periodId, string userName)

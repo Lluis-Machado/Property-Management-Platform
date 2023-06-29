@@ -37,9 +37,15 @@ namespace AccountingAPI.Services
             return _mapper.Map<FixedAssetDTO>(fixedAsset);
         }
 
-        public async Task<IEnumerable<FixedAssetDTO>> GetFixedAssetsAsync(Guid tenantId, bool includeDeleted = false)
+        public async Task<IEnumerable<FixedAssetDTO>> GetFixedAssetsAsync(Guid tenantId,bool includeDeleted = false, int? page = null, int? pageSize = null)
         {
             IEnumerable<FixedAsset> fixedAssets = await _fixedAssetRepository.GetFixedAssetsAsync(tenantId, true);
+
+            if (page.HasValue && pageSize.HasValue)
+            {
+                fixedAssets = fixedAssets.Skip(page.Value - 1).Take(pageSize.Value);
+            }
+
             return _mapper.Map<IEnumerable<FixedAssetDTO>>(fixedAssets);
         }
 

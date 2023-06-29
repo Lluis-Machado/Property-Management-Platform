@@ -2,6 +2,7 @@
 using AccountingAPI.Exceptions;
 using AccountingAPI.Models;
 using AccountingAPI.Repositories;
+using AccountingAPI.Utilities;
 using AutoMapper;
 using FluentValidation;
 
@@ -37,9 +38,12 @@ namespace AccountingAPI.Services
             businessPartner = await _businessPartnerRepository.InsertBusinessPartnerAsync(businessPartner);
             return _mapper.Map<BusinessPartnerDTO>(businessPartner);
         }
-        public async Task<IEnumerable<BusinessPartnerDTO>> GetBusinessPartnersAsync(Guid tenantId, bool includeDeleted = false)
+        public async Task<IEnumerable<BusinessPartnerDTO>> GetBusinessPartnersAsync(Guid tenantId, bool includeDeleted = false, int? page = null, int? pageSize = null)
         {
             IEnumerable<BusinessPartner> businessPartners = await _businessPartnerRepository.GetBusinessPartnersAsync(tenantId, includeDeleted);
+
+            Pagination.Paginate(ref businessPartners, page, pageSize);
+
             return _mapper.Map<IEnumerable<BusinessPartnerDTO>>(businessPartners);
         }
 

@@ -38,9 +38,14 @@ namespace AccountingAPI.Services
             return _mapper.Map<LoanDTO>(loan);
         }
 
-        public async Task<IEnumerable<LoanDTO>> GetLoansAsync(Guid tenantId, bool includeDeleted = false)
+        public async Task<IEnumerable<LoanDTO>> GetLoansAsync(Guid tenantId,int? page, int? pageSize, bool includeDeleted = false)
         {
             IEnumerable<Loan> loans = await _loanRepository.GetLoansAsync(tenantId, includeDeleted);
+            
+            if (page.HasValue && pageSize.HasValue)
+            {
+                loans = loans.Skip(page.Value - 1).Take(pageSize.Value);
+            }
             return _mapper.Map<IEnumerable<LoanDTO>>(loans);
         }
 

@@ -1,6 +1,4 @@
-using AuthenticationAPI.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Ocelot.Cache.CacheManager;
 using Ocelot.DependencyInjection;
@@ -58,17 +56,13 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    // Register shutdown callback action to undo ocelot.json overwriting
-    var applicationLifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
-    applicationLifetime.ApplicationStopping.Register(AppShutdown.Shutdown);
-
     // Hack to make Swagger for Ocelot work properly
     File.Copy("ocelot.json", "ocelot.json.bak", true);
     File.Copy("ocelot.Development.json", "ocelot.json", true);
 }
 
-if (!app.Environment.IsProduction())
-{
+//if (!app.Environment.IsProduction())
+//{
     app.UseSwagger();
     //app.UseSwaggerUI();
 
@@ -77,7 +71,7 @@ if (!app.Environment.IsProduction())
     {
         opt.PathToSwaggerGenerator = "/swagger/docs";
     });
-}
+//}
 
 app.MapControllers();
 

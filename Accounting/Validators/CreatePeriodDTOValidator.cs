@@ -9,12 +9,12 @@ namespace AccountingAPI.Validators
         public CreatePeriodDTOValidator()
         {
             RuleFor(Period => Period.Year)
-                .Must(ValidationHelpers.IsAValidYear)
-                .WithMessage("Invalid {PropertyName}");
+                .InclusiveBetween(1900, DateTime.Now.Year)
+                .WithMessage("Year must be between {From} and {To}");
 
             RuleFor(Period => Period.Month)
-                 .Must(ValidationHelpers.IsAValidMonth)
-                .WithMessage("Invalid {PropertyName}");
+                .InclusiveBetween(1, 12)
+                .WithMessage("Month must be between {From} and {To}");
         }
     }
 }

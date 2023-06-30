@@ -15,6 +15,7 @@ namespace AccountingAPI.Services
         private readonly IAPInvoiceLineRepository _invoiceLineRepository;
         private readonly IExpenseCategoryService _expenseCategoryService;
         private readonly IFixedAssetService _fixedAssetService;
+        private readonly IPeriodService _periodService;
         private readonly IBusinessPartnerService _businessPartnerService;
         private readonly IValidator<CreateAPInvoiceDTO> _createAPInvoiceDTOValidator;
         private readonly IValidator<UpdateAPInvoiceDTO> _updateAPInvoiceDTOValidator;
@@ -28,7 +29,8 @@ namespace AccountingAPI.Services
             , IValidator<CreateAPInvoiceDTO> createAPInvoiceDTOValidator
             , IValidator<UpdateAPInvoiceDTO> updateAPInvoiceDTOValidator
             , IBusinessPartnerService businessPartnerService
-            ,IFixedAssetService fixedAssetService
+            , IPeriodService periodService
+            , IFixedAssetService fixedAssetService
             , IExpenseCategoryService expenseCategoryService)
         {
             _invoiceRepository = invoiceRepository;
@@ -36,6 +38,7 @@ namespace AccountingAPI.Services
             _logger = logger;
             _fixedAssetService = fixedAssetService;
             _expenseCategoryService = expenseCategoryService;
+            _periodService = periodService;
             _mapper = mapper;
             _createAPInvoiceDTOValidator = createAPInvoiceDTOValidator;
             _updateAPInvoiceDTOValidator = updateAPInvoiceDTOValidator;

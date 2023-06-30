@@ -28,7 +28,7 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",Amount");
             queryBuilder.Append(",Deleted");
             queryBuilder.Append(",CreationDate");
-            queryBuilder.Append(",LastModificationDate");
+            queryBuilder.Append(",LastModificationAt");
             queryBuilder.Append(",LastModificationBy");
             queryBuilder.Append(" FROM Loans");
             queryBuilder.Append(" WHERE tenantId = @tenantId");

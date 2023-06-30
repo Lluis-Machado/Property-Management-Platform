@@ -102,7 +102,7 @@ namespace AccountingAPI.Repositories
                 expenseType.Name,
                 expenseType.Deleted,
                 expenseType.LastModificationBy,
-                LastModificationDate = DateTime.Now,
+                LastModificationAt = DateTime.Now,
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("UPDATE ExpenseCategories");

@@ -1,8 +1,11 @@
-﻿using AccountingAPI.Repositories;
-using AccountingAPI.DTOs;
-using System.Transactions;
-using AutoMapper;
+﻿using AccountingAPI.DTOs;
+using AccountingAPI.Exceptions;
 using AccountingAPI.Models;
+using AccountingAPI.Repositories;
+using AccountingAPI.Utilities;
+using AutoMapper;
+using FluentValidation;
+using System.Transactions;
 
 namespace AccountingAPI.Services
 {
@@ -10,19 +13,28 @@ namespace AccountingAPI.Services
     {
         private readonly IARInvoiceRepository _invoiceRepository;
         private readonly IARInvoiceLineService _invoiceLineService;
+        private readonly IBusinessPartnerService _businessPartnerService;
+        private readonly IValidator<CreateARInvoiceDTO> _createARInvoiceDTOValidator;
+        private readonly IValidator<UpdateARInvoiceDTO> _updateARInvoiceDTOValidator;
         private readonly IMapper _mapper;
         private readonly ILogger<ARInvoiceService> _logger;
 
-        public ARInvoiceService(IARInvoiceRepository invoiceRepository, ILogger<ARInvoiceService> logger, IARInvoiceLineService invoiceLineService, IMapper mapper)
+        public ARInvoiceService(IARInvoiceRepository invoiceRepository, IValidator<CreateARInvoiceDTO> createARInvoiceDTOValidator, IValidator<UpdateARInvoiceDTO> updateARInvoiceDTOValidator, ILogger<ARInvoiceService> logger, IARInvoiceLineService invoiceLineService, IMapper mapper, IBusinessPartnerService businessPartnerService)
         {
             _invoiceRepository = invoiceRepository;
+            _createARInvoiceDTOValidator = createARInvoiceDTOValidator;
+            _updateARInvoiceDTOValidator = updateARInvoiceDTOValidator;
             _logger = logger;
             _invoiceLineService = invoiceLineService;
+            _businessPartnerService = businessPartnerService;
             _mapper = mapper;
         }
 
-        public async Task<ARInvoiceDTO> CreateARInvoiceAndLinesAsync(CreateARInvoiceDTO createInvoiceDTO, string userName, Guid businessPartnerId)
+        public async Task<ARInvoiceDTO> CreateARInvoiceAndLinesAsync(Guid tenantId, Guid businessPartnerId, CreateARInvoiceDTO createInvoiceDTO, string userName)
         {
+            // validation
+            await _createARInvoiceDTOValidator.ValidateAndThrowAsync(createInvoiceDTO);
+
             using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
@@ -43,7 +55,7 @@ namespace AccountingAPI.Services
                     // inser invoice lines
                     foreach (CreateARInvoiceLineDTO createInvoiceLineDTO in createInvoiceDTO.InvoiceLines)
                     {
-                        ARInvoiceLineDTO invoiceLineDTO = await _invoiceLineService.CreateARInvoiceLineAsync(createInvoiceLineDTO, invoiceDTO.Id, userName);
+                        ARInvoiceLineDTO invoiceLineDTO = await _invoiceLineService.CreateARInvoiceLineAsync(tenantId, invoiceDTO.Id, createInvoiceLineDTO, userName);
 
                         invoiceDTO.InvoiceLines.Add(invoiceLineDTO);
                     }
@@ -56,16 +68,39 @@ namespace AccountingAPI.Services
                 {
                     throw;
                 }
-            }       
+            }
         }
 
-        public async Task<ARInvoiceDTO> GetARInvoiceByIdAsync(Guid invoiceId)
+        public async Task<IEnumerable<ARInvoiceDTO>> GetARInvoicesAsync(Guid tenantId, bool includeDeleted = false, int? page = null, int? pageSize = null)
+        {
+            List<ARInvoiceDTO> invoiceDTOs = new();
+
+            IEnumerable<Invoice> invoices = await _invoiceRepository.GetARInvoicesAsync(tenantId, includeDeleted);
+
+            Pagination.Paginate(ref invoices, page, pageSize);
+
+            IEnumerable<ARInvoiceLineDTO> invoiceLines = await _invoiceLineService.GetARInvoiceLinesAsync(tenantId, includeDeleted);
+            IEnumerable<BusinessPartnerDTO> businessPartnerDTOs = await _businessPartnerService.GetBusinessPartnersAsync(tenantId, includeDeleted);
+            Parallel.ForEach(invoices, (invoice) =>
+            {
+                ARInvoiceDTO invoiceDTO = _mapper.Map<ARInvoiceDTO>(invoice);
+                invoiceDTO.InvoiceLines = invoiceLines.Where(i => i.InvoiceId == invoice.Id).ToList();
+                BusinessPartnerDTO businessPartnerDTO = businessPartnerDTOs.First(b => b.Id == invoice.BusinessPartnerId);
+                invoiceDTO.BusinessPartner = _mapper.Map<BasicBusinessPartnerDTO>(businessPartnerDTO);
+                invoiceDTOs.Add(invoiceDTO);
+            });
+            return invoiceDTOs;
+        }
+
+        public async Task<ARInvoiceDTO> GetARInvoiceByIdAsync(Guid tenantId, Guid invoiceId)
         {
             ARInvoiceDTO invoiceDTO = new();
-            IEnumerable<ARInvoiceLineDTO> invoiceLines = await _invoiceLineService.GetARInvoiceLinesAsync();
-            Invoice? invoice = await _invoiceRepository.GetARInvoiceByIdAsync(invoiceId);
 
-            if (invoice == null) return invoiceDTO;
+            Invoice? invoice = await _invoiceRepository.GetARInvoiceByIdAsync(tenantId, invoiceId);
+
+            if (invoice is null) throw new NotFoundException("AR Invoice");
+
+            IEnumerable<ARInvoiceLineDTO> invoiceLines = await _invoiceLineService.GetARInvoiceLinesAsync(tenantId);
 
             invoiceDTO = _mapper.Map<ARInvoiceDTO>(invoice);
             invoiceDTO.InvoiceLines = invoiceLines.Where(i => i.InvoiceId == invoice.Id).ToList();
@@ -73,33 +108,17 @@ namespace AccountingAPI.Services
             return invoiceDTO;
         }
 
-        public async Task<bool> CheckIfARInvoiceExistsAsync(Guid invoiceId)
+        public async Task<ARInvoiceDTO> UpdateARInvoiceAndLinesAsync(Guid tenantId, Guid invoiceId, UpdateARInvoiceDTO updateInvoiceDTO, string userName)
         {
-            return await _invoiceRepository.GetARInvoiceByIdAsync(invoiceId) != null;
-        }
+            // validation
+            await _updateARInvoiceDTOValidator.ValidateAndThrowAsync(updateInvoiceDTO);
 
-        public async Task<IEnumerable<ARInvoiceDTO>> GetARInvoicesAsync(bool includeDeleted = false)
-        {
-            List<ARInvoiceDTO> invoiceDTOs = new();
-            IEnumerable<ARInvoiceLineDTO> invoiceLines = await _invoiceLineService.GetARInvoiceLinesAsync(includeDeleted);
-            IEnumerable<Invoice> invoices = await _invoiceRepository.GetARInvoicesAsync(includeDeleted);
-            foreach(Invoice invoice in invoices)
-            {
-                ARInvoiceDTO invoiceDTO = _mapper.Map<ARInvoiceDTO>(invoice);
-                invoiceDTO.InvoiceLines = invoiceLines.Where(i => i.InvoiceId == invoice.Id).ToList();
-                invoiceDTOs.Add(invoiceDTO);
-            }
-            return invoiceDTOs;
-        }
-
-        public async Task<ARInvoiceDTO> UpdateARInvoiceAndLinesAsync(UpdateARInvoiceDTO updateInvoiceDTO, string userName, Guid invoiceId)
-        {
             using var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             try
             {
                 // Get and Update Invoice
-                ARInvoiceDTO actualInvoiceDTO = await GetARInvoiceByIdAsync(invoiceId);
+                ARInvoiceDTO actualInvoiceDTO = await GetARInvoiceByIdAsync(tenantId, invoiceId);
 
                 ARInvoice invoice = _mapper.Map<ARInvoice>(actualInvoiceDTO);
                 invoice.GrossAmount = updateInvoiceDTO.InvoiceLines.Sum(invoiceLine => invoiceLine.UnitPrice * invoiceLine.Quantity);
@@ -114,17 +133,17 @@ namespace AccountingAPI.Services
                 // Check Add/Update invoice lines
                 foreach (UpdateARInvoiceLineDTO updateInvoiceLineDTO in updateInvoiceDTO.InvoiceLines)
                 {
-                    if (updateInvoiceLineDTO.Id != null)
+                    if (updateInvoiceLineDTO.Id is not null)
                     {
                         // Update invoice line
-                        ARInvoiceLineDTO updatedInvoiceLine = await _invoiceLineService.UpdateARInvoiceLineAsync(updateInvoiceLineDTO, userName, (Guid)updateInvoiceLineDTO.Id);
+                        ARInvoiceLineDTO updatedInvoiceLine = await _invoiceLineService.UpdateARInvoiceLineAsync(tenantId, (Guid)updateInvoiceLineDTO.Id, updateInvoiceLineDTO, userName);
                         updatedInvoiceLineIds.Add(updatedInvoiceLine.Id);
                     }
                     else
                     {
                         // Add invoice line
                         CreateARInvoiceLineDTO createInvoiceLineDTO = _mapper.Map<CreateARInvoiceLineDTO>(updateInvoiceLineDTO);
-                        await _invoiceLineService.CreateARInvoiceLineAsync(createInvoiceLineDTO, actualInvoiceDTO.Id, userName);
+                        await _invoiceLineService.CreateARInvoiceLineAsync(tenantId, actualInvoiceDTO.Id, createInvoiceLineDTO, userName);
                     }
                 }
 
@@ -135,12 +154,12 @@ namespace AccountingAPI.Services
 
                 foreach (Guid invoiceLineId in invoiceLineIdsToDelete)
                 {
-                    await _invoiceLineService.SetDeletedARInvoiceLineAsync(invoiceLineId, true);
+                    await _invoiceLineService.SetDeletedARInvoiceLineAsync(tenantId, invoiceLineId, true, userName);
                 }
 
                 transaction.Complete();
 
-                return await GetARInvoiceByIdAsync(invoiceId);
+                return await GetARInvoiceByIdAsync(tenantId, invoiceId);
             }
             catch
             {
@@ -148,9 +167,12 @@ namespace AccountingAPI.Services
             }
         }
 
-        public async Task<int> SetDeletedARInvoiceAsync(Guid invoiceId, bool deleted)
+        public async Task SetDeletedARInvoiceAsync(Guid tenantId, Guid invoiceId, bool deleted, string userName)
         {
-            return await _invoiceRepository.SetDeletedARInvoiceAsync(invoiceId, deleted);
+            // check if exists
+            await GetARInvoiceByIdAsync(tenantId, invoiceId);
+
+            await _invoiceRepository.SetDeletedARInvoiceAsync(invoiceId, deleted, userName);
         }
 
     }

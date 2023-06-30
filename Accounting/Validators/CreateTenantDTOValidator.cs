@@ -1,5 +1,4 @@
-﻿using AccountingAPI.Models;
-using AccountingAPI.DTOs;
+﻿using AccountingAPI.DTOs;
 using FluentValidation;
 
 namespace AccountingAPI.Validators

@@ -1,13 +1,12 @@
 ﻿using AccountingAPI.Models;
-using AccountingAPI.DTOs;
 
 namespace AccountingAPI.Repositories
 {
     public interface ILoanRepository
     {
         Task<Loan> InsertLoanAsync(Loan loan);
-        Task<IEnumerable<Loan>> GetLoansAsync(bool includeDeleted);
-        Task<Loan> GetLoanByIdAsync(Guid loanId);
+        Task<IEnumerable<Loan>> GetLoansAsync(Guid tenantId, bool includeDeleted = false);
+        Task<Loan> GetLoanByIdAsync(Guid tenantId, Guid loanId);
         Task<Loan> UpdateLoanAsync(Loan loan);
         Task<int> SetDeletedLoanAsync(Guid id, bool deleted);
     }

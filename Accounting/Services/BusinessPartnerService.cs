@@ -1,25 +1,35 @@
-﻿using AccountingAPI.Repositories;
+﻿using AccountingAPI.DTOs;
+using AccountingAPI.Exceptions;
 using AccountingAPI.Models;
+using AccountingAPI.Repositories;
+using AccountingAPI.Utilities;
 using AutoMapper;
-using AccountingAPI.DTOs;
+using FluentValidation;
 
 namespace AccountingAPI.Services
 {
     public class BusinessPartnerService : IBusinessPartnerService
     {
         private readonly IBusinessPartnerRepository _businessPartnerRepository;
+        private readonly IValidator<CreateBusinessPartnerDTO> _createBusinessPartnerDTOValidator;
+        private readonly IValidator<UpdateBusinessPartnerDTO> _updateBusinessPartnerDTOValidator;
         private readonly IMapper _mapper;
         private readonly ILogger<BusinessPartnerService> _logger;
 
-        public BusinessPartnerService(IBusinessPartnerRepository businessPartnerRepository, ILogger<BusinessPartnerService> logger, IMapper mapper)
+        public BusinessPartnerService(IBusinessPartnerRepository businessPartnerRepository, IValidator<CreateBusinessPartnerDTO> createBusinessPartnerDTOValidator, IValidator<UpdateBusinessPartnerDTO> updateBusinessPartnerDTOValidator, ILogger<BusinessPartnerService> logger, IMapper mapper)
         {
             _businessPartnerRepository = businessPartnerRepository;
+            _createBusinessPartnerDTOValidator = createBusinessPartnerDTOValidator;
+            _updateBusinessPartnerDTOValidator = updateBusinessPartnerDTOValidator;
             _logger = logger;
             _mapper = mapper;
         }
 
-        public async Task<BusinessPartnerDTO> CreateBusinessPartnerAsync(CreateBusinessPartnerDTO createBusinessPartnerDTO, string userName, Guid tenantId)
+        public async Task<BusinessPartnerDTO> CreateBusinessPartnerAsync(Guid tenantId, CreateBusinessPartnerDTO createBusinessPartnerDTO, string userName)
         {
+            // validation
+            await _createBusinessPartnerDTOValidator.ValidateAndThrowAsync(createBusinessPartnerDTO);
+
             BusinessPartner businessPartner = _mapper.Map<BusinessPartner>(createBusinessPartnerDTO);
             businessPartner.CreatedBy = userName;
             businessPartner.LastModificationBy = userName;
@@ -28,37 +38,47 @@ namespace AccountingAPI.Services
             businessPartner = await _businessPartnerRepository.InsertBusinessPartnerAsync(businessPartner);
             return _mapper.Map<BusinessPartnerDTO>(businessPartner);
         }
-        public async Task<IEnumerable<BusinessPartnerDTO>> GetBusinessPartnersAsync(bool includeDeleted = false)
+        public async Task<IEnumerable<BusinessPartnerDTO>> GetBusinessPartnersAsync(Guid tenantId, bool includeDeleted = false, int? page = null, int? pageSize = null)
         {
-            IEnumerable<BusinessPartner> businessPartners = await _businessPartnerRepository.GetBusinessPartnersAsync(includeDeleted);
+            IEnumerable<BusinessPartner> businessPartners = await _businessPartnerRepository.GetBusinessPartnersAsync(tenantId, includeDeleted);
+
+            Pagination.Paginate(ref businessPartners, page, pageSize);
+
             return _mapper.Map<IEnumerable<BusinessPartnerDTO>>(businessPartners);
         }
 
-        public async Task<BusinessPartnerDTO?> GetBusinessPartnerByIdAsync(Guid BusinessPartnerId)
+        public async Task<BusinessPartnerDTO> GetBusinessPartnerByIdAsync(Guid tenantId, Guid BusinessPartnerId)
         {
-            BusinessPartner? businessPartner = await _businessPartnerRepository.GetBusinessPartnerByIdAsync(BusinessPartnerId);
-            if (businessPartner == null) return null;
+            BusinessPartner? businessPartner = await _businessPartnerRepository.GetBusinessPartnerByIdAsync(tenantId, BusinessPartnerId);
+
+            if (businessPartner is null) throw new NotFoundException("Business Partner");
+
             return _mapper.Map<BusinessPartnerDTO>(businessPartner);
         }
 
-        public async Task<bool> CheckIfBusinessPartnerExists(Guid BusinessPartnerId)
+        public async Task<BusinessPartnerDTO> UpdateBusinessPartnerAsync(Guid tenantId, Guid businessPartnerId, UpdateBusinessPartnerDTO updateBusinessPartnerDTO, string userName)
         {
-           return await _businessPartnerRepository.GetBusinessPartnerByIdAsync(BusinessPartnerId) != null;
-        }
+            // validation
+            await _updateBusinessPartnerDTOValidator.ValidateAndThrowAsync(updateBusinessPartnerDTO);
 
-        public async Task<BusinessPartnerDTO> UpdateBusinessPartnerAsync(CreateBusinessPartnerDTO createBusinessPartnerDTO, string userName, Guid businessPartnerId)
-        {
-            BusinessPartner businessPartner = _mapper.Map<BusinessPartner>(createBusinessPartnerDTO);
+            // check if exists
+            await GetBusinessPartnerByIdAsync(tenantId, businessPartnerId);
+
+            BusinessPartner businessPartner = _mapper.Map<BusinessPartner>(updateBusinessPartnerDTO);
             businessPartner.Id = businessPartnerId;
             businessPartner.LastModificationAt = DateTime.Now;
             businessPartner.LastModificationBy = userName;
             businessPartner = await _businessPartnerRepository.UpdateBusinessPartnerAsync(businessPartner);
+
             return _mapper.Map<BusinessPartnerDTO>(businessPartner);
         }
 
-        public async Task<int> SetDeletedBusinessPartnerAsync(Guid businessPartnerId, bool deleted)
+        public async Task SetDeletedBusinessPartnerAsync(Guid tenantId, Guid businessPartnerId, bool deleted, string userName)
         {
-            return await _businessPartnerRepository.SetDeletedBusinessPartnerAsync(businessPartnerId,deleted);
+            // check if exists
+            await GetBusinessPartnerByIdAsync(tenantId, businessPartnerId);
+
+            await _businessPartnerRepository.SetDeletedBusinessPartnerAsync(businessPartnerId, deleted, userName);
         }
     }
 }

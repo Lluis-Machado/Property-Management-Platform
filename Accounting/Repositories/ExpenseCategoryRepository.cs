@@ -35,8 +35,13 @@ namespace AccountingAPI.Repositories
             return await connection.QuerySingleOrDefaultAsync<ExpenseCategory?>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<IEnumerable<ExpenseCategory>> GetExpenseCategoriesAsync(bool includeDeleted)
+        public async Task<IEnumerable<ExpenseCategory>> GetExpenseCategoriesAsync(bool includeDeleted = false)
         {
+            var parameters = new
+            {
+                deleted = includeDeleted ? 1 : 0
+            };
+
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");
             queryBuilder.Append(",ExpenseTypeCode");
@@ -47,10 +52,10 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",LastModificationAt");
             queryBuilder.Append(",LastModificationBy");
             queryBuilder.Append(" FROM ExpenseCategories");
-            if (includeDeleted == false) queryBuilder.Append(" WHERE Deleted = 0");
+            if (!includeDeleted) queryBuilder.Append(" WHERE Deleted = @deleted");
 
             using var connection = _context.CreateConnection(); // Create a new connection
-            return await connection.QueryAsync<ExpenseCategory>(queryBuilder.ToString());
+            return await connection.QueryAsync<ExpenseCategory>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<ExpenseCategory> InsertExpenseCategoryAsync(ExpenseCategory expenseType)
@@ -88,23 +93,6 @@ namespace AccountingAPI.Repositories
             return await connection.QuerySingleAsync<ExpenseCategory>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<int> SetDeletedExpenseCategoryAsync(Guid id, bool deleted)
-        {
-            var parameters = new
-            {
-                id,
-                deleted
-            };
-
-            StringBuilder queryBuilder = new();
-            queryBuilder.Append("UPDATE ExpenseCategories");
-            queryBuilder.Append(" SET Deleted = @deleted");
-            queryBuilder.Append(" WHERE Id = @id");
-
-            using var connection = _context.CreateConnection(); // Create a new connection
-            return await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
-        }
-
         public async Task<ExpenseCategory> UpdateExpenseCategoryAsync(ExpenseCategory expenseType)
         {
             var parameters = new
@@ -136,6 +124,27 @@ namespace AccountingAPI.Repositories
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QuerySingleAsync<ExpenseCategory>(queryBuilder.ToString(), parameters);
+        }
+
+        public async Task<int> SetDeletedExpenseCategoryAsync(Guid id, bool deleted, string userName)
+        {
+            var parameters = new
+            {
+                id,
+                deleted,
+                lastModificationBy = userName,
+                lastModificationAt = DateTime.Now,
+            };
+
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("UPDATE ExpenseCategories");
+            queryBuilder.Append(" SET Deleted = @deleted");
+            queryBuilder.Append(",LastModificationBy = @lastModificationBy");
+            queryBuilder.Append(",LastModificationAt = @lastModificationAt");
+            queryBuilder.Append(" WHERE Id = @id");
+
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.ExecuteAsync(queryBuilder.ToString(), parameters);
         }
     }
 }

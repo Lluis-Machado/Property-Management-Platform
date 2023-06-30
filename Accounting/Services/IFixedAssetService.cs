@@ -4,12 +4,10 @@ namespace AccountingAPI.Services
 {
     public interface IFixedAssetService
     {
-        Task<FixedAssetDTO> CreateFixedAssetAsync(CreateFixedAssetDTO createFixedAssetDTO, string userName);
-        Task<IEnumerable<FixedAssetDTO>> GetFixedAssetsAsync();
-        //Task<IEnumerable<FixedAssetYearDetailsDTO>> GetFixedAssetsYearDetailsAsync();
-
-        Task<FixedAssetDTO?> GetFixedAssetByIdAsync(Guid FixedAssetId);
-        Task<FixedAssetDTO> UpdateFixedAssetAsync(UpdateFixedAssetDTO updateFixedAssetDTO, string userName, Guid fixedAssetId);
-        Task<int> SetDeletedFixedAssetAsync(Guid fixedAssetId, bool deleted);
+        Task<FixedAssetDTO> CreateFixedAssetAsync(Guid tenantId, CreateFixedAssetDTO createFixedAssetDTO, string userName);
+        Task<IEnumerable<FixedAssetDTO>> GetFixedAssetsAsync(Guid tenantId,bool includeDeleted = false, int? page = null, int? pageSize = null);
+        Task<FixedAssetDTO> GetFixedAssetByIdAsync(Guid tenantId, Guid FixedAssetId);
+        Task<FixedAssetDTO> UpdateFixedAssetAsync(Guid tenantId, Guid fixedAssetId, UpdateFixedAssetDTO updateFixedAssetDTO, string userName);
+        Task SetDeletedFixedAssetAsync(Guid tenantId, Guid fixedAssetId, bool deleted, string userName);
     }
 }

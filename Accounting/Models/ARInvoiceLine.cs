@@ -1,6 +1,6 @@
 ﻿namespace AccountingAPI.Models
 {
-    public class ARInvoiceLine :InvoiceLine
+    public class ARInvoiceLine : InvoiceLine
     {
     }
 }

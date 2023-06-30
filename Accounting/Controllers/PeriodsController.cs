@@ -1,12 +1,9 @@
 ﻿using AccountingAPI.DTOs;
-using AccountingAPI.Models;
 using AccountingAPI.Services;
-using FluentValidation;
-using FluentValidation.Results;
+using AccountingAPI.Validators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using static AccountingAPI.DTOs.UpdatePeriodDTO;
 
 namespace AccountingAPI.Controllers
 {
@@ -14,13 +11,11 @@ namespace AccountingAPI.Controllers
     public class PeriodsController : Controller
     {
         private readonly IPeriodService _periodService;
-        private readonly IValidator<CreatePeriodDTO> _periodDTOValidator;
         private readonly ILogger<PeriodsController> _logger;
 
-        public PeriodsController(IPeriodService periodService, IValidator<CreatePeriodDTO> periodDTOValidator, ILogger<PeriodsController> logger)
+        public PeriodsController(IPeriodService periodService, ILogger<PeriodsController> logger)
         {
             _periodService = periodService;
-            _periodDTOValidator = periodDTOValidator;
             _logger = logger;
         }
 
@@ -32,24 +27,15 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.Conflict)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
 
-        public async Task<ActionResult<PeriodDTO>> CreatePeriodsAsync([FromBody] CreatePeriodDTO createPeriodDTO, Guid tenantId)
+        public async Task<ActionResult<PeriodDTO>> CreatePeriodAsync(Guid tenantId, [FromBody] CreatePeriodDTO createPeriodDTO)
         {
             // request validations
-            if (createPeriodDTO == null) return BadRequest("Incorrect body format");
+            if (createPeriodDTO is null) return BadRequest("Incorrect body format");
 
-            ValidationResult validationResult = await _periodDTOValidator.ValidateAsync(createPeriodDTO);
-            if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
+            // Check user
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            // check if already exists
-            if (createPeriodDTO.Month != null)
-            {
-                if (await _periodService.CheckIfPeriodExistsAsync(tenantId, createPeriodDTO.Year, (int)createPeriodDTO.Month))
-                {
-                    return Conflict("Period already exists");
-                }
-            }
-
-           PeriodDTO periodDTO = await _periodService.CreatePeriodsAsync(createPeriodDTO, tenantId, User?.Identity?.Name);
+            PeriodDTO periodDTO = await _periodService.CreatePeriodAsync(tenantId, createPeriodDTO, userName);
 
             return Created($"periods/{periodDTO.Id}", periodDTO);
         }
@@ -61,41 +47,44 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<IEnumerable<PeriodDTO>>> GetPeriodsAsync(Guid tenantId, [FromQuery] bool includeDeleted = false)
         {
-            return Ok(await _periodService.GetPeriodsAsync(tenantId,includeDeleted));
+            return Ok(await _periodService.GetPeriodsAsync(tenantId, includeDeleted));
         }
 
-        // PATCH: update period
+        // PATCH: Update period
         [HttpPatch]
-        [Route("tenants/{tenantId}/periods/{periodId}/close")]
+        [Route("tenants/{tenantId}/periods/{periodId}")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<PeriodDTO>> ClosePeriodAsync(Guid tenantId, Guid periodId)
+        public async Task<ActionResult<PeriodDTO>> UpdatePeriodAsync(Guid tenantId, Guid periodId, UpdatePeriodDTO updatePeriodDTO)
         {
-            // check if exists
-            if (!await _periodService.CheckIfPeriodExistsByIdAsync(periodId)) return NotFound("Period not found");
+            // request validations
+            if (updatePeriodDTO is null) return BadRequest("Incorrect body format");
 
-            return Ok(await _periodService.UpdatePeriodStatusAsync(PeriodStatus.closed, User?.Identity?.Name, periodId));
+            // Check user
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
+
+            return Ok(await _periodService.UpdatePeriodStatusAsync(tenantId, periodId, updatePeriodDTO, userName));
         }
 
-        // DELETE: delete period
+        // DELETE: Delete period
         [HttpDelete]
         [Route("tenants/{tenantId}/periods/{periodId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> DeleteAsync(Guid tenantId ,Guid periodId)
+        public async Task<IActionResult> DeleteAsync(Guid tenantId, Guid periodId)
         {
-            // check if exists
-            if (!await _periodService.CheckIfPeriodExistsByIdAsync(periodId)) return NotFound("Period not found");
+            // Check user
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            await _periodService.SetDeletedPeriodAsync(periodId, true);
+            await _periodService.SetDeletedPeriodAsync(tenantId, periodId, true, userName);
 
             return NoContent();
         }
 
-        // POST: undelete period
+        // POST: Undelete period
         [HttpPost]
         [Route("tenants/{tenantId}/periods/{periodId}/undelete")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -103,10 +92,10 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UndeleteAsync(Guid tenantId, Guid periodId)
         {
-            // check if exists
-            if (!await _periodService.CheckIfPeriodExistsByIdAsync(periodId)) return NotFound("Period not found");
+            // Check user
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            await _periodService.SetDeletedPeriodAsync(periodId, false);
+            await _periodService.SetDeletedPeriodAsync(tenantId, periodId, false, userName);
 
             return NoContent();
         }

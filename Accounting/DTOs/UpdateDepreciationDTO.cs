@@ -2,6 +2,6 @@
 {
     public class CreateDepreciationDTO
     {
-        public double DepreciationAmount { get; set; }
+        public decimal DepreciationAmount { get; set; }
     }
 }

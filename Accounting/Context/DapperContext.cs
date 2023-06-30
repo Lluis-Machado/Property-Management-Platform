@@ -3,14 +3,14 @@ using System.Data.SqlClient;
 
 namespace AccountingAPI.Context
 {
-    public class DapperContext :IDapperContext
+    public class DapperContext : IDapperContext
     {
 
         private readonly string _connectionString;
 
 
         public DapperContext(string connectionString)
-        {;
+        {
             _connectionString = connectionString;
         }
 

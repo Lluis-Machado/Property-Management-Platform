@@ -1,10 +1,10 @@
-using AccountingAPI.Context;
-using AccountingAPI.Middlewares;
-using AccountingAPI.DTOs;
-using AccountingAPI.Repositories;
-using AccountingAPI.Validators;
 using AccountingAPI.Configurations;
+using AccountingAPI.Context;
+using AccountingAPI.DTOs;
+using AccountingAPI.Middlewares;
+using AccountingAPI.Repositories;
 using AccountingAPI.Services;
+using AccountingAPI.Validators;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -14,7 +14,7 @@ using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Serilog
+// Logs
 var logger = new LoggerConfiguration()
   .ReadFrom.Configuration(builder.Configuration)
   .Enrich.FromLogContext()
@@ -22,64 +22,76 @@ var logger = new LoggerConfiguration()
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);
 
-// Global error handling
+// Middelwares
 builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
 
-// Add services to the container.
+// Contexts
 builder.Services.AddSingleton<IDapperContext>(provider =>
 {
     return new DapperContext(builder.Configuration.GetConnectionString("SqlConnection"));
 });
 
-builder.Services.AddScoped<ITenantService, TenantService>();
+// Repositories
 builder.Services.AddScoped<ITenantRepository, TenantRepository>();
-builder.Services.AddScoped<IValidator<CreateTenantDTO>, CreateTenantDTOValidator>();
-
-builder.Services.AddScoped<IPeriodService, PeriodService>();
 builder.Services.AddScoped<IPeriodRepository, PeriodRepository>();
-builder.Services.AddScoped<IValidator<CreatePeriodDTO>, CreatePeriodDTOValidator>();
-
-builder.Services.AddScoped<IDepreciationService, DepreciationService>();
 builder.Services.AddScoped<IDepreciationRepository, DepreciationRepository>();
-
-builder.Services.AddScoped<IFixedAssetService, FixedAssetService>();
 builder.Services.AddScoped<IFixedAssetRepository, FixedAssetRepository>();
-
-builder.Services.AddScoped<IBusinessPartnerService, BusinessPartnerService>();
 builder.Services.AddScoped<IBusinessPartnerRepository, BusinessPartnerRepository>();
-builder.Services.AddScoped<IValidator<CreateBusinessPartnerDTO>, CreateBusinessPartnerDTOValidator>();
-
-builder.Services.AddScoped<IAPInvoiceService, APInvoiceService>();
 builder.Services.AddScoped<IAPInvoiceRepository, APInvoiceRepository>();
-builder.Services.AddScoped<IValidator<CreateAPInvoiceDTO>, CreateAPInvoiceDTOValidator>();
-builder.Services.AddScoped<IValidator<UpdateAPInvoiceDTO>, UpdateAPInvoiceDTOValidator>();
-
-builder.Services.AddScoped<IARInvoiceService, ARInvoiceService>();
 builder.Services.AddScoped<IARInvoiceRepository, ARInvoiceRepository>();
-builder.Services.AddScoped<IValidator<CreateARInvoiceDTO>, CreateARInvoiceDTOValidator>();
-builder.Services.AddScoped<IValidator<UpdateARInvoiceDTO>, UpdateARInvoiceDTOValidator>();
-
-builder.Services.AddScoped<IAPInvoiceLineRepository, APInvoiceLineRepository>();
-builder.Services.AddScoped<IAPInvoiceLineService, APInvoiceLineService>();
-builder.Services.AddScoped<IValidator<CreateAPInvoiceLineDTO>, CreateAPInvoiceLineDTOValidator>();
-
-builder.Services.AddScoped<IARInvoiceLineRepository, ARInvoiceLineRepository>();
-builder.Services.AddScoped<IARInvoiceLineService, ARInvoiceLineService>();
-builder.Services.AddScoped<IValidator<CreateARInvoiceLineDTO>, CreateARInvoiceLineDTOValidator>();
-
-builder.Services.AddScoped<IExpenseCategoryService, ExpenseCategoryService>();
+builder.Services.AddScoped<IAPInvoiceLineRepository, APInvoiceLinesRepository>();
+builder.Services.AddScoped<IARInvoiceLineRepository, ARInvoiceLinesRepository>();
 builder.Services.AddScoped<IExpenseCategoryRepository, ExpenseCategoryRepository>();
-builder.Services.AddScoped<IValidator<CreateExpenseCategoryDTO>, CreateExpenseCategoryDTOValidator>();
-
-builder.Services.AddScoped<ILoanService, LoanService>();
 builder.Services.AddScoped<ILoanRepository, LoanRepository>();
-builder.Services.AddScoped<IValidator<CreateLoanDTO>, CreateLoanDTOValidator>();
 
+// Service
+builder.Services.AddScoped<ITenantService, TenantService>();
+builder.Services.AddScoped<IPeriodService, PeriodService>();
+builder.Services.AddScoped<IDepreciationService, DepreciationService>();
+builder.Services.AddScoped<IFixedAssetService, FixedAssetService>();
+builder.Services.AddScoped<IBusinessPartnerService, BusinessPartnerService>();
+builder.Services.AddScoped<IAPInvoiceService, APInvoiceService>();
+builder.Services.AddScoped<IARInvoiceService, ARInvoiceService>();
+builder.Services.AddScoped<IAPInvoiceLineService, APInvoiceLineService>();
+builder.Services.AddScoped<IARInvoiceLineService, ARInvoiceLineService>();
+builder.Services.AddScoped<IExpenseCategoryService, ExpenseCategoryService>();
+builder.Services.AddScoped<ILoanService, LoanService>();
+
+// Validators
+builder.Services.AddScoped<IValidator<CreateTenantDTO>, CreateTenantDTOValidator>();
+builder.Services.AddScoped<IValidator<CreateBusinessPartnerDTO>, CreateBusinessPartnerDTOValidator>();
+builder.Services.AddScoped<IValidator<CreateAPInvoiceDTO>, CreateAPInvoiceDTOValidator>();
+builder.Services.AddScoped<IValidator<CreateARInvoiceDTO>, CreateARInvoiceDTOValidator>();
+builder.Services.AddScoped<IValidator<CreatePeriodDTO>, CreatePeriodDTOValidator>();
+builder.Services.AddScoped<IValidator<CreateAPInvoiceLineDTO>, CreateAPInvoiceLineDTOValidator>();
+builder.Services.AddScoped<IValidator<CreateARInvoiceLineDTO>, CreateARInvoiceLineDTOValidator>();
+builder.Services.AddScoped<IValidator<CreateExpenseCategoryDTO>, CreateExpenseCategoryDTOValidator>();
+builder.Services.AddScoped<IValidator<CreateLoanDTO>, CreateLoanDTOValidator>();
+builder.Services.AddScoped<IValidator<CreateFixedAssetDTO>, CreateFixedAssetDTOValidator>();
+builder.Services.AddScoped<IValidator<CreateDepreciationDTO>, CreateDepreciationDTOValidator>();
+//
+builder.Services.AddScoped<IValidator<UpdateTenantDTO>, UpdateTenantDTOValidator>();
+builder.Services.AddScoped<IValidator<UpdateBusinessPartnerDTO>, UpdateBusinessPartnerDTOValidator>();
+builder.Services.AddScoped<IValidator<UpdateAPInvoiceDTO>, UpdateAPInvoiceDTOValidator>();
+builder.Services.AddScoped<IValidator<UpdateARInvoiceDTO>, UpdateARInvoiceDTOValidator>();
+builder.Services.AddScoped<IValidator<UpdatePeriodDTO>, UpdatePeriodDTOValidator>();
+builder.Services.AddScoped<IValidator<UpdateAPInvoiceLineDTO>, UpdateAPInvoiceLineDTOValidator>();
+builder.Services.AddScoped<IValidator<UpdateARInvoiceLineDTO>, UpdateARInvoiceLineDTOValidator>();
+builder.Services.AddScoped<IValidator<UpdateExpenseCategoryDTO>, UpdateExpenseCategoryDTOValidator>();
+builder.Services.AddScoped<IValidator<UpdateLoanDTO>, UpdateLoanDTOValidator>();
+builder.Services.AddScoped<IValidator<UpdateFixedAssetDTO>, UpdateFixedAssetDTOValidator>();
+builder.Services.AddScoped<IValidator<UpdateDepreciationDTO>, UpdateDepreciationDTOValidator>();
+
+// AutoMapper
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
+// Controllers
 builder.Services.AddControllers();
 
+// API Enpoints
 builder.Services.AddEndpointsApiExplorer();
+
+// Swagger
 builder.Services.AddSwaggerGen(opt =>
 {
     opt.SwaggerDoc("v1", new OpenApiInfo { Title = "MyAPI", Version = "v1" });
@@ -108,6 +120,7 @@ builder.Services.AddSwaggerGen(opt =>
     });
 });
 
+// Authentication
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -122,20 +135,24 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+
 var app = builder.Build();
 
-// Global FluentValidation CascadeMode
+// Middlewares
+app.UseMiddleware<GlobalErrorHandlingMiddleware>();
+
+// Validators
 ValidatorOptions.Global.DefaultClassLevelCascadeMode = CascadeMode.Stop;
 ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Stop;
 
-// Configure the HTTP request pipeline.
+// Swagger
 //if (app.Environment.IsDevelopment())
 //{
-app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
-    c.ConfigObject.AdditionalItems.Add("persistAuthorization", "true");
-});
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.ConfigObject.AdditionalItems.Add("persistAuthorization", "true");
+    });
 //}
 
 app.UseHttpsRedirection();
@@ -143,8 +160,6 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.UseAuthorization();
-
-app.UseMiddleware<GlobalErrorHandlingMiddleware>();
 
 app.MapControllers();
 

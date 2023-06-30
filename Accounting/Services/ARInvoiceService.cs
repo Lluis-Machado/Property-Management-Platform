@@ -148,9 +148,11 @@ namespace AccountingAPI.Services
                 await SetDeletedARInvoiceLineAsync(invoiceLineId, true, userName);
             }
 
+            ARInvoiceDTO arInvoiceDTO = await GetARInvoiceByIdAsync(tenantId, invoiceId);
+
             transaction.Complete();
 
-            return await GetARInvoiceByIdAsync(tenantId, invoiceId);
+            return arInvoiceDTO;
         }
 
         public async Task SetDeletedARInvoiceAsync(Guid tenantId, Guid invoiceId, bool deleted, string userName)

@@ -31,6 +31,7 @@ namespace AccountingAPI.Configurations
 
             // AP Invoice
             CreateMap<APInvoice, APInvoiceDTO>();
+            CreateMap<APInvoiceDTO, APInvoice>();
             CreateMap<CreateAPInvoiceDTO, APInvoice>();
             CreateMap<UpdateAPInvoiceDTO, APInvoice>();
 
@@ -38,9 +39,11 @@ namespace AccountingAPI.Configurations
             CreateMap<APInvoiceLine, APInvoiceLineDTO>();
             CreateMap<CreateAPInvoiceLineDTO, APInvoiceLine>();
             CreateMap<UpdateAPInvoiceLineDTO, APInvoiceLine>();
+            CreateMap<UpdateAPInvoiceLineDTO, CreateAPInvoiceLineDTO>();
 
             // AR Invoice
             CreateMap<ARInvoice, ARInvoiceDTO>();
+            CreateMap<ARInvoiceDTO, ARInvoice>();
             CreateMap<CreateARInvoiceDTO, ARInvoice>();
             CreateMap<UpdateARInvoiceDTO, ARInvoice>();
 
@@ -48,6 +51,7 @@ namespace AccountingAPI.Configurations
             CreateMap<ARInvoiceLine, ARInvoiceLineDTO>();
             CreateMap<CreateARInvoiceLineDTO, ARInvoiceLine>();
             CreateMap<UpdateARInvoiceLineDTO, ARInvoiceLine>();
+            CreateMap<UpdateARInvoiceLineDTO, CreateARInvoiceLineDTO>();
 
             // Expense Category
             CreateMap<ExpenseCategory, ExpenseCategoryDTO>();

@@ -130,7 +130,6 @@ namespace AccountingAPI.Repositories
             var parameters = new
             {
                 invoice.Id,
-                invoice.BusinessPartnerId,
                 invoice.RefNumber,
                 invoice.Date,
                 invoice.Currency,
@@ -142,8 +141,7 @@ namespace AccountingAPI.Repositories
 
             StringBuilder queryBuilder = new();
             queryBuilder.Append("UPDATE ARInvoices");
-            queryBuilder.Append(" SET BusinessPartnerId = @BusinessPartnerId");
-            queryBuilder.Append(",RefNumber = @RefNumber");
+            queryBuilder.Append(" SET RefNumber = @RefNumber");
             queryBuilder.Append(",Date = @Date");
             queryBuilder.Append(",Currency = @Currency");
             queryBuilder.Append(",GrossAmount = @GrossAmount");

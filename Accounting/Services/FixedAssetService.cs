@@ -78,7 +78,14 @@ namespace AccountingAPI.Services
         public async Task SetDeletedFixedAssetAsync(Guid tenantId, Guid fixedAssetId, bool deleted, string userName)
         {
             // check if exists
-            await GetFixedAssetByIdAsync(tenantId, fixedAssetId);
+            FixedAssetDTO fixedAssetDTO = await GetFixedAssetByIdAsync(tenantId, fixedAssetId);
+
+            // check if already deleted/undeleted
+            if (fixedAssetDTO.Deleted == deleted)
+            {
+                string action = deleted ? "deleted" : "undeleted";
+                throw new ConflictException($"Fixed Asset already {action}");
+            }
 
             await _fixedAssetRepository.SetDeletedFixedAssetAsync(tenantId, fixedAssetId, deleted, userName);
         }

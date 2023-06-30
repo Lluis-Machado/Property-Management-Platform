@@ -81,7 +81,14 @@ namespace AccountingAPI.Services
         public async Task SetDeletedPeriodAsync(Guid tenantId, Guid periodId, bool deleted, string userName)
         {
             // check if exists
-            await GetPeriodByIdAsync(tenantId, periodId);
+            PeriodDTO periodDTO = await GetPeriodByIdAsync(tenantId, periodId);
+
+            // check if already deleted/undeleted
+            if (periodDTO.Deleted == deleted)
+            {
+                string action = deleted ? "deleted" : "undeleted";
+                throw new ConflictException($"Period already {action}");
+            }
 
             await _periodRepository.SetDeletedPeriodAsync(periodId, deleted, userName);
         }

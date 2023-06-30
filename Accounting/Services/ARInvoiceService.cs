@@ -170,7 +170,14 @@ namespace AccountingAPI.Services
         public async Task SetDeletedARInvoiceAsync(Guid tenantId, Guid invoiceId, bool deleted, string userName)
         {
             // check if exists
-            await GetARInvoiceByIdAsync(tenantId, invoiceId);
+            ARInvoiceDTO aRInvoiceDTO = await GetARInvoiceByIdAsync(tenantId, invoiceId);
+
+            // check if already deleted/undeleted
+            if (aRInvoiceDTO.Deleted == deleted)
+            {
+                string action = deleted ? "deleted" : "undeleted";
+                throw new ConflictException($"Invoice already {action}");
+            }
 
             await _invoiceRepository.SetDeletedARInvoiceAsync(invoiceId, deleted, userName);
         }

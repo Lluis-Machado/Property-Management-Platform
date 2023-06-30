@@ -72,7 +72,14 @@ namespace AccountingAPI.Services
         public async Task SetDeletedExpenseCategoryAsync(Guid expenseCategoryId, bool deleted, string userName)
         {
             // check if exists
-            await GetExpenseCategoryByIdAsync(expenseCategoryId);
+            ExpenseCategoryDTO expenseCategoryDTO = await GetExpenseCategoryByIdAsync(expenseCategoryId);
+
+            // check if already deleted/undeleted
+            if (expenseCategoryDTO.Deleted == deleted)
+            {
+                string action = deleted ? "deleted" : "undeleted";
+                throw new ConflictException($"Expense category already {action}");
+            }
 
             await _expenseCategoryRepo.SetDeletedExpenseCategoryAsync(expenseCategoryId, deleted, userName);
         }

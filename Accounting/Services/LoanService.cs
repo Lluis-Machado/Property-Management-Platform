@@ -79,7 +79,14 @@ namespace AccountingAPI.Services
         public async Task SetDeletedLoanAsync(Guid tenantId, Guid loanId, bool deleted, string userName)
         {
             // check if exists
-            await GetLoanByIdAsync(tenantId, loanId);
+            LoanDTO loanDTO = await GetLoanByIdAsync(tenantId, loanId);
+
+            // check if already deleted/undeleted
+            if (loanDTO.Deleted == deleted)
+            {
+                string action = deleted ? "deleted" : "undeleted";
+                throw new ConflictException($"Loan already {action}");
+            }
 
             await _loanRepository.SetDeletedLoanAsync(loanId, deleted);
         }

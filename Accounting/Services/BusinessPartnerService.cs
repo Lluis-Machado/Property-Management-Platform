@@ -76,7 +76,14 @@ namespace AccountingAPI.Services
         public async Task SetDeletedBusinessPartnerAsync(Guid tenantId, Guid businessPartnerId, bool deleted, string userName)
         {
             // check if exists
-            await GetBusinessPartnerByIdAsync(tenantId, businessPartnerId);
+            BusinessPartnerDTO businessPartnerDTO = await GetBusinessPartnerByIdAsync(tenantId, businessPartnerId);
+
+            // check if already deleted/undeleted
+            if (businessPartnerDTO.Deleted == deleted)
+            {
+                string action = deleted ? "deleted" : "undeleted";
+                throw new ConflictException($"Business Partner already {action}");
+            }
 
             await _businessPartnerRepository.SetDeletedBusinessPartnerAsync(businessPartnerId, deleted, userName);
         }

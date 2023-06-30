@@ -79,7 +79,13 @@ namespace AccountingAPI.Services
         public async Task SetDeletedTenantAsync(Guid tenantId, bool deleted, string userName)
         {
             // check if exists
-            await GetTenantByIdAsync(tenantId);
+            TenantDTO tenantDTO = await GetTenantByIdAsync(tenantId);
+
+            // check if already deleted/undeleted
+            if (tenantDTO.Deleted == deleted) {
+                string action = deleted ? "deleted" : "undeleted";
+                throw new ConflictException($"Tenant already {action}");
+            }
 
             await _tenantRepository.SetDeletedTenantAsync(tenantId, deleted, userName);
         }

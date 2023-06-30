@@ -10,14 +10,16 @@ namespace AccountingAPI.Services
     public class PeriodService : IPeriodService
     {
         private readonly IPeriodRepository _periodRepository;
+        private readonly ITenantService _tenantService;
         private readonly IValidator<CreatePeriodDTO> _createPeriodDTOValidator;
         private readonly IValidator<UpdatePeriodDTO> _updatePeriodDTOValidator;
         private readonly IMapper _mapper;
         private readonly ILogger<PeriodService> _logger;
 
-        public PeriodService(IPeriodRepository periodRepository, ILogger<PeriodService> logger, IMapper mapper, IValidator<CreatePeriodDTO> createPeriodDTOValidator, IValidator<UpdatePeriodDTO> updatePeriodDTOValidator)
+        public PeriodService(IPeriodRepository periodRepository, ITenantService tenantService, ILogger<PeriodService> logger, IMapper mapper, IValidator<CreatePeriodDTO> createPeriodDTOValidator, IValidator<UpdatePeriodDTO> updatePeriodDTOValidator)
         {
             _periodRepository = periodRepository;
+            _tenantService = tenantService;
             _createPeriodDTOValidator = createPeriodDTOValidator;
             _updatePeriodDTOValidator = updatePeriodDTOValidator;
             _logger = logger;
@@ -28,6 +30,9 @@ namespace AccountingAPI.Services
         {
             // validation
             await _createPeriodDTOValidator.ValidateAndThrowAsync(createPeriodDTO);
+
+            // check that tenant exists
+            await _tenantService.GetTenantByIdAsync(tenantId);
 
             IEnumerable<PeriodDTO> periodDTOs = await GetPeriodsAsync(tenantId);
 
@@ -48,6 +53,7 @@ namespace AccountingAPI.Services
         public async Task<IEnumerable<PeriodDTO>> GetPeriodsAsync(Guid tenantId, bool includeDeleted = false)
         {
             IEnumerable<Period> periods = await _periodRepository.GetPeriodsAsync(tenantId, includeDeleted);
+
             return _mapper.Map<IEnumerable<Period>, List<PeriodDTO>>(periods);
         }
 
@@ -81,7 +87,14 @@ namespace AccountingAPI.Services
         public async Task SetDeletedPeriodAsync(Guid tenantId, Guid periodId, bool deleted, string userName)
         {
             // check if exists
-            await GetPeriodByIdAsync(tenantId, periodId);
+            PeriodDTO periodDTO = await GetPeriodByIdAsync(tenantId, periodId);
+
+            // check if already deleted/undeleted
+            if (periodDTO.Deleted == deleted)
+            {
+                string action = deleted ? "deleted" : "undeleted";
+                throw new ConflictException($"Period already {action}");
+            }
 
             await _periodRepository.SetDeletedPeriodAsync(periodId, deleted, userName);
         }

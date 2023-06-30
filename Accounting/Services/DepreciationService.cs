@@ -14,12 +14,12 @@ namespace AccountingAPI.Services
         private readonly IValidator<CreateDepreciationDTO> _createDepreciationDTOValidator;
         private readonly IValidator<UpdateDepreciationDTO> _updateDepreciationDTOValidator;
         private readonly IPeriodService _periodService;
-        private readonly IARInvoiceLineService _arInvoiceLineService;
+        private readonly IARInvoiceService _arInvoiceService;
         private readonly IFixedAssetService _fixedAssetService;
         private readonly IMapper _mapper;
         private readonly ILogger<DepreciationService> _logger;
 
-        public DepreciationService(IDepreciationRepository depreciationRepository, IValidator<CreateDepreciationDTO> createDepreciationDTOValidator, IValidator<UpdateDepreciationDTO> updateDepreciationDTOValidator, ILogger<DepreciationService> logger, IMapper mapper, IFixedAssetService fixedAssetService, IARInvoiceLineService arInvoiceLineService, IPeriodService periodService)
+        public DepreciationService(IDepreciationRepository depreciationRepository, IValidator<CreateDepreciationDTO> createDepreciationDTOValidator, IValidator<UpdateDepreciationDTO> updateDepreciationDTOValidator, ILogger<DepreciationService> logger, IMapper mapper, IFixedAssetService fixedAssetService, IPeriodService periodService, IARInvoiceService arInvoiceService)
         {
             _depreciationRepository = depreciationRepository;
             _createDepreciationDTOValidator = createDepreciationDTOValidator;
@@ -28,13 +28,19 @@ namespace AccountingAPI.Services
             _logger = logger;
             _mapper = mapper;
             _fixedAssetService = fixedAssetService;
-            _arInvoiceLineService = arInvoiceLineService;
+            _arInvoiceService = arInvoiceService;
         }
 
         public async Task<DepreciationDTO> CreateDepreciationAsync(Guid tenantId, CreateDepreciationDTO createDepreciationDTO, Guid fixedAssetId, Guid periodId, string userName)
         {
             // validation
             await _createDepreciationDTOValidator.ValidateAndThrowAsync(createDepreciationDTO);
+
+            // check that Fixed Asset Exists
+            await _fixedAssetService.GetFixedAssetByIdAsync(tenantId, fixedAssetId);
+
+            // check that Period Exists
+            await _periodService.GetPeriodByIdAsync(tenantId, periodId);
 
             Depreciation depreciation = new()
             {
@@ -127,7 +133,7 @@ namespace AccountingAPI.Services
 
             IEnumerable<DepreciationDTO> depreciationDTOs = await GetDepreciationsAsync(tenantId);
 
-            List<DateTime> serviceDateTimes = await _arInvoiceLineService.GetListOfServiceDatesInPeriodAsync(tenantId, firstDayOfYear, lastDayOfYear);
+            List<DateTime> serviceDateTimes = await _arInvoiceService.GetListOfServiceDatesInPeriodAsync(tenantId, firstDayOfYear, lastDayOfYear);
 
             List<FixedAssetYearDetailsDTO> yearDetails = fixedAssetsDTOs
                 .Where(f => f.CapitalizationDate <= lastDayOfYear)
@@ -172,7 +178,7 @@ namespace AccountingAPI.Services
 
             IEnumerable<FixedAssetDTO> fixedAssetDTOs = await _fixedAssetService.GetFixedAssetsAsync(tenantId);
 
-            List<DateTime> serviceDateTimes = await _arInvoiceLineService.GetListOfServiceDatesInPeriodAsync(tenantId, firstDayOfPeriod, lastDayOfPeriod);
+            List<DateTime> serviceDateTimes = await _arInvoiceService.GetListOfServiceDatesInPeriodAsync(tenantId, firstDayOfPeriod, lastDayOfPeriod);
             if (serviceDateTimes.Count == 0)
             {
                 return Enumerable.Empty<DepreciationDTO>();

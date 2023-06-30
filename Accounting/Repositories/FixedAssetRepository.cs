@@ -133,7 +133,6 @@ namespace AccountingAPI.Repositories
                 fixedAsset.Deleted,
                 fixedAsset.LastModificationBy,
                 fixedAsset.LastModificationAt,
-                LastModificationDate = DateTime.Now,
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("UPDATE FixedAssets");

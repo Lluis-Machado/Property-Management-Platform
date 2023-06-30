@@ -52,8 +52,6 @@ builder.Services.AddScoped<IFixedAssetService, FixedAssetService>();
 builder.Services.AddScoped<IBusinessPartnerService, BusinessPartnerService>();
 builder.Services.AddScoped<IAPInvoiceService, APInvoiceService>();
 builder.Services.AddScoped<IARInvoiceService, ARInvoiceService>();
-builder.Services.AddScoped<IAPInvoiceLineService, APInvoiceLineService>();
-builder.Services.AddScoped<IARInvoiceLineService, ARInvoiceLineService>();
 builder.Services.AddScoped<IExpenseCategoryService, ExpenseCategoryService>();
 builder.Services.AddScoped<ILoanService, LoanService>();
 

@@ -10,16 +10,18 @@ namespace AccountingAPI.Services
     public class FixedAssetService : IFixedAssetService
     {
         private readonly IFixedAssetRepository _fixedAssetRepository;
+        private readonly ITenantService _tenantService;
         private readonly IValidator<CreateFixedAssetDTO> _createFixedAssetDTOValidator;
         private readonly IValidator<UpdateFixedAssetDTO> _updateFixedAssetDTOValidator;
         private readonly IMapper _mapper;
         private readonly ILogger<APInvoiceService> _logger;
 
-        public FixedAssetService(ILogger<APInvoiceService> logger, IMapper mapper, IFixedAssetRepository fixedAssetRepository, IValidator<CreateFixedAssetDTO> createFixedAssetDTOValidator, IValidator<UpdateFixedAssetDTO> updateFixedAssetDTOValidator)
+        public FixedAssetService(ILogger<APInvoiceService> logger, IMapper mapper, IFixedAssetRepository fixedAssetRepository,ITenantService tenantService, IValidator<CreateFixedAssetDTO> createFixedAssetDTOValidator, IValidator<UpdateFixedAssetDTO> updateFixedAssetDTOValidator)
         {
             _logger = logger;
             _mapper = mapper;
             _fixedAssetRepository = fixedAssetRepository;
+            _tenantService = tenantService;
             _createFixedAssetDTOValidator = createFixedAssetDTOValidator;
             _updateFixedAssetDTOValidator = updateFixedAssetDTOValidator;
         }
@@ -28,6 +30,9 @@ namespace AccountingAPI.Services
         {
             // validation
             await _createFixedAssetDTOValidator.ValidateAndThrowAsync(createFixedAssetDTO);
+
+            // check that tenant exists
+            await _tenantService.GetTenantByIdAsync(tenantId);
 
             FixedAsset fixedAsset = _mapper.Map<FixedAsset>(createFixedAssetDTO);
             fixedAsset.CreatedBy = userName;

@@ -22,6 +22,9 @@ namespace AccountingAPI.Validators
                 .Must(list => list is not null && list.Count > 0)
                 .WithMessage("{PropertyName} cannot be empty.");
 
+            RuleForEach(invoice => invoice.InvoiceLines)
+                .SetValidator(new CreateAPInvoiceLineDTOValidator());
+
         }
     }
 }

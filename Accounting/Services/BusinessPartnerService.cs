@@ -11,14 +11,16 @@ namespace AccountingAPI.Services
     public class BusinessPartnerService : IBusinessPartnerService
     {
         private readonly IBusinessPartnerRepository _businessPartnerRepository;
+        private readonly ITenantService _tenantService;
         private readonly IValidator<CreateBusinessPartnerDTO> _createBusinessPartnerDTOValidator;
         private readonly IValidator<UpdateBusinessPartnerDTO> _updateBusinessPartnerDTOValidator;
         private readonly IMapper _mapper;
         private readonly ILogger<BusinessPartnerService> _logger;
 
-        public BusinessPartnerService(IBusinessPartnerRepository businessPartnerRepository, IValidator<CreateBusinessPartnerDTO> createBusinessPartnerDTOValidator, IValidator<UpdateBusinessPartnerDTO> updateBusinessPartnerDTOValidator, ILogger<BusinessPartnerService> logger, IMapper mapper)
+        public BusinessPartnerService(IBusinessPartnerRepository businessPartnerRepository, ITenantService tenantService, IValidator<CreateBusinessPartnerDTO> createBusinessPartnerDTOValidator, IValidator<UpdateBusinessPartnerDTO> updateBusinessPartnerDTOValidator, ILogger<BusinessPartnerService> logger, IMapper mapper)
         {
             _businessPartnerRepository = businessPartnerRepository;
+            _tenantService = tenantService;
             _createBusinessPartnerDTOValidator = createBusinessPartnerDTOValidator;
             _updateBusinessPartnerDTOValidator = updateBusinessPartnerDTOValidator;
             _logger = logger;
@@ -29,6 +31,9 @@ namespace AccountingAPI.Services
         {
             // validation
             await _createBusinessPartnerDTOValidator.ValidateAndThrowAsync(createBusinessPartnerDTO);
+
+            // check that tenant exists
+            await _tenantService.GetTenantByIdAsync(tenantId);
 
             BusinessPartner businessPartner = _mapper.Map<BusinessPartner>(createBusinessPartnerDTO);
             businessPartner.CreatedBy = userName;

@@ -10,26 +10,32 @@ namespace AccountingAPI.Services
     public class LoanService : ILoanService
     {
         private readonly ILoanRepository _loanRepository;
+        private readonly IBusinessPartnerService _businessPartnerService;
         private readonly IValidator<CreateLoanDTO> _createLoanDTOValidator;
         private readonly IValidator<UpdateLoanDTO> _updateLoanDTOValidator;
         private readonly IMapper _mapper;
         private readonly ILogger<LoanService> _logger;
 
-        public LoanService(ILoanRepository loanRepository, ILogger<LoanService> logger, IMapper mapper, IValidator<CreateLoanDTO> createLoanDTOValidator, IValidator<UpdateLoanDTO> updateLoanDTOValidator)
+        public LoanService(ILoanRepository loanRepository, IBusinessPartnerService businessPartnerService, ILogger<LoanService> logger, IMapper mapper, IValidator<CreateLoanDTO> createLoanDTOValidator, IValidator<UpdateLoanDTO> updateLoanDTOValidator)
         {
             _loanRepository = loanRepository;
+            _businessPartnerService = businessPartnerService;
             _createLoanDTOValidator = createLoanDTOValidator;
             _updateLoanDTOValidator = updateLoanDTOValidator;
             _logger = logger;
             _mapper = mapper;
         }
 
-        public async Task<LoanDTO> CreateLoanAsync(Guid tenantId, Guid BusinessPartnerId, CreateLoanDTO createLoanDTO, string userName)
+        public async Task<LoanDTO> CreateLoanAsync(Guid tenantId, Guid businessPartnerId, CreateLoanDTO createLoanDTO, string userName)
         {
             // validation
             await _createLoanDTOValidator.ValidateAndThrowAsync(createLoanDTO);
 
+            // check that business partner exists
+            await _businessPartnerService.GetBusinessPartnerByIdAsync(tenantId, businessPartnerId);
+
             Loan loan = _mapper.Map<Loan>(createLoanDTO);
+            loan.BusinessPartnerId = businessPartnerId;
             loan.CreatedBy = userName;
             loan.LastModificationBy = userName;
 

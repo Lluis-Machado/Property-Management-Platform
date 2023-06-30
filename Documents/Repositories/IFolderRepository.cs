@@ -12,5 +12,6 @@ namespace DocumentsAPI.Repositories
         Task<Folder> SetDeleteFolderAsync(Guid id, bool deleted, string userName);
         Task<Folder> UpdateFolderAsync(Folder folder);
         List<TreeFolderItem> ToFolderTreeView(List<Folder> folders);
+        Task<bool> UpdateFolderHasDocumentsAsync(Guid folderId, bool status = true);
     }
 }

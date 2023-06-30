@@ -4,6 +4,7 @@ using Azure.Storage.Blobs.Models;
 using Documents.Models;
 using DocumentsAPI.Contexts;
 using DocumentsAPI.Repositories;
+using System.IO;
 using System.Net;
 
 namespace Documents.Services.AzureBlobStorage
@@ -129,6 +130,23 @@ namespace Documents.Services.AzureBlobStorage
             return documents;
         }
 
+        public async Task<Document?> GetDocumentByIdAsync(Guid archiveId, Guid documentId)
+        {
+            BlobClient blobClient = _context.GetBlobClient(archiveId.ToString(), documentId.ToString());
+            using (MemoryStream stream = new MemoryStream())
+            {
+                var download = await blobClient.DownloadToAsync(stream);
+                // Reset the memory stream position before deserialization
+                stream.Position = 0;
+
+                using (StreamReader reader = new StreamReader(stream))
+                {
+                    string jsonContent = reader.ReadToEnd();
+                    return Newtonsoft.Json.JsonConvert.DeserializeObject<Document?>(jsonContent);
+                }
+            }
+        }
+
         public async Task<bool> DocumentExistsAsync(Guid archiveId, Guid documentId)
         {
             BlobClient blobClient = _context.GetBlobClient(archiveId.ToString(), documentId.ToString());
@@ -179,7 +197,7 @@ namespace Documents.Services.AzureBlobStorage
         }
 
 
-        public async Task CopyDocumentAsync(Guid archiveId, Guid documentId, string newDocumentName)
+        public async Task CopyDocumentAsync(Guid archiveId, Guid documentId, string newDocumentName, Guid? folderId = null)
         {
             // source blob
             BlobClient sourceBlobClient = _context.GetBlobClient(archiveId.ToString(), documentId.ToString());
@@ -192,6 +210,7 @@ namespace Documents.Services.AzureBlobStorage
             {
                 {"display_name", newDocumentName},
             };
+            if (folderId != null) blobMetadata.Add("folderId", folderId.ToString());
 
             BlobCopyFromUriOptions blobCopyFromUriOptions = new()
             {
@@ -223,11 +242,6 @@ namespace Documents.Services.AzureBlobStorage
 
         private static Document MapDocument(BlobItem blobItem)
         {
-            _logger.LogInformation($"ITEM NAME - {blobItem.Name}");
-            foreach (var metadata in blobItem.Metadata)
-            {
-                _logger.LogInformation($"METADATA - {metadata.Key} : {metadata.Value}");
-            }
             string documentName = blobItem.Metadata["display_name"];
 
             Document document = new()

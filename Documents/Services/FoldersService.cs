@@ -96,6 +96,13 @@ namespace DocumentsAPI.Services
             }
             return result;
         }
+
+        public async Task<bool> UpdateFolderHasDocuments(Guid folderId, bool status = true)
+        {
+            return await _folderRepository.UpdateFolderHasDocumentsAsync(folderId, status);
+        }
+
+
         private void AddChilds(ref TreeFolderItem parentFolder, List<Folder> folders)
         {
             if (parentFolder == null) return;

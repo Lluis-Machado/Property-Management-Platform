@@ -1,4 +1,6 @@
+using AuthenticationAPI.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Ocelot.Cache.CacheManager;
 using Ocelot.DependencyInjection;
@@ -53,13 +55,29 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-app.UseSwagger();
-//app.UseSwaggerUI();
 
-app.UseSwaggerForOcelotUI(opt =>
+if (app.Environment.IsDevelopment())
 {
-    opt.PathToSwaggerGenerator = "/swagger/docs";
-});
+    // Register shutdown callback action to undo ocelot.json overwriting
+    var applicationLifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
+    applicationLifetime.ApplicationStopping.Register(AppShutdown.Shutdown);
+
+    // Hack to make Swagger for Ocelot work properly
+    File.Copy("ocelot.json", "ocelot.json.bak", true);
+    File.Copy("ocelot.Development.json", "ocelot.json", true);
+}
+
+if (!app.Environment.IsProduction())
+{
+    app.UseSwagger();
+    //app.UseSwaggerUI();
+
+    // If this throws the error "SwaggerEndPoints configuration section is missing or empty", perform a Clean & Rebuild
+    app.UseSwaggerForOcelotUI(opt =>
+    {
+        opt.PathToSwaggerGenerator = "/swagger/docs";
+    });
+}
 
 app.MapControllers();
 

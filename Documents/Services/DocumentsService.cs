@@ -36,6 +36,11 @@ namespace Documents.Services
             return await _documentsRepository.GetDocumentsFlatListingAsync(archiveId, 100, folderId, includeDeleted);
         }
 
+        public async Task<Document> GetDocumentByIdAsync(Guid archiveId, Guid documentId)
+        {
+            return (await _documentsRepository.GetDocumentByIdAsync(archiveId, documentId) ?? new Document());
+        }
+
         public async Task<FileContentResult> DownloadAsync(Guid archiveId, Guid documentId)
         {
             byte[] byteArray = await _documentsRepository.DownloadDocumentAsync(archiveId, documentId);
@@ -60,9 +65,9 @@ namespace Documents.Services
             return new NoContentResult();
         }
 
-        public async Task<IActionResult> CopyAsync(Guid archiveId, Guid documentId, string documentName)
+        public async Task<IActionResult> CopyAsync(Guid archiveId, Guid documentId, string documentName, Guid? folderId = null)
         {
-            await _documentsRepository.CopyDocumentAsync(archiveId, documentId, documentName);
+            await _documentsRepository.CopyDocumentAsync(archiveId, documentId, documentName, folderId);
             return new NoContentResult();
         }
     }

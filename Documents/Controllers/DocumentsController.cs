@@ -1,9 +1,12 @@
 using Documents.Models;
 using Documents.Services;
 using DocumentsAPI.Repositories;
+using DocumentsAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Reflection.Metadata;
+using Document = Documents.Models.Document;
 
 namespace Documents.Controllers
 {
@@ -17,13 +20,15 @@ namespace Documents.Controllers
         private readonly IConfiguration _config;
         private readonly IDocumentRepository _documentsRepository;
         private readonly IDocumentsService _documentsService;
+        private readonly IFoldersService _foldersService;
 
-        public DocumentsController(IConfiguration config, IDocumentRepository documentsRepository, ILogger<DocumentsController> logger, IDocumentsService documentsService)
+        public DocumentsController(IConfiguration config, IDocumentRepository documentsRepository, IFoldersService foldersService,ILogger<DocumentsController> logger, IDocumentsService documentsService)
         {
             _config = config;
             _documentsRepository = documentsRepository;
             _logger = logger;
             _documentsService = documentsService;
+            _foldersService = foldersService;
         }
 
         // POST: Upload document(s)
@@ -51,6 +56,9 @@ namespace Documents.Controllers
                 this.HttpContext.Response.StatusCode = (int)HttpStatusCode.MultiStatus;
                 return documents;
             }
+
+            if (folderId != null) await _foldersService.UpdateFolderHasDocuments((Guid)folderId, true);
+
             // all documents ok
             return Ok(documents);
         }
@@ -87,7 +95,14 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> DeleteAsync(Guid archiveId, Guid documentId)
         {
+            var document = await _documentsService.GetDocumentByIdAsync(archiveId, documentId);
+            if (document == null || document == new Document()) { throw new Exception($"Document with ID {documentId} not found"); }
+            var docsInFolder = await _documentsService.GetDocumentsAsync(archiveId, 100, document.FolderId, false);
             await _documentsService.DeleteAsync(archiveId, documentId);
+            // If only one document remains in the folder, mark the folder as empty after deleting the document
+            if (docsInFolder.Count() == 1)
+                await _foldersService.UpdateFolderHasDocuments((Guid)document.FolderId, false);
+
             return NoContent();
         }
 
@@ -100,6 +115,10 @@ namespace Documents.Controllers
         public async Task<IActionResult> UndeleteAsync(Guid archiveId, Guid documentId)
         {
             await _documentsService.UndeleteAsync(archiveId, documentId);
+            var document = await _documentsService.GetDocumentByIdAsync(archiveId, documentId);
+            await _foldersService.UpdateFolderHasDocuments((Guid)document.FolderId, true);
+
+
             return NoContent();
         }
 
@@ -121,9 +140,11 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> CopyAsync(Guid archiveId, Guid documentId, [FromForm] string documentName)
+        public async Task<IActionResult> CopyAsync(Guid archiveId, Guid documentId, [FromForm] string documentName, [FromForm] Guid? folderId = null)
         {
-            await _documentsService.CopyAsync(archiveId, documentId, documentName);
+            await _documentsService.CopyAsync(archiveId, documentId, documentName, folderId);
+            if (folderId != null) await _foldersService.UpdateFolderHasDocuments((Guid)folderId, true);
+
             return NoContent();
         }
 

@@ -186,6 +186,24 @@ namespace Documents.Repositories
                 .QuerySingleAsync(queryBuilder.ToString(), parameters);
         }
 
+        public async Task<bool> UpdateFolderHasDocumentsAsync(Guid folderId, bool status = true)
+        {
+            var parameters = new
+            {
+                folderId,
+                status
+            };
+
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("UPDATE Folders ");
+            queryBuilder.Append("SET HasDocument = @status ");
+            queryBuilder.Append(" WHERE Id = @folderId ");
+            await _context
+                .CreateConnection()
+                .QuerySingleAsync(queryBuilder.ToString(), parameters);
+            return status;
+        }
+
         public List<TreeFolderItem> ToFolderTreeView(List<Folder> folders)
         {
             throw new NotImplementedException();

@@ -41,6 +41,15 @@ namespace AccountingAPI.Middlewares
             {
                 _logger.LogError("Internal exception occurred: {@Exception}", ex);
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+                bool hasDeveloperPermission = context.User.Claims.Any(c => c.Type == "permissions" && c.Value == "admin");
+
+                if (hasDeveloperPermission)
+                {
+                    context.Response.ContentType = "text/plain";
+                    string responseContent = $"An error occurred: {ex.Message}\n\nStack Trace:\n{ex.StackTrace}";
+                    await context.Response.WriteAsync(responseContent);
+                }
             }
         }
     }

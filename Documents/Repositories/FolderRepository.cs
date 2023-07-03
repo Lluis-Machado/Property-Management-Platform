@@ -173,6 +173,7 @@ namespace Documents.Repositories
                 folder.Name,
                 folder.Deleted,
                 folder.ParentId,
+                folder.Id
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("UPDATE Folders ");

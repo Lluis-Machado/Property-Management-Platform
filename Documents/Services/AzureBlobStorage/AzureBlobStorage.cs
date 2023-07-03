@@ -71,12 +71,22 @@ namespace Documents.Services.AzureBlobStorage
 
         public async Task UndeleteArchiveAsync(Guid archiveId)
         {
-            BlobServiceClient blobServiceClient = _context.GetBlobServiceClient();
+            throw new NotImplementedException("Blame Izar");
 
-            Response<BlobContainerClient> blobContainerResponse = await blobServiceClient.UndeleteBlobContainerAsync(archiveId.ToString(), null);
-            Response response = blobContainerResponse.GetRawResponse();
+           // BlobServiceClient blobServiceClient = _context.GetBlobServiceClient();
 
-            _context.CheckResponse(response);
+           // AsyncPageable<BlobContainerItem> deletedContainers = blobServiceClient.GetBlobContainersAsync(BlobContainerTraits.Metadata, BlobContainerStates.Deleted);
+
+           //foreach (var cont in deletedContainers.GetAsyncEnumerator())
+           // {
+           //     // TODO: CONTINUAR, FALTA EL VERSION ID DEL CONTENEDOR; NO PUEDE SER NULL!
+
+           // }
+
+           // Response<BlobContainerClient> blobContainerResponse = await blobServiceClient.UndeleteBlobContainerAsync(archiveId.ToString(), );
+           // Response response = blobContainerResponse.GetRawResponse();
+
+           // _context.CheckResponse(response);
         }
 
         #endregion
@@ -167,7 +177,7 @@ namespace Documents.Services.AzureBlobStorage
         {
             BlobClient blobClient = _context.GetBlobClient(archiveId.ToString(), documentId.ToString());
 
-            Response response = await blobClient.DeleteAsync();
+            Response response = await blobClient.DeleteAsync(DeleteSnapshotsOption.IncludeSnapshots);
             if (response.IsError) throw new Exception(response.ReasonPhrase);
         }
 

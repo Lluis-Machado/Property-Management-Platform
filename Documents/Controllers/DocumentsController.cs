@@ -10,7 +10,7 @@ using Document = Documents.Models.Document;
 
 namespace Documents.Controllers
 {
-#if DEVELOPMENT == false
+#if PRODUCTION
     [Authorize]
 #endif
     [ApiController]

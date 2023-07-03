@@ -8,7 +8,7 @@ using System.Net;
 
 namespace Documents.Controllers
 {
-#if DEVELOPMENT == false
+#if PRODUCTION
     [Authorize]
 #endif
     [ApiController]

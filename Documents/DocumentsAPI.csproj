@@ -11,15 +11,15 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|AnyCPU'">
-    <DefineConstants>$(DefineConstants)TRACE</DefineConstants>
+    <DefineConstants>$(DefineConstants);TRACE;DEVELOPMENT</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Production|AnyCPU'">
-    <DefineConstants>$(DefineConstants)TRACE</DefineConstants>
+    <DefineConstants>$(DefineConstants);TRACE;STAGE</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Stage|AnyCPU'">
-    <DefineConstants>$(DefineConstants)TRACE</DefineConstants>
+    <DefineConstants>$(DefineConstants);TRACE;PRODUCTION</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

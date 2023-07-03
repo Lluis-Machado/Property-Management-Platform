@@ -64,6 +64,25 @@
       "UpstreamPathTemplate": "/accounting/{everything}",
       "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
       "SwaggerKey": "accounting"
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "contacts.plattesapis.net",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/contacts/{everything}",
+      "UpstreamHttpMethod": [
+        "POST",
+        "PUT",
+        "GET",
+        "DELETE",
+        "PATCH"
+      ],
+      "SwaggerKey": "contacts"
     }
   ],
   "SwaggerEndPoints": [
@@ -116,7 +135,17 @@
           "Url": "https://accounting.plattesapis.net/swagger/v1/swagger.json"
         }
       ]
-    }
+    },
+    {
+      "Key": "contacts",
+      "Config": [
+        {
+          "Name": "Contacts API",
+          "Version": "v1",
+          "Url": "https://contacts.plattesapis.net/swagger/v1/swagger.json"
+        }
+      ]
+    },
   ],
   "GlobalConfiguration": {
     "BaseUrl": "https://stage.plattesapis.net"

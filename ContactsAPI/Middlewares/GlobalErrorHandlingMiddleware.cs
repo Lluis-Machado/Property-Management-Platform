@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace ContactsAPI.Middelwares
+namespace ContactsAPI.Middlewares
 {
     public class GlobalErrorHandlingMiddleware : IMiddleware
     {

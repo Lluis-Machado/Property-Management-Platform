@@ -1,20 +1,22 @@
-﻿using MongoDB.Bson;
+﻿using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
 
 namespace OwnershipAPI.Contexts
 {
-    public class MongoContext
+    public class MongoContext : IMongoContext
     {
         private readonly IConfiguration _configuration;
         private readonly string? _connectionString;
+
         public MongoContext(IConfiguration configuration)
         {
             _configuration = configuration;
-            _connectionString = _configuration.GetConnectionString("MongoConnection");
+            _connectionString = _configuration.GetConnectionString(name : "MongoConnection");
         }
-        public IMongoDatabase GetDataBase(string databaseName)
+
+        public IMongoDatabase GetDatabase(string databaseName)
         {
-            MongoClient dbClient = new(_connectionString);
+            MongoClient dbClient = new (_connectionString);
             return dbClient.GetDatabase(databaseName);
         }
     }

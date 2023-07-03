@@ -1,15 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PropertyManagementAPI.DTOs;
-using PropertyManagementAPI.Models;
+using PropertiesAPI.DTOs;
+using PropertiesAPI.Models;
 
-namespace PropertyManagementAPI.Services
+namespace PropertiesAPI.Services
 {
     public interface IPropertiesService
     {
-        Task<ActionResult<PropertyDTO>> CreateProperty(CreatePropertyDTO propertyDTO, string lastUser);
-        Task<ActionResult<PropertyDTO>> UpdateProperty(Guid propertyId, UpdatePropertyDTO propertyDTO, string lastUser);
-        Task<ActionResult<PropertyDTO>> GetProperty(Guid propertyId);
-        Task<ActionResult<IEnumerable<PropertyDTO>>> GetProperties();
+        Task<ActionResult<PropertyDetailedDto>> CreateProperty(CreatePropertyDto propertyDto, string lastUser);
+        Task<ActionResult<PropertyDetailedDto>> UpdateProperty(UpdatePropertyDTO propertyDto, string lastUser, Guid propertyId);
+        Task<ActionResult<PropertyDetailedDto>> GetProperty(Guid propertyId);
+        Task<ActionResult<IEnumerable<PropertyDto>>> GetProperties(bool includeDeleted = false);
         Task<IActionResult> DeleteProperty(Guid propertyId, string lastUser);
         Task<IActionResult> UndeleteProperty(Guid propertyId, string lastUser);
         Task<bool> PropertyExists(Guid propertyId);

@@ -1,14 +1,13 @@
-﻿using ContactsAPI.Models;
-using ContactsAPI.Services;
+﻿using ContactsAPI.Services;
 using FluentValidation;
 using FluentValidation.Results;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using ContactsAPI.DTOs;
 
 namespace ContactsAPI.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [Route("contacts")]
     public class ContactsController : ControllerBase
@@ -30,7 +29,7 @@ namespace ContactsAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<ContactDTO>> CreateAsync([FromBody] CreateContactDTO contactDTO)
+        public async Task<ActionResult<ContactDetailedDTO>> CreateAsync([FromBody] CreateContactDTO contactDTO)
         {
             // validations
             if (contactDTO == null) return new BadRequestObjectResult("Incorrect body format");
@@ -38,7 +37,9 @@ namespace ContactsAPI.Controllers
             ValidationResult validationResult = await _createContactValidator.ValidateAsync(contactDTO);
             if (!validationResult.IsValid) return new BadRequestObjectResult(validationResult.ToString("~"));
 
-            return await _contactsService.CreateContactAsync(contactDTO);
+            var lastUser = "test";
+
+            return await _contactsService.CreateContactAsync(contactDTO, lastUser);
         }
 
         [HttpPatch]
@@ -46,33 +47,50 @@ namespace ContactsAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<ContactDTO>> UpdateAsync([FromBody] UpdateContactDTO contactDTO, Guid contactId)
+        public async Task<ActionResult<ContactDetailedDTO>> UpdateAsync(Guid contactId, [FromBody] UpdateContactDTO contactDTO)
         {
             // validations
             if (contactDTO == null) return new BadRequestObjectResult("Incorrect body format");
-            if (contactDTO.Id != contactId) return new BadRequestObjectResult("Contact Id from body is incorrect");
 
             // contact validation
             ValidationResult validationResult = await _updateContactValidator.ValidateAsync(contactDTO);
             if (!validationResult.IsValid) return new BadRequestObjectResult(validationResult.ToString("~"));
 
+            var lastUser = "test";
 
-            return await _contactsService.UpdateContactAsync(contactDTO, contactId);
+            return await _contactsService.UpdateContactAsync(contactId, contactDTO, lastUser);
         }
 
         [HttpGet]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<ContactDTO>>> GetAsync()
+        public async Task<ActionResult<IEnumerable<ContactDTO>>> GetAsync(bool includeDeteted = false)
         {
-            return await _contactsService.GetContactsAsync();
+            return await _contactsService.GetContactsAsync(includeDeteted);
+        }
+
+        [HttpGet]
+        [Route("declarants/paginated")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<IEnumerable<ContactDTO>>> GetPaginatedAsync(int pageNumber, int pageSize)
+        {
+            try
+            {
+                IEnumerable<ContactDTO> paginatedContacts = await _contactsService.GetPaginatedContactsAsync(pageNumber, pageSize);
+                return Ok(paginatedContacts);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
 
         [HttpGet("{id}")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<ContactDTO>> GetByIdAsync(Guid id)
+        public async Task<ActionResult<ContactDetailedDTO>> GetByIdAsync(Guid id)
         {
             var contact = await _contactsService.GetContactByIdAsync(id);
             if (contact == null)
@@ -100,7 +118,9 @@ namespace ContactsAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteAsync(Guid contactId)
         {
-            return await _contactsService.DeleteContactAsync(contactId);
+            var lastUser = "test";
+
+            return await _contactsService.DeleteContactAsync(contactId, lastUser);
         }
 
         [HttpPatch]
@@ -109,7 +129,9 @@ namespace ContactsAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UndeleteAsync(Guid contactId)
         {
-            return await _contactsService.UndeleteContactAsync(contactId);
+            var lastUser = "test";
+
+            return await _contactsService.UndeleteContactAsync(contactId, lastUser);
         }
     }
 }

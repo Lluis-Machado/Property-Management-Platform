@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentValidation;
+using OwnershipAPI.Exceptions;
 using System.Net;
-using System.Text.Json;
+
 
 namespace OwnershipAPI.Middelwares
 {
-    public class GlobalErrorHandlingMiddleware: IMiddleware
+    public class GlobalErrorHandlingMiddleware : IMiddleware
     {
         private readonly ILogger<GlobalErrorHandlingMiddleware> _logger;
 
@@ -19,25 +20,23 @@ namespace OwnershipAPI.Middelwares
             {
                 await next(context);
             }
-            catch (Exception e)
+            catch (NotFoundException ex)
             {
-                _logger.LogError("Internal exception ocurred: {@Exception}",e);
-
-                //ProblemDetails problem = new()
-                //{
-                //    Type = "Server error",
-                //    Title = "Server error",
-                //    Detail = "Internal server error ocurred"
-                //};
-
-                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-
-                //string problemJson = JsonSerializer.Serialize(problem);
-                //await context.Response.WriteAsJsonAsync(problemJson);
-
-                //context.Response.ContentType = "application/json";
+                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                context.Response.ContentType = "text/plain";
+                await context.Response.WriteAsync(ex.Message);
             }
-
+            catch (ValidationException ex)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                context.Response.ContentType = "text/plain";
+                await context.Response.WriteAsync(string.Join("\n", ex.Errors.Select(e => e.ErrorMessage)));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Internal exception occurred: {@Exception}", ex);
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            }
         }
     }
 }

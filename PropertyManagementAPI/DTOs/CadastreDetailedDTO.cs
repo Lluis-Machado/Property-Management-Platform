@@ -1,4 +1,4 @@
-﻿namespace PropertyManagementAPI.DTOs
+﻿namespace PropertiesAPI.DTOs
 {
     public class CadastreDetailedDTO : CadastreDTO
     {

@@ -1,24 +1,22 @@
-﻿namespace ContactsAPI.Models
+﻿using ContactsAPI.DTOs;
+
+namespace ContactsAPI.Models
 {
     public class Contact : BaseModel
     {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public string? FirstName { get; set; }
+        public string LastName { get; set; } = string.Empty;
         public DateOnly BirthDay { get; set; }
-        public string ResidentIn { get; set; }
-        public string NIE { get; set; }
-        public DateOnly NIEValidUntil { get; set; }
-        public ContactData ContactData { get; set; }
-
-        public Contact()
-        {
-            FirstName = string.Empty;
-            LastName = string.Empty;
-            NIE = string.Empty;
-            BirthDay = new DateOnly();
-            ResidentIn = string.Empty;
-            NIEValidUntil = new DateOnly();
-            ContactData = new ContactData();
-        }
+        public string NIE { get; set; } = string.Empty;
+        public string? Email { get; set; }
+        public string? PhoneNumber { get; set; }
+        public string? MobilePhoneNumber { get; set; }
+        public string? AddressLine1 { get; set; }
+        public string? AddressLine2 { get; set; }
+        public string? City { get; set; }
+        public string? Region { get; set; }
+        public string? State { get; set; }
+        public string? PostalCode { get; set; }
+        public string? Country { get; set; }
     }
 }

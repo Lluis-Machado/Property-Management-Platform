@@ -1,10 +1,12 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
-using PropertyManagementAPI.Models;
+using PropertiesAPI.Models;
 
-namespace PropertyManagementAPI.DTOs
+namespace PropertiesAPI.DTOs
 {
-    public class PropertyDetailedDTO : PropertyDTO
+    public class PropertyDetailedDto : PropertyDto
     {
+        public List<PropertyOwnershipDto> Ownerships { get; set; } = new();
+        public List<BasicPropertyDto> ChildProperties { get; set; } = new();
 
     }
 }

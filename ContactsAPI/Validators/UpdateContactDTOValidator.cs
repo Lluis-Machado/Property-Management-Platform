@@ -1,4 +1,4 @@
-﻿using ContactsAPI.Models;
+﻿using ContactsAPI.DTOs;
 using FluentValidation;
 
 namespace ContactsAPI.Validators

@@ -1,7 +1,9 @@
-﻿using PropertyManagementAPI.Models;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using ContactsAPI.DTOs;
+
+namespace ContactsAPI.Services;
 
 public class PropertyServiceClient
 {
@@ -15,7 +17,7 @@ public class PropertyServiceClient
         _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     }
 
-    public async Task<Property?> GetPropertyByIdAsync(Guid id)
+    public async Task<PropertyDTO?> GetPropertyByIdAsync(Guid id)
     {
         var response = await _httpClient.GetAsync($"/properties/{id}");
         if (response.IsSuccessStatusCode)
@@ -25,7 +27,7 @@ public class PropertyServiceClient
             {
                 return null;
             }
-            return JsonSerializer.Deserialize<Property>(content, new JsonSerializerOptions
+            return JsonSerializer.Deserialize<PropertyDTO>(content, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });

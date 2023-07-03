@@ -1,10 +1,8 @@
-﻿using ContactsAPI.DTOs;
-
-namespace ContactsAPI.Models
+﻿namespace ContactsAPI.DTOs
 {
     public class ContactDetailsDTO : ContactDTO
     {
-        public List<OwnershipInfoDTO>? OwnershipInfo { get; set; } = new List<OwnershipInfoDTO>();
+        public List<ContactOwnershipInfoDTO>? OwnershipInfo { get; set; } = new List<ContactOwnershipInfoDTO>();
     }
 
 

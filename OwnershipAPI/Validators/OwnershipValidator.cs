@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
 using OwnershipAPI.Models;
 
-namespace PropertyManagementAPI.Validators
+namespace OwnershipAPI.Validators
 {
-    public class OwnershipValidator : AbstractValidator<OwnershipDTO>
+    public class OwnershipValidator : AbstractValidator<OwnershipDto>
     {
         public OwnershipValidator()
         {

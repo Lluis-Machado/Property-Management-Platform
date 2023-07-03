@@ -2,12 +2,17 @@
 
 namespace OwnershipAPI.Models
 {
-    public class OwnershipDTO 
+    public class OwnershipDto 
     {
         public Guid Id { get; set; }
         public Guid ContactId { get; set; }
         public Guid PropertyId { get; set; }
         public decimal Share { get; set; } = 0;
-        public OwnershipDTO() { }
+        public bool MainOwnership { get; set; }
+
+        public bool Deleted { get; set; } = false;
+
+        
+        public OwnershipDto() { }
     }
 }

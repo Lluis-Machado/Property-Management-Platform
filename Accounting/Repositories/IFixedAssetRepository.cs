@@ -1,13 +1,13 @@
-﻿using Accounting.Models;
+﻿using AccountingAPI.Models;
 
-namespace Accounting.Repositories
+namespace AccountingAPI.Repositories
 {
     public interface IFixedAssetRepository
     {
         Task<FixedAsset> InsertFixedAssetAsync(FixedAsset fixedAsset);
-        Task<IEnumerable<FixedAsset>> GetFixedAssetsAsync(bool includeDeleted);
-        Task<FixedAsset?> GetFixedAssetByIdAsync(Guid fixedAssetId);
-        Task<int> UpdateFixedAssetAsync(FixedAsset fixedAsset);
-        Task<int> SetDeleteFixedAssetAsync(Guid id, bool deleted);
+        Task<IEnumerable<FixedAsset>> GetFixedAssetsAsync(Guid tenantId, bool includeDeleted = false);
+        Task<FixedAsset?> GetFixedAssetByIdAsync(Guid tenantId, Guid fixedAssetId);
+        Task<FixedAsset> UpdateFixedAssetAsync(FixedAsset fixedAsset);
+        Task<int> SetDeletedFixedAssetAsync(Guid tenantId, Guid fixedAssetId, bool deleted, string userName);
     }
 }

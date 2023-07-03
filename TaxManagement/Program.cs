@@ -1,15 +1,11 @@
-using AutoMapper;
 using FluentValidation;
-using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Security.Claims;
 using TaxManagement.Context;
 using TaxManagement.Middelwares;
-using TaxManagement.Models;
 using TaxManagement.Repositories;
 using TaxManagement.Validators;
 using TaxManagementAPI.DTOs;

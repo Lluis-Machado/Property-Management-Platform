@@ -66,8 +66,4 @@
     <Folder Include="Scripts\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\MessagingContracts\MessagingContracts.csproj" />
-  </ItemGroup>
-
 </Project>

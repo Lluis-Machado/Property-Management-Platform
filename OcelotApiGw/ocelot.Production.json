@@ -10,7 +10,8 @@
         }
       ],
       "UpstreamPathTemplate": "/auth/{everything}",
-      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE" ]
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
+      "SwaggerKey": "auth"
     },
     {
       "DownstreamPathTemplate": "/{everything}",
@@ -22,7 +23,8 @@
         }
       ],
       "UpstreamPathTemplate": "/tax-Management/{everything}",
-      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE" ]
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
+      "SwaggerKey": "tax-Management"
     },
     {
       "DownstreamPathTemplate": "/{everything}",
@@ -34,7 +36,8 @@
         }
       ],
       "UpstreamPathTemplate": "/documents/{everything}",
-      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE" ]
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
+      "SwaggerKey": "documents"
     },
     {
       "DownstreamPathTemplate": "/{everything}",
@@ -46,7 +49,8 @@
         }
       ],
       "UpstreamPathTemplate": "/logs/{everything}",
-      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE" ]
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
+      "SwaggerKey": "logs"
     },
     {
       "DownstreamPathTemplate": "/{everything}",
@@ -58,7 +62,60 @@
         }
       ],
       "UpstreamPathTemplate": "/accounting/{everything}",
-      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE" ]
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
+      "SwaggerKey": "accounting"
+    }
+  ],
+  "SwaggerEndPoints": [
+    {
+      "Key": "auth",
+      "Config": [
+        {
+          "Name": "Auth API",
+          "Version": "v1",
+          "Url": "https://authentication.plattesapis.net/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "tax-Management",
+      "Config": [
+        {
+          "Name": "tax-Management API",
+          "Version": "v1",
+          "Url": "https://tax-management.plattesapis.net/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "documents",
+      "Config": [
+        {
+          "Name": "Documents API",
+          "Version": "v1",
+          "Url": "https://documents.plattesapis.net/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "logs",
+      "Config": [
+        {
+          "Name": "Logs API",
+          "Version": "v1",
+          "Url": "https://logs.plattesapis.net/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "accounting",
+      "Config": [
+        {
+          "Name": "Accounting API",
+          "Version": "v1",
+          "Url": "https://accounting.plattesapis.net/swagger/v1/swagger.json"
+        }
+      ]
     }
   ],
   "GlobalConfiguration": {

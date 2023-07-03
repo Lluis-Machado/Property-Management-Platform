@@ -1,8 +1,5 @@
-﻿using Microsoft.AspNetCore.Connections;
-using MongoDB.Bson.IO;
-using RabbitMQ.Client;
+﻿using RabbitMQ.Client;
 using System.Text;
-using Newtonsoft.Json;
 
 namespace TaxManagementAPI.Services
 {
@@ -22,7 +19,7 @@ namespace TaxManagementAPI.Services
 
             using var channel = connection.CreateModel();
 
-            channel.QueueDeclare("Audit",durable:true,exclusive: false);
+            channel.QueueDeclare("Audit", durable: true, exclusive: false);
 
             var json = Newtonsoft.Json.JsonConvert.SerializeObject(message);
             var body = Encoding.UTF8.GetBytes(json);

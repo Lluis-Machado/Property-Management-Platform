@@ -27,8 +27,10 @@ builder.Services.AddSwaggerGen();
 // Add Auth0 configuration and services
 builder.Services.Configure<Auth0Settings>(builder.Configuration.GetSection("Auth0"));
 builder.Services.AddHttpClient<IPublicTokenAPI, PublicTokenAPI>();
+builder.Services.AddHttpClient<IManagementTokenManager, ManagementTokenManager>();
 builder.Services.AddHttpClient<IUsersAPI, UsersAPI>();
 builder.Services.AddHttpClient<IRolesAPI, RolesAPI>();
+builder.Services.AddTransient<ManagementTokenManager>();
 builder.Services.AddSingleton(provider =>
 {
     var auth0Settings = provider.GetRequiredService<IOptions<Auth0Settings>>().Value;
@@ -55,11 +57,13 @@ app.UseCors("AllowAllOrigins");
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 //{
-app.UseSwagger();
+    app.UseSwagger();
     app.UseSwaggerUI();
 //}
-
-//app.UseHttpsRedirection();
+//else
+//{
+    app.UseHttpsRedirection();
+//}
 
 app.UseAuthorization();
 

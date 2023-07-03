@@ -1,14 +1,9 @@
-﻿using FluentValidation;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using TaxManagement.Models;
 using TaxManagement.Repositories;
-using TaxManagement.Validators;
 using TaxManagementAPI.DTOs;
-using FluentValidation.Results;
-using AutoMapper;
-using TaxManagementAPI.Models;
-using MessagingContracts;
-using Newtonsoft.Json;
 
 namespace TaxManagementAPI.Services
 {
@@ -102,6 +97,9 @@ namespace TaxManagementAPI.Services
             return declarantDTO;
         }
 
+        /**
+         * Removed to avoid compilation issues - Izar
+
         public MessageContract CreateContract(Guid id, string action, object oldObject, object newObject, string userName)
         {
             var auditDTO = new Audit
@@ -122,7 +120,7 @@ namespace TaxManagementAPI.Services
             return message;
         }
 
-
+        */
     }
 }
 

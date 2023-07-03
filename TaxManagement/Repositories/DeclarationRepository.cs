@@ -1,11 +1,8 @@
 ﻿using AutoMapper;
 using Dapper;
-using Microsoft.OpenApi.Models;
 using System.Text;
-using System.Xml.Linq;
 using TaxManagement.Context;
 using TaxManagement.Models;
-using TaxManagementAPI.DTOs;
 
 namespace TaxManagement.Repositories
 {
@@ -128,10 +125,10 @@ namespace TaxManagement.Repositories
 
             using var connection = _context.CreateConnection();
 
-            Declaration  result = await _context
+            Declaration result = await _context
                 .CreateConnection()
                 .QuerySingleAsync<Declaration>(queryBuilder.ToString(), parameters);
-         
+
             return result;
 
         }

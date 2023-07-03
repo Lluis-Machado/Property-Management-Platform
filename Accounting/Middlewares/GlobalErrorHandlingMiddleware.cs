@@ -1,6 +1,8 @@
-﻿using System.Net;
+﻿using AccountingAPI.Exceptions;
+using FluentValidation;
+using System.Net;
 
-namespace Accounting.Middlewares
+namespace AccountingAPI.Middlewares
 {
     public class GlobalErrorHandlingMiddleware : IMiddleware
     {
@@ -17,11 +19,37 @@ namespace Accounting.Middlewares
             {
                 await next(context);
             }
+            catch (ConflictException ex)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.Conflict;
+                context.Response.ContentType = "text/plain";
+                await context.Response.WriteAsync(ex.Message);
+            }
+            catch (NotFoundException ex)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                context.Response.ContentType = "text/plain";
+                await context.Response.WriteAsync(ex.Message);
+            }
+            catch (ValidationException ex)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                context.Response.ContentType = "text/plain";
+                await context.Response.WriteAsync(string.Join("\n", ex.Errors.Select(e => e.ErrorMessage)));
+            }
             catch (Exception ex)
             {
                 _logger.LogError("Internal exception occurred: {@Exception}", ex);
-
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+                bool hasDeveloperPermission = context.User.Claims.Any(c => c.Type == "permissions" && c.Value == "admin");
+
+                if (hasDeveloperPermission)
+                {
+                    context.Response.ContentType = "text/plain";
+                    string responseContent = $"An error occurred: {ex.Message}\n\nStack Trace:\n{ex.StackTrace}";
+                    await context.Response.WriteAsync(responseContent);
+                }
             }
         }
     }

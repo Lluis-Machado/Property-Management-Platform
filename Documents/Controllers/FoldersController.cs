@@ -1,4 +1,3 @@
-using Documents.Models;
 using DocumentsAPI.DTOs;
 using DocumentsAPI.Models;
 using DocumentsAPI.Repositories;
@@ -9,16 +8,18 @@ using System.Net;
 
 namespace Documents.Controllers
 {
-    //[Authorize]
+#if DEVELOPMENT == false
+    [Authorize]
+#endif
     [ApiController]
     public class FoldersController : ControllerBase
     {
         private readonly ILogger<DocumentsController> _logger;
-        private readonly IConfiguration _config ;
+        private readonly IConfiguration _config;
         private readonly IFolderRepository _folderRepository;
         private readonly IFoldersService _foldersService;
 
-        public FoldersController(IConfiguration config, IFoldersService foldersService , IFolderRepository folderRepository, ILogger<DocumentsController> logger)
+        public FoldersController(IConfiguration config, IFoldersService foldersService, IFolderRepository folderRepository, ILogger<DocumentsController> logger)
         {
             _config = config;
             _folderRepository = folderRepository;
@@ -29,20 +30,19 @@ namespace Documents.Controllers
         // POST: Create folder
         [HttpPost]
         [Route("{archiveId}/folders")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.MultiStatus)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<FolderDTO>> CreateAsync(Guid archiveId, FolderDTO folderDTO)
+        public async Task<ActionResult<Folder>> CreateAsync(Guid archiveId, [FromBody] CreateFolderDTO createFolderDTO)
         {
-            if (folderDTO == null) return new BadRequestObjectResult("Incorrect body format");
-            if (folderDTO.Id != Guid.Empty) return new BadRequestObjectResult("Id field must be empty");
+            if (createFolderDTO == null) return new BadRequestObjectResult("Incorrect body format");
 
-            string userName = "user";
+            string userName = User?.Identity?.Name ?? "na";
 
-            folderDTO = await _foldersService.CreateFolderAsync(archiveId, folderDTO, userName);
-            return Created($"{archiveId}/folders/{folderDTO.Id}", folderDTO);
+            var folderCreated = await _foldersService.CreateFolderAsync(archiveId, createFolderDTO, userName);
+            return Created($"{archiveId}/folders/{folderCreated.Id}", folderCreated);
         }
 
         //GET: Get Folder(s)
@@ -71,10 +71,10 @@ namespace Documents.Controllers
             if (folderDTO == null) return BadRequest("Incorrect body format");
             if (folderDTO.Id != folderId) return BadRequest("folder Id from body incorrect");
 
-            var exist = _foldersService.CheckFolderExist(folderDTO.Id);
+            var exist = await _foldersService.CheckFolderExist(folderDTO.Id);
             if (!exist) return NotFound("Folder not found");
 
-            string userName = "user";
+            string userName = User?.Identity?.Name ?? "na";
 
             var result = await _foldersService.UpdateFolderAsync(folderDTO, userName);
             return Ok(result);
@@ -88,10 +88,10 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult> DeleteAsync(Guid folderId)
         {
-            var exist = _foldersService.CheckFolderExist(folderId);
+            var exist = await _foldersService.CheckFolderExist(folderId);
             if (!exist) return NotFound("Folder not found");
 
-            string userName = "user";
+            string userName = User?.Identity?.Name ?? "na";
 
             var result = await _foldersService.DeleteFolderAsync(folderId, userName);
             return Ok(result);
@@ -105,10 +105,10 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<FolderDTO>> UndeleteAsync(Guid folderId)
         {
-            var exist = _foldersService.CheckFolderExist(folderId);
-            if (!exist) return NotFound("Folder not found"); 
-            
-            string userName = "user";
+            var exist = await _foldersService.CheckFolderExist(folderId);
+            if (!exist) return NotFound("Folder not found");
+
+            string userName = User?.Identity?.Name ?? "na";
 
             var result = await _foldersService.UnDeleteFolderAsync(folderId, userName);
             return Ok(result);

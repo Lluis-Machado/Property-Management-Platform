@@ -1,9 +1,21 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.OpenApi.Models;
 using Ocelot.Cache.CacheManager;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
+
+builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddSwaggerGen(opt =>
+{
+    opt.SwaggerDoc("v1", new OpenApiInfo { Title = "MyAPI", Version = "v1" });
+});
+
+builder.Services.AddSwaggerForOcelot(builder.Configuration);
 
 builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
 
@@ -41,11 +53,35 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+
+if (app.Environment.IsDevelopment())
+{
+    // Hack to make Swagger for Ocelot work properly
+    File.Copy("ocelot.json", "ocelot.json.bak", true);
+    File.Copy("ocelot.Development.json", "ocelot.json", true);
+}
+
+//if (!app.Environment.IsProduction())
+//{
+    app.UseSwagger();
+    //app.UseSwaggerUI();
+
+    // If this throws the error "SwaggerEndPoints configuration section is missing or empty", perform a Clean & Rebuild
+    app.UseSwaggerForOcelotUI(opt =>
+    {
+        opt.PathToSwaggerGenerator = "/swagger/docs";
+    });
+//}
+
+app.MapControllers();
+
+app.UseHttpsRedirection();
+
 // Enable CORS
 app.UseCors("AllowAllOrigins");
 
-app.UseAuthentication();
-
 app.UseOcelot().Wait();
+
+app.UseAuthentication();
 
 app.Run();

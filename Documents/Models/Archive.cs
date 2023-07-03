@@ -10,7 +10,8 @@ namespace Documents.Models
         [JsonConstructor]
         public Archive() { }
 
-        public Archive(string pName) {
+        public Archive(string pName)
+        {
             Name = pName;
         }
     }

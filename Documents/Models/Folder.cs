@@ -13,4 +13,4 @@ namespace DocumentsAPI.Models
         [JsonConstructor]
         public Folder() { }
     }
- }
+}

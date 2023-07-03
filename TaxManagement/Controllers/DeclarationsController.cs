@@ -89,7 +89,7 @@ namespace TaxManagement.Controllers
         {
             // validations
             if (updateDeclarationDTO == null) return BadRequest("Incorrect body format");
-            if (updateDeclarationDTO.Id != declarationId) return BadRequest("Declaration Id from body incorrect");
+            //if (updateDeclarationDTO.Id != declarationId) return BadRequest("Declaration Id from body incorrect");
 
             // declarant validation
             var oldDeclarant = await _declarantService.DeclarantExists(declarantId);

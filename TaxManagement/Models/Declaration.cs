@@ -3,7 +3,7 @@ using TaxManagementAPI.Models;
 
 namespace TaxManagement.Models
 {
-    public class Declaration: BaseModel
+    public class Declaration : BaseModel
     {
         public Guid DeclarantId { get; set; }
         public DeclarationStatus Status { get; set; }
@@ -21,7 +21,8 @@ namespace TaxManagement.Models
             ValidationRejected = -2
         }
         [JsonConstructor]
-        public Declaration() {
+        public Declaration()
+        {
             CreatedByUser = String.Empty;
             LastUpdateByUser = String.Empty;
         }

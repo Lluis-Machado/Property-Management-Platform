@@ -3,12 +3,10 @@ using Dapper;
 using System.Text;
 using TaxManagement.Context;
 using TaxManagement.Models;
-using TaxManagementAPI.DTOs;
-using static MongoDB.Driver.WriteConcern;
 
 namespace TaxManagement.Repositories
 {
-    public class DeclarantRepository: IDeclarantRepository
+    public class DeclarantRepository : IDeclarantRepository
     {
         private readonly DapperContext _context;
         private readonly IMapper mapper;
@@ -31,15 +29,10 @@ namespace TaxManagement.Repositories
             queryBuilder.Append(" Name");
             queryBuilder.Append(",CreatedByUser");
             queryBuilder.Append(",LastUpdateByUser");
-            queryBuilder.Append(")OUTPUT INSERTED.Id");
-            queryBuilder.Append(",INSERTED.Name");
-            queryBuilder.Append(",INSERTED.Deleted");
-            queryBuilder.Append(",INSERTED.CreatedByUser");
-            queryBuilder.Append(",INSERTED.LastUpdateAt");
-            queryBuilder.Append(",INSERTED.CreatedByUser");
-            queryBuilder.Append(",INSERTED.LastUpdateByUser");
+            queryBuilder.Append(")OUTPUT INSERTED.*");
             queryBuilder.Append(" VALUES(");
-            queryBuilder.Append(" @Name");
+            queryBuilder.Append(" @Id");
+            queryBuilder.Append(",@Name");
             queryBuilder.Append(",@CreatedByUser");
             queryBuilder.Append(",@LastUpdateByUser");
             queryBuilder.Append(" )");
@@ -47,7 +40,7 @@ namespace TaxManagement.Repositories
             var result = await _context
                          .CreateConnection()
                          .QuerySingleAsync<Declarant>(queryBuilder.ToString(), parameters);
-           
+
             return result;
 
         }
@@ -63,8 +56,7 @@ namespace TaxManagement.Repositories
             queryBuilder.Append(",CreatedByUser");
             queryBuilder.Append(",LastUpdateByUser");
             queryBuilder.Append(" FROM Declarants ");
-            queryBuilder.Append(" Where Declarants ");
-            if (includeDeleted == false) queryBuilder.Append(" AND Deleted = 0");
+            if (includeDeleted == false) queryBuilder.Append(" WHERE Deleted = 0");
 
             var result = await _context
                         .CreateConnection()
@@ -79,6 +71,7 @@ namespace TaxManagement.Repositories
             {
                 id
             };
+
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT Id");
             queryBuilder.Append(",Name");
@@ -101,6 +94,10 @@ namespace TaxManagement.Repositories
         {
             var oldDeclarant = _context.CreateConnection().QuerySingleOrDefault<Declarant>("SELECT * FROM Declarants WHERE Id = @Id", new { Id = declarant.Id });
 
+            if (oldDeclarant == null)
+            {
+                throw new Exception($"Declarant with ID {declarant.Id} not found in database");
+            }
 
             var parameters = new
             {
@@ -117,12 +114,12 @@ namespace TaxManagement.Repositories
             queryBuilder.Append(",LastUpdateByUser = @LastUpdateByUser ");
             queryBuilder.Append(",LastUpdateAt = @LastUpdateAt ");
             queryBuilder.Append(" WHERE Id = @Id ");
-            var result = await _context
-                .CreateConnection()
-                .ExecuteAsync(queryBuilder.ToString(), parameters);
+            await _context
+                    .CreateConnection()
+                    .ExecuteAsync(queryBuilder.ToString(), parameters);
 
-
-            await CaptureChanges(declarant, oldDeclarant);
+            // Removed to avoid compilation issues - Izar
+            // await CaptureChanges(declarant, oldDeclarant);
             return declarant;
         }
 
@@ -139,7 +136,7 @@ namespace TaxManagement.Repositories
             StringBuilder queryBuilder = new();
             queryBuilder.Append("UPDATE Declarants ");
             queryBuilder.Append("SET Deleted = @deleted ");
-            queryBuilder.Append(",LastUpdateByUser = @LastUpdateByUser ");
+            if (!string.IsNullOrEmpty(LastUpdateByUser)) queryBuilder.Append(",LastUpdateByUser = @LastUpdateByUser ");
             queryBuilder.Append(",LastUpdateAt = @LastUpdateAt ");
             queryBuilder.Append(" OUTPUT INSERTED.* ");
             queryBuilder.Append(" WHERE Id = @id ");
@@ -157,7 +154,6 @@ namespace TaxManagement.Repositories
                 return;
 
             var properties = typeof(Declarant).GetProperties();
-            var changedFields = new List<string>();
 
             foreach (var property in properties)
             {
@@ -177,7 +173,7 @@ namespace TaxManagement.Repositories
                         FieldName = fieldName,
                         OldValue = oldValueString,
                         NewValue = newValueString,
-                        ChangedBy = "CurrentUserName",
+                        ChangedBy = newDeclarant.LastUpdateByUser,
                         ChangedDate = DateTime.Now
                     };
 
@@ -189,7 +185,7 @@ namespace TaxManagement.Repositories
 
                     await _context.CreateConnection().ExecuteAsync(queryBuilder.ToString(), parameters);
 
-                 //   changedFields.Add(fieldName);
+                    //   changedFields.Add(fieldName);
                 }
             }
 

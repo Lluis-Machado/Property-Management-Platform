@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System.Net;
 using TaxManagement.Controllers;
 using TaxManagement.Models;
 using TaxManagement.Repositories;
@@ -38,7 +37,8 @@ namespace TaxManagementControllerTests
             // Arrange
             var fakeDeclarant = new Declarant { Name = "fakeDeclarant", Id = Guid.NewGuid() };
             var fakeDeclaration = new Declaration { DeclarantId = fakeDeclarant.Id };
-            var fakeExpectedDeclaration = new Declaration { 
+            var fakeExpectedDeclaration = new Declaration
+            {
                 Id = Guid.NewGuid(),
                 DeclarantId = fakeDeclarant.Id,
                 Status = 0,
@@ -71,7 +71,7 @@ namespace TaxManagementControllerTests
         {
             // Arrange
             var fakeDeclarant = new Declarant { Name = "fakeDeclarant", Id = Guid.NewGuid() };
-            var fakeDeclaration = new Declaration { DeclarantId = fakeDeclarant.Id, Id = Guid.NewGuid()};
+            var fakeDeclaration = new Declaration { DeclarantId = fakeDeclarant.Id, Id = Guid.NewGuid() };
 
             // Act
             var result = await _declarationssController.CreateAsync(fakeDeclaration, fakeDeclaration.DeclarantId);
@@ -86,7 +86,7 @@ namespace TaxManagementControllerTests
         {
             // Arrange
             var fakeDeclarant = new Declarant { Name = "fakeDeclarant", Id = Guid.NewGuid() };
-            var fakeDeclaration = new Declaration { DeclarantId = fakeDeclarant.Id};
+            var fakeDeclaration = new Declaration { DeclarantId = fakeDeclarant.Id };
 
             var validationResult = new ValidationResult(new List<ValidationFailure> { new ValidationFailure("Deleted", "Deleted must be false") });
 
@@ -106,7 +106,7 @@ namespace TaxManagementControllerTests
         {
             // Arrange
             var fakeDeclarant = new Declarant { Name = "fakeDeclarant", Id = Guid.NewGuid() };
-            var fakeDeclaration = new Declaration { DeclarantId = fakeDeclarant.Id};
+            var fakeDeclaration = new Declaration { DeclarantId = fakeDeclarant.Id };
 
             _mockDeclarationValidator.Setup(v => v.ValidateAsync(It.IsAny<Declaration>(), CancellationToken.None))
                 .ReturnsAsync(new ValidationResult());

@@ -1,10 +1,11 @@
-﻿namespace DocumentsAPI.DTOs{
+﻿namespace DocumentsAPI.DTOs
+{
     public class FolderDTO
     {
         public Guid ArchiveId { get; set; }
         public string? Name { get; set; }
         public Guid? ParentId { get; set; }
-        List<FolderDTO>? Subfolders { get; set; }    
+        List<FolderDTO>? Subfolders { get; set; }
 
         public Guid Id { get; set; }
         public DateTime CreatedAt { get; set; }

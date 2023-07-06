@@ -88,7 +88,7 @@ namespace Documents.Repositories
                 .QuerySingleOrDefaultAsync<Folder>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<IEnumerable<Folder>> GetFoldersAsync(Guid archiveId, bool includeDeleted = false)
+        public async Task<IEnumerable<Folder>> GetFoldersAsync(Guid? archiveId, bool includeDeleted = false)
         {
             var parameters = new
             {
@@ -107,7 +107,8 @@ namespace Documents.Repositories
             queryBuilder.Append(",LastUpdateAt");
             queryBuilder.Append(",LastUpdateByUser");
             queryBuilder.Append(" FROM Folders");
-            queryBuilder.Append(" WHERE ArchiveId = @archiveId");
+            queryBuilder.Append(" WHERE 1 = 1");
+            if (archiveId != null) queryBuilder.Append(" AND ArchiveId = @archiveId");
             if (includeDeleted == false) queryBuilder.Append(" AND Deleted = 0");
 
             return await _context

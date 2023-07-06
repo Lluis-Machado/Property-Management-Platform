@@ -45,7 +45,7 @@ namespace Documents.Controllers
             return Created($"{archiveId}/folders/{folderCreated.Id}", folderCreated);
         }
 
-        //GET: Get Folder(s)
+        //GET: Get Folder(s) by Archive ID
         [HttpGet]
         [Route("{archiveId}/folders")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -53,6 +53,18 @@ namespace Documents.Controllers
         public async Task<ActionResult<List<TreeFolderItem>>> GetAsync(Guid archiveId, [FromQuery] bool includeDeleted = false)
         {
             var folders = await _foldersService.GetFoldersAsync(archiveId, includeDeleted);
+            //folders = _folderRepository.ToFolderTreeView(folders.ToList());
+            return Ok(folders);
+        }
+
+        //GET: Get Folder(s) by Archive ID
+        [HttpGet]
+        [Route("folders")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<List<TreeFolderItem>>> GetAllAsync([FromQuery] bool includeDeleted = false)
+        {
+            var folders = await _foldersService.GetFoldersAsync(null, includeDeleted);
             //folders = _folderRepository.ToFolderTreeView(folders.ToList());
             return Ok(folders);
         }

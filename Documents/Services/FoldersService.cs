@@ -59,7 +59,7 @@ namespace DocumentsAPI.Services
             return folderDTO;
         }
 
-        public async Task<List<TreeFolderItem>> GetFoldersAsync(Guid ArchiveId, bool includeDeleted = false)
+        public async Task<List<TreeFolderItem>> GetFoldersAsync(Guid? ArchiveId, bool includeDeleted = false)
         {
             var result = await _folderRepository.GetFoldersAsync(ArchiveId, includeDeleted);
             IEnumerable<FolderDTO> folderDTO = _mapper.Map<IEnumerable<Folder>, IEnumerable<FolderDTO>>(result);

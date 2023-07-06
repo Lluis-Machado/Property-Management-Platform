@@ -10,12 +10,14 @@ builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 
+#if PRODUCTION == false
 builder.Services.AddSwaggerGen(opt =>
 {
     opt.SwaggerDoc("v1", new OpenApiInfo { Title = "MyAPI", Version = "v1" });
 });
 
 builder.Services.AddSwaggerForOcelot(builder.Configuration);
+#endif
 
 builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
 
@@ -61,17 +63,16 @@ if (app.Environment.IsDevelopment())
     File.Copy("ocelot.Development.json", "ocelot.json", true);
 }
 
-//if (!app.Environment.IsProduction())
-//{
-    app.UseSwagger();
-    //app.UseSwaggerUI();
+#if PRODUCTION == false
+app.UseSwagger();
+//app.UseSwaggerUI();
 
-    // If this throws the error "SwaggerEndPoints configuration section is missing or empty", perform a Clean & Rebuild
-    app.UseSwaggerForOcelotUI(opt =>
-    {
-        opt.PathToSwaggerGenerator = "/swagger/docs";
-    });
-//}
+// If this throws the error "SwaggerEndPoints configuration section is missing or empty", perform a Clean & Rebuild
+app.UseSwaggerForOcelotUI(opt =>
+{
+    opt.PathToSwaggerGenerator = "/swagger/docs";
+});
+#endif
 
 app.MapControllers();
 

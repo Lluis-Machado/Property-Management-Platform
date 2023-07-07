@@ -7,7 +7,9 @@ using TaxManagementAPI.Services;
 
 namespace TaxManagement.Controllers
 {
+#if PRODUCTION
     [Authorize]
+#endif
     public class DeclarantsController : Controller
     {
         private readonly IDeclarantService _declarantService;

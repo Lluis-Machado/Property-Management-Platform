@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace TaxManagement.Middelwares
 {
@@ -20,20 +21,19 @@ namespace TaxManagement.Middelwares
             catch (Exception e)
             {
                 _logger.LogError("Internal exception ocurred: {@Exception}", e);
-
-                //ProblemDetails problem = new()
-                //{
-                //    Type = "Server error",
-                //    Title = "Server error",
-                //    Detail = "Internal server error ocurred"
-                //};
-
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-                //string problemJson = JsonSerializer.Serialize(problem);
-                //await context.Response.WriteAsJsonAsync(problemJson);
+#if PRODUCTION == false
+                ProblemDetails problem = new()
+                {
+                    Type = "Internal Server error",
+                    Title = e.Message,
+                    Detail = e.StackTrace
+                };
+                context.Response.ContentType = "application/json";
 
-                //context.Response.ContentType = "application/json";
+                await context.Response.WriteAsJsonAsync(problem);
+#endif
             }
 
         }

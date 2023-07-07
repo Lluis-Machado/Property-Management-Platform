@@ -7,8 +7,8 @@ namespace TaxManagement.Validators
     {
         public CreateDeclarationValidator()
         {
-            RuleFor(declarant => declarant.Deleted)
-               .Equal(false).When(declarant => declarant.Id.Equals(Guid.Empty)).WithMessage("{PropertyName} must be false");
+            RuleFor(declarant => declarant.DeclarantId).NotNull()
+                .WithMessage("{PropertyName} cannot be null");
         }
     }
 }

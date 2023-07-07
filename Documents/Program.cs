@@ -103,7 +103,7 @@ builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();
 
-#if PRODUCTION == false
+#if DEVELOPMENT || STAGE
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {

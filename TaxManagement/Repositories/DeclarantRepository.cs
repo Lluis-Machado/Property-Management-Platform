@@ -31,7 +31,6 @@ namespace TaxManagement.Repositories
             queryBuilder.Append(",LastUpdateByUser");
             queryBuilder.Append(")OUTPUT INSERTED.*");
             queryBuilder.Append(" VALUES(");
-            queryBuilder.Append(" @Id");
             queryBuilder.Append(",@Name");
             queryBuilder.Append(",@CreatedByUser");
             queryBuilder.Append(",@LastUpdateByUser");

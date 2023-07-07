@@ -22,12 +22,14 @@ namespace TaxManagement.Repositories
             var parameters = new
             {
                 declaration.DeclarantId,
+                declaration.Status,
                 declaration.CreatedByUser,
                 declaration.LastUpdateByUser,
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("INSERT INTO Declarations (");
             queryBuilder.Append(" DeclarantId");
+            queryBuilder.Append(" Status");
             queryBuilder.Append(",CreatedByUser");
             queryBuilder.Append(",LastUpdateByUser");
             queryBuilder.Append(")OUTPUT INSERTED.Id");
@@ -40,6 +42,7 @@ namespace TaxManagement.Repositories
             queryBuilder.Append(",INSERTED.LastUpdateAt");
             queryBuilder.Append(" VALUES(");
             queryBuilder.Append(" @DeclarantId");
+            queryBuilder.Append(" @Status");
             queryBuilder.Append(",@CreatedByUser");
             queryBuilder.Append(",@LastUpdateByUser");
             queryBuilder.Append(" )");
@@ -52,7 +55,7 @@ namespace TaxManagement.Repositories
 
         }
 
-        public async Task<IEnumerable<Declaration>> GetDeclarationsAsync(Guid declarantId, bool includeDeleted = false)
+        public async Task<IEnumerable<Declaration>> GetDeclarationsAsync(Guid declarantId, DateTime? periodStart = null, DateTime? periodEnd = null, bool includeDeleted = false)
         {
             var parameters = new { declarantId };
             StringBuilder queryBuilder = new();
@@ -62,7 +65,7 @@ namespace TaxManagement.Repositories
             queryBuilder.Append(",Status");
             queryBuilder.Append(",CreatedByUser");
             queryBuilder.Append(",CreatedAt");
-            queryBuilder.Append(",LastUpdateByUser");
+            queryBuilder.Append(",LastUpdateByUser"); 
             queryBuilder.Append(",LastUpdateAt");
             queryBuilder.Append(" FROM Declarations");
             queryBuilder.Append(" WHERE DeclarantId = @declarantId");

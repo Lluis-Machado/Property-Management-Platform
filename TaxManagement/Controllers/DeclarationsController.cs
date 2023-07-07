@@ -9,7 +9,9 @@ using TaxManagementAPI.Services;
 
 namespace TaxManagement.Controllers
 {
+#if PRODUCTION
     [Authorize]
+#endif
     public class DeclarationsController : Controller
     {
         private readonly ILogger<DeclarationsController> _logger;

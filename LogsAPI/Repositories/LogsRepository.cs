@@ -21,7 +21,21 @@ namespace LogsAPI.Services
                 logsDatabaseSettings.Value.LogsCollectionName);
         }
 
-        public async Task<List<Log>> GetAsync() =>
-            await _logCollection.Find(_ => true).ToListAsync();
+        public async Task<List<Log>> GetAsync(DateTime? periodStart, DateTime? periodEnd)
+        {
+            var filter = Builders<Log>.Filter.Empty;
+
+            if (periodStart.HasValue)
+            {
+                filter &= Builders<Log>.Filter.Gte(log => log.Timestamp, periodStart.Value);
+            }
+
+            if (periodEnd.HasValue)
+            {
+                filter &= Builders<Log>.Filter.Lte(log => log.Timestamp, periodEnd.Value);
+            }
+
+            return await _logCollection.Find(filter).ToListAsync();
+        }
     }
 }

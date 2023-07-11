@@ -8,7 +8,9 @@ using System.Threading.Tasks;
 
 namespace LogsAPI.Controllers
 {
+#if PRODUCTION
     [Authorize]
+#endif
     public class LogsController : Controller
     {
         private readonly LogsService _logsService;
@@ -22,9 +24,9 @@ namespace LogsAPI.Controllers
         [Route("logs")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<List<Log>> Get()
+        public async Task<List<Log>> Get([FromQuery] DateTime? periodStart = null, [FromQuery] DateTime? periodEnd = null)
         {
-            return await _logsService.GetLogsAsync();
+            return await _logsService.GetLogsAsync(periodStart, periodEnd);
         }
     }
 }

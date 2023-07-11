@@ -10,17 +10,11 @@
 	<Configurations>Development;Production;Stage</Configurations>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|AnyCPU'">
-    <DefineConstants>$(DefineConstants);TRACE;DEVELOPMENT</DefineConstants>
-  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|AnyCPU'" />
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Production|AnyCPU'">
-    <DefineConstants>$(DefineConstants);TRACE;STAGE</DefineConstants>
-  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Production|AnyCPU'" />
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Stage|AnyCPU'">
-    <DefineConstants>$(DefineConstants);TRACE;PRODUCTION</DefineConstants>
-  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Stage|AnyCPU'" />
 
   <ItemGroup>
     <Content Remove="appsettings.Development.json" />

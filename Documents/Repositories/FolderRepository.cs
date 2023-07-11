@@ -174,18 +174,21 @@ namespace Documents.Repositories
                 folder.Name,
                 folder.Deleted,
                 folder.ParentId,
-                folder.Id
+                folder.Id,
+                LastUpdateAt = DateTime.Now
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("UPDATE Folders ");
             queryBuilder.Append("SET Name = @Name ");
             queryBuilder.Append(" ,Deleted = @Deleted ");
             queryBuilder.Append(" ,ParentId = @ParentId ");
+            queryBuilder.Append(" ,LastUpdateAt = @LastUpdateAt ");
+            queryBuilder.Append(" OUTPUT INSERTED.* ");
             queryBuilder.Append(" WHERE Id = @Id ");
 
             return await _context
                 .CreateConnection()
-                .QuerySingleAsync(queryBuilder.ToString(), parameters);
+                .QuerySingleAsync<Folder>(queryBuilder.ToString(), parameters);
         }
 
         public async Task<bool> UpdateFolderHasDocumentsAsync(Guid folderId, bool status = true)

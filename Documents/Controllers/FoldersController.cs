@@ -77,18 +77,17 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        public async Task<ActionResult<FolderDTO>> UpdateAsync(Guid archiveId, Guid folderId, [FromBody] FolderDTO folderDTO)
+        public async Task<ActionResult<FolderDTO>> UpdateAsync(Guid archiveId, Guid folderId, [FromBody] UpdateFolderDTO folderDTO)
         {
             // request validations
             if (folderDTO == null) return BadRequest("Incorrect body format");
-            if (folderDTO.Id != folderId) return BadRequest("folder Id from body incorrect");
 
-            var exist = await _foldersService.CheckFolderExist(folderDTO.Id);
-            if (!exist) return NotFound("Folder not found");
+            //var exist = await _foldersService.CheckFolderExist(folderId);
+            //if (!exist) return NotFound("Folder not found");
 
             string userName = User?.Identity?.Name ?? "na";
 
-            var result = await _foldersService.UpdateFolderAsync(folderDTO, userName);
+            var result = await _foldersService.UpdateFolderAsync(folderDTO, folderId, userName);
             return Ok(result);
         }
 

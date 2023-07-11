@@ -24,20 +24,21 @@ namespace DocumentsAPI.Services
             return await _folderRepository.CheckFolderExists(folderId);
         }
 
-        public async Task<ActionResult<FolderDTO>> UpdateFolderAsync(FolderDTO folderDTO, string userName)
+        public async Task<FolderDTO> UpdateFolderAsync(UpdateFolderDTO folderDTO, Guid folderId, string userName)
         {
-            if (!await CheckFolderExist(folderDTO.Id)) throw new Exception($"Folder {folderDTO.Id} not found");
+            if (!await CheckFolderExist(folderId)) throw new Exception($"Folder {folderId} not found");
 
-            var folder = _mapper.Map<FolderDTO, Folder>(folderDTO);
+            var folder = _mapper.Map<UpdateFolderDTO, Folder>(folderDTO);
 
+            folder.Id = folderId;
             folder.LastUpdateByUser = userName;
             folder.LastUpdateAt = DateTime.Now;
 
             var result = await _folderRepository.UpdateFolderAsync(folder);
 
-            folderDTO = _mapper.Map<Folder, FolderDTO>(result);
+            FolderDTO folderDTOResult = _mapper.Map<Folder, FolderDTO>(result);
 
-            return new ActionResult<FolderDTO>(folderDTO);
+            return folderDTOResult;
         }
 
         public async Task<FolderDTO> DeleteFolderAsync(Guid folderId, string userName)

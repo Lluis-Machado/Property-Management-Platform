@@ -6,7 +6,7 @@ using System.Net;
 
 namespace CountriesAPI.Controllers
 {
-    //[Authorize]
+    [Authorize]
     public class CountriesController : Controller
     {
         private readonly ICountryService _countryService;
@@ -23,9 +23,9 @@ namespace CountriesAPI.Controllers
         [Route("countries")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<CountryDTO>>> GetCountriesAsync()
+        public async Task<ActionResult<IEnumerable<CountryDTO>>> GetCountriesAsync([FromQuery] string? languageCode = null)
         {
-            return Ok(await _countryService.GetCountriesAsync());
+            return Ok(await _countryService.GetCountriesAsync(languageCode));
         }
     }
 }

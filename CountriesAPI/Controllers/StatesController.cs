@@ -6,7 +6,7 @@ using System.Net;
 
 namespace CountriesAPI.Controllers
 {
-    //[Authorize]
+    [Authorize]
     public class StatesController : Controller
     {
         private readonly IStateService _stateService;
@@ -20,12 +20,12 @@ namespace CountriesAPI.Controllers
 
         // GET: Get state(s)
         [HttpGet]
-        [Route("states")]
+        [Route("countries/{countryId}/states")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<StateDTO>>> GetStatesAsync([FromQuery] string? countryCode = null)
+        public async Task<ActionResult<IEnumerable<StateDTO>>> GetStatesByCountryAsync(int countryId, [FromQuery] string? languageCode = null)
         {
-            return Ok(await _stateService.GetStatesAsync(countryCode));
+            return Ok(await _stateService.GetStatesByCountryAsync(countryId, languageCode));
         }
     }
 }

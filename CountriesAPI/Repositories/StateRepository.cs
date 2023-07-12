@@ -14,19 +14,20 @@ namespace CountriesAPI.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<State>> GetStatesAsync(string? countryCode = null)
+        public async Task<IEnumerable<State>> GetStatesAsync(int? countryId = null)
         {
             var parameters = new
             {
-                countryCode
+                countryId
             };
 
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT StateCode");
-            queryBuilder.Append(",CountryCode");
+            queryBuilder.Append("SELECT Id");
+            queryBuilder.Append(",CountryId");
+            queryBuilder.Append(",StateCode");
             queryBuilder.Append(",Name");
             queryBuilder.Append(" FROM States");
-            if(countryCode is not null) queryBuilder.Append(" WHERE CountryCode = @countryCode");
+            if(countryId is not null) queryBuilder.Append(" WHERE CountryId = @countryId");
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QueryAsync<State>(queryBuilder.ToString(), parameters);

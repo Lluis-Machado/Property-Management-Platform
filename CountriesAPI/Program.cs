@@ -31,6 +31,8 @@ builder.Services.AddSingleton<IDapperContext>(provider =>
 // Repositories
 builder.Services.AddScoped<ICountryRepository, CountryRepository>();
 builder.Services.AddScoped<IStateRepository, StateRepository>();
+builder.Services.AddScoped<IStateTranslationRepository, StateTranslationRepository>();
+builder.Services.AddScoped<ICountryTranslationRepository, CountryTranslationRepository>();
 
 // Service
 builder.Services.AddScoped<ICountryService, CountryService>();

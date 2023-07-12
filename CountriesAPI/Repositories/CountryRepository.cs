@@ -18,7 +18,8 @@ namespace CountriesAPI.Repositories
         {
 
             StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT CountryCode");
+            queryBuilder.Append("SELECT Id");
+            queryBuilder.Append(",CountryCode");
             queryBuilder.Append(",Name");
             queryBuilder.Append(" FROM Countries");
 

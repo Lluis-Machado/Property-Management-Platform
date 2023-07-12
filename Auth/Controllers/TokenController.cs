@@ -29,14 +29,14 @@ namespace Authentication.Controllers
             return Ok(await _publicTokenApi.GetTokenAsync(username, password));
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("GetBackofficeToken")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> GetBackofficeToken([FromForm] string username, [FromForm] string password)
+        public async Task<IActionResult> GetBackofficeToken([FromQuery] string username, [FromQuery] string password)
         {
             string[] allowedRoles = { "admin", "backoffice" };
 

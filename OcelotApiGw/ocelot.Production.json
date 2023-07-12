@@ -75,14 +75,21 @@
         }
       ],
       "UpstreamPathTemplate": "/contacts/{everything}",
-      "UpstreamHttpMethod": [
-        "POST",
-        "PUT",
-        "GET",
-        "DELETE",
-        "PATCH"
-      ],
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
       "SwaggerKey": "contacts"
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "countries.plattesapis.net",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/countries/{everything}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "SwaggerKey": "countries"
     }
   ],
   "SwaggerEndPoints": [
@@ -143,6 +150,16 @@
           "Name": "Contacts API",
           "Version": "v1",
           "Url": "https://contacts.plattesapis.net/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "countries",
+      "Config": [
+        {
+          "Name": "Countries API",
+          "Version": "v1",
+          "Url": "https://countries.plattesapis.net/swagger/v1/swagger.json"
         }
       ]
     }

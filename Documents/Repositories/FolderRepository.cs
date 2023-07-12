@@ -4,7 +4,7 @@ using DocumentsAPI.Models;
 using DocumentsAPI.Repositories;
 using System.Text;
 
-namespace Documents.Repositories
+namespace DocumentsAPI.Repositories
 {
     public class FolderRepository : IFolderRepository
 
@@ -33,7 +33,7 @@ namespace Documents.Repositories
             return result != default;
         }
 
-        public async Task<Folder> GetFolderByIdAsync(Guid archiveId, Guid folderId)
+        public async Task<Folder> GetFolderByIdAsync(Guid? archiveId, Guid folderId)
         {
             var parameters = new
             {
@@ -53,35 +53,8 @@ namespace Documents.Repositories
             queryBuilder.Append(",LastUpdateAt");
             queryBuilder.Append(",LastUpdateByUser");
             queryBuilder.Append(" FROM Folders");
-            queryBuilder.Append(" WHERE ArchiveId = @archiveId");
-            queryBuilder.Append(" AND Id = @folderId");
-
-            return await _context
-                .CreateConnection()
-                .QuerySingleOrDefaultAsync<Folder>(queryBuilder.ToString(), parameters);
-        }
-
-        public async Task<Folder> GetFolderById(Guid folderId)
-        {
-            var parameters = new
-            {
-                folderId
-            };
-            StringBuilder queryBuilder = new();
-            queryBuilder.Append("SELECT ");
-            queryBuilder.Append(" Id");
-            queryBuilder.Append(",ArchiveId");
-            queryBuilder.Append(",Name");
-            queryBuilder.Append(",ParentId");
-            queryBuilder.Append(",HasDocument");
-            queryBuilder.Append(",Deleted");
-            queryBuilder.Append(",CreatedAt");
-            queryBuilder.Append(",CreatedByUser");
-            queryBuilder.Append(",LastUpdateAt");
-            queryBuilder.Append(",LastUpdateByUser");
-            queryBuilder.Append(" FROM Folders");
-            queryBuilder.Append(" WHERE ArchiveId = @archiveId");
-            queryBuilder.Append(" AND Id = @folderId");
+            queryBuilder.Append(" WHERE Id = @folderId");
+            if (archiveId != null) queryBuilder.Append(" AND ArchiveId = @archiveId");
 
             return await _context
                 .CreateConnection()
@@ -174,6 +147,7 @@ namespace Documents.Repositories
                 folder.Name,
                 folder.Deleted,
                 folder.ParentId,
+                folder.ArchiveId,
                 folder.Id,
                 LastUpdateAt = DateTime.Now
             };
@@ -182,6 +156,7 @@ namespace Documents.Repositories
             queryBuilder.Append("SET Name = @Name ");
             queryBuilder.Append(" ,Deleted = @Deleted ");
             queryBuilder.Append(" ,ParentId = @ParentId ");
+            queryBuilder.Append(" ,ArchiveId = @ArchiveId ");
             queryBuilder.Append(" ,LastUpdateAt = @LastUpdateAt ");
             queryBuilder.Append(" OUTPUT INSERTED.* ");
             queryBuilder.Append(" WHERE Id = @Id ");
@@ -207,6 +182,26 @@ namespace Documents.Repositories
                 .CreateConnection()
                 .QuerySingleAsync(queryBuilder.ToString(), parameters);
             return status;
+        }
+
+        public async Task<IEnumerable<Folder>> UpdateChildrenArchiveAsync(Guid parentId, Guid oldArchiveId, Guid newArchiveId)
+        {
+            var parameters = new
+            {
+                parentId,
+                oldArchiveId,
+                newArchiveId
+            };
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("UPDATE Folders ");
+            queryBuilder.Append("SET ArchiveId = @newArchiveId ");
+            queryBuilder.Append(" OUTPUT INSERTED.* ");
+            queryBuilder.Append(" WHERE ParentId = @parentId ");
+            queryBuilder.Append(" AND ArchiveId = @oldArchiveId ");
+
+            return await _context
+                .CreateConnection()
+                .QueryAsync<Folder>(queryBuilder.ToString(), parameters);
         }
 
         public List<TreeFolderItem> ToFolderTreeView(List<Folder> folders)

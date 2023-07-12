@@ -1,13 +1,12 @@
 ﻿using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using Documents.Models;
+using DocumentsAPI.Models;
 using DocumentsAPI.Contexts;
 using DocumentsAPI.Repositories;
-using System.IO;
 using System.Net;
 
-namespace Documents.Services.AzureBlobStorage
+namespace DocumentsAPI.Services.AzureBlobStorage
 {
 
     public class AzureBlobStorage : IDocumentRepository, IArchiveRepository
@@ -69,24 +68,30 @@ namespace Documents.Services.AzureBlobStorage
             _context.CheckResponse(response);
         }
 
+        public async Task UpdateArchiveAsync(Guid archiveId, string newName)
+        {
+            BlobContainerClient blobContainerClient = _context.GetBlobContainerClient(archiveId.ToString());
+
+            BlobContainerProperties props = await blobContainerClient.GetPropertiesAsync();
+            var metadata = props.Metadata;
+            metadata["display_name"] = newName;
+
+            var response = await blobContainerClient.SetMetadataAsync(metadata);
+            _context.CheckResponse(response.GetRawResponse());
+        }
+
         public async Task UndeleteArchiveAsync(Guid archiveId)
         {
-            throw new NotImplementedException("Blame Izar");
 
-           // BlobServiceClient blobServiceClient = _context.GetBlobServiceClient();
+            BlobServiceClient blobServiceClient = _context.GetBlobServiceClient();
 
-           // AsyncPageable<BlobContainerItem> deletedContainers = blobServiceClient.GetBlobContainersAsync(BlobContainerTraits.Metadata, BlobContainerStates.Deleted);
-
-           //foreach (var cont in deletedContainers.GetAsyncEnumerator())
-           // {
-           //     // TODO: CONTINUAR, FALTA EL VERSION ID DEL CONTENEDOR; NO PUEDE SER NULL!
-
-           // }
-
-           // Response<BlobContainerClient> blobContainerResponse = await blobServiceClient.UndeleteBlobContainerAsync(archiveId.ToString(), );
-           // Response response = blobContainerResponse.GetRawResponse();
-
-           // _context.CheckResponse(response);
+            await foreach (BlobContainerItem item in blobServiceClient.GetBlobContainersAsync(BlobContainerTraits.Metadata, BlobContainerStates.Deleted)) {
+                if (item.Name == archiveId.ToString() && (item.IsDeleted == true))
+                {
+                    await blobServiceClient.UndeleteBlobContainerAsync(archiveId.ToString(), item.VersionId);
+                    return;
+                }
+            }
         }
 
         #endregion
@@ -245,7 +250,9 @@ namespace Documents.Services.AzureBlobStorage
             Archive archive = new()
             {
                 Id = Guid.Parse(blobContainerItem.Name),
-                Name = archiveDisplayName
+                Name = archiveDisplayName,
+                Deleted = blobContainerItem.IsDeleted ?? false,
+                LastUpdateAt = blobContainerItem.Properties.LastModified.DateTime
             };
             return archive;
         }

@@ -1,7 +1,7 @@
-﻿using Documents.Models;
+﻿using DocumentsAPI.Models;
 using DocumentsAPI.Repositories;
 
-namespace Archives.Services
+namespace DocumentsAPI.Services
 {
     public class ArchivesService : IArchivesService
     {
@@ -26,6 +26,11 @@ namespace Archives.Services
         public async Task<IEnumerable<Archive>> GetArchivesAsync(bool includeDeleted = false)
         {
             return await _archiveRepository.GetArchivesAsync(100, includeDeleted);
+        }
+
+        public async Task UpdateArchiveAsync(Guid archiveId, string newName)
+        {
+            await _archiveRepository.UpdateArchiveAsync(archiveId, newName);
         }
 
         public async Task DeleteArchiveAsync(Guid archiveId)

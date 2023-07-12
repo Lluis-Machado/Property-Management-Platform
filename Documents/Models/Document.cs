@@ -1,7 +1,7 @@
 ﻿using DocumentsAPI.Models;
 using System.Text.Json.Serialization;
 
-namespace Documents.Models
+namespace DocumentsAPI.Models
 {
     public class Document : BaseModel
     {

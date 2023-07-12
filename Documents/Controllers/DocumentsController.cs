@@ -1,12 +1,11 @@
-using Documents.Models;
-using Documents.Services;
-using DocumentsAPI.Repositories;
+using DocumentsAPI.Models;
 using DocumentsAPI.Services;
+using DocumentsAPI.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Reflection.Metadata;
-using Document = Documents.Models.Document;
+using Document = DocumentsAPI.Models.Document;
 
 namespace Documents.Controllers
 {
@@ -100,7 +99,7 @@ namespace Documents.Controllers
             var docsInFolder = await _documentsService.GetDocumentsAsync(archiveId, 100, document.FolderId, false);
             await _documentsService.DeleteAsync(archiveId, documentId);
             // If only one document remains in the folder, mark the folder as empty after deleting the document
-            if (docsInFolder.Count() == 1)
+            if (docsInFolder.Count() == 1 && document.FolderId != null)
                 await _foldersService.UpdateFolderHasDocuments((Guid)document.FolderId, false);
 
             return NoContent();
@@ -116,7 +115,7 @@ namespace Documents.Controllers
         {
             await _documentsService.UndeleteAsync(archiveId, documentId);
             var document = await _documentsService.GetDocumentByIdAsync(archiveId, documentId);
-            await _foldersService.UpdateFolderHasDocuments((Guid)document.FolderId, true);
+            if (document.FolderId != null) await _foldersService.UpdateFolderHasDocuments((Guid)document.FolderId, true);
 
 
             return NoContent();

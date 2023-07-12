@@ -2,7 +2,6 @@ using DocumentsAPI.DTOs;
 using DocumentsAPI.Models;
 using DocumentsAPI.Repositories;
 using DocumentsAPI.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -57,7 +56,7 @@ namespace Documents.Controllers
             return Ok(folders);
         }
 
-        //GET: Get Folder(s) by Archive ID
+        //GET: Get All Folder(s)
         [HttpGet]
         [Route("folders")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -87,9 +86,61 @@ namespace Documents.Controllers
 
             string userName = User?.Identity?.Name ?? "na";
 
+            var currentFolder = await _foldersService.GetFolderByIdAsync(folderId);
+            Guid currentFolderArchive = currentFolder.ElementAt(0).ArchiveId;
+
             var result = await _foldersService.UpdateFolderAsync(folderDTO, folderId, userName);
+            if (currentFolderArchive != folderDTO.ArchiveId) await _foldersService.UpdateChildrenArchiveAsync(parentId: folderId, oldArchiveId: currentFolderArchive, newArchiveId: folderDTO.ArchiveId);
             return Ok(result);
         }
+
+        //POST: Copy Folder to another Archive and/or Folder
+        /**
+         * 1) Insert new Folder with specified Archive and Parent IDs
+         * 2) For every child, insert new Folder with specified archive and ParentId = ID of the folder created
+         * 3) If ArchiveID has changed, use DocumentsService to copy all documents with old FolderID, set ParentID = new IDs, and every level below recursively
+         * */
+        [HttpPost]
+        [Route("{archiveId}/folders/{folderId}")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
+        public async Task<ActionResult<FolderDTO>> CopyAsync(Guid archiveId, Guid folderId, [FromBody] UpdateFolderDTO folderDTO)
+        {
+            string userName = User?.Identity?.Name ?? "na";
+            var currentFolder = await _foldersService.GetFolderByIdAsync(folderId);
+
+            CreateFolderDTO newFolderDTO = new()
+            {
+                ParentId = folderDTO.ParentId,
+                Name = currentFolder.ElementAt(0).Name
+            };
+
+            var newFolder = await _foldersService.CreateFolderAsync(archiveId: folderDTO.ArchiveId, newFolderDTO, userName);
+            for (var i = 1; i < currentFolder.Count; i++)
+            {
+                CreateFolderDTO newChildDTO = new()
+                {
+                    ParentId = newFolder.Id,
+                    Name = currentFolder.ElementAt(i).Name
+                };
+                await _foldersService.CreateFolderAsync(archiveId: folderDTO.ArchiveId, newChildDTO, userName);
+            }
+
+            // TODO: Copy documents from each of the folders
+
+            return Created($"{archiveId}/folders/{newFolder.Id}", newFolder);
+        }
+
+
+        //PATCH: Move Folder to another Archive and/or Folder and delete the original
+        /**
+         * 1) Patch folder with specified Archive and Parent IDs
+         * 2) For every child, update ArchiveID if it has changed
+         * 3) If ArchiveID has changed, use DocumentsService to move all documents with FolderID and every level below recursively
+         * */
 
         //DELETE: delete folder
         [HttpDelete]

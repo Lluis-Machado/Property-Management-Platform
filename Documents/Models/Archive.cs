@@ -1,7 +1,7 @@
 ﻿using DocumentsAPI.Models;
 using Newtonsoft.Json;
 
-namespace Documents.Models
+namespace DocumentsAPI.Models
 {
     public class Archive : BaseModel
     {

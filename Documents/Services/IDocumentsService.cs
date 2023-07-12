@@ -1,7 +1,7 @@
-﻿using Documents.Models;
+﻿using DocumentsAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Documents.Services
+namespace DocumentsAPI.Services
 {
     public interface IDocumentsService
     {

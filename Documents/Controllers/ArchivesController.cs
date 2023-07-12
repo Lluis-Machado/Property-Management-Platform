@@ -1,10 +1,12 @@
-﻿using Archives.Services;
-using Documents.Models;
+﻿using DocumentsAPI.Services;
+using DocumentsAPI.Models;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using DocumentsAPI.DTOs;
+using AutoMapper;
 
 namespace Archives.Controllers
 {
@@ -16,13 +18,16 @@ namespace Archives.Controllers
     {
         private readonly IArchivesService _archivesService;
         private readonly IValidator<Archive> _archiveValidator;
+        private readonly IMapper _mapper;
 
 
         public ArchivesController(IArchivesService archivesService,
-            IValidator<Archive> archiveValidator)
+            IValidator<Archive> archiveValidator,
+            IMapper mapper)
         {
             _archivesService = archivesService;
             _archiveValidator = archiveValidator;
+            _mapper = mapper;
         }
 
         // POST: Create archive
@@ -31,11 +36,14 @@ namespace Archives.Controllers
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> Create([FromBody] Archive archive)
+        public async Task<IActionResult> Create([FromBody] CreateArchiveDTO archiveDTO)
         {
             //validations
-            if (archive == null) return BadRequest("Incorrect body format");
+            if (archiveDTO == null) return BadRequest("Incorrect body format");
 
+            var archive = _mapper.Map<CreateArchiveDTO, Archive>(archiveDTO);
+
+            // TODO: Move validation out of controller!
             ValidationResult validationResult = await _archiveValidator.ValidateAsync(archive);
             if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
 
@@ -54,6 +62,17 @@ namespace Archives.Controllers
         {
             IEnumerable<Archive> archives = await _archivesService.GetArchivesAsync(includeDeleted);
             return Ok(archives);
+        }
+
+        // PATCH: Update archive
+        [HttpPatch]
+        [Route("archives/{archiveId}")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> UpdateAsync(Guid archiveId, string newName)
+        {
+            await _archivesService.UpdateArchiveAsync(archiveId, newName);
+            return NoContent();
         }
 
         // DELETE: Delete archive

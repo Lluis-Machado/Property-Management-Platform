@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using DocumentsAPI.DTOs;
 using DocumentsAPI.Models;
+using DocumentsAPI.DTOs;
 using DocumentsAPI.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -60,6 +60,18 @@ namespace DocumentsAPI.Services
             return folderDTO;
         }
 
+        public async Task<List<TreeFolderItem>> GetFolderByIdAsync(Guid folderId)
+        {
+            var result = await _folderRepository.GetFolderByIdAsync(null, folderId);
+
+            List<Folder> folderList = new()
+            {
+                result
+            };
+
+            return ToFolderTreeView(folderList);
+        }
+
         public async Task<List<TreeFolderItem>> GetFoldersAsync(Guid? ArchiveId, bool includeDeleted = false)
         {
             var result = await _folderRepository.GetFoldersAsync(ArchiveId, includeDeleted);
@@ -101,6 +113,12 @@ namespace DocumentsAPI.Services
         public async Task<bool> UpdateFolderHasDocuments(Guid folderId, bool status = true)
         {
             return await _folderRepository.UpdateFolderHasDocumentsAsync(folderId, status);
+        }
+
+        // Update ArchiveId for every child of a parent
+        public async Task<List<TreeFolderItem>> UpdateChildrenArchiveAsync(Guid parentId, Guid oldArchiveId, Guid newArchiveId)
+        {
+            return ToFolderTreeView((await _folderRepository.UpdateChildrenArchiveAsync(parentId, oldArchiveId, newArchiveId)).ToList());
         }
 
 

@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Documents.Models
+namespace DocumentsAPI.Models
 {
 
     public class CreateDocumentStatus

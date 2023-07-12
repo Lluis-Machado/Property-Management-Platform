@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Documents.Middelwares
+namespace DocumentsAPI.Middlewares
 {
     public class GlobalErrorHandlingMiddleware : IMiddleware
     {

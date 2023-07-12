@@ -1,7 +1,7 @@
-﻿using Documents.Models;
+﻿using DocumentsAPI.Models;
 using FluentValidation;
 
-namespace Documents.Validators
+namespace DocumentsAPI.Validators
 {
     public class ArchiveValidator : AbstractValidator<Archive>
     {

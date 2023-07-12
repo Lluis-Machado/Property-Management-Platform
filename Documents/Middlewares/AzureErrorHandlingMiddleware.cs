@@ -1,6 +1,6 @@
 ﻿using Azure;
 
-namespace Documents.Middelwares
+namespace DocumentsAPI.Middlewares
 {
     public class AzureErrorHandlingMiddleware : IMiddleware
     {

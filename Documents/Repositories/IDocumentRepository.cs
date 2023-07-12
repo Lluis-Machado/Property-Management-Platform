@@ -1,4 +1,4 @@
-﻿using Documents.Models;
+﻿using DocumentsAPI.Models;
 using System.Net;
 
 namespace DocumentsAPI.Repositories

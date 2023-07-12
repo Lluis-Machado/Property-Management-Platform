@@ -15,6 +15,9 @@ namespace DocumentsAPI.DTOs
 
             CreateMap<Folder, UpdateFolderDTO>();
             CreateMap<UpdateFolderDTO, Folder>();
+
+            CreateMap<Archive, CreateArchiveDTO>();
+            CreateMap<CreateArchiveDTO, Archive>();
         }
 
     }

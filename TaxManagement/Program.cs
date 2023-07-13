@@ -100,6 +100,7 @@ var app = builder.Build();
     {
         c.ConfigObject.AdditionalItems.Add("persistAuthorization", "true");
     });
+}
 #endif
 
     app.UseHttpsRedirection();

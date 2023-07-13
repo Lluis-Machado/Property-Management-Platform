@@ -55,7 +55,7 @@ namespace TaxManagement.Repositories
 
         }
 
-        public async Task<IEnumerable<Declaration>> GetDeclarationsAsync(Guid declarantId, DateTime? periodStart = null, DateTime? periodEnd = null, bool includeDeleted = false)
+        public async Task<IEnumerable<Declaration>> GetDeclarationsAsync(Guid declarantId, bool includeDeleted = false)
         {
             var parameters = new { declarantId };
             StringBuilder queryBuilder = new();

@@ -55,14 +55,6 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-
-if (app.Environment.IsDevelopment())
-{
-    // Hack to make Swagger for Ocelot work properly
-    File.Copy("ocelot.json", "ocelot.json.bak", true);
-    File.Copy("ocelot.Development.json", "ocelot.json", true);
-}
-
 #if PRODUCTION == false
 app.UseSwagger();
 //app.UseSwaggerUI();

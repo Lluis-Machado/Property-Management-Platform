@@ -77,6 +77,19 @@
       "UpstreamPathTemplate": "/countries/{everything}",
       "UpstreamHttpMethod": [ "GET" ],
       "SwaggerKey": "countries"
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7011
+        }
+      ],
+      "UpstreamPathTemplate": "/properties/{everything}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "SwaggerKey": "properties"
     }
   ],
   "SwaggerEndPoints": [
@@ -137,6 +150,16 @@
           "Name": "Countries API",
           "Version": "v1",
           "Url": "http://localhost:7286/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "properties",
+      "Config": [
+        {
+          "Name": "Properties API",
+          "Version": "v1",
+          "Url": "http://localhost:7011/swagger/v1/swagger.json"
         }
       ]
     }

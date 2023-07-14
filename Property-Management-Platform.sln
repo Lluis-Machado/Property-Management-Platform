@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaxManagementAPI", "TaxMana
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthenticationAPI", "Auth\AuthenticationAPI.csproj", "{4503A5B1-40F7-4B02-8170-7B04513B0F93}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountingAPI", "Accounting\AccountingAPI.csproj", "{02E5C7A6-DF22-4F65-AF7E-19585D54CED8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountingAPI", "AccountingAPI\AccountingAPI.csproj", "{02E5C7A6-DF22-4F65-AF7E-19585D54CED8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{9A2C96D6-81E6-4977-B825-FBCE3EADF662}"
 EndProject

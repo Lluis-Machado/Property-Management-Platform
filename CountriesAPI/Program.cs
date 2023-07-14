@@ -1,19 +1,17 @@
-using FluentValidation;
+using CountriesAPI.Configurations;
+using CountriesAPI.Contexts;
+using CountriesAPI.Middlewares;
+using CountriesAPI.Repositories;
+using CountriesAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Security.Claims;
-using TaxManagement.Context;
-using TaxManagement.Middelwares;
-using TaxManagement.Repositories;
-using TaxManagement.Validators;
-using TaxManagementAPI.DTOs;
-using TaxManagementAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Serilog
+// Logs
 var logger = new LoggerConfiguration()
   .ReadFrom.Configuration(builder.Configuration)
   .Enrich.FromLogContext()
@@ -21,35 +19,36 @@ var logger = new LoggerConfiguration()
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);
 
-// Global error handling
+// Middelwares
 builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
+
+// Contexts
+builder.Services.AddSingleton<IDapperContext>(provider =>
+{
+    return new DapperContext(builder.Configuration.GetConnectionString("SqlConnection"));
+});
+
+// Repositories
+builder.Services.AddScoped<ICountryRepository, CountryRepository>();
+builder.Services.AddScoped<IStateRepository, StateRepository>();
+builder.Services.AddScoped<IStateTranslationRepository, StateTranslationRepository>();
+builder.Services.AddScoped<ICountryTranslationRepository, CountryTranslationRepository>();
+
+// Service
+builder.Services.AddScoped<ICountryService, CountryService>();
+builder.Services.AddScoped<IStateService, StateService>();
+
+// AutoMapper
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
 // Add services to the container.
 
-
-builder.Services.AddSingleton<DapperContext>();
-builder.Services.AddScoped<IDeclarationRepository, DeclarationRepository>();
-builder.Services.AddScoped<IDeclarantRepository, DeclarantRepository>();
-
-builder.Services.AddScoped<IDeclarantService, DeclarantService>();
-builder.Services.AddScoped<IDeclarationService, DeclarationService>();
-
-builder.Services.AddScoped<IValidator<DeclarantDTO>, DeclarantValidator>();
-builder.Services.AddScoped<IValidator<CreateDeclarantDTO>, CreateDeclarantValidator>();
-builder.Services.AddScoped<IValidator<UpdateDeclarantDTO>, UpdateDeclarantValidator>();
-builder.Services.AddScoped<IValidator<DeclarationDTO>, DeclarationValidator>();
-builder.Services.AddScoped<IValidator<CreateDeclarationDTO>, CreateDeclarationValidator>();
-builder.Services.AddScoped<IValidator<UpdateDeclarationDTO>, UpdateDeclarationValidator>();
-
-builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
-
 builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddSwaggerGen(opt =>
 {
     opt.SwaggerDoc("v1", new OpenApiInfo { Title = "MyAPI", Version = "v1" });
-    opt.EnableAnnotations();
     opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -75,7 +74,7 @@ builder.Services.AddSwaggerGen(opt =>
     });
 });
 
-
+// Authentication
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -90,26 +89,27 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+
 var app = builder.Build();
 
+// Middlewares
+app.UseMiddleware<GlobalErrorHandlingMiddleware>();
+
 // Configure the HTTP request pipeline.
-#if DEVELOPMENT || STAGE
-{
+//if (app.Environment.IsDevelopment())
+//{
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.ConfigObject.AdditionalItems.Add("persistAuthorization", "true");
     });
-}
-#endif
+//}
 
-    app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 
 app.UseAuthentication();
 
 app.UseAuthorization();
-
-app.UseMiddleware<GlobalErrorHandlingMiddleware>();
 
 app.MapControllers();
 

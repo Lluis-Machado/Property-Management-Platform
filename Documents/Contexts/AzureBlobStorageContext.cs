@@ -1,6 +1,10 @@
 ﻿using Azure;
 using Azure.Identity;
 using Azure.Storage.Blobs;
+using Azure.ResourceManager.Storage;
+using Azure.Core;
+using Azure.ResourceManager;
+using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
 
 namespace DocumentsAPI.Contexts
 {
@@ -37,6 +41,13 @@ namespace DocumentsAPI.Contexts
         {
             Uri blobUri = GetBlobUri(blobContainerName, blobName);
             return new(blobUri, new DefaultAzureCredential());
+        }
+
+
+        public bool IsVersioningEnabled()
+        {
+            // Assume true if not defined in appsettings
+            return (bool) (_configuration.GetValue<bool?>("AzureSettings:VersioningEnabled") ?? true);
         }
 
         private Uri GetBlobUri(string blobContainerName, string blobName)

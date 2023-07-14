@@ -1,4 +1,5 @@
 ﻿using Azure;
+using System.Net;
 
 namespace DocumentsAPI.Middlewares
 {
@@ -35,6 +36,20 @@ namespace DocumentsAPI.Middlewares
                 context.Response.StatusCode = e.Status;
                 context.Response.ContentType = "text/html";
                 await context.Response.WriteAsync(errorMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Internal exception occurred: {@Exception}", ex);
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+                bool hasDeveloperPermission = context.User.Claims.Any(c => c.Type == "permissions" && c.Value == "admin");
+
+                if (hasDeveloperPermission)
+                {
+                    context.Response.ContentType = "text/plain";
+                    string responseContent = $"An error occurred: {ex.Message}\n\nStack Trace:\n{ex.StackTrace}";
+                    await context.Response.WriteAsync(responseContent);
+                }
             }
         }
     }

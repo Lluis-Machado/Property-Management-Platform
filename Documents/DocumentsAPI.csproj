@@ -45,6 +45,7 @@
     <PackageReference Include="Azure.Identity" Version="1.8.2">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
+    <PackageReference Include="Azure.ResourceManager.Storage" Version="1.1.1" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.15.1" />
     <PackageReference Include="Azure.Storage.Files.Shares" Version="12.1.0">
       <TreatAsUsed>true</TreatAsUsed>
@@ -56,6 +57,7 @@
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.16" />
+    <PackageReference Include="Microsoft.Azure.Management.Storage" Version="25.0.0" />
     <PackageReference Include="Microsoft.Extensions.Azure" Version="1.5.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="7.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.SlowCheetah" Version="4.0.50">

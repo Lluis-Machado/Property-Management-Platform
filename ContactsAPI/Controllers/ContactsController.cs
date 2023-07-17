@@ -13,11 +13,11 @@ namespace ContactsAPI.Controllers
     public class ContactsController : ControllerBase
     {
         private readonly IContactsService _contactsService;
-        private readonly IValidator<CreateContactDTO> _createContactValidator;
+        private readonly IValidator<CreateContactDto> _createContactValidator;
         private readonly IValidator<UpdateContactDTO> _updateContactValidator;
 
         public ContactsController(IContactsService contactsService
-                          , IValidator<CreateContactDTO> createContactValidator
+                          , IValidator<CreateContactDto> createContactValidator
                           , IValidator<UpdateContactDTO> updateContactValidator)
         {
             _contactsService = contactsService;
@@ -29,7 +29,7 @@ namespace ContactsAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<ContactDetailedDTO>> CreateAsync([FromBody] CreateContactDTO contactDTO)
+        public async Task<ActionResult<ContactDetailedDto>> CreateAsync([FromBody] CreateContactDto contactDTO)
         {
             // validations
             if (contactDTO == null) return new BadRequestObjectResult("Incorrect body format");
@@ -39,7 +39,7 @@ namespace ContactsAPI.Controllers
 
             var lastUser = "test";
 
-            return await _contactsService.CreateContactAsync(contactDTO, lastUser);
+            return await _contactsService.CreateAsync(contactDTO, lastUser);
         }
 
         [HttpPatch]
@@ -47,7 +47,7 @@ namespace ContactsAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<ContactDetailedDTO>> UpdateAsync(Guid contactId, [FromBody] UpdateContactDTO contactDTO)
+        public async Task<ActionResult<ContactDetailedDto>> UpdateAsync(Guid contactId, [FromBody] UpdateContactDTO contactDTO)
         {
             // validations
             if (contactDTO == null) return new BadRequestObjectResult("Incorrect body format");
@@ -64,9 +64,9 @@ namespace ContactsAPI.Controllers
         [HttpGet]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<ContactDTO>>> GetAsync(bool includeDeteted = false)
+        public async Task<ActionResult<IEnumerable<ContactDTO>>> GetAsync(bool includeDeleted = false)
         {
-            return await _contactsService.GetContactsAsync(includeDeteted);
+            return await _contactsService.GetAsync(includeDeleted);
         }
 
         [HttpGet]
@@ -90,9 +90,9 @@ namespace ContactsAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<ContactDetailedDTO>> GetByIdAsync(Guid id)
+        public async Task<ActionResult<ContactDetailedDto>> GetByIdAsync(Guid id)
         {
-            var contact = await _contactsService.GetContactByIdAsync(id);
+            var contact = await _contactsService.GetByIdAsync(id);
             if (contact == null)
             {
                 return NotFound();
@@ -107,7 +107,7 @@ namespace ContactsAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<ContactDetailsDTO>> GetContactWithProperties(Guid contactId)
         {
-            var contact = await _contactsService.GetContactWithProperties(contactId);
+            var contact = await _contactsService.GetWithProperties(contactId);
 
             return contact;
         }

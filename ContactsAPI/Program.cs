@@ -26,7 +26,7 @@ builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
 
 // Validator
 builder.Services.AddScoped<IValidator<ContactDTO>, ContactValidator>();
-builder.Services.AddScoped<IValidator<CreateContactDTO>, CreateContactDTOValidator>();
+builder.Services.AddScoped<IValidator<CreateContactDto>, CreateContactDTOValidator>();
 builder.Services.AddScoped<IValidator<UpdateContactDTO>, UpdateContactDTOValidator>();
 
 // Add services to the container.

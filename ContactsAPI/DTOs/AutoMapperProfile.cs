@@ -7,20 +7,14 @@ namespace ContactsAPI.DTOs
     {
         public AutoMapperProfile()
         {
-            CreateMap<CreateContactDTO, Contact>();
-            CreateMap<Contact, CreateContactDTO>();
+            CreateMap<CreateContactDto, Contact>();
+            CreateMap<Contact, CreateContactDto>();
 
-            CreateMap<ContactAddressDTO, ContactAddress>();
-            CreateMap<ContactAddress, ContactAddressDTO>();
+            CreateMap<AddressDto, ContactAddress>();
+            CreateMap<ContactAddress, AddressDto>();
 
-            CreateMap<CreateContactDTO, ContactData>();
-            CreateMap<ContactData, CreateContactDTO>();
-
-            CreateMap<Contact, ContactDetailedDTO>();
-            CreateMap<ContactDetailedDTO, Contact>();
-
-            CreateMap<ContactDetailedDTO, ContactData>();
-            CreateMap<ContactData, ContactDetailedDTO>();
+            CreateMap<Contact, ContactDetailedDto>();
+            CreateMap<ContactDetailedDto, Contact>();
 
             CreateMap<Contact, ContactDTO>();
             CreateMap<Contact, ContactDetailsDTO>();

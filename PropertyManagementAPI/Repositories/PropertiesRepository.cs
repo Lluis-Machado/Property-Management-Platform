@@ -1,18 +1,16 @@
 ﻿using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using PropertiesAPI.Contexts;
 using PropertiesAPI.Models;
-using PropertiesAPI.Repositories;
 
-namespace PropertiesAPI.Services
+namespace PropertiesAPI.Repositories
 {
     public class PropertiesRepository : IPropertiesRepository
     {
         private readonly IMongoCollection<Property> _collection;
         public PropertiesRepository(MongoContext context)
         {
-            var database = context.GetDataBase("propertyManagement");
-            _collection = database.GetCollection<Property>("properties");
+            var database = context.GetDataBase("property");
+            _collection = database.GetCollection<Property>("property");
         }
 
         public async Task<Property> InsertOneAsync(Property property)
@@ -74,7 +72,7 @@ namespace PropertiesAPI.Services
             return await _collection.UpdateOneAsync(filter, update);
         }
 
-        public async Task<UpdateResult> SetDeleteDeclarantAsync(Guid propertyId, bool deleted, string lastUser)
+        public async Task<UpdateResult> SetDeleteAsync(Guid propertyId, bool deleted, string lastUser)
         {
             var filter = Builders<Property>.Filter
                 .Eq(actualProperty => actualProperty.Id, propertyId);

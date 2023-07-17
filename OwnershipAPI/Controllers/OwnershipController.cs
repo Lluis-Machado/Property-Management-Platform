@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Microsoft.AspNetCore.Mvc;
+using OwnershipAPI.DTOs;
 using OwnershipAPI.Exceptions;
 using OwnershipAPI.Models;
 using OwnershipAPI.Services;

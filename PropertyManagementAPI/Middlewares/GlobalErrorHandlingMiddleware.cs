@@ -2,7 +2,7 @@
 using FluentValidation;
 using PropertiesAPI.Exceptions;
 
-namespace PropertiesAPI.Middelwares
+namespace PropertiesAPI.Middlewares
 {
     public class GlobalErrorHandlingMiddleware : IMiddleware
     {

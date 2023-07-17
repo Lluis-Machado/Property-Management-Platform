@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.Results;
+using OwnershipAPI.DTOs;
 
 namespace OwnershipAPI.Services
 {

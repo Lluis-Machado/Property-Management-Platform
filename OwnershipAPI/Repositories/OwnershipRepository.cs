@@ -32,7 +32,7 @@ namespace OwnershipAPI.Services
 
         public async Task<List<Ownership>> GetWithContactIdAsync(Guid id)
         {
-            var filter = Builders<Ownership>.Filter.Eq(c => c.ContactId, id);
+            var filter = Builders<Ownership>.Filter.Eq(c => c.OwnerId, id);
             filter = filter & Builders<Ownership>.Filter.Eq(c => c.Deleted, false);
 
             return await _collection.Find(filter)

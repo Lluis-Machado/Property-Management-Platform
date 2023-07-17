@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using OwnershipAPI.DTOs;
 using OwnershipAPI.Models;
 using OwnershipAPI.Repositories;
 
@@ -36,17 +38,49 @@ public class OwnershipService : IOwnershipService
 
     public async Task<ActionResult<IEnumerable<OwnershipDto>>> GetOwnershipAsync()
     {
-        return new OkObjectResult(await _ownershipRepo.GetAsync());
+        var results = await _ownershipRepo.GetAsync();
+
+        return new OkObjectResult(results);
     }
 
     public async Task<ActionResult<IEnumerable<OwnershipDto>>> GetOwnershipsOfContactAsync(Guid id)
     {
-        return new OkObjectResult(await _ownershipRepo.GetWithContactIdAsync(id));
+        var results = await _ownershipRepo.GetWithContactIdAsync(id);
+
+        var ownershipDtos = _mapper.Map<List<OwnershipDetailedDto>>(results);
+
+        foreach (var ownership in ownershipDtos)
+        {
+                var clientC = new PropertyServiceClient();
+                var property = await clientC.GetPropertyByIdAsync(ownership.PropertyId);
+                ownership.PropertyName = property!.Name;
+        }
+        return new OkObjectResult(ownershipDtos);
     }
 
     public async Task<ActionResult<IEnumerable<OwnershipDto>>> GetOwnershipsOfPropertyAsync(Guid id)
     {
-        return new OkObjectResult(await _ownershipRepo.GetWithPropertyIdAsync(id));
+        var results = await _ownershipRepo.GetWithPropertyIdAsync(id);
+
+        var ownershipDtos = _mapper.Map<List<OwnershipDetailedDto>>(results);
+
+        foreach (var ownership in ownershipDtos)
+        {
+            if (ownership.OwnerType == "Contact")
+            {
+                var clientC = new ContactServiceClient();
+                var contact = await clientC.GetContactByIdAsync(ownership.OwnerId);
+                ownership.OwnerName = $"{contact!.FirstName} {contact.LastName}";
+            }
+            if (ownership.OwnerType == "Company")
+            {
+                var clientC = new CompanyServiceClient();
+                var company = await clientC.GetCompanyByIdAsync(ownership.OwnerId);
+                ownership.OwnerName = company!.Name;
+            }
+        }
+
+        return new OkObjectResult(ownershipDtos);
     }
 
     public async Task<OwnershipDto> GetOwnershipByIdAsync(Guid id)
@@ -87,7 +121,7 @@ public class OwnershipService : IOwnershipService
     public async Task<IActionResult> DeleteOwnershipAsync(Guid ownershipId, string lastUser)
     {
         var updateResult = await _ownershipRepo.SetDeleteAsync(ownershipId, true);
-        if (!updateResult.IsAcknowledged) return new NotFoundObjectResult("Contact not found");
+        if (!updateResult.IsAcknowledged) return new NotFoundObjectResult("Ownership not found");
 
         return new NoContentResult();
     }

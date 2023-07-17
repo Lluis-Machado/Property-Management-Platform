@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using OwnershipAPI.DTOs;
 using OwnershipAPI.Models;
 
 namespace OwnershipAPI.Validators

@@ -1,18 +1,21 @@
 ﻿using PropertiesAPI.Models;
 
-namespace PropertiesAPI.DTOs
+namespace PropertiesAPI.Dtos
 {
     public class CreatePropertyDto
     {
         public string Name { get; set; } = string.Empty; //required 
         public string? Type { get; set; }
         public TypeOfUse[]? TypeOfUse { get; set; }
-        public AddressDTO? Address { get; set; }
+        public AddressDto? Address { get; set; }
         public string? CadastreRef { get; set; }
         public string? Comments { get; set; }
 
-        public Guid? ParentPropertyId { get; set; }
-        public List<CreatePropertyOwnershipDto> Ownerships { get; set; }  = new List<CreatePropertyOwnershipDto>(); //required
+        public Guid MainOwnerId { get; set; }
+        public string MainOwnerType { get; set; } = string.Empty;
+
         public List<Guid?> ChildProperties { get; set; } = new();
+        public Guid? ParentPropertyId { get; set; }
+        
     }
 }

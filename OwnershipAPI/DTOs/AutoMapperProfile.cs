@@ -9,6 +9,9 @@ namespace OwnershipAPI.DTOs
         {
             CreateMap<Ownership, OwnershipDto>();
             CreateMap<OwnershipDto, Ownership>();
+            
+            CreateMap<Ownership, OwnershipDetailedDto>();
+            CreateMap<OwnershipDetailedDto, Ownership>();
 
         }
 

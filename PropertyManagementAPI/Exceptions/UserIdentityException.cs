@@ -1,5 +1,4 @@
-﻿
-namespace PropertiesAPI.Exceptions
+﻿namespace PropertiesAPI.Exceptions
 {
     public class UserIdentityException : Exception
     {

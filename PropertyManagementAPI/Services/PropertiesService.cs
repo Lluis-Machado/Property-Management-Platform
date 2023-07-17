@@ -1,14 +1,11 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
-using PropertiesAPI.DTOs;
+using PropertiesAPI.Services;
+using PropertiesAPI.Dtos;
+using PropertiesAPI.Exceptions;
 using PropertiesAPI.Models;
 using PropertiesAPI.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using PropertiesAPI.Exceptions;
 
 namespace PropertiesAPI.Services
 {
@@ -17,12 +14,12 @@ namespace PropertiesAPI.Services
         private readonly IPropertiesRepository _propertiesRepo;
         private readonly IMapper _mapper;
         private readonly IValidator<CreatePropertyDto> _createPropertyValidator;
-        private readonly IValidator<UpdatePropertyDTO> _updatePropertyValidator;
+        private readonly IValidator<UpdatePropertyDto> _updatePropertyValidator;
 
         public PropertiesService(IPropertiesRepository propertiesRepo,
             IMapper mapper,
             IValidator<CreatePropertyDto> createPropertyValidator,
-            IValidator<UpdatePropertyDTO> updatePropertyValidator)
+            IValidator<UpdatePropertyDto> updatePropertyValidator)
         {
             _propertiesRepo = propertiesRepo;
             _mapper = mapper;
@@ -37,136 +34,97 @@ namespace PropertiesAPI.Services
             await _createPropertyValidator.ValidateAndThrowAsync(createPropertyDto);
 
             var property = _mapper.Map<CreatePropertyDto, Property>(createPropertyDto);
+            if(createPropertyDto.Address is not null)
+                property.PropertyAddress = _mapper.Map<AddressDto, PropertyAddress>(createPropertyDto.Address);
+
             property.CreatedByUser = userName;
             property.LastUpdateByUser = userName;
             property.LastUpdateAt = DateTime.UtcNow;
             property.CreatedAt = DateTime.UtcNow;
 
-            var ownerships = createPropertyDto.Ownerships;
-            var childProperties = createPropertyDto.ChildProperties;
-
-            property.MainContactId = ownerships.FirstOrDefault(o => o.MainOwnership)!.ContactId;
-
             property = await _propertiesRepo.InsertOneAsync(property);
             
-            if (childProperties.Any())
-            {
-                foreach (var childProperty in childProperties)
-                {
-                    await _propertiesRepo.UpdateParentIdAsync(property.Id, (Guid)childProperty!);
-                }
-            }
             var propertyDto = _mapper.Map<Property, PropertyDetailedDto>(property);
-
-            foreach (var item in ownerships)
-            {
-                item.PropertyId = property.Id;
-                var clientO = new OwnershipServiceClient();
-                var ownership = await clientO.CreateOwnershipAsync(item);
-                if (ownership is not null)
-                {
-                    propertyDto.Ownerships.Add(ownership);
-                }                
-            }
-
-            if (property.ParentPropertyId is not null)
-                propertyDto.ParentProperty = await GetParentData((Guid)property.ParentPropertyId);
-
-            if (propertyDto.ChildProperties.Any())
-                propertyDto.ChildProperties = await GetChildData(propertyDto.Id);
-
-            propertyDto.MainContact = await GetContactData(property.MainContactId);
             
+            propertyDto.Address = _mapper.Map<PropertyAddress, AddressDto>(property.PropertyAddress);
+            
+            if(property.MainOwnerType == "Contact")
+                propertyDto.MainOwner = await GetContactData(property.MainOwnerId);
+            //else if (property.MainOwnerType == "Company")
+            //    propertyDto.MainOwner = await GetCompanyData(property.MainOwnerId);
+
             return new CreatedResult($"properties/{propertyDto.Id}", propertyDto);
         }
 
       
 
-        public async Task<ActionResult<PropertyDetailedDto>> UpdateProperty(UpdatePropertyDTO updatePropertyDto, string lastUser, Guid propertyId)
+        public async Task<ActionResult<PropertyDetailedDto>> UpdateProperty(UpdatePropertyDto updatePropertyDto, string lastUser, Guid propertyId)
         {
             // validation
             await _updatePropertyValidator.ValidateAndThrowAsync(updatePropertyDto);
 
-            // check if exists
             await PropertyExists(propertyId);
 
-            var property = _mapper.Map<UpdatePropertyDTO, Property>(updatePropertyDto);
+            var property = _mapper.Map<UpdatePropertyDto, Property>(updatePropertyDto);
 
+            if (updatePropertyDto.Address is not null)
+                property.PropertyAddress = _mapper.Map<AddressDto, PropertyAddress>(updatePropertyDto.Address);
+            
             property.LastUpdateAt = DateTime.UtcNow;
             property.LastUpdateByUser = lastUser;
             property.Id = propertyId;
-
-            var ownerships = updatePropertyDto.Ownerships;
-            var childProperties = updatePropertyDto.ChildProperties;
-
-            property.MainContactId = ownerships.FirstOrDefault(o => o.MainOwnership)!.ContactId;
-
+            
             property = await _propertiesRepo.UpdateAsync(property);
-
-            if (childProperties.Any())
-            {
-                foreach (var childProperty in childProperties)
-                {
-                    await _propertiesRepo.UpdateParentIdAsync(property.Id, (Guid)childProperty!);
-                }
-            }
-
-            //var ownerships = updatePropertyDto.Ownerships;
-
+            
             var propertyDto = _mapper.Map<Property, PropertyDetailedDto>(property);
-            var clientO = new OwnershipServiceClient();
+            propertyDto.Address = updatePropertyDto.Address!;
 
-
-            foreach (var item in ownerships)
-            {
-                var ownership = await clientO.UpsertOwnershipAsync(item);
-                if (ownership is not null)
-                {
-                    propertyDto.Ownerships.Add(ownership);
-                }
-            }
+            if (property.MainOwnerType == "Contact")
+                propertyDto.MainOwner = await GetContactData(property.MainOwnerId);
+            //else if (property.MainOwnerType == "Company")
+            //    propertyDto.MainOwner = await GetCompanyData(property.MainOwnerId);
 
             if (property.ParentPropertyId is not null)
-                propertyDto.ParentProperty = await GetParentData((Guid)property.ParentPropertyId);
-
-            if (propertyDto.ChildProperties.Any())
-                propertyDto.ChildProperties = await GetChildData(propertyDto.Id);
-
-            propertyDto.MainContact = await GetContactData(property.MainContactId);
+                propertyDto.ParentProperty = await GetParentPropertyData((Guid)property.ParentPropertyId);
 
             return new OkObjectResult(propertyDto);
+        }
+
+        private async Task<BasicPropertyDto> GetParentPropertyData(Guid propertyParentPropertyId)
+        {
+            var result = await _propertiesRepo.GetByIdAsync(propertyParentPropertyId);
+
+            BasicPropertyDto property = new();
+            property.Id = propertyParentPropertyId;
+            property.PropertyName = result.Name!;
+            return property;
         }
 
 
         public async Task<ActionResult<IEnumerable<PropertyDto>>> GetProperties(bool includeDeleted = false)
         {
-            var result = await _propertiesRepo.GetAsync();
-            var propertyDtOs = result.Any() ? _mapper.Map<IEnumerable<PropertyDetailedDto>>(result) : Enumerable.Empty<PropertyDetailedDto>();
-
+            var results = await _propertiesRepo.GetAsync();
+            var propertyDtOs = results.Any() ? _mapper.Map<IEnumerable<PropertyDto>>(results) : Enumerable.Empty<PropertyDto>();
             
 
             foreach (var property in propertyDtOs)
             {
-                var clientO = new OwnershipServiceClient();
-                var ownerships = await clientO.GetOwnershipByIdAsync(property.Id);
-                if (ownerships is not null)
-                    foreach(var ownership in ownerships)
-                    {
-                        if(ownership.MainOwnership)
-                        {
-                            var client = new ContactServiceClient();
-                            ContactDto? contact = await client.GetContactByIdAsync(ownership.ContactId);
-                            if (contact is not null)
-                            {
-                                property.MainContact.FirstName = contact.FirstName;
-                                property.MainContact.LastName = contact.LastName;
-                                property.MainContact.Id = contact.Id;
+                foreach (var result in results)
+                {
+                    if (result.Id != property.Id) continue;
+                    var address = _mapper.Map<PropertyAddress, AddressDto>(result.PropertyAddress);
+                    property.Address = address;
 
-                            }
-                        }
-                    }
+                    if (result.MainOwnerType == "Contact")
+                            property.MainOwner = await GetContactData(result.MainOwnerId);
+                    //else if (property.MainOwnerType == "Company")
+                    //    propertyDto.MainOwner = await GetCompanyData(property.MainOwnerId);
+
+                    if (result.ParentPropertyId is not null)
+                        property.ParentProperty = await GetParentPropertyData((Guid)result.ParentPropertyId);
+                }
             }
-
+            
             return new OkObjectResult(propertyDtOs);
         }
 
@@ -174,7 +132,7 @@ namespace PropertiesAPI.Services
         {
             await PropertyExists(propertyId);
 
-            await _propertiesRepo.SetDeleteDeclarantAsync(propertyId, true, lastUser);
+            await _propertiesRepo.SetDeleteAsync(propertyId, true, lastUser);
 
             return new NoContentResult();
         }
@@ -183,7 +141,7 @@ namespace PropertiesAPI.Services
         {
             await PropertyExists(propertyId);
 
-            await _propertiesRepo.SetDeleteDeclarantAsync(propertyId, false, lastUser);
+            await _propertiesRepo.SetDeleteAsync(propertyId, false, lastUser);
 
             return new NoContentResult();
         }
@@ -205,53 +163,32 @@ namespace PropertiesAPI.Services
             var property = await _propertiesRepo.GetPropertyByIdAsync(propertyId);
 
             var propertyDto = _mapper.Map<Property, PropertyDetailedDto>(property);
-
-            var clientO = new OwnershipServiceClient();
-            var ownerships = await clientO.GetOwnershipByIdAsync(propertyId);
-
-            propertyDto.Ownerships = ownerships!;
-
-            foreach (var propertyDtoOwnership in propertyDto.Ownerships)
-            {
-                propertyDtoOwnership.ContactDetail = await GetContactData(propertyDtoOwnership.ContactId);
-            } 
-
+            propertyDto.Address = _mapper.Map<PropertyAddress, AddressDto>(property.PropertyAddress);
+            
+            //var clientO = new OwnershipServiceClient();
+            //var ownerships = await clientO.GetOwnershipByIdAsync(propertyId);
+            
 
 
             if (property.ParentPropertyId is not null)
                 propertyDto.ParentProperty = await GetParentData((Guid)property.ParentPropertyId);
 
-            if (propertyDto.ChildProperties.Any())
-                propertyDto.ChildProperties = await GetChildData(propertyDto.Id);
-
-            propertyDto.MainContact = await GetContactData(property.MainContactId);
+            if(property.MainOwnerType == "Contact")
+                propertyDto.MainOwner = await GetContactData(property.MainOwnerId);
 
             return propertyDto;
         }
-
-        public class OwnershipComparer : IEqualityComparer<PropertyOwnershipDto>
+        
+        private async Task<OwnerDto> GetContactData(Guid id)
         {
-            public bool Equals(PropertyOwnershipDto? x, PropertyOwnershipDto? y)
-            {
-                return x!.Id == y!.Id;
-            }
-
-            public int GetHashCode(PropertyOwnershipDto obj)
-            {
-                return obj.Id.GetHashCode();
-            }
-        }
-
-        private async Task<ContactDto> GetContactData(Guid id)
-        {
-            var contactDto = new ContactDto();
+            var contactDto = new OwnerDto();
 
             var clientC = new ContactServiceClient();
             var contact = await clientC.GetContactByIdAsync(id);
 
             contactDto.Id = contact!.Id;
-            contactDto.FirstName = contact.FirstName;
-            contactDto.LastName = contact.LastName;
+            contactDto.OwnerName  = contact.FirstName + " " + contact.LastName;
+            contactDto.OwnerType = "Contact";
 
             return contactDto;
         }
@@ -261,7 +198,7 @@ namespace PropertiesAPI.Services
             var propertyDto = new BasicPropertyDto();
             var property = await _propertiesRepo.GetByIdAsync(id);
             propertyDto.Id = property.Id;
-            propertyDto.Name = property.Name!;
+            propertyDto.PropertyName = property.Name!;
 
             return propertyDto;
         }
@@ -276,7 +213,7 @@ namespace PropertiesAPI.Services
             {
                 var propertyDto = new BasicPropertyDto();
                 propertyDto.Id = property.Id;
-                propertyDto.Name = property.Name!;
+                propertyDto.PropertyName = property.Name!;
                 childProperties.Add(propertyDto);
             }
 

@@ -11,14 +11,14 @@ namespace ContactsAPI.Services
     {
         private readonly IContactsRepository _contactsRepo;
         private readonly IValidator<ContactDTO> _contactValidator;
-        private readonly IValidator<CreateContactDTO> _createContactValidator;
+        private readonly IValidator<CreateContactDto> _createContactValidator;
         private readonly IValidator<UpdateContactDTO> _updateContactValidator;
         private readonly IMapper _mapper;
 
 
         public ContactsService(IContactsRepository contactsRepo
             , IValidator<ContactDTO> contactValidator
-            , IValidator<CreateContactDTO> createContactValidator
+            , IValidator<CreateContactDto> createContactValidator
             , IValidator<UpdateContactDTO> updateContactValidator
             , IMapper mapper)
         {
@@ -29,9 +29,9 @@ namespace ContactsAPI.Services
             _mapper = mapper;
         }
 
-        public async Task<ActionResult<ContactDetailedDTO>> CreateContactAsync(CreateContactDTO createContactDTO, string lastUser)
+        public async Task<ActionResult<ContactDetailedDto>> CreateAsync(CreateContactDto createContactDto, string lastUser)
         {
-            var contact = _mapper.Map<CreateContactDTO, Contact>(createContactDTO);
+            var contact = _mapper.Map<CreateContactDto, Contact>(createContactDto);
 
             contact.LastUpdateByUser = lastUser;
             contact.CreatedByUser = lastUser;
@@ -40,26 +40,26 @@ namespace ContactsAPI.Services
 
             contact = await _contactsRepo.InsertOneAsync(contact);
 
-            var contactDTO = _mapper.Map<Contact, ContactDetailedDTO>(contact);
-            return new CreatedResult($"contacts/{contactDTO.Id}", contactDTO);
+            var contactDto = _mapper.Map<Contact, ContactDetailedDto>(contact);
+            return new CreatedResult($"contacts/{contactDto.Id}", contactDto);
         }
 
-        public async Task<ActionResult<IEnumerable<ContactDTO>>> GetContactsAsync(bool includeDeleted = false)
+        public async Task<ActionResult<IEnumerable<ContactDTO>>> GetAsync(bool includeDeleted = false)
         {
             var contacts = await _contactsRepo.GetAsync(includeDeleted);
 
             return new OkObjectResult(contacts);
         }
 
-        public async Task<ContactDetailedDTO> GetContactByIdAsync(Guid id)
+        public async Task<ContactDetailedDto> GetByIdAsync(Guid id)
         {
             var contact = await _contactsRepo.GetContactByIdAsync(id);
 
-            var contactDTO = _mapper.Map<Contact, ContactDetailedDTO>(contact);
+            var contactDto = _mapper.Map<Contact, ContactDetailedDto>(contact);
 
-            return contactDTO;
+            return contactDto;
         }
-        public async Task<ContactDetailsDTO> GetContactWithProperties(Guid id)
+        public async Task<ContactDetailsDTO> GetWithProperties(Guid id)
         {
             var contact = await _contactsRepo.GetContactByIdAsync(id);
 
@@ -82,7 +82,8 @@ namespace ContactsAPI.Services
                         ContactOwnershipInfoDTO ownershipInfo = new ContactOwnershipInfoDTO()
                         {
                             PropertyName = property.Name ?? "",
-                            Share = item.Share
+                            Share = item.Share,
+                            PropertyId = item.PropertyId
                         };
                         contactDTO.OwnershipInfo.Add(ownershipInfo);
                     }
@@ -92,7 +93,7 @@ namespace ContactsAPI.Services
             return contactDTO;
         }
 
-        public async Task<ActionResult<ContactDetailedDTO>> UpdateContactAsync(Guid contactId, UpdateContactDTO updateContactDTO, string lastUser)
+        public async Task<ActionResult<ContactDetailedDto>> UpdateContactAsync(Guid contactId, UpdateContactDTO updateContactDTO, string lastUser)
         {
             var contact = _mapper.Map<UpdateContactDTO, Contact>(updateContactDTO);
 
@@ -102,7 +103,7 @@ namespace ContactsAPI.Services
 
             contact = await _contactsRepo.UpdateAsync(contact);
 
-            var contactDTO = _mapper.Map<Contact, ContactDetailedDTO>(contact);
+            var contactDTO = _mapper.Map<Contact, ContactDetailedDto>(contact);
 
             return new OkObjectResult(contactDTO);
         }

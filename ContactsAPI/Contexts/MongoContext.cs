@@ -2,7 +2,7 @@
 
 namespace ContactsAPI.Contexts
 {
-    public class MongoContext
+    public class MongoContext : IMongoContext
     {
         private readonly IConfiguration _configuration;
         private readonly string? _connectionString;

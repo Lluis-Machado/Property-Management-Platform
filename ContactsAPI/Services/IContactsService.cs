@@ -5,11 +5,11 @@ namespace ContactsAPI.Services
 {
     public interface IContactsService
     {
-        Task<ActionResult<ContactDetailedDTO>> CreateContactAsync(CreateContactDTO contact, string lastUser);
-        Task<ActionResult<ContactDetailedDTO>> UpdateContactAsync(Guid contactId, UpdateContactDTO contact, string lastUser);
-        Task<ActionResult<IEnumerable<ContactDTO>>> GetContactsAsync(bool includeDeleted = false);
-        Task<ContactDetailedDTO> GetContactByIdAsync(Guid contactId);
-        Task<ContactDetailsDTO> GetContactWithProperties(Guid contactId);
+        Task<ActionResult<ContactDetailedDto>> CreateAsync(CreateContactDto contact, string lastUser);
+        Task<ActionResult<ContactDetailedDto>> UpdateContactAsync(Guid contactId, UpdateContactDTO contact, string lastUser);
+        Task<ActionResult<IEnumerable<ContactDTO>>> GetAsync(bool includeDeleted = false);
+        Task<ContactDetailedDto> GetByIdAsync(Guid contactId);
+        Task<ContactDetailsDTO> GetWithProperties(Guid contactId);
         Task<IActionResult> DeleteContactAsync(Guid contactId, string lastUser);
         Task<IActionResult> UndeleteContactAsync(Guid contactId, string lastUser);
         Task<IEnumerable<ContactDTO>> GetPaginatedContactsAsync(int pageNumber, int pageSize);

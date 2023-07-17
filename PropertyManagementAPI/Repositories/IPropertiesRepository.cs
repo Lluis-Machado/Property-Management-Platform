@@ -1,5 +1,4 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver;
+﻿using MongoDB.Driver;
 using PropertiesAPI.Models;
 
 namespace PropertiesAPI.Repositories
@@ -12,7 +11,7 @@ namespace PropertiesAPI.Repositories
         Task<List<Property>> GetPropertiesByParentIdAsync(Guid parentPropertyId);
         Task<Property> GetByIdAsync(Guid propertyId);
         Task<Property> UpdateAsync(Property property);
-        Task<UpdateResult> SetDeleteDeclarantAsync(Guid propertyId, bool deleted, string lastUser);
+        Task<UpdateResult> SetDeleteAsync(Guid propertyId, bool deleted, string lastUser);
         Task<UpdateResult> UpdateParentIdAsync(Guid parentId, Guid childId);
     }
 }

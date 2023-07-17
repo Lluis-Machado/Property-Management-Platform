@@ -140,7 +140,7 @@ namespace DocumentsAPI.Services
 
 
 
-        public async Task<TreeFolderItem> CopyFolderAndChildren(Folder sourceFolder, Guid archiveId, Guid? parentId)
+        public async Task<TreeFolderItem> CopyFolderAndChildren(Folder sourceFolder, Guid archiveId, Guid? parentId = null)
         {
             var idMapping = new Dictionary<Guid, Guid>(); // To keep track of the mapping between original and copied folder IDs
             var visited = new HashSet<Guid>(); // To keep track of visited folders
@@ -152,7 +152,7 @@ namespace DocumentsAPI.Services
             {
                 Name = sourceFolder.Name,
                 ArchiveId = archiveId,
-                ParentId = parentId ?? null,
+                ParentId = parentId,
                 HasDocument = sourceFolder.HasDocument,
                 LastUpdateAt = DateTime.Now,
                 // LastUpdatedBy ?

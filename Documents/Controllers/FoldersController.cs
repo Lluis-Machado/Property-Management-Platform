@@ -81,12 +81,16 @@ namespace Documents.Controllers
             // request validations
             if (folderDTO == null) return BadRequest("Incorrect body format");
 
+            // If no new ArchiveId is specified in the update DTO, leave the old one
+            if (folderDTO.ArchiveId == Guid.Empty) folderDTO.ArchiveId = archiveId;
+
             //var exist = await _foldersService.CheckFolderExist(folderId);
             //if (!exist) return NotFound("Folder not found");
 
             string userName = User?.Identity?.Name ?? "na";
 
             var currentFolder = await _foldersService.GetFolderByIdAsync(folderId);
+            if (folderDTO.ParentId == null) folderDTO.ParentId = currentFolder.ElementAt(0).ParentId;
             Guid currentFolderArchive = currentFolder.ElementAt(0).ArchiveId;
 
             var result = await _foldersService.UpdateFolderAsync(folderDTO, folderId, userName);

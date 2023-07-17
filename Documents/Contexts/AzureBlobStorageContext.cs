@@ -47,7 +47,7 @@ namespace DocumentsAPI.Contexts
         public bool IsVersioningEnabled()
         {
             // Assume true if not defined in appsettings
-            return (bool) (_configuration.GetValue<bool?>("AzureSettings:VersioningEnabled") ?? true);
+            return _configuration.GetValue<bool?>("AzureSettings:VersioningEnabled") ?? true;
         }
 
         private Uri GetBlobUri(string blobContainerName, string blobName)

@@ -25,8 +25,17 @@ builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
 // Contexts
 builder.Services.AddSingleton<IDapperContext>(provider =>
 {
-    return new DapperContext(builder.Configuration.GetConnectionString("SqlConnection"));
+    string? connectionString = builder.Configuration.GetConnectionString("SqlConnection");
+    if (connectionString != null)
+    {
+        return new DapperContext(connectionString);
+    }
+    else
+    {
+        throw new InvalidOperationException("Connection string not found.");
+    }
 });
+
 
 // Repositories
 builder.Services.AddScoped<ICountryRepository, CountryRepository>();

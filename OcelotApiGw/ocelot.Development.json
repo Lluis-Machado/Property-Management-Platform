@@ -90,6 +90,19 @@
       "UpstreamPathTemplate": "/properties/{everything}",
       "UpstreamHttpMethod": [ "GET" ],
       "SwaggerKey": "properties"
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7007
+        }
+      ],
+      "UpstreamPathTemplate": "/ownership/{everything}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "SwaggerKey": "ownership"
     }
   ],
   "SwaggerEndPoints": [
@@ -160,6 +173,16 @@
           "Name": "Properties API",
           "Version": "v1",
           "Url": "http://localhost:7011/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "ownership",
+      "Config": [
+        {
+          "Name": "Ownership API",
+          "Version": "v1",
+          "Url": "http://localhost:7007/swagger/v1/swagger.json"
         }
       ]
     }

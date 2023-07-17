@@ -9,14 +9,17 @@ namespace DocumentsAPI.Services
     {
         private readonly IFolderRepository _folderRepository;
         private readonly IMapper _mapper;
+        private readonly ILogger<FoldersService> _logger;
 
 
-        public FoldersService(IFolderRepository folderRepository, IMapper mapper)
+        public FoldersService(IFolderRepository folderRepository, IMapper mapper, ILogger<FoldersService> logger)
         {
             _folderRepository = folderRepository;
             _mapper = mapper;
-
+            _logger = logger;
         }
+
+        public IFolderRepository GetFolderRepository() { return _folderRepository; }
 
         public async Task<bool> CheckFolderExist(Guid folderId)
         {
@@ -97,8 +100,8 @@ namespace DocumentsAPI.Services
         {
             List<TreeFolderItem> result = new();
 
-            List<Folder> rootFolders = folders.FindAll(f => f.ParentId == null).ToList();
-            List<Folder> childFolders = folders.FindAll(f => f.ParentId != null).ToList();
+            List<Folder> rootFolders = folders.FindAll(f => f?.ParentId == null).ToList();
+            List<Folder> childFolders = folders.FindAll(f => f?.ParentId != null).ToList();
 
             foreach (var rootFolder in rootFolders)
             {
@@ -147,6 +150,8 @@ namespace DocumentsAPI.Services
             var stack = new Stack<TreeFolderItem>(); // Stack for DFS traversal
             var root = new TreeFolderItem(sourceFolder); // Create a copy of the sourceFolder as the root of the copied tree
 
+            _logger.LogInformation($"Starting copy of folder {sourceFolder.Id} ({sourceFolder.Name}) from archive {sourceFolder.ArchiveId} to archive {archiveId}");
+
             // Create copy of source folder
             Folder sourceFolderCopy = new Folder
             {
@@ -154,28 +159,65 @@ namespace DocumentsAPI.Services
                 ArchiveId = archiveId,
                 ParentId = parentId,
                 HasDocument = sourceFolder.HasDocument,
-                LastUpdateAt = DateTime.Now,
+                CreatedAt = DateTime.Now,
+                CreatedByUser = "COPY TEST",
+                Deleted = sourceFolder.Deleted
                 // LastUpdatedBy ?
             };
 
             var root2 = await _folderRepository.InsertFolderAsync(sourceFolderCopy);
-            stack.Push(new TreeFolderItem(root2));
+            idMapping.Add(sourceFolder.Id, root2.Id);
+            stack.Push(new TreeFolderItem(sourceFolder));
 
             while (stack.Count > 0)
             {
                 var currentFolder = stack.Pop();
                 visited.Add(currentFolder.Id);
 
-                var currentCopy = GetCopyById(root, currentFolder.Id); // Get the copy of the current folder in the copied tree
-                if (currentCopy != null)
+                _logger.LogInformation($"\tProcessing folder {currentFolder.Id} ({currentFolder.Name}) - ParentID: {currentFolder.ParentId}");
+
+                //var currentCopy = GetCopyById(root, currentFolder.Id); // Get the copy of the current folder in the copied tree
+                if (currentFolder != null)
                 {
-                    foreach (var childFolder in currentFolder.ChildFolders)
+                    var childFolders = await _folderRepository.GetChildrenAsync(currentFolder.Id, true);
+                    _logger.LogInformation($"\tCurrent folder has {childFolders.Count()} children");
+
+                    if (!idMapping.ContainsKey(currentFolder.Id))
+                    {
+                        var currCopy = await _folderRepository.InsertFolderAsync(currentFolder);
+                        idMapping.Add(currentFolder.Id, currCopy.Id);
+                    }
+                    //stack.Push(new TreeFolderItem(currentFolder));
+
+                    foreach (var childFolder in childFolders)
                     {
                         if (!visited.Contains(childFolder.Id))
                         {
-                            var childCopy = new TreeFolderItem(childFolder); // Create a copy of the child folder using TreeFolderItem
-                            currentCopy.ChildFolders.Add(childCopy); // Add the child copy to the current copy's child list
-                            stack.Push(childFolder);
+                            _logger.LogInformation($"\t\tProcessing child {childFolder.Id} ({childFolder.Name}) - ParentID: {childFolder.ParentId}");
+
+                            //var childCopy = new TreeFolderItem(childFolder); // Create a copy of the child folder using TreeFolderItem
+                            var childCopy = new Folder
+                            {
+                                ArchiveId = archiveId,
+                                ParentId = idMapping[currentFolder.Id],
+                                HasDocument = childFolder.HasDocument,
+                                CreatedAt = DateTime.Now,
+                                Deleted = childFolder.Deleted,
+                                Name = childFolder.Name,
+                                CreatedByUser = "COPY TEST CHILD"
+                            };
+
+                            var grandchildren = await _folderRepository.GetChildrenAsync(childFolder.Id, true);
+                            foreach (var grandchild in grandchildren)
+                            {
+                                stack.Push(new TreeFolderItem(grandchild));
+                            }
+
+                            childCopy = await _folderRepository.InsertFolderAsync(childCopy);
+
+                            currentFolder.ChildFolders.Add(new TreeFolderItem(childCopy)); // Add the child copy to the current copy's child list
+                            var childf = new TreeFolderItem(childFolder);
+                            stack.Push(childf);
                         }
                     }
                 }

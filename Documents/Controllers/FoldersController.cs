@@ -105,37 +105,26 @@ namespace Documents.Controllers
          * 3) If ArchiveID has changed, use DocumentsService to copy all documents with old FolderID, set ParentID = new IDs, and every level below recursively
          * */
         [HttpPost]
-        [Route("{archiveId}/folders/{folderId}")]
+        [Route("{archiveId}/folders/{folderId}/copy")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         [ProducesResponseType((int)HttpStatusCode.Created)]
-        public async Task<ActionResult<FolderDTO>> CopyAsync(Guid archiveId, Guid folderId, [FromBody] UpdateFolderDTO folderDTO)
+        public async Task<ActionResult<TreeFolderItem>> CopyAsync(Guid archiveId, Guid folderId, [FromBody] UpdateFolderDTO folderDTO)
         {
+
+
             string userName = User?.Identity?.Name ?? "na";
-            var currentFolder = await _foldersService.GetFolderByIdAsync(folderId);
+            List<TreeFolderItem> currentFolder = await _foldersService.GetFolderByIdAsync(folderId);
 
-            CreateFolderDTO newFolderDTO = new()
-            {
-                ParentId = folderDTO.ParentId,
-                Name = currentFolder.ElementAt(0).Name
-            };
+            _logger.LogInformation($"Copying folder with ID: {folderId} from archive {currentFolder.ElementAt(0).ArchiveId} to {archiveId}");
 
-            var newFolder = await _foldersService.CreateFolderAsync(archiveId: folderDTO.ArchiveId, newFolderDTO, userName);
-            for (var i = 1; i < currentFolder.Count; i++)
-            {
-                CreateFolderDTO newChildDTO = new()
-                {
-                    ParentId = newFolder.Id,
-                    Name = currentFolder.ElementAt(i).Name
-                };
-                await _foldersService.CreateFolderAsync(archiveId: folderDTO.ArchiveId, newChildDTO, userName);
-            }
+            var result = await _foldersService.CopyFolderAndChildren(currentFolder.ElementAt(0), folderDTO.ArchiveId, folderDTO.ParentId);
 
             // TODO: Copy documents from each of the folders
 
-            return Created($"{archiveId}/folders/{newFolder.Id}", newFolder);
+            return Created($"{archiveId}/folders/{result.Id}", result);
         }
 
 

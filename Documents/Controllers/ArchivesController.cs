@@ -67,7 +67,7 @@ namespace Archives.Controllers
         // PATCH: Update archive
         [HttpPatch]
         [Route("archives/{archiveId}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UpdateAsync(Guid archiveId, string newName)
         {

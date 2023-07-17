@@ -1,10 +1,13 @@
-﻿namespace DocumentsAPI.Models
+﻿using DocumentsAPI.Repositories;
+
+namespace DocumentsAPI.Models
 {
     public class TreeFolderItem : Folder
     {
+
         public List<TreeFolderItem> ChildFolders { get; set; }
 
-        public TreeFolderItem(Folder folder)
+        public TreeFolderItem(Folder folder, IFolderRepository? repository = null)
         {
             Id = folder.Id;
             ArchiveId = folder.ArchiveId;

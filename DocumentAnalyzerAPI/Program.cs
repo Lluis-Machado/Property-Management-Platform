@@ -1,6 +1,25 @@
+using DocumentAnalyzerAPI.Configurations;
+using DocumentAnalyzerAPI.Contexts;
+using DocumentAnalyzerAPI.Mappers;
+using DocumentAnalyzerAPI.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+// Contexts
+builder.Services.AddSingleton<AzureFormRecognizerContext>();
+
+// Services
+builder.Services.AddScoped<IAzureFormRecognizer, AzureFormRecognizer>();
+builder.Services.AddScoped<IDocumentAnalyzerService, DocumentAnalyzerService>();
+builder.Services.AddScoped<IAPInvoiceAnalyzerService, APInvoiceAnalyzerService>();
+
+// Mappers
+builder.Services.AddScoped<IAPInvoiceDTOMapper, APInvoiceDTOMapper>();
+
+// AutoMapper
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

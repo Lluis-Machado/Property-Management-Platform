@@ -8,7 +8,7 @@ namespace DocumentAnalyzerAPI.Configurations
     {
         public MappingProfile()
         {
-            CreateMap<BoundingRegion, BoundingRegionDTO>();
+            //CreateMap<BoundingRegion, BoundingRegionDTO>();
         }
     }
 }

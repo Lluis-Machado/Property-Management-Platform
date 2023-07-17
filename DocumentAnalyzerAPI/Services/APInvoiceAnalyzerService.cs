@@ -20,13 +20,12 @@ namespace DocumentAnalyzerAPI.Services
         {
             APInvoiceAnalysisDTO aPInvoiceAnalysisDTO = new();
             AnalyzeResult analyzeResult = await _azureFormRecognizer.AnalyzeDocumentAsync(document, ModelId);
-            aPInvoiceAnalysisDTO.result = analyzeResult;
+            aPInvoiceAnalysisDTO.Result = analyzeResult;
             foreach (AnalyzedDocument analyzedDocument in analyzeResult.Documents)
             {
                 APInvoiceDTO aPInvoiceDTO = _aPInvoiceDTOMapper.MapToAPInvoiceDTO(analyzedDocument.Fields);
-                aPInvoiceAnalysisDTO.invoice = aPInvoiceDTO;
+                aPInvoiceAnalysisDTO.Invoice = aPInvoiceDTO;
             }
-            
             return aPInvoiceAnalysisDTO;
         }
     }

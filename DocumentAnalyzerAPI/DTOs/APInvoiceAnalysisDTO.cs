@@ -4,7 +4,7 @@ namespace DocumentAnalyzerAPI.DTOs
 {
     public class APInvoiceAnalysisDTO
     {
-        public APInvoiceDTO invoice { get; set; }
-        public AnalyzeResult result { get; set; }
+        public APInvoiceDTO Invoice { get; set; }
+        public AnalyzeResult Result { get; set; }
     }
 }

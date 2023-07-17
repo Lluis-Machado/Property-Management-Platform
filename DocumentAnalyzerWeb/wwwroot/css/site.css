@@ -1,0 +1,35 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+.document-preview-container {
+    position: relative;
+    width: 100%;
+    height: 600px; /* Set the desired height for the preview container */
+}
+
+iframe {
+    width: 100%;
+    height: 100%;
+}
+
+.boundary-region {
+    position: absolute;
+    border: 2px solid red; /* Choose your desired border style */
+    pointer-events: none; /* Allow interactions with the embedded document */
+}

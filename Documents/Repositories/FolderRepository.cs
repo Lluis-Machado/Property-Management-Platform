@@ -89,8 +89,38 @@ namespace DocumentsAPI.Repositories
                 .QueryAsync<Folder>(queryBuilder.ToString(), parameters);
         }
 
+        public async Task<IEnumerable<Folder>> GetChildrenAsync(Guid parentId, bool includeDeleted = false)
+        {
+
+            var parameters = new
+            {
+                parentId,
+            };
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("SELECT ");
+            queryBuilder.Append(" Id");
+            queryBuilder.Append(",ArchiveId");
+            queryBuilder.Append(",Name");
+            queryBuilder.Append(",ParentId");
+            queryBuilder.Append(",HasDocument");
+            queryBuilder.Append(",Deleted");
+            queryBuilder.Append(",CreatedAt");
+            queryBuilder.Append(",CreatedByUser");
+            queryBuilder.Append(",LastUpdateAt");
+            queryBuilder.Append(",LastUpdateByUser");
+            queryBuilder.Append(" FROM Folders");
+            queryBuilder.Append(" WHERE ParentId = @parentId");
+            if (includeDeleted == false) queryBuilder.Append(" AND Deleted = 0");
+
+            return await _context
+                .CreateConnection()
+                .QueryAsync<Folder>(queryBuilder.ToString(), parameters);
+        }
+
         public async Task<Folder> InsertFolderAsync(Folder folder)
         {
+            if (folder.CreatedByUser == null) folder.CreatedByUser = "na";
+
             var parameters = new
             {
                 folder.ArchiveId,
@@ -131,8 +161,9 @@ namespace DocumentsAPI.Repositories
 
             StringBuilder queryBuilder = new();
             queryBuilder.Append("UPDATE Folders ");
-            queryBuilder.Append("SET Deleted = @deleted ");
+            queryBuilder.Append(" SET Deleted = @deleted ");
             queryBuilder.Append(", LastUpdateByUser = @userName ");
+            queryBuilder.Append(" OUTPUT INSERTED.*");
             queryBuilder.Append(" WHERE Id = @id ");
 
             return await _context
@@ -206,7 +237,33 @@ namespace DocumentsAPI.Repositories
 
         public List<TreeFolderItem> ToFolderTreeView(List<Folder> folders)
         {
-            throw new NotImplementedException();
+            List<TreeFolderItem> result = new();
+
+            List<Folder> rootFolders = folders.FindAll(f => f.ParentId == null).ToList();
+            List<Folder> childFolders = folders.FindAll(f => f.ParentId != null).ToList();
+
+            foreach (var rootFolder in rootFolders)
+            {
+                TreeFolderItem parentFolder = new(rootFolder);
+                AddChilds(ref parentFolder, childFolders);
+                result.Add(parentFolder);
+            }
+            return result;
+        }
+
+        private void AddChilds(ref TreeFolderItem parentFolder, List<Folder> folders)
+        {
+            if (parentFolder == null) return;
+            Guid? parentId = parentFolder.Id;
+            List<Folder> childFolders = folders.FindAll(f => f.ParentId == parentId).ToList();
+            List<TreeFolderItem> treeChildFolders = new();
+            foreach (var childFolder in childFolders)
+            {
+                TreeFolderItem treeChildFolder = new(childFolder);
+                AddChilds(ref treeChildFolder, folders);
+                treeChildFolders.Add(treeChildFolder);
+            }
+            parentFolder.ChildFolders = treeChildFolders;
         }
     }
 }

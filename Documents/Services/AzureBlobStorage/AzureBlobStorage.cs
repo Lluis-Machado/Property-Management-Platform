@@ -1,10 +1,12 @@
 ﻿using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using DocumentsAPI.Models;
 using DocumentsAPI.Contexts;
+using DocumentsAPI.Models;
 using DocumentsAPI.Repositories;
 using System.Net;
+using System.Reflection.Metadata;
+using Document = DocumentsAPI.Models.Document;
 
 namespace DocumentsAPI.Services.AzureBlobStorage
 {
@@ -85,7 +87,8 @@ namespace DocumentsAPI.Services.AzureBlobStorage
 
             BlobServiceClient blobServiceClient = _context.GetBlobServiceClient();
 
-            await foreach (BlobContainerItem item in blobServiceClient.GetBlobContainersAsync(BlobContainerTraits.Metadata, BlobContainerStates.Deleted)) {
+            await foreach (BlobContainerItem item in blobServiceClient.GetBlobContainersAsync(BlobContainerTraits.Metadata, BlobContainerStates.Deleted))
+            {
                 if (item.Name == archiveId.ToString() && (item.IsDeleted == true))
                 {
                     await blobServiceClient.UndeleteBlobContainerAsync(archiveId.ToString(), item.VersionId);
@@ -125,8 +128,8 @@ namespace DocumentsAPI.Services.AzureBlobStorage
             BlobContainerClient blobContainerClient = _context.GetBlobContainerClient(archiveId.ToString());
 
             // Call the listing operation and return pages of the specified size.
-            BlobStates blobStates = includeDeleted ? BlobStates.Deleted : BlobStates.None;
-            var resultSegment = blobContainerClient.GetBlobsAsync(BlobTraits.Metadata, blobStates).AsPages(default, segmentSize);
+            BlobStates blobStates = includeDeleted ? BlobStates.DeletedWithVersions : BlobStates.None;
+            var resultSegment = blobContainerClient.GetBlobsAsync(states: blobStates, traits: BlobTraits.Metadata).AsPages(default, segmentSize);
 
             // Enumerate the blobs returned for each page.
             List<Document> documents = new();
@@ -147,19 +150,19 @@ namespace DocumentsAPI.Services.AzureBlobStorage
 
         public async Task<Document?> GetDocumentByIdAsync(Guid archiveId, Guid documentId)
         {
-            BlobClient blobClient = _context.GetBlobClient(archiveId.ToString(), documentId.ToString());
-            using (MemoryStream stream = new MemoryStream())
-            {
-                var download = await blobClient.DownloadToAsync(stream);
-                // Reset the memory stream position before deserialization
-                stream.Position = 0;
+            BlobContainerClient blobContainerClient = _context.GetBlobContainerClient(archiveId.ToString());
 
-                using (StreamReader reader = new StreamReader(stream))
-                {
-                    string jsonContent = reader.ReadToEnd();
-                    return Newtonsoft.Json.JsonConvert.DeserializeObject<Document?>(jsonContent);
-                }
+            var resultSegment = blobContainerClient.GetBlobsAsync(states: BlobStates.DeletedWithVersions, traits: BlobTraits.Metadata).AsPages();
+
+            Document? document = null;
+
+            await foreach (Page<BlobItem> blobPage in resultSegment)
+            {
+                document = MapDocument(blobPage.Values[0]);
+                break;
             }
+
+            return document;
         }
 
         public async Task<bool> DocumentExistsAsync(Guid archiveId, Guid documentId)
@@ -180,18 +183,52 @@ namespace DocumentsAPI.Services.AzureBlobStorage
 
         public async Task DeleteDocumentAsync(Guid archiveId, Guid documentId)
         {
-            BlobClient blobClient = _context.GetBlobClient(archiveId.ToString(), documentId.ToString());
+            //BlobClient blobClient = _context.GetBlobClient(archiveId.ToString(), documentId.ToString());
+            //Response response = await blobClient.DeleteAsync(DeleteSnapshotsOption.IncludeSnapshots);
 
-            Response response = await blobClient.DeleteAsync(DeleteSnapshotsOption.IncludeSnapshots);
+            BlobContainerClient blobContainerClient = _context.GetBlobContainerClient(archiveId.ToString());
+            Response response = await blobContainerClient.DeleteBlobAsync(documentId.ToString(), DeleteSnapshotsOption.IncludeSnapshots);
+
             if (response.IsError) throw new Exception(response.ReasonPhrase);
         }
 
         public async Task UndeleteDocumentAsync(Guid archiveId, Guid documentId)
         {
+            _logger.LogInformation($"Performing undelete operation | Archive: {archiveId} | Document: {documentId}");
+
             BlobClient blobClient = _context.GetBlobClient(archiveId.ToString(), documentId.ToString());
 
-            Response response = await blobClient.UndeleteAsync();
-            if (response.IsError) throw new Exception(response.ReasonPhrase);
+            // Check if Blob Container has versioning enabled
+            bool versioning = _context.IsVersioningEnabled();
+
+            if (versioning)
+            {
+                BlobContainerClient container = _context.GetBlobContainerClient(archiveId.ToString());
+                
+                // List blobs in this container that match prefix.
+                // Include versions in listing.
+                Pageable<BlobItem> blobItems = container.GetBlobs
+                                (BlobTraits.None, BlobStates.Version, prefix: documentId.ToString());
+
+                // Get the URI for the most recent version.
+                BlobUriBuilder blobVersionUri = new BlobUriBuilder(blobClient.Uri)
+                {
+                    VersionId = blobItems
+                                .OrderByDescending(version => version.VersionId)
+                                .ElementAtOrDefault(0)?.VersionId
+                };
+
+                // Restore the most recently generated version by copying it to the base blob.
+                Response response = (await blobClient.StartCopyFromUriAsync(blobVersionUri.ToUri())).GetRawResponse();
+                if (response.IsError) throw new Exception(response.ReasonPhrase);
+                _logger.LogInformation($"Undelete operation for document {documentId} (with versioning) successful!");
+            }
+            else
+            {
+                Response response = await blobClient.UndeleteAsync();
+                if (response.IsError) throw new Exception(response.ReasonPhrase);
+                _logger.LogInformation($"Undelete operation for document {documentId} successful!");
+            }
         }
 
         public async Task RenameDocumentAsync(Guid archiveId, Guid documentId, string newDocumentName)
@@ -259,18 +296,20 @@ namespace DocumentsAPI.Services.AzureBlobStorage
 
         private static Document MapDocument(BlobItem blobItem)
         {
-            string documentName = blobItem.Metadata["display_name"];
+            bool hasMetadata = blobItem.Metadata.Count > 0;
+            string documentName = hasMetadata ? blobItem.Metadata["display_name"] : "NO NAME";
+            Guid? folderId = hasMetadata ? (!string.IsNullOrEmpty(blobItem.Metadata["folder_id"]) ? new Guid(blobItem.Metadata["folder_id"]) : null) : null;
 
             Document document = new()
             {
-                DocumentId = blobItem.Name,
+                Id = Guid.Parse(blobItem.Name),
                 Name = documentName,
-                FolderId = string.IsNullOrEmpty(blobItem.Metadata["folder_id"]) ? null : new Guid(blobItem.Metadata["folder_id"]),
+                FolderId = folderId,
                 Extension = documentName.Contains('.') ? documentName[documentName.LastIndexOf('.')..] : "",
                 ContentLength = blobItem.Properties.ContentLength,
                 CreatedAt = blobItem.Properties.CreatedOn.GetValueOrDefault().DateTime,
                 LastUpdateAt = blobItem.Properties.LastModified.GetValueOrDefault().DateTime,
-
+                Deleted = blobItem.Deleted || !hasMetadata  // Some blobs marked as deleted on the Azure portal still say they are not deleted
             };
             return document;
         }

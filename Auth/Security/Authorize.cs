@@ -32,7 +32,7 @@ namespace Authentication.Security
                 var httpContext = actionContext.HttpContext;
                 StringValues auth = httpContext.Request.Headers.Authorization;
 
-                if (string.IsNullOrEmpty(auth[0])) throw new EmptyTokenException();
+                if (!auth.Any() || string.IsNullOrEmpty(auth[0])) throw new EmptyTokenException();
 
                 string token = auth[0].Replace("bearer", "", StringComparison.OrdinalIgnoreCase).Trim();
                 var handler = new JwtSecurityTokenHandler();

@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
-using DocumentsAPI.Models;
 using DocumentsAPI.DTOs;
+using DocumentsAPI.Models;
 using DocumentsAPI.Repositories;
-using Microsoft.AspNetCore.Mvc;
 
 namespace DocumentsAPI.Services
 {
@@ -136,5 +135,72 @@ namespace DocumentsAPI.Services
             }
             parentFolder.ChildFolders = treeChildFolders;
         }
+
+
+
+
+
+        public async Task<TreeFolderItem> CopyFolderAndChildren(Folder sourceFolder, Guid archiveId, Guid? parentId = null)
+        {
+            var idMapping = new Dictionary<Guid, Guid>(); // To keep track of the mapping between original and copied folder IDs
+            var visited = new HashSet<Guid>(); // To keep track of visited folders
+            var stack = new Stack<TreeFolderItem>(); // Stack for DFS traversal
+            var root = new TreeFolderItem(sourceFolder); // Create a copy of the sourceFolder as the root of the copied tree
+
+            // Create copy of source folder
+            Folder sourceFolderCopy = new Folder
+            {
+                Name = sourceFolder.Name,
+                ArchiveId = archiveId,
+                ParentId = parentId,
+                HasDocument = sourceFolder.HasDocument,
+                LastUpdateAt = DateTime.Now,
+                // LastUpdatedBy ?
+            };
+
+            var root2 = await _folderRepository.InsertFolderAsync(sourceFolderCopy);
+            stack.Push(new TreeFolderItem(root2));
+
+            while (stack.Count > 0)
+            {
+                var currentFolder = stack.Pop();
+                visited.Add(currentFolder.Id);
+
+                var currentCopy = GetCopyById(root, currentFolder.Id); // Get the copy of the current folder in the copied tree
+                if (currentCopy != null)
+                {
+                    foreach (var childFolder in currentFolder.ChildFolders)
+                    {
+                        if (!visited.Contains(childFolder.Id))
+                        {
+                            var childCopy = new TreeFolderItem(childFolder); // Create a copy of the child folder using TreeFolderItem
+                            currentCopy.ChildFolders.Add(childCopy); // Add the child copy to the current copy's child list
+                            stack.Push(childFolder);
+                        }
+                    }
+                }
+            }
+
+            return root;
+        }
+
+        private TreeFolderItem GetCopyById(TreeFolderItem root, Guid id)
+        {
+            if (root.Id == id)
+                return root;
+
+            foreach (var child in root.ChildFolders)
+            {
+                var found = GetCopyById(child, id);
+                if (found != null)
+                    return found;
+            }
+
+            return null;
+        }
+
+
+
+
     }
 }

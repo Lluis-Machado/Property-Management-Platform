@@ -36,9 +36,9 @@ namespace DocumentsAPI.Services
             return await _documentsRepository.GetDocumentsFlatListingAsync(archiveId, 100, folderId, includeDeleted);
         }
 
-        public async Task<Document> GetDocumentByIdAsync(Guid archiveId, Guid documentId)
+        public async Task<Document?> GetDocumentByIdAsync(Guid archiveId, Guid documentId)
         {
-            return (await _documentsRepository.GetDocumentByIdAsync(archiveId, documentId) ?? new Document());
+            return await _documentsRepository.GetDocumentByIdAsync(archiveId, documentId);
         }
 
         public async Task<FileContentResult> DownloadAsync(Guid archiveId, Guid documentId)

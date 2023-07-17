@@ -6,7 +6,7 @@ namespace DocumentsAPI.Repositories
     public interface IDocumentRepository
     {
         Task<HttpStatusCode> UploadDocumentAsync(Guid archiveName, string fileName, Stream pFileContent, Guid? folderId = null);
-        Task<IEnumerable<Document>> GetDocumentsFlatListingAsync(Guid archiveName, int? pSegmentSize, Guid? folderId = null, bool includeDeleted = false);
+        Task<IEnumerable<Document>> GetDocumentsFlatListingAsync(Guid archiveId, int? pSegmentSize, Guid? folderId = null, bool includeDeleted = false);
         Task<Document?> GetDocumentByIdAsync(Guid archiveId, Guid documentId);
         Task<bool> DocumentExistsAsync(Guid archiveName, Guid documentId);
         Task<byte[]> DownloadDocumentAsync(Guid archiveName, Guid documentId);

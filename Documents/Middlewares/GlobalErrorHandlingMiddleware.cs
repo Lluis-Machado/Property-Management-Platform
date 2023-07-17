@@ -17,25 +17,20 @@ namespace DocumentsAPI.Middlewares
             {
                 await next(context);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                _logger.LogError("Internal exception ocurred: {@Exception}", e);
-
-                //ProblemDetails problem = new()
-                //{
-                //    Type = "Server error",
-                //    Title = "Server error",
-                //    Detail = "Internal server error ocurred"
-                //};
-
+                _logger.LogError("Internal exception occurred: {@Exception}", ex);
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-                //string problemJson = JsonSerializer.Serialize(problem);
-                //await context.Response.WriteAsJsonAsync(problemJson);
+                bool hasDeveloperPermission = context.User.Claims.Any(c => c.Type == "permissions" && c.Value == "admin");
 
-                //context.Response.ContentType = "application/json";
+                if (hasDeveloperPermission)
+                {
+                    context.Response.ContentType = "text/plain";
+                    string responseContent = $"An error occurred: {ex.Message}\n\nStack Trace:\n{ex.StackTrace}";
+                    await context.Response.WriteAsync(responseContent);
+                }
             }
-
         }
     }
 }

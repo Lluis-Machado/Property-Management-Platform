@@ -83,7 +83,7 @@ namespace Documents.Controllers
         {
             var results = await _documentsService.DownloadAsync(archiveId, documentId);
             byte[] byteArray = results.FileContents;
-            return File(byteArray, "application/pdf");
+            return File(byteArray, results.ContentType);
         }
 
         // DELETE: Delete document

@@ -103,6 +103,19 @@
       "UpstreamPathTemplate": "/properties/{everything}",
       "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
       "SwaggerKey": "properties"
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "ownership.plattesapis.net",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/ownership/{everything}",
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
+      "SwaggerKey": "ownership"
     }
   ],
   "SwaggerEndPoints": [
@@ -185,9 +198,19 @@
           "Url": "https://properties.plattesapis.net/swagger/v1/swagger.json"
         }
       ]
+    },
+    {
+      "Key": "ownership",
+      "Config": [
+        {
+          "Name": "Ownership API",
+          "Version": "v1",
+          "Url": "https://ownership.plattesapis.net/swagger/v1/swagger.json"
+        }
+      ]
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "https://stage.plattesapis.net"
+    "BaseUrl": "https://plattesapis.net"
   }
 }

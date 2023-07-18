@@ -1,6 +1,4 @@
-﻿namespace ContactsAPI.DTOs;
-
-namespace ContactsAPI.DTOs
+﻿namespace ContactsAPI.DTOs
 {
     public class PropertyDTO
     {

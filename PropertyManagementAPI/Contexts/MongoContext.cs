@@ -1,17 +1,17 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace PropertyManagementAPI.Contexts
+namespace PropertiesAPI.Contexts
 {
-    public class MongoContext
+    public class MongoContext : IMongoContext
     {
-        private readonly IConfiguration _configuration;
         private readonly string? _connectionString;
+
         public MongoContext(IConfiguration configuration)
         {
-            _configuration = configuration;
-            _connectionString = _configuration.GetConnectionString("MongoConnection");
+            _connectionString = configuration.GetConnectionString("MongoConnection");
         }
+
         public IMongoDatabase GetDataBase(string databaseName)
         {
             MongoClient dbClient = new(_connectionString);

@@ -71,9 +71,9 @@ namespace ContactsAPI.Services
             if (contactDTO.OwnershipInfo is null)
                 contactDTO.OwnershipInfo = new List<ContactOwnershipInfoDTO>();
 
-            if (ownerships is not null)
+            if(ownerships is not null)
             {
-                foreach (var item in ownerships)
+                foreach(var item in ownerships)
                 {
                     var clientP = new PropertyServiceClient();
                     var property = await clientP.GetPropertyByIdAsync(item.PropertyId) ?? null;
@@ -112,7 +112,7 @@ namespace ContactsAPI.Services
         {
             var exist = await _contactsRepo.CheckIfNIEUnique(NIE, contactId);
 
-            return exist;
+            return exist;      
         }
 
         public async Task<IActionResult> DeleteContactAsync(Guid contactId, string lastUser)

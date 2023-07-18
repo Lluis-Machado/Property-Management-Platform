@@ -51,9 +51,9 @@ public class OwnershipService : IOwnershipService
 
         foreach (var ownership in ownershipDtos)
         {
-            var clientC = new PropertyServiceClient();
-            var property = await clientC.GetPropertyByIdAsync(ownership.PropertyId);
-            ownership.PropertyName = property!.Name;
+                var clientC = new PropertyServiceClient();
+                var property = await clientC.GetPropertyByIdAsync(ownership.PropertyId);
+                ownership.PropertyName = property!.Name;
         }
         return new OkObjectResult(ownershipDtos);
     }

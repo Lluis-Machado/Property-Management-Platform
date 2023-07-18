@@ -2,7 +2,7 @@
 {
     public class OwnershipDetailedDto : OwnershipDto
     {
-        public string OwnerName { get; set; } = string.Empty;
-        public string PropertyName { get; set; } = string.Empty;
+        public string OwnerName { get; set; }
+        public string PropertyName { get; set; }
     }
 }

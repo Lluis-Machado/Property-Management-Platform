@@ -1,9 +1,10 @@
-﻿namespace OwnershipAPI.DTOs;
-
-public class ContactDto
+﻿namespace OwnershipAPI.DTOs
 {
-    public Guid Id { get; set; }
-    public string FirstName { get; set; } = string.Empty;
-    public string LastName { get; set; } = string.Empty;
+    public class ContactDto
+    {
+        public Guid Id { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+    }
 }
 

@@ -2,15 +2,15 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using PropertyManagementAPI.Contexts;
-using PropertyManagementAPI.DTOs;
-using PropertyManagementAPI.Middelwares;
-using PropertyManagementAPI.Models;
-using PropertyManagementAPI.Repositories;
-using PropertyManagementAPI.Services;
-using PropertyManagementAPI.Validators;
+using PropertiesAPI.Contexts;
+using PropertiesAPI.Dtos;
+using PropertiesAPI.Models;
+using PropertiesAPI.Repositories;
+using PropertiesAPI.Services;
+using PropertiesAPI.Validators;
 using Serilog;
 using System.Security.Claims;
+using PropertiesAPI.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,9 +30,8 @@ builder.Services.AddSingleton<MongoContext>();
 builder.Services.AddScoped<IPropertiesRepository, PropertiesRepository>();
 builder.Services.AddScoped<IPropertiesService, PropertiesService>();
 
-builder.Services.AddScoped<IValidator<PropertyDTO>, PropertyValidator>();
-builder.Services.AddScoped<IValidator<CreatePropertyDTO>, CreatePropertyValidator>();
-builder.Services.AddScoped<IValidator<UpdatePropertyDTO>, UpdatePropertyValidator>();
+builder.Services.AddScoped<IValidator<CreatePropertyDto>, CreatePropertyValidator>();
+builder.Services.AddScoped<IValidator<UpdatePropertyDto>, UpdatePropertyValidator>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
@@ -84,11 +83,10 @@ builder.Services.AddAuthentication(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
+#if PRODUCTION == false
+app.UseSwagger();
     app.UseSwaggerUI();
-}
+#endif
 
 app.UseHttpsRedirection();
 

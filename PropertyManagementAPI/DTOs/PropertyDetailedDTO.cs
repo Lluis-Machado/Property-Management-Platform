@@ -1,9 +1,6 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
-using PropertyManagementAPI.Models;
-
-namespace PropertyManagementAPI.DTOs
+﻿namespace PropertiesAPI.Dtos
 {
-    public class PropertyDetailedDTO : PropertyDTO
+    public class PropertyDetailedDto : PropertyDto
     {
 
     }

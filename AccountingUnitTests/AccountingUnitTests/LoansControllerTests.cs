@@ -1,7 +1,6 @@
 ﻿using Accounting.Controllers;
 using Accounting.Models;
 using Accounting.Repositories;
-using AccountingAPI.DTOs;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;

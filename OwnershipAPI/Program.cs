@@ -1,5 +1,5 @@
 using OwnershipAPI.Contexts;
-using OwnershipAPI.Middelwares;
+using OwnershipAPI.Middlewares;
 using OwnershipAPI.Models;
 using OwnershipAPI.Repositories;
 using OwnershipAPI.Services;
@@ -7,10 +7,10 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using PropertyManagementAPI.Validators;
 using Serilog;
 using System.Security.Claims;
 using OwnershipAPI.DTOs;
+using OwnershipAPI.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,10 +26,10 @@ builder.Logging.AddSerilog(logger);
 builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
 
 // Validator
-builder.Services.AddScoped<IValidator<OwnershipDTO>, OwnershipValidator>();
+builder.Services.AddScoped<IValidator<OwnershipDto>, OwnershipValidator>();
 
 // Add services to the container.
-builder.Services.AddSingleton<MongoContext>();
+builder.Services.AddSingleton<IMongoContext, MongoContext>();
 builder.Services.AddScoped<IOwnershipRepository, OwnershipRepository>();
 
 builder.Services.AddScoped<IOwnershipService, OwnershipService>();
@@ -84,11 +84,11 @@ builder.Services.AddAuthentication(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+//if (!app.Environment.IsProduction())
+//{
+app.UseSwagger();
+app.UseSwaggerUI();
+//}
 
 app.UseHttpsRedirection();
 

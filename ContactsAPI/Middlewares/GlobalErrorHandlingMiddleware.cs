@@ -1,6 +1,9 @@
-﻿using System.Net;
+﻿using ContactsAPI.Exceptions;
+using FluentValidation;
+//using System.ComponentModel.DataAnnotations;
+using System.Net;
 
-namespace ContactsAPI.Middelwares
+namespace ContactsAPI.Middlewares
 {
     public class GlobalErrorHandlingMiddleware : IMiddleware
     {
@@ -17,25 +20,38 @@ namespace ContactsAPI.Middelwares
             {
                 await next(context);
             }
-            catch (Exception e)
+            catch (ConflictException ex)
             {
-                _logger.LogError("Internal exception ocurred: {@Exception}", e);
-
-                //ProblemDetails problem = new()
-                //{
-                //    Type = "Server error",
-                //    Title = "Server error",
-                //    Detail = "Internal server error ocurred"
-                //};
-
+                context.Response.StatusCode = (int)HttpStatusCode.Conflict;
+                context.Response.ContentType = "text/plain";
+                await context.Response.WriteAsync(ex.Message);
+            }
+            catch (NotFoundException ex)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                context.Response.ContentType = "text/plain";
+                await context.Response.WriteAsync(ex.Message);
+            }
+            catch (ValidationException ex)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                context.Response.ContentType = "text/plain";
+                await context.Response.WriteAsync(string.Join("\n", ex.Errors.Select(e => e.ErrorMessage)));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Internal exception occurred: {@Exception}", ex);
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-                //string problemJson = JsonSerializer.Serialize(problem);
-                //await context.Response.WriteAsJsonAsync(problemJson);
+                bool hasDeveloperPermission = context.User.Claims.Any(c => c.Type == "permissions" && c.Value == "admin");
 
-                //context.Response.ContentType = "application/json";
+                if (hasDeveloperPermission)
+                {
+                    context.Response.ContentType = "text/plain";
+                    string responseContent = $"An error occurred: {ex.Message}\n\nStack Trace:\n{ex.StackTrace}";
+                    await context.Response.WriteAsync(responseContent);
+                }
             }
-
         }
     }
 }

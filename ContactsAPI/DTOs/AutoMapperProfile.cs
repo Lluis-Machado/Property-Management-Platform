@@ -20,7 +20,7 @@ namespace ContactsAPI.DTOs
             CreateMap<Contact, ContactDetailsDTO>();
             CreateMap<ContactDetailsDTO, Contact>();
             CreateMap<ContactDTO, Contact>();
-
+            
             CreateMap<UpdateContactDTO, Contact>();
             CreateMap<Contact, UpdateContactDTO>();
 

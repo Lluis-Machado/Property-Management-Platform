@@ -1,16 +1,27 @@
 ﻿using AutoMapper;
-using PropertyManagementAPI.Models;
+using PropertiesAPI.Models;
 
-namespace PropertyManagementAPI.DTOs
+namespace PropertiesAPI.Dtos
 {
     public class AutoMapperProfile : Profile
     {
         public AutoMapperProfile()
         {
-            CreateMap<Property, PropertyDTO>();
-            CreateMap<Property, PropertyDetailedDTO>();
-            CreateMap<PropertyDTO, Property>();
-            CreateMap<PropertyDetailedDTO, Property>();
+            CreateMap<CreatePropertyDto, Property>();
+            CreateMap<Property, CreatePropertyDto>();
+
+            CreateMap<UpdatePropertyDto, Property>();
+            CreateMap<Property, UpdatePropertyDto>();
+
+            CreateMap<AddressDto, PropertyAddress>();
+            CreateMap<PropertyAddress, AddressDto>();
+
+            CreateMap<Property, PropertyDetailedDto>();
+            CreateMap<PropertyDetailedDto, Property>();
+
+            CreateMap<Property, PropertyDto>();
+            CreateMap<PropertyDto, Property>();
+
 
         }
 

@@ -1,4 +1,4 @@
-﻿namespace PropertyManagementAPI.Models
+﻿namespace PropertiesAPI.Models
 {
     public class BaseModel
     {

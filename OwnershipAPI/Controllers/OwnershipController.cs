@@ -35,7 +35,7 @@ public class OwnershipController : ControllerBase
 
         return await _ownershipService.UpsertOwnershipAsync(ownershipDto, lastUser);
     }
-
+    
     [HttpGet]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]

@@ -1,8 +1,10 @@
-﻿namespace OwnershipAPI.Exceptions;
-
-public class NotFoundException : Exception
+﻿namespace OwnershipAPI.Exceptions
 {
-    public NotFoundException(string objectName) : base($"{objectName} not found")
+    public class NotFoundException : Exception
     {
+        public NotFoundException(string objectName) : base($"{objectName} not found")
+        {
+        }
     }
+
 }

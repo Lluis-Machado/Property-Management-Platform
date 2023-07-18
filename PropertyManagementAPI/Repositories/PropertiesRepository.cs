@@ -9,8 +9,8 @@ namespace PropertiesAPI.Repositories
         private readonly IMongoCollection<Property> _collection;
         public PropertiesRepository(MongoContext context)
         {
-            var database = context.GetDataBase("property");
-            _collection = database.GetCollection<Property>("property");
+            var database = context.GetDataBase("properties");
+            _collection = database.GetCollection<Property>("properties");
         }
 
         public async Task<Property> InsertOneAsync(Property property)

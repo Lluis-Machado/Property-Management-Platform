@@ -10,13 +10,15 @@ namespace DocumentsAPI.Services
         private readonly IFolderRepository _folderRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<FoldersService> _logger;
+        private readonly IDocumentsService _documentsService;
 
 
-        public FoldersService(IFolderRepository folderRepository, IMapper mapper, ILogger<FoldersService> logger)
+        public FoldersService(IFolderRepository folderRepository, IMapper mapper, ILogger<FoldersService> logger, IDocumentsService documentsService)
         {
             _folderRepository = folderRepository;
             _mapper = mapper;
             _logger = logger;
+            _documentsService = documentsService;
         }
 
         public IFolderRepository GetFolderRepository() { return _folderRepository; }
@@ -142,7 +144,8 @@ namespace DocumentsAPI.Services
 
 
 
-
+        // TODO: Optimize, change 'CreatedByUser' fields
+        // TODO: Add documents copy from one folder to the other
         public async Task<TreeFolderItem> CopyFolderAndChildren(Folder sourceFolder, Guid archiveId, Guid? parentId = null)
         {
             var idMapping = new Dictionary<Guid, Guid>(); // To keep track of the mapping between original and copied folder IDs
@@ -169,6 +172,20 @@ namespace DocumentsAPI.Services
             idMapping.Add(sourceFolder.Id, root2.Id);
             stack.Push(new TreeFolderItem(sourceFolder));
 
+            // Copy documents
+            var docs = await _documentsService.GetDocumentsAsync(sourceFolder.ArchiveId, null, sourceFolder.Id, true);
+            List<IFormFile> docBytes = new();
+            foreach (var doc in docs)
+            {
+                var file = (await _documentsService.DownloadAsync(sourceFolder.ArchiveId, doc.Id)).FileContents;
+                using (var stream = new MemoryStream(file))
+                {
+                    IFormFile formfile = new FormFile(stream, 0, file.Length, doc.Name, doc.Name);
+                    docBytes.Add(formfile);
+                }
+            }
+            await _documentsService.UploadAsync(archiveId, docBytes.ToArray(), parentId);
+
             while (stack.Count > 0)
             {
                 var currentFolder = stack.Pop();
@@ -180,26 +197,21 @@ namespace DocumentsAPI.Services
                 if (currentFolder != null)
                 {
                     var childFolders = await _folderRepository.GetChildrenAsync(currentFolder.Id, true);
-                    _logger.LogInformation($"\tCurrent folder has {childFolders.Count()} children");
-
-                    if (!idMapping.ContainsKey(currentFolder.Id))
-                    {
-                        var currCopy = await _folderRepository.InsertFolderAsync(currentFolder);
-                        idMapping.Add(currentFolder.Id, currCopy.Id);
-                    }
-                    //stack.Push(new TreeFolderItem(currentFolder));
+                    _logger.LogInformation($"\t\tCurrent folder has {childFolders.Count()} children");
+                    if (idMapping.ContainsKey(currentFolder.Id)) _logger.LogInformation($"\tCurrent folder has id {currentFolder.Id} mapped to {idMapping[currentFolder.Id]}");
+                    else { _logger.LogWarning($"\t**Current folder has no ID mapping!!"); }
 
                     foreach (var childFolder in childFolders)
                     {
                         if (!visited.Contains(childFolder.Id))
                         {
-                            _logger.LogInformation($"\t\tProcessing child {childFolder.Id} ({childFolder.Name}) - ParentID: {childFolder.ParentId}");
+                            _logger.LogInformation($"\t\t\tProcessing child {childFolder.Id} ({childFolder.Name}) - ParentID: {childFolder.ParentId}");
 
                             //var childCopy = new TreeFolderItem(childFolder); // Create a copy of the child folder using TreeFolderItem
                             var childCopy = new Folder
                             {
                                 ArchiveId = archiveId,
-                                ParentId = idMapping[currentFolder.Id],
+                                ParentId = childFolder.ParentId != null ? idMapping[(Guid)childFolder.ParentId] : null,
                                 HasDocument = childFolder.HasDocument,
                                 CreatedAt = DateTime.Now,
                                 Deleted = childFolder.Deleted,
@@ -215,7 +227,24 @@ namespace DocumentsAPI.Services
 
                             childCopy = await _folderRepository.InsertFolderAsync(childCopy);
 
+
+                            // Copy documents
+                            var childDocs = await _documentsService.GetDocumentsAsync(childFolder.ArchiveId, null, childFolder.Id, true);
+                            List<IFormFile> childDocBytes = new();
+                            foreach (var doc in childDocs)
+                            {
+                                var file = (await _documentsService.DownloadAsync(childFolder.ArchiveId, doc.Id)).FileContents;
+                                using (var stream = new MemoryStream(file))
+                                {
+                                    IFormFile formfile = new FormFile(stream, 0, file.Length, doc.Name, doc.Name);
+                                    childDocBytes.Add(formfile);
+                                }
+                            }
+                            await _documentsService.UploadAsync(archiveId, docBytes.ToArray(), childCopy.Id);
+
+
                             currentFolder.ChildFolders.Add(new TreeFolderItem(childCopy)); // Add the child copy to the current copy's child list
+                            idMapping.Add(childFolder.Id, childCopy.Id);
                             var childf = new TreeFolderItem(childFolder);
                             stack.Push(childf);
                         }

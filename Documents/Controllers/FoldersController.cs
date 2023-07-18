@@ -113,8 +113,6 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.Created)]
         public async Task<ActionResult<TreeFolderItem>> CopyAsync(Guid archiveId, Guid folderId, [FromBody] UpdateFolderDTO folderDTO)
         {
-
-
             string userName = User?.Identity?.Name ?? "na";
             List<TreeFolderItem> currentFolder = await _foldersService.GetFolderByIdAsync(folderId);
 

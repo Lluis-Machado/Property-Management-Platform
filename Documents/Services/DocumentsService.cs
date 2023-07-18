@@ -31,9 +31,9 @@ namespace DocumentsAPI.Services
 
         }
 
-        public async Task<IEnumerable<Document>> GetDocumentsAsync(Guid archiveId, int pSize = 100, Guid? folderId = null, bool includeDeleted = false)
+        public async Task<IEnumerable<Document>> GetDocumentsAsync(Guid archiveId, int? pSize = 100, Guid? folderId = null, bool includeDeleted = false)
         {
-            return await _documentsRepository.GetDocumentsFlatListingAsync(archiveId, 100, folderId, includeDeleted);
+            return await _documentsRepository.GetDocumentsFlatListingAsync(archiveId, pSize, folderId, includeDeleted);
         }
 
         public async Task<Document?> GetDocumentByIdAsync(Guid archiveId, Guid documentId)

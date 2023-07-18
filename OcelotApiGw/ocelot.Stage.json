@@ -116,6 +116,19 @@
       "UpstreamPathTemplate": "/ownership/{everything}",
       "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
       "SwaggerKey": "ownership"
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "companies.plattesapis.net",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/companies/{everything}",
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
+      "SwaggerKey": "companies"
     }
   ],
   "SwaggerEndPoints": [
@@ -206,6 +219,16 @@
           "Name": "Ownership API",
           "Version": "v1",
           "Url": "https://ownership.plattesapis.net/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "companies",
+      "Config": [
+        {
+          "Name": "Companies API",
+          "Version": "v1",
+          "Url": "https://companies.plattesapis.net/swagger/v1/swagger.json"
         }
       ]
     }

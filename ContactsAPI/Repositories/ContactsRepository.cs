@@ -1,9 +1,8 @@
 ﻿using ContactsAPI.Contexts;
 using ContactsAPI.Models;
-using ContactsAPI.Repositories;
 using MongoDB.Driver;
 
-namespace ContactsAPI.Services
+namespace ContactsAPI.Repositories
 {
     public class ContactsRepository : IContactsRepository
     {
@@ -20,13 +19,23 @@ namespace ContactsAPI.Services
             return contact;
         }
 
-        public async Task<List<Contact>> GetAsync()
+        public async Task<List<Contact>> GetAsync(bool includeDeleted = false)
         {
-            var filter = Builders<Contact>.Filter.Eq(x => x.Deleted, false);
+            FilterDefinition<Contact> filter;
 
-            return await _collection.Find(filter)
-                .ToListAsync();
+            if (includeDeleted)
+            {
+                filter = Builders<Contact>.Filter.Empty;
+            }
+            else
+            {
+                filter = Builders<Contact>.Filter.Eq(x => x.Deleted, false);
+            }
+
+            var result = await _collection.Find(filter).ToListAsync();
+            return result;
         }
+
 
         public async Task<Contact> GetContactByIdAsync(Guid id)
         {
@@ -34,6 +43,14 @@ namespace ContactsAPI.Services
 
             return await _collection.Find(filter)
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<bool> CheckContactIfAnyExistAsync(Guid id)
+        {
+            var filter = Builders<Contact>.Filter.Eq(c => c.Id, id);
+
+            return await _collection.Find(filter)
+                .AnyAsync();
         }
 
         public async Task<Contact> UpdateAsync(Contact contact)
@@ -45,15 +62,34 @@ namespace ContactsAPI.Services
             return contact;
         }
 
-        public async Task<UpdateResult> SetDeleteAsync(Guid contactId, bool deleted)
+        public async Task<UpdateResult> SetDeleteAsync(Guid contactId, bool deleted, string lastUser)
         {
             var filter = Builders<Contact>.Filter
                 .Eq(actualContact => actualContact.Id, contactId);
 
             var update = Builders<Contact>.Update
-                .Set(actualContact => actualContact.Deleted, deleted);
+                .Set(actualContact => actualContact.Deleted, deleted)
+                .Set(actualContact => actualContact.LastUpdateByUser, lastUser)
+                .Set(actualContact => actualContact.LastUpdateAt, DateTime.UtcNow);
 
             return await _collection.UpdateOneAsync(filter, update);
         }
+
+
+        public async Task<bool> CheckIfNIEUnique(string NIE, Guid? contactId)
+        {
+            var filter = Builders<Contact>.Filter.Eq("NIE", NIE);
+
+            if (contactId.HasValue)
+            {
+                var idFilter = Builders<Contact>.Filter.Ne("Id", contactId);
+                filter = filter & idFilter;
+            }
+
+            var count = await _collection.CountDocumentsAsync(filter);
+
+            return count == 0;
+        }
+
     }
 }

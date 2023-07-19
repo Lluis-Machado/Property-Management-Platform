@@ -1,7 +1,5 @@
 using ContactsAPI.Contexts;
 using ContactsAPI.DTOs;
-using ContactsAPI.Middelwares;
-using ContactsAPI.Models;
 using ContactsAPI.Repositories;
 using ContactsAPI.Services;
 using ContactsAPI.Validators;
@@ -11,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Security.Claims;
+using ContactsAPI.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +26,7 @@ builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
 
 // Validator
 builder.Services.AddScoped<IValidator<ContactDTO>, ContactValidator>();
-builder.Services.AddScoped<IValidator<CreateContactDTO>, CreateContactDTOValidator>();
+builder.Services.AddScoped<IValidator<CreateContactDto>, CreateContactDTOValidator>();
 builder.Services.AddScoped<IValidator<UpdateContactDTO>, UpdateContactDTOValidator>();
 
 // Add services to the container.
@@ -85,15 +84,11 @@ builder.Services.AddAuthentication(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsProduction())
-{
+//if (app.Environment.IsProduction() == false)
+//{
     app.UseSwagger();
-    app.UseSwaggerUI(/*c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-        c.RoutePrefix = string.Empty; // Set the root URL for Swagger
-    }*/);
-}
+    app.UseSwaggerUI();
+//}
 
 app.UseHttpsRedirection();
 

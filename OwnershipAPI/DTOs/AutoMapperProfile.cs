@@ -7,8 +7,11 @@ namespace OwnershipAPI.DTOs
     {
         public AutoMapperProfile()
         {
-            CreateMap<Ownership, OwnershipDTO>();
-            CreateMap<OwnershipDTO, Ownership>();
+            CreateMap<Ownership, OwnershipDto>();
+            CreateMap<OwnershipDto, Ownership>();
+            
+            CreateMap<Ownership, OwnershipDetailedDto>();
+            CreateMap<OwnershipDetailedDto, Ownership>();
 
         }
 

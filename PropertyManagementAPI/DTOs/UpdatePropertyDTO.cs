@@ -1,22 +1,21 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
-using PropertyManagementAPI.Models;
+﻿using PropertiesAPI.Models;
 
-namespace PropertyManagementAPI.DTOs
+namespace PropertiesAPI.Dtos
 {
-    public class UpdatePropertyDTO
+    public class UpdatePropertyDto
     {
-        // Property
-        public string? Name { get; set; }
+        public string Name { get; set; } = string.Empty; //required 
         public string? Type { get; set; }
         public TypeOfUse[]? TypeOfUse { get; set; }
-        public Address? Address { get; set; }
-        public Cadastre? Cadastre { get; set; }
+        public AddressDto? Address { get; set; }
+        public string? CadastreRef { get; set; }
         public string? Comments { get; set; }
 
-        // Base Model
-        public Guid Id { get; set; }
-        public Guid TenantId { get; set; }
-        public bool Deleted { get; set; }
+        public Guid MainOwnerId { get; set; }
+        public string MainOwnerType { get; set; } = string.Empty;
+
+        public List<Guid?> ChildProperties { get; set; } = new();
+        public Guid? ParentPropertyId { get; set; }
 
     }
 }

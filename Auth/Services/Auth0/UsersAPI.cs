@@ -9,21 +9,19 @@ namespace Authentication.Services.Auth0
     {
         private readonly HttpClient _httpClient;
         private readonly Auth0Settings _auth0Settings;
-        private readonly ManagementTokenManager _tokenManager;
         private const string API_SUFFIX = "/api/v2/users";
 
-        public UsersAPI(HttpClient httpClient, Auth0Settings auth0Settings, ManagementTokenManager tokenManager)
+        public UsersAPI(HttpClient httpClient, Auth0Settings auth0Settings)
         {
             _httpClient = httpClient;
             _auth0Settings = auth0Settings;
-            _tokenManager = tokenManager;
         }
 
         #region BASIC_CRUD
         public async Task<List<object>> GetUserListAsync()
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"{_auth0Settings.BaseUrl}{API_SUFFIX}");
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _tokenManager.GetTokenAsync());
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
 
             var response = await _httpClient.SendAsync(request);
             var responseContent = await response.Content.ReadAsStringAsync();
@@ -39,7 +37,7 @@ namespace Authentication.Services.Auth0
         public async Task<object> GetUserAsync(string userId)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"{_auth0Settings.BaseUrl}{API_SUFFIX}/{userId}");
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _tokenManager.GetTokenAsync());
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
 
             var response = await _httpClient.SendAsync(request);
             var responseContent = await response.Content.ReadAsStringAsync();
@@ -60,7 +58,7 @@ namespace Authentication.Services.Auth0
             };
 
             // Add the access token to the request headers
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _tokenManager.GetTokenAsync());
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
 
             var response = await _httpClient.SendAsync(request);
             var responseContent = await response.Content.ReadAsStringAsync();
@@ -80,7 +78,7 @@ namespace Authentication.Services.Auth0
                 Content = JsonContent.Create(userUpdate)
             };
 
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _tokenManager.GetTokenAsync());
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
 
             var response = await _httpClient.SendAsync(request);
             var responseContent = await response.Content.ReadAsStringAsync();
@@ -96,7 +94,7 @@ namespace Authentication.Services.Auth0
         public async Task DeleteUserAsync(string userId)
         {
             var request = new HttpRequestMessage(HttpMethod.Delete, $"{_auth0Settings.BaseUrl}{API_SUFFIX}/{userId}");
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _tokenManager.GetTokenAsync());
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
 
             var response = await _httpClient.SendAsync(request);
 
@@ -112,7 +110,7 @@ namespace Authentication.Services.Auth0
         public async Task<List<object>> GetUserRolesAsync(string userId)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"{_auth0Settings.BaseUrl}{API_SUFFIX}/{userId}/roles");
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _tokenManager.GetTokenAsync());
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
 
             var response = await _httpClient.SendAsync(request);
             var responseContent = await response.Content.ReadAsStringAsync();
@@ -132,7 +130,7 @@ namespace Authentication.Services.Auth0
                 Content = JsonContent.Create(new { roles })
             };
 
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _tokenManager.GetTokenAsync());
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
 
             var response = await _httpClient.SendAsync(request);
 
@@ -150,7 +148,7 @@ namespace Authentication.Services.Auth0
                 Content = JsonContent.Create(new { roles })
             };
 
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _tokenManager.GetTokenAsync());
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
 
             var response = await _httpClient.SendAsync(request);
 
@@ -166,7 +164,7 @@ namespace Authentication.Services.Auth0
         public async Task<List<object>> GetUserPermissionsAsync(string userId)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"{_auth0Settings.BaseUrl}{API_SUFFIX}/{userId}/permissions");
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _tokenManager.GetTokenAsync());
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
 
             var response = await _httpClient.SendAsync(request);
             var responseContent = await response.Content.ReadAsStringAsync();
@@ -186,7 +184,7 @@ namespace Authentication.Services.Auth0
                 Content = JsonContent.Create(new { permissions })
             };
 
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _tokenManager.GetTokenAsync());
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
 
             var response = await _httpClient.SendAsync(request);
 
@@ -204,7 +202,7 @@ namespace Authentication.Services.Auth0
                 Content = JsonContent.Create(new { permissions })
             };
 
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _tokenManager.GetTokenAsync());
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
 
             var response = await _httpClient.SendAsync(request);
 
@@ -220,7 +218,7 @@ namespace Authentication.Services.Auth0
         public async Task<List<object>> GetUserLogsAsync(string userId)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"{_auth0Settings.BaseUrl}{API_SUFFIX}/{userId}/logs");
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _tokenManager.GetTokenAsync());
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _auth0Settings.ManagementApiToken);
 
             var response = await _httpClient.SendAsync(request);
             var responseContent = await response.Content.ReadAsStringAsync();

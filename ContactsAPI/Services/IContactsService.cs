@@ -1,16 +1,18 @@
-﻿using ContactsAPI.Models;
+﻿using ContactsAPI.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ContactsAPI.Services
 {
     public interface IContactsService
     {
-        Task<ActionResult<ContactDTO>> CreateContactAsync(CreateContactDTO contact);
-        Task<ActionResult<ContactDTO>> UpdateContactAsync(UpdateContactDTO contact, Guid contactId);
-        Task<ActionResult<IEnumerable<ContactDTO>>> GetContactsAsync();
-        Task<ContactDTO> GetContactByIdAsync(Guid id);
-        Task<ContactDetailsDTO> GetContactWithProperties(Guid contactId);
-        Task<IActionResult> DeleteContactAsync(Guid contactId);
-        Task<IActionResult> UndeleteContactAsync(Guid contactId);
+        Task<ActionResult<ContactDetailedDto>> CreateAsync(CreateContactDto contact, string lastUser);
+        Task<ActionResult<ContactDetailedDto>> UpdateContactAsync(Guid contactId, UpdateContactDTO contact, string lastUser);
+        Task<ActionResult<IEnumerable<ContactDTO>>> GetAsync(bool includeDeleted = false);
+        Task<ContactDetailedDto> GetByIdAsync(Guid contactId);
+        Task<ContactDetailsDTO> GetWithProperties(Guid contactId);
+        Task<IActionResult> DeleteContactAsync(Guid contactId, string lastUser);
+        Task<IActionResult> UndeleteContactAsync(Guid contactId, string lastUser);
+        Task<IEnumerable<ContactDTO>> GetPaginatedContactsAsync(int pageNumber, int pageSize);
+
     }
 }

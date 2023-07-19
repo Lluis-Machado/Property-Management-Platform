@@ -90,8 +90,9 @@ namespace Documents.Controllers
             string userName = User?.Identity?.Name ?? "na";
 
             var currentFolder = await _foldersService.GetFolderByIdAsync(folderId);
-            if (folderDTO.ParentId == null) folderDTO.ParentId = currentFolder.ElementAt(0).ParentId;
-            Guid currentFolderArchive = currentFolder.ElementAt(0).ArchiveId;
+            if (currentFolder == null) return NotFound();
+            if (folderDTO.ParentId == null) folderDTO.ParentId = currentFolder.ParentId;
+            Guid currentFolderArchive = currentFolder.ArchiveId;
 
             var result = await _foldersService.UpdateFolderAsync(folderDTO, folderId, userName);
             if (currentFolderArchive != folderDTO.ArchiveId) await _foldersService.UpdateChildrenArchiveAsync(parentId: folderId, oldArchiveId: currentFolderArchive, newArchiveId: folderDTO.ArchiveId);
@@ -105,37 +106,29 @@ namespace Documents.Controllers
          * 3) If ArchiveID has changed, use DocumentsService to copy all documents with old FolderID, set ParentID = new IDs, and every level below recursively
          * */
         [HttpPost]
-        [Route("{archiveId}/folders/{folderId}")]
+        [Route("{archiveId}/folders/{folderId}/copy")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         [ProducesResponseType((int)HttpStatusCode.Created)]
-        public async Task<ActionResult<FolderDTO>> CopyAsync(Guid archiveId, Guid folderId, [FromBody] UpdateFolderDTO folderDTO)
+        public async Task<ActionResult<TreeFolderItem>> CopyAsync(Guid archiveId, Guid folderId, [FromBody] UpdateFolderDTO folderDTO)
         {
             string userName = User?.Identity?.Name ?? "na";
             var currentFolder = await _foldersService.GetFolderByIdAsync(folderId);
-
-            CreateFolderDTO newFolderDTO = new()
+            if (currentFolder == null)
             {
-                ParentId = folderDTO.ParentId,
-                Name = currentFolder.ElementAt(0).Name
-            };
-
-            var newFolder = await _foldersService.CreateFolderAsync(archiveId: folderDTO.ArchiveId, newFolderDTO, userName);
-            for (var i = 1; i < currentFolder.Count; i++)
-            {
-                CreateFolderDTO newChildDTO = new()
-                {
-                    ParentId = newFolder.Id,
-                    Name = currentFolder.ElementAt(i).Name
-                };
-                await _foldersService.CreateFolderAsync(archiveId: folderDTO.ArchiveId, newChildDTO, userName);
+                _logger.LogWarning($"Folder CopyAsync - Folder with id {folderId} was not found in DB, returning 404");
+                return NotFound($"Folder with ID {folderId} not found");
             }
+
+            _logger.LogInformation($"Copying folder with ID: {folderId} from archive {currentFolder.ArchiveId} to {archiveId}");
+
+            var result = await _foldersService.CopyFolderAndChildren(currentFolder, folderDTO.ArchiveId, folderDTO.ParentId);
 
             // TODO: Copy documents from each of the folders
 
-            return Created($"{archiveId}/folders/{newFolder.Id}", newFolder);
+            return Created($"{archiveId}/folders/{result.Id}", result);
         }
 
 

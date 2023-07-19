@@ -1,17 +1,16 @@
 ﻿using MongoDB.Driver;
-using MongoDB.Driver.Linq;
-using PropertyManagementAPI.Contexts;
-using PropertyManagementAPI.Models;
-using PropertyManagementAPI.Repositories;
+using PropertiesAPI.Contexts;
+using PropertiesAPI.Models;
+using System.Xml;
 
-namespace PropertyManagementAPI.Services
+namespace PropertiesAPI.Repositories
 {
     public class PropertiesRepository : IPropertiesRepository
     {
         private readonly IMongoCollection<Property> _collection;
         public PropertiesRepository(MongoContext context)
         {
-            var database = context.GetDataBase("propertyManagement");
+            var database = context.GetDataBase("properties");
             _collection = database.GetCollection<Property>("properties");
         }
 
@@ -37,6 +36,14 @@ namespace PropertyManagementAPI.Services
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<List<Property>> GetPropertiesByParentIdAsync(Guid parentPropertyId)
+        {
+            var filter = Builders<Property>.Filter.Eq(p => p.ParentPropertyId, parentPropertyId);
+
+            return await _collection.Find(filter)
+                .ToListAsync();
+        }
+
         public async Task<Property> GetByIdAsync(Guid propertyId)
         {
             var filter = Builders<Property>.Filter
@@ -55,7 +62,18 @@ namespace PropertyManagementAPI.Services
             return property;
         }
 
-        public async Task<UpdateResult> SetDeleteDeclarantAsync(Guid propertyId, bool deleted, string lastUser)
+        public async Task<UpdateResult> UpdateParentIdAsync(Guid parentId, Guid childId)
+        {
+            var filter = Builders<Property>.Filter
+                .Eq(actualProperty => actualProperty.Id, childId);
+
+            var update = Builders<Property>.Update
+                .Set(actualProperty => actualProperty.ParentPropertyId, parentId);
+
+            return await _collection.UpdateOneAsync(filter, update);
+        }
+
+        public async Task<UpdateResult> SetDeleteAsync(Guid propertyId, bool deleted, string lastUser)
         {
             var filter = Builders<Property>.Filter
                 .Eq(actualProperty => actualProperty.Id, propertyId);
@@ -67,5 +85,7 @@ namespace PropertyManagementAPI.Services
 
             return await _collection.UpdateOneAsync(filter, update);
         }
+
+        
     }
 }

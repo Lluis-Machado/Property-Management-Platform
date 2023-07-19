@@ -2,36 +2,27 @@
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PropertyManagementAPI.DTOs;
-using PropertyManagementAPI.Models;
-using PropertyManagementAPI.Services;
+using PropertiesAPI.Dtos;
+using PropertiesAPI.Models;
+using PropertiesAPI.Services;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using PropertiesAPI.Services;
 
-namespace PropertyManagementAPI.Controllers
+namespace PropertiesAPI.Controllers
 {
     //[Authorize]
     [ApiController]
     [Route("properties")]
-    public class PropertiesController : ControllerBase
+    public class PropertyApi : ControllerBase
     {
         private readonly IPropertiesService _propertiesService;
-        private readonly IValidator<CreatePropertyDTO> _createPropertyValidator;
-        private readonly IValidator<UpdatePropertyDTO> _updatePropertyValidator;
-        private readonly IValidator<PropertyDTO> _propertyValidator;
 
-
-        public PropertiesController(IPropertiesService propertiesService
-            , IValidator<CreatePropertyDTO> createPropertyValidator
-            , IValidator<UpdatePropertyDTO> updatePropertyValidator
-            , IValidator<PropertyDTO> propertyValidator)
+        public PropertyApi(IPropertiesService propertiesService)
         {
             _propertiesService = propertiesService;
-            _propertyValidator = propertyValidator;
-            _createPropertyValidator = createPropertyValidator;
-            _updatePropertyValidator = updatePropertyValidator;
         }
 
         // POST: Create property
@@ -39,37 +30,36 @@ namespace PropertyManagementAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<PropertyDTO>> CreateAsync([FromBody] CreatePropertyDTO propertyDTO)
+        public async Task<ActionResult<PropertyDetailedDto>> CreateAsync([FromBody] CreatePropertyDto propertyDto)
         {
             // validations
-            if (propertyDTO == null)    return BadRequest("Incorrect body format");
-            // property validation
-            ValidationResult validationResult = await _createPropertyValidator.ValidateAsync(propertyDTO);
-            if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
+            if (propertyDto is null) return BadRequest("Incorrect body format");
 
-            string userName = "user";
+            // Check user
+            var userName = "user";// UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            return await _propertiesService.CreateProperty(propertyDTO, userName);          
+            var result = await _propertiesService.CreateProperty(propertyDto, userName);
+            return result;
         }
 
         // GET: Get properties(s)
         [HttpGet]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<PropertyDTO>>> GetAsync()
+        public async Task<ActionResult<IEnumerable<PropertyDto>>> GetAsync()
         {
-            var properties = await _propertiesService.GetProperties();
-            return (properties);          
+            var results = await _propertiesService.GetProperties();
+            return (results);
         }
 
         // GET: Get properties(s) by contactId
         [HttpGet("{propertyId}")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<PropertyDTO>> GetContactProperties(Guid propertyId)
+        public async Task<ActionResult<PropertyDetailedDto>> GetAsync(Guid propertyId)
         {
-            var property = await _propertiesService.GetProperty(propertyId);
-            return property;
+            var result = await _propertiesService.GetProperty(propertyId);
+            return result;
 
         }
 
@@ -78,24 +68,16 @@ namespace PropertyManagementAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<PropertyDTO>> UpdateAsync(Guid propertyId, [FromBody] UpdatePropertyDTO propertyDTO)
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<ActionResult<PropertyDetailedDto>> UpdateAsync([FromBody] UpdatePropertyDto propertyDTO, Guid propertyId)
         {
             // Validations
-            if (propertyDTO == null)
-                return new BadRequestObjectResult("Incorrect body format");
-            if (propertyDTO.Id != propertyId)
-                return new BadRequestObjectResult("Declarant Id from body incorrect");
+            if (propertyDTO is null) return new BadRequestObjectResult("Incorrect body format");
 
-            // property validation
-            ValidationResult validationResult = await _updatePropertyValidator.ValidateAsync(propertyDTO);
-            if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
+            string userName = "user";// UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            if (!await _propertiesService.PropertyExists(propertyId)) return NotFound("Property not found");
-
-            string lastUpdateByUser = "a";// User?.Identity?.Name;
-
-            var result = await _propertiesService.UpdateProperty(propertyId, propertyDTO, lastUpdateByUser);
-            return Ok(result);         
+            var result = await _propertiesService.UpdateProperty(propertyDTO, userName, propertyId);
+            return result;
         }
 
         // DELETE: Delete property
@@ -104,11 +86,10 @@ namespace PropertyManagementAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteAsync(Guid propertyId)
         {
-            if (!await _propertiesService.PropertyExists(propertyId)) return NotFound("Property not found");
+            string userName = "user";// UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            string lastUserName = "aa"; // User?.Identity?.Name
-
-            return await _propertiesService.DeleteProperty(propertyId, lastUserName);
+            var result = await _propertiesService.DeleteProperty(propertyId, userName);
+            return result;
         }
 
         // PATCH: Undelete property
@@ -117,11 +98,10 @@ namespace PropertyManagementAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UndeleteAsync(Guid propertyId)
         {
-            if (!await _propertiesService.PropertyExists(propertyId)) return NotFound("Property not found");
+            string userName = "user";// UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            string lastUserName = "aa"; // User?.Identity?.Name
-
-            return await _propertiesService.UndeleteProperty(propertyId, lastUserName);
+            var result = await _propertiesService.UndeleteProperty(propertyId, userName);
+            return result;
         }
     }
 }

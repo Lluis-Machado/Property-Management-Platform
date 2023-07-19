@@ -1,17 +1,14 @@
-﻿namespace ContactsAPI.Models
+﻿namespace ContactsAPI.DTOs
 {
-    public class CreateContactDTO
+    public class CreateContactDto
     {
-        public Guid Id { get; set; }
         public string? FirstName { get; set; }
-        public string? LastName { get; set; }
+        public string LastName { get; set; } = string.Empty;
         public DateOnly? BirthDay { get; set; }
-        public string? ResidentIn { get; set; }
-        public string? NIE { get; set; }
-        public DateOnly? NIEValidUntil { get; set; }
-        public ContactData? ContactData { get; set; }
-
-
-
+        public string? Nif { get; set; }  
+        public string? Email { get; set; }
+        public string? PhoneNumber { get; set; }
+        public string? MobilePhoneNumber { get; set; }
+        public AddressDto Address { get; set; }
     }
 }

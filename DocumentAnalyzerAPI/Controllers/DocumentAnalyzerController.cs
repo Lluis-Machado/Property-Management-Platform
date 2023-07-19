@@ -1,5 +1,4 @@
-﻿using Azure.AI.FormRecognizer.DocumentAnalysis;
-using DocumentAnalyzerAPI.DTOs;
+﻿using DocumentAnalyzerAPI.DTOs;
 using DocumentAnalyzerAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;

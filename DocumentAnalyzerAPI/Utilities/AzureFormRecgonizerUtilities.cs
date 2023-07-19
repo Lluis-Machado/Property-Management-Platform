@@ -29,7 +29,7 @@ namespace DocumentAnalyzerAPI.Utilities
                     }
                     else if (typeof(T) == typeof(string))
                     {
-                        // Resturn currency symbol
+                        // Return currency symbol
                         return (T)(object)documentField.Value.AsCurrency().Symbol;
                     }
                     else

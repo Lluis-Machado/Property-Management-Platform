@@ -47,9 +47,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OwnershipAPI", "OwnershipAP
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Ownership", "Ownership", "{F0F880CF-2075-4FDD-831C-204F3833EBFF}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DocumentAnalyzer", "DocumentAnalyzer", "{A28C7076-3E95-47EC-BD9B-EC8CDEAB6F23}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DocAnalyzer", "DocAnalyzer", "{A28C7076-3E95-47EC-BD9B-EC8CDEAB6F23}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocumentAnalyzerAPI", "DocumentAnalyzerAPI\DocumentAnalyzerAPI.csproj", "{65C766CF-9895-44DF-BB6D-7EDCF2DC3193}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocAnalyzerAPI", "DocumentAnalyzerAPI\DocAnalyzerAPI.csproj", "{65C766CF-9895-44DF-BB6D-7EDCF2DC3193}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

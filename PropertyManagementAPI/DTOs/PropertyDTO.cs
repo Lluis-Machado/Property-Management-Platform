@@ -9,6 +9,7 @@ namespace PropertiesAPI.Dtos
         public TypeOfUse[]? TypeOfUse { get; set; }
         public AddressDto Address { get; set; } = new();
         public string? CadastreRef { get; set; }
+        public string? CadastreUrl { get; set; }
         public string? Comments { get; set; }
 
         public OwnerDto MainOwner { get; set; } = new OwnerDto();

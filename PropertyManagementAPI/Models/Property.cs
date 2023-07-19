@@ -7,6 +7,7 @@
         public TypeOfUse[]? TypeOfUse { get; set; }
 
         public string? CadastreRef { get; set; }
+        public string? CadastreUrl { get; set; }
         public string? Comments { get; set; }
 
         public PropertyAddress PropertyAddress { get; set; } = new PropertyAddress();

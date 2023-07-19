@@ -6,6 +6,7 @@ using PropertiesAPI.Dtos;
 using PropertiesAPI.Exceptions;
 using PropertiesAPI.Models;
 using PropertiesAPI.Repositories;
+using System.Xml;
 
 namespace PropertiesAPI.Services
 {
@@ -25,7 +26,6 @@ namespace PropertiesAPI.Services
             _mapper = mapper;
             _createPropertyValidator = createPropertyValidator;
             _updatePropertyValidator = updatePropertyValidator;
-            _updatePropertyValidator = updatePropertyValidator;
         }
 
         public async Task<ActionResult<PropertyDetailedDto>> CreateProperty(CreatePropertyDto createPropertyDto, string userName)
@@ -41,6 +41,12 @@ namespace PropertiesAPI.Services
             property.LastUpdateByUser = userName;
             property.LastUpdateAt = DateTime.UtcNow;
             property.CreatedAt = DateTime.UtcNow;
+
+            if (!string.IsNullOrEmpty(property.CadastreRef))
+            {
+                string catUrl = await CreateCatastreURL(property.CadastreRef);
+                property.CadastreUrl = catUrl;
+            }
 
             property = await _propertiesRepo.InsertOneAsync(property);
             
@@ -73,7 +79,13 @@ namespace PropertiesAPI.Services
             property.LastUpdateAt = DateTime.UtcNow;
             property.LastUpdateByUser = lastUser;
             property.Id = propertyId;
-            
+
+            if (!string.IsNullOrEmpty(property.CadastreRef))
+            {
+                string catUrl = await CreateCatastreURL(property.CadastreRef);
+                property.CadastreUrl = catUrl;
+            }
+
             property = await _propertiesRepo.UpdateAsync(property);
             
             var propertyDto = _mapper.Map<Property, PropertyDetailedDto>(property);
@@ -218,6 +230,23 @@ namespace PropertiesAPI.Services
             }
 
             return childProperties;
+        }
+
+        private async Task<string> CreateCatastreURL(string refCatastre)
+        {
+            Uri uri = new Uri($"http://ovc.catastro.meh.es/OVCServWeb/OVCWcfCallejero/COVCCallejero.svc/rest/Consulta_DNPRC?RefCat={refCatastre}");
+            using (var client = new HttpClient())
+            {
+                var resp = await client.GetAsync(uri);
+                if (!resp.IsSuccessStatusCode) return "";
+                XmlDocument xml = new XmlDocument();
+                xml.LoadXml(await resp.Content.ReadAsStringAsync());
+                var del = xml.GetElementsByTagName("cp")[0].InnerText;
+                var mun = xml.GetElementsByTagName("cm")[0].InnerText;
+
+                return $"https://www1.sedecatastro.gob.es/CYCBienInmueble/OVCConCiud.aspx?del={del}&mun={mun}&RefC={refCatastre}";
+
+            }
         }
     }
 }

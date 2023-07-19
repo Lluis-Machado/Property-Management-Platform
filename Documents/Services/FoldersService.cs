@@ -64,16 +64,9 @@ namespace DocumentsAPI.Services
             return folderDTO;
         }
 
-        public async Task<List<TreeFolderItem>> GetFolderByIdAsync(Guid folderId)
+        public async Task<Folder?> GetFolderByIdAsync(Guid folderId)
         {
-            var result = await _folderRepository.GetFolderByIdAsync(null, folderId);
-
-            List<Folder> folderList = new()
-            {
-                result
-            };
-
-            return ToFolderTreeView(folderList);
+            return await _folderRepository.GetFolderByIdAsync(null, folderId);
         }
 
         public async Task<List<TreeFolderItem>> GetFoldersAsync(Guid? ArchiveId, bool includeDeleted = false)

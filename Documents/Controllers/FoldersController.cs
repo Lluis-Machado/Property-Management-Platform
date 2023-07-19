@@ -90,8 +90,9 @@ namespace Documents.Controllers
             string userName = User?.Identity?.Name ?? "na";
 
             var currentFolder = await _foldersService.GetFolderByIdAsync(folderId);
-            if (folderDTO.ParentId == null) folderDTO.ParentId = currentFolder.ElementAt(0).ParentId;
-            Guid currentFolderArchive = currentFolder.ElementAt(0).ArchiveId;
+            if (currentFolder == null) return NotFound();
+            if (folderDTO.ParentId == null) folderDTO.ParentId = currentFolder.ParentId;
+            Guid currentFolderArchive = currentFolder.ArchiveId;
 
             var result = await _foldersService.UpdateFolderAsync(folderDTO, folderId, userName);
             if (currentFolderArchive != folderDTO.ArchiveId) await _foldersService.UpdateChildrenArchiveAsync(parentId: folderId, oldArchiveId: currentFolderArchive, newArchiveId: folderDTO.ArchiveId);
@@ -114,11 +115,12 @@ namespace Documents.Controllers
         public async Task<ActionResult<TreeFolderItem>> CopyAsync(Guid archiveId, Guid folderId, [FromBody] UpdateFolderDTO folderDTO)
         {
             string userName = User?.Identity?.Name ?? "na";
-            List<TreeFolderItem> currentFolder = await _foldersService.GetFolderByIdAsync(folderId);
+            var currentFolder = await _foldersService.GetFolderByIdAsync(folderId);
+            if (currentFolder != null) return NotFound();
 
-            _logger.LogInformation($"Copying folder with ID: {folderId} from archive {currentFolder.ElementAt(0).ArchiveId} to {archiveId}");
+            _logger.LogInformation($"Copying folder with ID: {folderId} from archive {currentFolder.ArchiveId} to {archiveId}");
 
-            var result = await _foldersService.CopyFolderAndChildren(currentFolder.ElementAt(0), folderDTO.ArchiveId, folderDTO.ParentId);
+            var result = await _foldersService.CopyFolderAndChildren(currentFolder, folderDTO.ArchiveId, folderDTO.ParentId);
 
             // TODO: Copy documents from each of the folders
 

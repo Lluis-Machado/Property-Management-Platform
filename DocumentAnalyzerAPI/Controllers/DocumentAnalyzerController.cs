@@ -3,7 +3,6 @@ using DocumentAnalyzerAPI.DTOs;
 using DocumentAnalyzerAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using static DocumentAnalyzerAPI.Utilities.Document;
 
 namespace DocumentAnalyzerAPI.Controllers
 {

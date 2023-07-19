@@ -1,4 +1,3 @@
-using DocumentAnalyzerAPI.Configurations;
 using DocumentAnalyzerAPI.Contexts;
 using DocumentAnalyzerAPI.DTOs;
 using DocumentAnalyzerAPI.Mappers;
@@ -22,9 +21,6 @@ builder.Services.AddScoped<IAPInvoiceDTOMapper, APInvoiceDTOMapper>();
 builder.Services.AddScoped<IARInvoiceDTOMapper, ARInvoiceDTOMapper>();
 builder.Services.AddScoped<IAPInvoiceLineDTOMapper, APInvoiceLineDTOMapper>();
 builder.Services.AddScoped<IARInvoiceLineDTOMapper, ARInvoiceLineDTOMapper>();
-
-// AutoMapper
-builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

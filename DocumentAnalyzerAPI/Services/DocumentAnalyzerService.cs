@@ -1,7 +1,6 @@
 ﻿using Azure.AI.FormRecognizer.DocumentAnalysis;
 using DocumentAnalyzerAPI.DTOs;
 using DocumentAnalyzerAPI.Mappers;
-using static DocumentAnalyzerAPI.Utilities.Document;
 
 namespace DocumentAnalyzerAPI.Services
 {

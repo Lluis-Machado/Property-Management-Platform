@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Azure.AI.FormRecognizer.DocumentAnalysis;
+﻿using Azure.AI.FormRecognizer.DocumentAnalysis;
 using DocumentAnalyzerAPI.DTOs;
 using DocumentAnalyzerAPI.Utilities;
 
@@ -7,12 +6,10 @@ namespace DocumentAnalyzerAPI.Mappers
 {
     public class ARInvoiceDTOMapper : IARInvoiceDTOMapper
     {
-        private readonly IMapper _mapper;
         private readonly IARInvoiceLineDTOMapper _aRInvoiceLineDTOMapper;
 
-        public ARInvoiceDTOMapper(IMapper mapper, IARInvoiceLineDTOMapper aRInvoiceLineDTOMapper)
+        public ARInvoiceDTOMapper(IARInvoiceLineDTOMapper aRInvoiceLineDTOMapper)
         {
-            _mapper = mapper;
             _aRInvoiceLineDTOMapper = aRInvoiceLineDTOMapper;
         }
 

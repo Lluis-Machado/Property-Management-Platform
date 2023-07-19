@@ -1,19 +1,15 @@
-﻿using AutoMapper;
-using Azure.AI.FormRecognizer.DocumentAnalysis;
+﻿using Azure.AI.FormRecognizer.DocumentAnalysis;
 using DocumentAnalyzerAPI.DTOs;
-using DocumentAnalyzerAPI.Utilities;
 
 namespace DocumentAnalyzerAPI.Mappers
 {
     public class DocumentFieldsMapper<T> : IDocumentFieldsMapper
     {
-        private readonly IMapper _mapper;
         private readonly IAPInvoiceDTOMapper _aPInvoiceDTOMapper;
         private readonly IARInvoiceDTOMapper _aRInvoiceDTOMapper;
 
-        public DocumentFieldsMapper(IMapper mapper, IAPInvoiceDTOMapper aPInvoiceDTOMapper, IARInvoiceDTOMapper aRInvoiceDTOMapper)
+        public DocumentFieldsMapper(IAPInvoiceDTOMapper aPInvoiceDTOMapper, IARInvoiceDTOMapper aRInvoiceDTOMapper)
         {
-            _mapper = mapper;
             _aPInvoiceDTOMapper = aPInvoiceDTOMapper;
             _aRInvoiceDTOMapper = aRInvoiceDTOMapper;
         }

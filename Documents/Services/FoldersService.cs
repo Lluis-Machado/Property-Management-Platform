@@ -166,7 +166,7 @@ namespace DocumentsAPI.Services
             stack.Push(new TreeFolderItem(sourceFolder));
 
             // Copy documents
-            var docs = await _documentsService.GetDocumentsAsync(sourceFolder.ArchiveId, null, sourceFolder.Id, true);
+            var docs = await _documentsService.GetDocumentsAsync(sourceFolder.ArchiveId, null, sourceFolder.Id, false);
             List<IFormFile> docBytes = new();
             foreach (var doc in docs)
             {
@@ -190,7 +190,7 @@ namespace DocumentsAPI.Services
                 if (currentFolder != null)
                 {
                     var childFolders = await _folderRepository.GetChildrenAsync(currentFolder.Id, true);
-                    _logger.LogInformation($"\t\tCurrent folder has {childFolders.Count()} children");
+                    //_logger.LogInformation($"\t\tCurrent folder has {childFolders.Count()} children");
                     if (idMapping.ContainsKey(currentFolder.Id)) _logger.LogInformation($"\tCurrent folder has id {currentFolder.Id} mapped to {idMapping[currentFolder.Id]}");
                     else { _logger.LogWarning($"\t**Current folder has no ID mapping!!"); }
 
@@ -222,7 +222,7 @@ namespace DocumentsAPI.Services
 
 
                             // Copy documents
-                            var childDocs = await _documentsService.GetDocumentsAsync(childFolder.ArchiveId, null, childFolder.Id, true);
+                            var childDocs = await _documentsService.GetDocumentsAsync(childFolder.ArchiveId, null, childFolder.Id, false);
                             List<IFormFile> childDocBytes = new();
                             foreach (var doc in childDocs)
                             {

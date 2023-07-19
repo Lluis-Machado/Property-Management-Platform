@@ -116,7 +116,11 @@ namespace Documents.Controllers
         {
             string userName = User?.Identity?.Name ?? "na";
             var currentFolder = await _foldersService.GetFolderByIdAsync(folderId);
-            if (currentFolder != null) return NotFound();
+            if (currentFolder == null)
+            {
+                _logger.LogWarning($"Folder CopyAsync - Folder with id {folderId} was not found in DB, returning 404");
+                return NotFound($"Folder with ID {folderId} not found");
+            }
 
             _logger.LogInformation($"Copying folder with ID: {folderId} from archive {currentFolder.ArchiveId} to {archiveId}");
 

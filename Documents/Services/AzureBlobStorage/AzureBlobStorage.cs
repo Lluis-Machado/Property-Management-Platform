@@ -139,7 +139,7 @@ namespace DocumentsAPI.Services.AzureBlobStorage
                 {
                     // TODO: This is currently filtering after getting all the blobs. Ideally, we should filter in the Azure query.
                     // It can be done by configuring Azure Search, but I ain't got time for that now
-                    if (folderId != null && blobItem.Metadata["folder_id"] != folderId.ToString())
+                    if (folderId != null && (blobItem.Metadata["folder_id"] == null || blobItem.Metadata["folder_id"] != folderId.ToString()))
                         continue;
                     Document document = MapDocument(blobItem);
                     documents.Add(document);

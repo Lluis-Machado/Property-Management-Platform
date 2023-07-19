@@ -127,7 +127,8 @@ namespace DocumentsAPI.Repositories
                 folder.Name,
                 folder.ParentId,
                 folder.CreatedByUser,
-                folder.LastUpdateByUser
+                folder.LastUpdateByUser,
+                folder.Deleted
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("INSERT INTO Folders (");
@@ -136,6 +137,7 @@ namespace DocumentsAPI.Repositories
             queryBuilder.Append(" ,ParentId");
             queryBuilder.Append(" ,CreatedByUser");
             queryBuilder.Append(" ,LastUpdateByUser");
+            queryBuilder.Append(" ,Deleted");
             queryBuilder.Append(" )OUTPUT INSERTED.*");
             queryBuilder.Append(" VALUES(");
             queryBuilder.Append(" @ArchiveId");
@@ -143,6 +145,7 @@ namespace DocumentsAPI.Repositories
             queryBuilder.Append(" ,@ParentId");
             queryBuilder.Append(" ,@CreatedByUser");
             queryBuilder.Append(" ,@LastUpdateByUser");
+            queryBuilder.Append(" ,@Deleted");
             queryBuilder.Append(" )");
 
             return await _context

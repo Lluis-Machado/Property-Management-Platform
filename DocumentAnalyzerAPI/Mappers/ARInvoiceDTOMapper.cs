@@ -33,7 +33,7 @@ namespace DocumentAnalyzerAPI.Mappers
             DateTime? serviceDateFrom = AzureFormRecgonizerUtilities.MapFieldValue<DateTimeOffset?>(documentFields, "ServiceStartDate")?.DateTime;
             DateTime? serviceDateTo = AzureFormRecgonizerUtilities.MapFieldValue<DateTimeOffset?>(documentFields, "ServiceEndDate")?.DateTime;
 
-            if (documentFields.TryGetValue("Items", out DocumentField itemsField))
+            if (documentFields.TryGetValue("Items", out var itemsField))
             {
 
                 if (itemsField.FieldType == DocumentFieldType.List)

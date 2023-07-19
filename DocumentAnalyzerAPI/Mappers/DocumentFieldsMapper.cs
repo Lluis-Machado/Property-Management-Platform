@@ -3,7 +3,7 @@ using DocumentAnalyzerAPI.DTOs;
 
 namespace DocumentAnalyzerAPI.Mappers
 {
-    public class DocumentFieldsMapper<T> : IDocumentFieldsMapper
+    public class DocumentFieldsMapper : IDocumentFieldsMapper
     {
         private readonly IAPInvoiceDTOMapper _aPInvoiceDTOMapper;
         private readonly IARInvoiceDTOMapper _aRInvoiceDTOMapper;
@@ -14,7 +14,7 @@ namespace DocumentAnalyzerAPI.Mappers
             _aRInvoiceDTOMapper = aRInvoiceDTOMapper;
         }
 
-        public async Task<T> Map<T>(IReadOnlyDictionary<string, DocumentField> documentFields)
+        public T Map<T>(IReadOnlyDictionary<string, DocumentField> documentFields)
         {
             Type targetType = typeof(T);
 

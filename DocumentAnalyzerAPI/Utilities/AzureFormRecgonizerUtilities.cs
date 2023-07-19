@@ -7,12 +7,12 @@ namespace DocumentAnalyzerAPI.Utilities
 
         public static T? MapFieldValue<T>(IReadOnlyDictionary<string, DocumentField> documentFields, string fieldName)
         {
-            if (!documentFields.TryGetValue(fieldName, out DocumentField documentField)) return default(T);
+            if (!documentFields.TryGetValue(fieldName, out var documentField)) return default(T);
 
             return GetFieldValue<T>(documentField);
         }
 
-        private static T GetFieldValue<T>(DocumentField documentField)
+        private static T? GetFieldValue<T>(DocumentField documentField)
         {
             switch (documentField.FieldType)
             {

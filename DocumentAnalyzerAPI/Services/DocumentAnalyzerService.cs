@@ -20,11 +20,12 @@ namespace DocumentAnalyzerAPI.Services
             DocumentAnalysisDTO<T> documentAnalysisDTO = new();
             string modelId = GetModelIdForEnum<T>(); // Get the modelId based on T
             AnalyzeResult analyzeResult = await _azureFormRecognizer.AnalyzeDocumentAsync(document, modelId);
-            documentAnalysisDTO.Form = await _documentFieldsMapper.Map<T>(analyzeResult.Documents[0].Fields);
+            documentAnalysisDTO.AnalyzeResult = analyzeResult;
+            documentAnalysisDTO.Form = _documentFieldsMapper.Map<T>(analyzeResult.Documents[0].Fields);
             return documentAnalysisDTO;
         }
 
-        private string GetModelIdForEnum<T>()
+        private static string GetModelIdForEnum<T>()
         {
             // Implement your logic to map the generic type T to a specific modelId
             // For example, using a dictionary:
@@ -35,7 +36,7 @@ namespace DocumentAnalyzerAPI.Services
                 // Add more entries as needed
             };
 
-            if (modelIdMapping.TryGetValue(typeof(T), out string modelId))
+            if (modelIdMapping.TryGetValue(typeof(T), out var modelId))
             {
                 return modelId;
             }

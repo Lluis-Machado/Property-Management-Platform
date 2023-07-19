@@ -2,10 +2,18 @@ using DocumentAnalyzerAPI.Contexts;
 using DocumentAnalyzerAPI.DTOs;
 using DocumentAnalyzerAPI.Mappers;
 using DocumentAnalyzerAPI.Services;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+// Serilog
+var logger = new LoggerConfiguration()
+  .ReadFrom.Configuration(builder.Configuration)
+  .Enrich.FromLogContext()
+  .CreateLogger();
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog(logger);
 
 // Contexts
 builder.Services.AddSingleton<AzureFormRecognizerContext>();

@@ -18,18 +18,28 @@ namespace DocumentAnalyzerAPI.Controllers
             _documentAnalyzerService = documentAnalyzerService;
         }
 
-        // POST: analyze document
+        // POST: analyze ap invoice
         [HttpPost]
         [Route("DocumentAnalyzer/APInvoice")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.MultiStatus)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
 
-        public async Task<ActionResult<DocumentAnalysisDTO<APInvoiceDTO>>> AnalyzeDocumentAsync(IFormFile file)
+        public async Task<ActionResult<DocumentAnalysisDTO<APInvoiceDTO>>> AnalyzeAPInvoiceAsync(IFormFile file)
         {
             return Ok(await _documentAnalyzerService.AnalyzeDocumentAsync<APInvoiceDTO>(file.OpenReadStream()));
+        }
+
+        // POST: analyze ar invoice
+        [HttpPost]
+        [Route("DocumentAnalyzer/ARInvoice")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+
+        public async Task<ActionResult<DocumentAnalysisDTO<ARInvoiceDTO>>> AnalyzeARInvoiceAsync(IFormFile file)
+        {
+            return Ok(await _documentAnalyzerService.AnalyzeDocumentAsync<ARInvoiceDTO>(file.OpenReadStream()));
         }
     }
 }

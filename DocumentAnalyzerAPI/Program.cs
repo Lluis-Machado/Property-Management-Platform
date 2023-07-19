@@ -16,9 +16,12 @@ builder.Services.AddScoped<IAzureFormRecognizer, AzureFormRecognizer>();
 builder.Services.AddScoped<IDocumentAnalyzerService, DocumentAnalyzerService>();
 
 // Mappers
-builder.Services.AddScoped<IAPInvoiceDTOMapper, APInvoiceDTOMapper>();
 builder.Services.AddScoped<IDocumentFieldsMapper, DocumentFieldsMapper<APInvoiceDTO>>();
+builder.Services.AddScoped<IDocumentFieldsMapper, DocumentFieldsMapper<ARInvoiceDTO>>();
+builder.Services.AddScoped<IAPInvoiceDTOMapper, APInvoiceDTOMapper>();
+builder.Services.AddScoped<IARInvoiceDTOMapper, ARInvoiceDTOMapper>();
 builder.Services.AddScoped<IAPInvoiceLineDTOMapper, APInvoiceLineDTOMapper>();
+builder.Services.AddScoped<IARInvoiceLineDTOMapper, ARInvoiceLineDTOMapper>();
 
 // AutoMapper
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());

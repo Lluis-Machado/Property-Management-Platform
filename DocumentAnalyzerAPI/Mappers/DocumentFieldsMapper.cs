@@ -9,11 +9,13 @@ namespace DocumentAnalyzerAPI.Mappers
     {
         private readonly IMapper _mapper;
         private readonly IAPInvoiceDTOMapper _aPInvoiceDTOMapper;
+        private readonly IARInvoiceDTOMapper _aRInvoiceDTOMapper;
 
-        public DocumentFieldsMapper(IMapper mapper, IAPInvoiceDTOMapper aPInvoiceDTOMapper)
+        public DocumentFieldsMapper(IMapper mapper, IAPInvoiceDTOMapper aPInvoiceDTOMapper, IARInvoiceDTOMapper aRInvoiceDTOMapper)
         {
             _mapper = mapper;
             _aPInvoiceDTOMapper = aPInvoiceDTOMapper;
+            _aRInvoiceDTOMapper = aRInvoiceDTOMapper;
         }
 
         public async Task<T> Map<T>(IReadOnlyDictionary<string, DocumentField> documentFields)
@@ -25,6 +27,10 @@ namespace DocumentAnalyzerAPI.Mappers
             if (targetType == typeof(APInvoiceDTO))
             {
                 mappingMethod = _aPInvoiceDTOMapper.MapToAPInvoiceAndLinesDTO;
+            }
+            else if(targetType == typeof(ARInvoiceDTO))
+            {
+                mappingMethod = _aRInvoiceDTOMapper.MapToARInvoiceAndLinesDTO;
             }
             else
             {

@@ -32,6 +32,7 @@ namespace DocumentAnalyzerAPI.Services
             Dictionary<Type, string> modelIdMapping = new()
             {
                 { typeof(APInvoiceDTO), "prebuilt-invoice" },
+                { typeof(ARInvoiceDTO), "prebuilt-invoice" },
                 // Add more entries as needed
             };
 

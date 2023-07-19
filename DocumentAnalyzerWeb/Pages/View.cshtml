@@ -1,0 +1,13 @@
+﻿
+@model YourDocumentModel
+
+<h1>Document Preview</h1>
+
+<div class="document-preview-container">
+    <iframe src="@Model.DocumentURL" frameborder="0"></iframe>
+@*    @foreach (var region in Model.BoundaryRegions)
+    {
+        <div class="boundary-region" style="top: @region.Top; left: @region.Left; width: @region.Width; height: @region.Height;"></div>
+    }*@
+</div>
+

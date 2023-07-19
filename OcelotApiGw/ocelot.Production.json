@@ -116,6 +116,19 @@
       "UpstreamPathTemplate": "/ownership/{everything}",
       "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
       "SwaggerKey": "ownership"
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "docanalyzer.plattesapis.net",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/docanalyzer/{everything}",
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
+      "SwaggerKey": "docanalyzer"
     }
   ],
   "SwaggerEndPoints": [
@@ -206,6 +219,16 @@
           "Name": "Ownership API",
           "Version": "v1",
           "Url": "https://ownership.plattesapis.net/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "docanalyzer",
+      "Config": [
+        {
+          "Name": "DocAnalyzer API",
+          "Version": "v1",
+          "Url": "https://docanalyzer.plattesapis.net/swagger/v1/swagger.json"
         }
       ]
     }

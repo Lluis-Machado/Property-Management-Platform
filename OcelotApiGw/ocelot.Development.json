@@ -103,6 +103,19 @@
       "UpstreamPathTemplate": "/ownership/{everything}",
       "UpstreamHttpMethod": [ "GET" ],
       "SwaggerKey": "ownership"
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7255
+        }
+      ],
+      "UpstreamPathTemplate": "/docanalyzer/{everything}",
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
+      "SwaggerKey": "docanalyzer"
     }
   ],
   "SwaggerEndPoints": [
@@ -183,6 +196,16 @@
           "Name": "Ownership API",
           "Version": "v1",
           "Url": "http://localhost:7007/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "docanalyzer",
+      "Config": [
+        {
+          "Name": "DocAnalyzer API",
+          "Version": "v1",
+          "Url": "http://localhost:7255/swagger/v1/swagger.json"
         }
       ]
     }

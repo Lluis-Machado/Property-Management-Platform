@@ -11,8 +11,11 @@ namespace PropertiesAPI.Dtos
         public string? CadastreRef { get; set; }
         public string? Comments { get; set; }
 
-        public Guid? ParentPropertyId { get; set; }
+        public Guid MainOwnerId { get; set; }
+        public string MainOwnerType { get; set; } = string.Empty;
+
         public List<Guid?> ChildProperties { get; set; } = new();
+        public Guid? ParentPropertyId { get; set; }
 
     }
 }

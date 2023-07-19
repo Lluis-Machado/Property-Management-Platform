@@ -8,6 +8,7 @@ namespace DocumentAnalyzerAPI.DTOs
         public DateTime? Date { get; set; }
         public string? Currency { get; set; }
         public List<APInvoiceLineDTO> InvoiceLines { get; set; }
+        public decimal? TotalAmount { get; set; }
 
         public APInvoiceDTO()
         {

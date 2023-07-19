@@ -27,7 +27,7 @@ namespace DocumentAnalyzerAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
 
-        public async Task<ActionResult<DocumentAnalysisDTO<APInvoiceDTO>>> AnalyzeDocumentAsync(IFormFile file, string modelId)
+        public async Task<ActionResult<DocumentAnalysisDTO<APInvoiceDTO>>> AnalyzeDocumentAsync(IFormFile file)
         {
             return Ok(await _documentAnalyzerService.AnalyzeDocumentAsync<APInvoiceDTO>(file.OpenReadStream()));
         }

@@ -29,8 +29,8 @@ namespace DocumentAnalyzerAPI.Utilities
                     }
                     else if (typeof(T) == typeof(string))
                     {
-                        // Convert currency value to string if T is string type
-                        return (T)(object)documentField.Value.AsCurrency().Amount.ToString();
+                        // Resturn currency symbol
+                        return (T)(object)documentField.Value.AsCurrency().Symbol;
                     }
                     else
                     {

@@ -29,7 +29,8 @@ namespace DocumentAnalyzerAPI.Mappers
                 BusinessPartner = businessPartnerDTO,
                 RefNumber = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields,"InvoiceId"),
                 Date = AzureFormRecgonizerUtilities.MapFieldValue<DateTimeOffset?>(documentFields,"InvoiceDate")?.DateTime,
-                Currency = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "Currency")
+                Currency = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "InvoiceTotal"),
+                TotalAmount = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "InvoiceTotal")
             };
 
             DateTime? serviceDateFrom = AzureFormRecgonizerUtilities.MapFieldValue<DateTimeOffset?>(documentFields, "ServiceStartDate")?.DateTime;
@@ -52,6 +53,19 @@ namespace DocumentAnalyzerAPI.Mappers
                 }
 
             }
+
+            // if no invoice lines detected, create one with total values
+            if (!aPInvoiceDTO.InvoiceLines.Any())
+            {
+                APInvoiceLineDTO aPInvoiceLineDTO = new()
+                {
+                    Tax = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "TotalTax"),
+                    Quantity = 1,
+                    UnitPrice = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "InvoiceTotal")
+                };
+                aPInvoiceDTO.InvoiceLines.Add(aPInvoiceLineDTO);
+            };
+
             return aPInvoiceDTO;
         }
 

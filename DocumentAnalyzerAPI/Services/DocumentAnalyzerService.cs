@@ -16,7 +16,7 @@ namespace DocumentAnalyzerAPI.Services
             _documentFieldsMapper = documentFieldsMapper;
         }
 
-        public async Task<DocumentAnalysisDTO<T>> AnalyzeDocumentAsync<T>(Stream document) where T: Enum
+        public async Task<DocumentAnalysisDTO<T>> AnalyzeDocumentAsync<T>(Stream document)
         {
             DocumentAnalysisDTO<T> documentAnalysisDTO = new();
             string modelId = GetModelIdForEnum<T>(); // Get the modelId based on T
@@ -25,7 +25,7 @@ namespace DocumentAnalyzerAPI.Services
             return documentAnalysisDTO;
         }
 
-        private string GetModelIdForEnum<T>() where T : Enum
+        private string GetModelIdForEnum<T>()
         {
             // Implement your logic to map the generic type T to a specific modelId
             // For example, using a dictionary:

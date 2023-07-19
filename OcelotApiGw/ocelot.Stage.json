@@ -129,6 +129,19 @@
       "UpstreamPathTemplate": "/companies/{everything}",
       "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
       "SwaggerKey": "companies"
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "docanalyzer.plattesapis.net",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/docanalyzer/{everything}",
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
+      "SwaggerKey": "docanalyzer"
     }
   ],
   "SwaggerEndPoints": [
@@ -229,6 +242,16 @@
           "Name": "Companies API",
           "Version": "v1",
           "Url": "https://companies.plattesapis.net/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "docanalyzer",
+      "Config": [
+        {
+          "Name": "DocAnalyzer API",
+          "Version": "v1",
+          "Url": "https://docanalyzer.plattesapis.net/swagger/v1/swagger.json"
         }
       ]
     }

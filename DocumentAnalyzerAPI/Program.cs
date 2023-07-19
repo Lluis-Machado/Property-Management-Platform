@@ -1,5 +1,6 @@
 using DocumentAnalyzerAPI.Configurations;
 using DocumentAnalyzerAPI.Contexts;
+using DocumentAnalyzerAPI.DTOs;
 using DocumentAnalyzerAPI.Mappers;
 using DocumentAnalyzerAPI.Services;
 
@@ -13,10 +14,11 @@ builder.Services.AddSingleton<AzureFormRecognizerContext>();
 // Services
 builder.Services.AddScoped<IAzureFormRecognizer, AzureFormRecognizer>();
 builder.Services.AddScoped<IDocumentAnalyzerService, DocumentAnalyzerService>();
-builder.Services.AddScoped<IAPInvoiceAnalyzerService, APInvoiceAnalyzerService>();
 
 // Mappers
 builder.Services.AddScoped<IAPInvoiceDTOMapper, APInvoiceDTOMapper>();
+builder.Services.AddScoped<IDocumentFieldsMapper, DocumentFieldsMapper<APInvoiceDTO>>();
+builder.Services.AddScoped<IAPInvoiceLineDTOMapper, APInvoiceLineDTOMapper>();
 
 // AutoMapper
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());

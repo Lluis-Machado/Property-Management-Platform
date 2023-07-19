@@ -5,6 +5,6 @@ namespace DocumentAnalyzerAPI.Mappers
 {
     public interface IAPInvoiceDTOMapper
     {
-        APInvoiceDTO MapToAPInvoiceDTO(IReadOnlyDictionary<string, DocumentField> dictionary);
+        APInvoiceDTO MapToAPInvoiceAndLinesDTO(IReadOnlyDictionary<string, DocumentField> dictionary);
     }
 }

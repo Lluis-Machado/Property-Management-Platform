@@ -3,6 +3,7 @@ namespace DocumentAnalyzerAPI.DTOs
 {
     public class APInvoiceDTO
     {
+        public BusinessPartnerDTO BusinessPartner { get; set; }
         public string? RefNumber { get; set; }
         public DateTime? Date { get; set; }
         public string? Currency { get; set; }
@@ -11,6 +12,7 @@ namespace DocumentAnalyzerAPI.DTOs
         public APInvoiceDTO()
         {
             InvoiceLines = new List<APInvoiceLineDTO>();
+            BusinessPartner = new();
         }
     }
 }

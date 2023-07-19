@@ -8,20 +8,50 @@ namespace DocumentAnalyzerAPI.Mappers
     public class APInvoiceDTOMapper : IAPInvoiceDTOMapper
     {
         private readonly IMapper _mapper;
+        private readonly IAPInvoiceLineDTOMapper _aPInvoiceLineDTOMapper;
 
-        public APInvoiceDTOMapper(IMapper mapper)
+        public APInvoiceDTOMapper(IMapper mapper, IAPInvoiceLineDTOMapper aPInvoiceLineDTOMapper)
         {
             _mapper = mapper;
+            _aPInvoiceLineDTOMapper = aPInvoiceLineDTOMapper;
         }
 
-        public APInvoiceDTO MapToAPInvoiceDTO(IReadOnlyDictionary<string, DocumentField> documentFields)
+        public APInvoiceDTO MapToAPInvoiceAndLinesDTO(IReadOnlyDictionary<string, DocumentField> documentFields)
         {
+            BusinessPartnerDTO businessPartnerDTO = new()
+            {
+                VATNumber = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "VendorTaxId"),
+                Name = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "VendorName")
+            };
+
             APInvoiceDTO aPInvoiceDTO = new()
             {
+                BusinessPartner = businessPartnerDTO,
                 RefNumber = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields,"InvoiceId"),
-                Date = AzureFormRecgonizerUtilities.MapFieldValue<DateTime?>(documentFields,"InvoiceDate"),
+                Date = AzureFormRecgonizerUtilities.MapFieldValue<DateTimeOffset?>(documentFields,"InvoiceDate")?.DateTime,
                 Currency = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "Currency")
             };
+
+            DateTime? serviceDateFrom = AzureFormRecgonizerUtilities.MapFieldValue<DateTimeOffset?>(documentFields, "ServiceStartDate")?.DateTime;
+            DateTime? serviceDateTo = AzureFormRecgonizerUtilities.MapFieldValue<DateTimeOffset?>(documentFields, "ServiceEndDate")?.DateTime;
+
+            if (documentFields.TryGetValue("Items", out DocumentField itemsField))
+            {
+
+                if (itemsField.FieldType == DocumentFieldType.List)
+                {
+
+                    foreach (DocumentField itemField in itemsField.Value.AsList())
+                    {
+                        IReadOnlyDictionary<string, DocumentField>? itemFields = itemField.Value.AsDictionary();
+                        APInvoiceLineDTO aPInvoiceLineDTO = _aPInvoiceLineDTOMapper.MapToAPInvoiceLineDTO(itemFields);
+                        aPInvoiceLineDTO.ServiceDateFrom = serviceDateFrom;
+                        aPInvoiceLineDTO.ServiceDateTo = serviceDateTo;   
+                        aPInvoiceDTO.InvoiceLines.Add(aPInvoiceLineDTO);
+                    }
+                }
+
+            }
             return aPInvoiceDTO;
         }
 

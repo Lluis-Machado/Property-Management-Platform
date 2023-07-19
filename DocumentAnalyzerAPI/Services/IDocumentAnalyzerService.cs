@@ -4,6 +4,6 @@ namespace DocumentAnalyzerAPI.Services
 {
     public interface IDocumentAnalyzerService
     {
-        Task<DocumentAnalysisDTO> AnalyzeDocumentAsync(Stream document, string ModelId);
+        Task<DocumentAnalysisDTO<T>> AnalyzeDocumentAsync<T>(Stream document, T modelId);
     }
 }

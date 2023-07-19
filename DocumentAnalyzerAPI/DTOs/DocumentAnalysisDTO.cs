@@ -2,8 +2,9 @@
 
 namespace DocumentAnalyzerAPI.DTOs
 {
-    public class DocumentAnalysisDTO
+    public class DocumentAnalysisDTO<T>
     {
-        public AnalyzeResult result { get; set; }
+        public T Form { get; set; }
+        public AnalyzeResult AnalyzeResult { get; set; }
     }
 }

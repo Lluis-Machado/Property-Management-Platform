@@ -1,10 +1,12 @@
 ﻿using DocumentAnalyzerAPI.DTOs;
 using DocumentAnalyzerAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace DocumentAnalyzerAPI.Controllers
 {
+    [Authorize]
     public class DocumentAnalyzerController : Controller
     {
         private readonly ILogger<DocumentAnalyzerController> _logger;
@@ -25,6 +27,7 @@ namespace DocumentAnalyzerAPI.Controllers
 
         public async Task<ActionResult<DocumentAnalysisDTO<APInvoiceDTO>>> AnalyzeAPInvoiceAsync(IFormFile file)
         {
+            if (file is null) return BadRequest("File is empty");
             return Ok(await _documentAnalyzerService.AnalyzeDocumentAsync<APInvoiceDTO>(file.OpenReadStream()));
         }
 
@@ -37,6 +40,7 @@ namespace DocumentAnalyzerAPI.Controllers
 
         public async Task<ActionResult<DocumentAnalysisDTO<ARInvoiceDTO>>> AnalyzeARInvoiceAsync(IFormFile file)
         {
+            if (file is null) return BadRequest("File is empty");
             return Ok(await _documentAnalyzerService.AnalyzeDocumentAsync<ARInvoiceDTO>(file.OpenReadStream()));
         }
     }

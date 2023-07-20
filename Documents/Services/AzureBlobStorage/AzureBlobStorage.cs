@@ -139,8 +139,12 @@ namespace DocumentsAPI.Services.AzureBlobStorage
                 {
                     // TODO: This is currently filtering after getting all the blobs. Ideally, we should filter in the Azure query.
                     // It can be done by configuring Azure Search, but I ain't got time for that now
-                    if (folderId != null && (blobItem.Metadata["folder_id"] == null || blobItem.Metadata["folder_id"] != folderId.ToString()))
-                        continue;
+
+                    // If FolderID is null, it only returns documents which are in the root of the archive, not every single document regardless of folder!
+
+                    if ((folderId != null && (blobItem.Metadata["folder_id"] != folderId.ToString()) ||
+                        folderId == null && blobItem.Metadata["folder_id"] != null)) continue;
+
                     Document document = MapDocument(blobItem);
                     documents.Add(document);
                 }

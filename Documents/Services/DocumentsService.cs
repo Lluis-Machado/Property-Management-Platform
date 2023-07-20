@@ -20,11 +20,15 @@ namespace DocumentsAPI.Services
         {
             var documents = new List<CreateDocumentStatus>();
 
-            await Parallel.ForEachAsync(files, async (file, CancellationToken) =>
+
+            await Parallel.ForEachAsync(files, parallelOptions: new ParallelOptions { MaxDegreeOfParallelism = 4 }, async (file, CancellationToken) =>
             {
                 Stream fileStream = file.OpenReadStream();
+                fileStream.Position = 0;
                 HttpStatusCode status = await _documentsRepository.UploadDocumentAsync(archiveId, file.FileName, fileStream, folderId);
+                fileStream.Flush();
                 documents.Add(new CreateDocumentStatus(file.FileName, status));
+                fileStream.Dispose();
             });
 
             return documents;

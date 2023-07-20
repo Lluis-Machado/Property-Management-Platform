@@ -10,10 +10,12 @@ namespace DocumentsAPI.Repositories
 
     {
         private readonly DapperContext _context;
+        private readonly ILogger<FolderRepository> _logger;
 
-        public FolderRepository(DapperContext context)
+        public FolderRepository(DapperContext context, ILogger<FolderRepository> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public async Task<bool> CheckFolderExists(Guid folderId)
@@ -119,33 +121,51 @@ namespace DocumentsAPI.Repositories
 
         public async Task<Folder> InsertFolderAsync(Folder folder)
         {
-            if (folder.CreatedByUser == null) folder.CreatedByUser = "na";
+            if (folder.CreatedByUser == null)
+            {
+                folder.CreatedByUser = "na";
+                folder.LastUpdateByUser = "na";
+            }
+            if (folder.CreatedAt != null)
+            {
+                folder.CreatedAt = DateTime.Now;
+                folder.LastUpdateAt = DateTime.Now;
+            }
 
             var parameters = new
             {
                 folder.ArchiveId,
                 folder.Name,
                 folder.ParentId,
+                folder.CreatedAt,
+                folder.LastUpdateAt,
                 folder.CreatedByUser,
                 folder.LastUpdateByUser,
-                folder.Deleted
+                folder.Deleted,
+                folder.HasDocument
             };
             StringBuilder queryBuilder = new();
             queryBuilder.Append("INSERT INTO Folders (");
             queryBuilder.Append(" ArchiveId");
             queryBuilder.Append(" ,Name");
             queryBuilder.Append(" ,ParentId");
+            queryBuilder.Append(" ,CreatedAt");
+            queryBuilder.Append(" ,LastUpdateAt");
             queryBuilder.Append(" ,CreatedByUser");
             queryBuilder.Append(" ,LastUpdateByUser");
             queryBuilder.Append(" ,Deleted");
+            queryBuilder.Append(" ,HasDocument");
             queryBuilder.Append(" )OUTPUT INSERTED.*");
             queryBuilder.Append(" VALUES(");
             queryBuilder.Append(" @ArchiveId");
             queryBuilder.Append(" ,@Name");
             queryBuilder.Append(" ,@ParentId");
+            queryBuilder.Append(" ,@CreatedAt");
+            queryBuilder.Append(" ,@LastUpdateAt");
             queryBuilder.Append(" ,@CreatedByUser");
             queryBuilder.Append(" ,@LastUpdateByUser");
             queryBuilder.Append(" ,@Deleted");
+            queryBuilder.Append(" ,@HasDocument");
             queryBuilder.Append(" )");
 
             return await _context
@@ -183,6 +203,7 @@ namespace DocumentsAPI.Repositories
                 folder.ParentId,
                 folder.ArchiveId,
                 folder.Id,
+                folder.HasDocument,
                 LastUpdateAt = DateTime.Now
             };
             StringBuilder queryBuilder = new();
@@ -191,6 +212,7 @@ namespace DocumentsAPI.Repositories
             queryBuilder.Append(" ,Deleted = @Deleted ");
             queryBuilder.Append(" ,ParentId = @ParentId ");
             queryBuilder.Append(" ,ArchiveId = @ArchiveId ");
+            queryBuilder.Append(" ,HasDocument = @HasDocument ");
             queryBuilder.Append(" ,LastUpdateAt = @LastUpdateAt ");
             queryBuilder.Append(" OUTPUT INSERTED.* ");
             queryBuilder.Append(" WHERE Id = @Id ");
@@ -208,14 +230,21 @@ namespace DocumentsAPI.Repositories
                 status
             };
 
+            _logger.LogInformation($"DEBUG - Beginning updating HasDocument for folder {folderId}, setting to {status}");
+
             StringBuilder queryBuilder = new();
             queryBuilder.Append("UPDATE Folders ");
             queryBuilder.Append("SET HasDocument = @status ");
+            queryBuilder.Append("OUTPUT INSERTED.*");
             queryBuilder.Append(" WHERE Id = @folderId ");
-            await _context
+
+            var result = await _context
                 .CreateConnection()
-                .QuerySingleAsync(queryBuilder.ToString(), parameters);
-            return status;
+                .QuerySingleAsync<Folder>(queryBuilder.ToString(), parameters);
+
+            _logger.LogInformation($"DEBUG - Folder status after update: \n{Newtonsoft.Json.JsonConvert.SerializeObject(result)}");
+
+            return result.HasDocument;
         }
 
         public async Task<IEnumerable<Folder>> UpdateChildrenArchiveAsync(Guid parentId, Guid oldArchiveId, Guid newArchiveId)

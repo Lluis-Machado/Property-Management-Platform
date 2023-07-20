@@ -1,15 +1,12 @@
-﻿using Accounting.Models;
+﻿using AccountingAPI.DTOs;
 using FluentValidation;
 
-namespace Accounting.Validators
+namespace AccountingAPI.Validators
 {
-    public class LoanValidator : AbstractValidator<Loan>
+    public class CreateLoanDTOValidator : AbstractValidator<CreateLoanDTO>
     {
-        public LoanValidator()
+        public CreateLoanDTOValidator()
         {
-            RuleFor(loan => loan.BusinessPartnerId)
-                .NotEmpty().WithMessage("{PropertyName} cannot be empty");
-
             RuleFor(loan => loan.Concept)
                 .NotEmpty().WithMessage("{PropertyName} cannot be empty")
                 .Matches(@"^[\p{L}\s]+$").WithMessage("{PropertyName} cannot contain special characters")
@@ -17,9 +14,6 @@ namespace Accounting.Validators
 
             RuleFor(loan => loan.Amount)
                 .GreaterThan(0).WithMessage("{PropertyName} has to be greater than 0");
-
-            RuleFor(loan => loan.AmountPaid)
-                .LessThanOrEqualTo(loan => loan.Amount).WithMessage("{PropertyName} has to be lower than {ComparisonProperty}");
         }
     }
 }

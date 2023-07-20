@@ -8,6 +8,27 @@
 	<Configurations>Development;Production;Stage</Configurations>
   </PropertyGroup>
 
+	<ItemGroup>
+		<Content Remove="appsettings.Development.json" />
+		<Content Remove="appsettings.Production.json" />
+		<Content Remove="appsettings.Stage.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="appsettings.Development.json">
+			<IsTransformFile>true</IsTransformFile>
+			<DependentUpon>appsettings.json</DependentUpon>
+		</None>
+		<None Include="appsettings.Production.json">
+			<IsTransformFile>true</IsTransformFile>
+			<DependentUpon>appsettings.json</DependentUpon>
+		</None>
+		<None Include="appsettings.Stage.json">
+			<IsTransformFile>true</IsTransformFile>
+			<DependentUpon>appsettings.json</DependentUpon>
+		</None>
+	</ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.SlowCheetah" Version="4.0.50">
       <PrivateAssets>all</PrivateAssets>
@@ -24,5 +45,11 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.30.0" />
   </ItemGroup>
+
+	<ItemGroup>
+		<Content Update="appsettings.json">
+			<TransformOnBuild>true</TransformOnBuild>
+		</Content>
+	</ItemGroup>
 
 </Project>

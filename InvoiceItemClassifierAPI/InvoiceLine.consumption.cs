@@ -2,113 +2,98 @@
 using Microsoft.ML;
 using Microsoft.ML.Data;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.IO;
-using System.Text.Json.Serialization;
-using static InvoiceLine;
-using System.Threading.Tasks;
-using System.Collections.Concurrent;
-
-public partial class InvoiceLine
+using System.Collections.Generic;
+namespace InvoiceItemClassifierAPI
 {
-    /// <summary>
-    /// model input class for InvoiceLine.
-    /// </summary>
-    #region model input class
-    public class ModelInput
+    public partial class InvoiceLine
     {
-        [JsonIgnore]
-        [ColumnName(@"Id")]
-        public float Id { get; set; }
-
-        [ColumnName(@"VendorName")]
-        public string VendorName { get; set; }
-
-        [ColumnName(@"VendorTaxId")]
-        public string VendorTaxId { get; set; }
-
-        [ColumnName(@"InvoiceLineDescription")]
-        public string InvoiceLineDescription { get; set; }
-
-        [ColumnName(@"HasPeriod")]
-        public bool HasPeriod { get; set; }
-
-        [JsonIgnore]
-        [ColumnName(@"ExpenseCategoryId")]
-        public float ExpenseCategoryId { get; set; }
-
-    }
-
-    #endregion
-
-    /// <summary>
-    /// model output class for InvoiceLine.
-    /// </summary>
-    #region model output class
-    public class ModelOutput
-    {
-        [JsonIgnore]
-        [ColumnName(@"Id")]
-        public float Id { get; set; }
-
-        [JsonIgnore]
-        [ColumnName(@"VendorName")]
-        public float[] VendorName { get; set; }
-
-        [JsonIgnore]
-        [ColumnName(@"VendorTaxId")]
-        public float[] VendorTaxId { get; set; }
-
-        [JsonIgnore]
-        [ColumnName(@"InvoiceLineDescription")]
-        public float[] InvoiceLineDescription { get; set; }
-
-        [JsonIgnore]
-        [ColumnName(@"HasPeriod")]
-        public float HasPeriod { get; set; }
-
-        [JsonIgnore]
-        [ColumnName(@"ExpenseCategoryId")]
-        public uint ExpenseCategoryId { get; set; }
-
-        [JsonIgnore]
-        [ColumnName(@"Features")]
-        public float[] Features { get; set; }
-
-        [ColumnName(@"PredictedLabel")]
-        public float PredictedLabel { get; set; }
-
-        [ColumnName(@"Score")]
-        public float[] Score { get; set; }
-
-    }
-
-    #endregion
-
-    private static readonly string MLNetModelPath = Path.GetFullPath("InvoiceLine.zip");
-
-    public static readonly Lazy<PredictionEngine<ModelInput, ModelOutput>> PredictEngine = new(() => CreatePredictEngine(), true);
-
-    public static IEnumerable<ModelOutput> PredictList(List<ModelInput> inputs)
-    {
-        List<ModelOutput> modelOutputs = new();
-        foreach(ModelInput modelInput in inputs)
+        /// <summary>
+        /// model input class for InvoiceLine.
+        /// </summary>
+        #region model input class
+        public class ModelInput
         {
-            modelOutputs.Add(Predict(modelInput));
+            [ColumnName(@"Id")]
+            public float Id { get; set; }
+
+            [ColumnName(@"VendorName")]
+            public string VendorName { get; set; }
+
+            [ColumnName(@"VendorTaxId")]
+            public string VendorTaxId { get; set; }
+
+            [ColumnName(@"InvoiceLineDescription")]
+            public string InvoiceLineDescription { get; set; }
+
+            [ColumnName(@"HasPeriod")]
+            public bool HasPeriod { get; set; }
+
+            [ColumnName(@"ExpenseCategoryId")]
+            public float ExpenseCategoryId { get; set; }
+
         }
-        return modelOutputs;
-    }
 
-    public static ModelOutput Predict(ModelInput input)
-    {
-        var predEngine = PredictEngine.Value;
-        return predEngine.Predict(input);
-    }
+        #endregion
 
-    private static PredictionEngine<ModelInput, ModelOutput> CreatePredictEngine()
-    {
-        var mlContext = new MLContext();
-        ITransformer mlModel = mlContext.Model.Load(MLNetModelPath, out var _);
-        return mlContext.Model.CreatePredictionEngine<ModelInput, ModelOutput>(mlModel);
+        /// <summary>
+        /// model output class for InvoiceLine.
+        /// </summary>
+        #region model output class
+        public class ModelOutput
+        {
+            [ColumnName(@"Id")]
+            public float Id { get; set; }
+
+            [ColumnName(@"VendorName")]
+            public float[] VendorName { get; set; }
+
+            [ColumnName(@"VendorTaxId")]
+            public float[] VendorTaxId { get; set; }
+
+            [ColumnName(@"InvoiceLineDescription")]
+            public float[] InvoiceLineDescription { get; set; }
+
+            [ColumnName(@"HasPeriod")]
+            public float HasPeriod { get; set; }
+
+            [ColumnName(@"ExpenseCategoryId")]
+            public uint ExpenseCategoryId { get; set; }
+
+            [ColumnName(@"Features")]
+            public float[] Features { get; set; }
+
+            [ColumnName(@"PredictedLabel")]
+            public float PredictedLabel { get; set; }
+
+            [ColumnName(@"Score")]
+            public float[] Score { get; set; }
+
+        }
+
+        #endregion
+
+        private static string MLNetModelPath = Path.GetFullPath("InvoiceLine.zip");
+
+        public static readonly Lazy<PredictionEngine<ModelInput, ModelOutput>> PredictEngine = new Lazy<PredictionEngine<ModelInput, ModelOutput>>(() => CreatePredictEngine(), true);
+
+        /// <summary>
+        /// Use this method to predict on <see cref="ModelInput"/>.
+        /// </summary>
+        /// <param name="input">model input.</param>
+        /// <returns><seealso cref=" ModelOutput"/></returns>
+        public static ModelOutput Predict(ModelInput input)
+        {
+            var predEngine = PredictEngine.Value;
+            return predEngine.Predict(input);
+        }
+
+        private static PredictionEngine<ModelInput, ModelOutput> CreatePredictEngine()
+        {
+            var mlContext = new MLContext();
+            ITransformer mlModel = mlContext.Model.Load(MLNetModelPath, out var _);
+            return mlContext.Model.CreatePredictionEngine<ModelInput, ModelOutput>(mlModel);
+        }
     }
 }

@@ -35,7 +35,7 @@ builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 builder.Services.AddScoped<IItemAnalyzerService, ItemAnalyzerService>();
 
 builder.Services.AddPredictionEnginePool<InvoiceItemModel.ModelInput, InvoiceItemModel.ModelOutput>()
-    .FromFile("InvoiceLine.zip");
+    .FromFile("InvoiceItemModel.zip");
 
 builder.Services.AddControllers();
 
@@ -43,7 +43,7 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(opt =>
 {
-    opt.SwaggerDoc("v1", new OpenApiInfo { Title = "Invoice Item Classifier API", Version = "v1" });
+    opt.SwaggerDoc("v1", new OpenApiInfo { Title = "Invoice Item Analyzer API", Version = "v1" });
     opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,

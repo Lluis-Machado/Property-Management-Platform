@@ -39,20 +39,21 @@
       <IsTransformFile>true</IsTransformFile>
       <DependentUpon>appsettings.json</DependentUpon>
     </None>
-    <None Include="InvoiceLine.consumption.cs">
-      <DependentUpon>InvoiceLine.mbconfig</DependentUpon>
+    <None Include="InvoiceItemModel.consumption.cs">
+      <DependentUpon>InvoiceItem.mbconfig</DependentUpon>
     </None>
-    <None Include="InvoiceLine.training.cs">
-      <DependentUpon>InvoiceLine.mbconfig</DependentUpon>
-    </None>
-    <None Include="InvoiceLine.zip">
-      <DependentUpon>InvoiceLine.mbconfig</DependentUpon>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Include="InvoiceItem.training.cs">
+      <DependentUpon>InvoiceItem.mbconfig</DependentUpon>
     </None>
   </ItemGroup>
   <ItemGroup>
     <Content Update="appsettings.json">
       <TransformOnBuild>true</TransformOnBuild>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="InvoiceItemModel.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

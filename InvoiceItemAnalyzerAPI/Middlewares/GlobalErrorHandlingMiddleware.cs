@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System;
 using System.Linq;
 
-namespace InvoiceItemClassifierAPI.Middlewares
+namespace InvoiceItemAnalyzerAPI.Middlewares
 {
     public class GlobalErrorHandlingMiddleware : IMiddleware
     {

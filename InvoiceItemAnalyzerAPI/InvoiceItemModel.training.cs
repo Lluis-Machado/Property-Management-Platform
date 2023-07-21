@@ -10,7 +10,7 @@ using Microsoft.ML;
 
 namespace InvoiceItemClassifierAPI
 {
-    public partial class InvoiceLine
+    public partial class InvoiceItemModel
     {
         /// <summary>
         /// Retrains model using the pipeline generated as part of the training process. For more information on how to load data, see aka.ms/loaddata.

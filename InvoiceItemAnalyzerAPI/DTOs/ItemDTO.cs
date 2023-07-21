@@ -1,8 +1,8 @@
 ﻿using Microsoft.ML.Data;
 
-namespace InvoiceItemClassifierAPI.DTOs
+namespace InvoiceItemAnalyzerAPI.DTOs
 {
-    public class InvoiceItemDTO
+    public class ItemDTO
     {
         public string VendorName { get; set; }
 

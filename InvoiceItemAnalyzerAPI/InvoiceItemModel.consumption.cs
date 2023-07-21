@@ -5,12 +5,13 @@ using System;
 using System.Linq;
 using System.IO;
 using System.Collections.Generic;
-namespace InvoiceItemClassifierAPI
+
+namespace InvoiceItemAnalyzerAPI
 {
-    public partial class InvoiceLine
+    public partial class InvoiceItemModel
     {
         /// <summary>
-        /// model input class for InvoiceLine.
+        /// model input class for InvoiceItemModel.
         /// </summary>
         #region model input class
         public class ModelInput
@@ -38,7 +39,7 @@ namespace InvoiceItemClassifierAPI
         #endregion
 
         /// <summary>
-        /// model output class for InvoiceLine.
+        /// model output class for InvoiceItemModel.
         /// </summary>
         #region model output class
         public class ModelOutput
@@ -74,7 +75,7 @@ namespace InvoiceItemClassifierAPI
 
         #endregion
 
-        private static string MLNetModelPath = Path.GetFullPath("InvoiceLine.zip");
+        private static string MLNetModelPath = Path.GetFullPath("InvoiceItemModel.zip");
 
         public static readonly Lazy<PredictionEngine<ModelInput, ModelOutput>> PredictEngine = new Lazy<PredictionEngine<ModelInput, ModelOutput>>(() => CreatePredictEngine(), true);
 

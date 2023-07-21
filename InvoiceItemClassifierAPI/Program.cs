@@ -2,11 +2,21 @@
 using InvoiceItemClassifierAPI.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ML;
 using Microsoft.OpenApi.Models;
+using Serilog;
 
 // Configure app
 var builder = WebApplication.CreateBuilder(args);
+
+// Logs
+var logger = new LoggerConfiguration()
+  .ReadFrom.Configuration(builder.Configuration)
+  .Enrich.FromLogContext()
+  .CreateLogger();
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog(logger);
 
 // Middelwares
 builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();

@@ -132,8 +132,8 @@ Global
 		{8FE0F8D9-DDA8-4D4D-A0D4-E74FC2F221E3}.Production|Any CPU.Build.0 = Production|Any CPU
 		{8FE0F8D9-DDA8-4D4D-A0D4-E74FC2F221E3}.Release|Any CPU.ActiveCfg = Stage|Any CPU
 		{8FE0F8D9-DDA8-4D4D-A0D4-E74FC2F221E3}.Release|Any CPU.Build.0 = Stage|Any CPU
-		{8FE0F8D9-DDA8-4D4D-A0D4-E74FC2F221E3}.Stage|Any CPU.ActiveCfg = Stage|Any CPU
-		{8FE0F8D9-DDA8-4D4D-A0D4-E74FC2F221E3}.Stage|Any CPU.Build.0 = Stage|Any CPU
+		{8FE0F8D9-DDA8-4D4D-A0D4-E74FC2F221E3}.Stage|Any CPU.ActiveCfg = Development|Any CPU
+		{8FE0F8D9-DDA8-4D4D-A0D4-E74FC2F221E3}.Stage|Any CPU.Build.0 = Development|Any CPU
 		{7F99CC34-4298-4CC5-BD3A-7FBFC7493A09}.Debug|Any CPU.ActiveCfg = Development|Any CPU
 		{7F99CC34-4298-4CC5-BD3A-7FBFC7493A09}.Debug|Any CPU.Build.0 = Development|Any CPU
 		{7F99CC34-4298-4CC5-BD3A-7FBFC7493A09}.Development|Any CPU.ActiveCfg = Development|Any CPU
@@ -224,16 +224,16 @@ Global
 		{65C766CF-9895-44DF-BB6D-7EDCF2DC3193}.Release|Any CPU.Build.0 = Stage|Any CPU
 		{65C766CF-9895-44DF-BB6D-7EDCF2DC3193}.Stage|Any CPU.ActiveCfg = Stage|Any CPU
 		{65C766CF-9895-44DF-BB6D-7EDCF2DC3193}.Stage|Any CPU.Build.0 = Stage|Any CPU
-		{C6E02A28-15E5-4C0F-B0F3-B5C1D37AE500}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C6E02A28-15E5-4C0F-B0F3-B5C1D37AE500}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C6E02A28-15E5-4C0F-B0F3-B5C1D37AE500}.Development|Any CPU.ActiveCfg = Debug|Any CPU
-		{C6E02A28-15E5-4C0F-B0F3-B5C1D37AE500}.Development|Any CPU.Build.0 = Debug|Any CPU
-		{C6E02A28-15E5-4C0F-B0F3-B5C1D37AE500}.Production|Any CPU.ActiveCfg = Debug|Any CPU
-		{C6E02A28-15E5-4C0F-B0F3-B5C1D37AE500}.Production|Any CPU.Build.0 = Debug|Any CPU
-		{C6E02A28-15E5-4C0F-B0F3-B5C1D37AE500}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C6E02A28-15E5-4C0F-B0F3-B5C1D37AE500}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C6E02A28-15E5-4C0F-B0F3-B5C1D37AE500}.Stage|Any CPU.ActiveCfg = Debug|Any CPU
-		{C6E02A28-15E5-4C0F-B0F3-B5C1D37AE500}.Stage|Any CPU.Build.0 = Debug|Any CPU
+		{C6E02A28-15E5-4C0F-B0F3-B5C1D37AE500}.Debug|Any CPU.ActiveCfg = Development|Any CPU
+		{C6E02A28-15E5-4C0F-B0F3-B5C1D37AE500}.Debug|Any CPU.Build.0 = Development|Any CPU
+		{C6E02A28-15E5-4C0F-B0F3-B5C1D37AE500}.Development|Any CPU.ActiveCfg = Development|Any CPU
+		{C6E02A28-15E5-4C0F-B0F3-B5C1D37AE500}.Development|Any CPU.Build.0 = Development|Any CPU
+		{C6E02A28-15E5-4C0F-B0F3-B5C1D37AE500}.Production|Any CPU.ActiveCfg = Development|Any CPU
+		{C6E02A28-15E5-4C0F-B0F3-B5C1D37AE500}.Production|Any CPU.Build.0 = Development|Any CPU
+		{C6E02A28-15E5-4C0F-B0F3-B5C1D37AE500}.Release|Any CPU.ActiveCfg = Production|Any CPU
+		{C6E02A28-15E5-4C0F-B0F3-B5C1D37AE500}.Release|Any CPU.Build.0 = Production|Any CPU
+		{C6E02A28-15E5-4C0F-B0F3-B5C1D37AE500}.Stage|Any CPU.ActiveCfg = Stage|Any CPU
+		{C6E02A28-15E5-4C0F-B0F3-B5C1D37AE500}.Stage|Any CPU.Build.0 = Stage|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

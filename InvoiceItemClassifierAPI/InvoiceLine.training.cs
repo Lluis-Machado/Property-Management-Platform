@@ -41,7 +41,7 @@ namespace InvoiceItemClassifierAPI
                                     .Append(mlContext.Transforms.Concatenate(@"Features", new []{@"HasPeriod",@"VendorName",@"VendorTaxId",@"InvoiceLineDescription"}))      
                                     .Append(mlContext.Transforms.Conversion.MapValueToKey(outputColumnName:@"ExpenseCategoryId",inputColumnName:@"ExpenseCategoryId"))      
                                     .Append(mlContext.Transforms.NormalizeMinMax(@"Features", @"Features"))      
-                                    .Append(mlContext.MulticlassClassification.Trainers.LbfgsMaximumEntropy(new LbfgsMaximumEntropyMulticlassTrainer.Options(){L1Regularization=1F,L2Regularization=1F,LabelColumnName=@"ExpenseCategoryId",FeatureColumnName=@"Features"}))      
+                                    .Append(mlContext.MulticlassClassification.Trainers.OneVersusAll(binaryEstimator: mlContext.BinaryClassification.Trainers.LbfgsLogisticRegression(new LbfgsLogisticRegressionBinaryTrainer.Options(){L1Regularization=1F,L2Regularization=1F,LabelColumnName=@"ExpenseCategoryId",FeatureColumnName=@"Features"}), labelColumnName:@"ExpenseCategoryId"))      
                                     .Append(mlContext.Transforms.Conversion.MapKeyToValue(outputColumnName:@"PredictedLabel",inputColumnName:@"PredictedLabel"));
 
             return pipeline;

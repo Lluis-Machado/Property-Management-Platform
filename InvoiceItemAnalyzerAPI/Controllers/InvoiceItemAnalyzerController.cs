@@ -23,7 +23,7 @@ namespace InvoiceItemAnalyzerAPI.Controllers
         [Route("Predict")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<ItemCategoryPredictionDTO>>> PredictInvoiceItemCategories([FromBody] List<ItemDTO> invoiceItemDTOs)
+        public ActionResult<IEnumerable<ItemCategoryPredictionDTO>> PredictInvoiceItemCategories([FromBody] List<ItemDTO> invoiceItemDTOs)
         {
             return Ok(_itemClassifierService.PredictList(invoiceItemDTOs));
         }

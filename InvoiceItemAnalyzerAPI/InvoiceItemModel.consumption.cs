@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.IO;
 using System.Collections.Generic;
-
 namespace InvoiceItemAnalyzerAPI
 {
     public partial class InvoiceItemModel
@@ -25,14 +24,14 @@ namespace InvoiceItemAnalyzerAPI
             [ColumnName(@"VendorTaxId")]
             public string VendorTaxId { get; set; }
 
-            [ColumnName(@"InvoiceLineDescription")]
-            public string InvoiceLineDescription { get; set; }
+            [ColumnName(@"ItemDescription")]
+            public string ItemDescription { get; set; }
 
             [ColumnName(@"HasPeriod")]
             public bool HasPeriod { get; set; }
 
-            [ColumnName(@"ExpenseCategoryId")]
-            public float ExpenseCategoryId { get; set; }
+            [ColumnName(@"CategoryId")]
+            public float CategoryId { get; set; }
 
         }
 
@@ -53,14 +52,14 @@ namespace InvoiceItemAnalyzerAPI
             [ColumnName(@"VendorTaxId")]
             public float[] VendorTaxId { get; set; }
 
-            [ColumnName(@"InvoiceLineDescription")]
-            public float[] InvoiceLineDescription { get; set; }
+            [ColumnName(@"ItemDescription")]
+            public float[] ItemDescription { get; set; }
 
             [ColumnName(@"HasPeriod")]
             public float HasPeriod { get; set; }
 
-            [ColumnName(@"ExpenseCategoryId")]
-            public uint ExpenseCategoryId { get; set; }
+            [ColumnName(@"CategoryId")]
+            public uint CategoryId { get; set; }
 
             [ColumnName(@"Features")]
             public float[] Features { get; set; }

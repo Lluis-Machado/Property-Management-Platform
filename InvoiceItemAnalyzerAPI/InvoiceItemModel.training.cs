@@ -8,7 +8,7 @@ using Microsoft.ML.Data;
 using Microsoft.ML.Trainers;
 using Microsoft.ML;
 
-namespace InvoiceItemClassifierAPI
+namespace InvoiceItemAnalyzerAPI
 {
     public partial class InvoiceItemModel
     {
@@ -37,11 +37,11 @@ namespace InvoiceItemClassifierAPI
             var pipeline = mlContext.Transforms.Conversion.ConvertType(@"HasPeriod", @"HasPeriod")      
                                     .Append(mlContext.Transforms.Text.FeaturizeText(inputColumnName:@"VendorName",outputColumnName:@"VendorName"))      
                                     .Append(mlContext.Transforms.Text.FeaturizeText(inputColumnName:@"VendorTaxId",outputColumnName:@"VendorTaxId"))      
-                                    .Append(mlContext.Transforms.Text.FeaturizeText(inputColumnName:@"InvoiceLineDescription",outputColumnName:@"InvoiceLineDescription"))      
-                                    .Append(mlContext.Transforms.Concatenate(@"Features", new []{@"HasPeriod",@"VendorName",@"VendorTaxId",@"InvoiceLineDescription"}))      
-                                    .Append(mlContext.Transforms.Conversion.MapValueToKey(outputColumnName:@"ExpenseCategoryId",inputColumnName:@"ExpenseCategoryId"))      
+                                    .Append(mlContext.Transforms.Text.FeaturizeText(inputColumnName:@"ItemDescription",outputColumnName:@"ItemDescription"))      
+                                    .Append(mlContext.Transforms.Concatenate(@"Features", new []{@"HasPeriod",@"VendorName",@"VendorTaxId",@"ItemDescription"}))      
+                                    .Append(mlContext.Transforms.Conversion.MapValueToKey(outputColumnName:@"CategoryId",inputColumnName:@"CategoryId"))      
                                     .Append(mlContext.Transforms.NormalizeMinMax(@"Features", @"Features"))      
-                                    .Append(mlContext.MulticlassClassification.Trainers.OneVersusAll(binaryEstimator: mlContext.BinaryClassification.Trainers.LbfgsLogisticRegression(new LbfgsLogisticRegressionBinaryTrainer.Options(){L1Regularization=1F,L2Regularization=1F,LabelColumnName=@"ExpenseCategoryId",FeatureColumnName=@"Features"}), labelColumnName:@"ExpenseCategoryId"))      
+                                    .Append(mlContext.MulticlassClassification.Trainers.LbfgsMaximumEntropy(new LbfgsMaximumEntropyMulticlassTrainer.Options(){L1Regularization=1F,L2Regularization=1F,LabelColumnName=@"CategoryId",FeatureColumnName=@"Features"}))      
                                     .Append(mlContext.Transforms.Conversion.MapKeyToValue(outputColumnName:@"PredictedLabel",inputColumnName:@"PredictedLabel"));
 
             return pipeline;

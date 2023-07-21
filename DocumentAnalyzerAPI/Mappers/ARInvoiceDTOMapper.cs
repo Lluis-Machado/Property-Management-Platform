@@ -17,8 +17,8 @@ namespace DocumentAnalyzerAPI.Mappers
         {
             BusinessPartnerDTO businessPartnerDTO = new()
             {
-                VATNumber = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "VendorTaxId"),
-                Name = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "VendorName")
+                VATNumber = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "CustomerTaxId"),
+                Name = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "CustomerName")
             };
 
             ARInvoiceDTO aPInvoiceDTO = new()

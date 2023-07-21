@@ -14,7 +14,7 @@ namespace DocumentAnalyzerAPI.Mappers
             _aRInvoiceDTOMapper = aRInvoiceDTOMapper;
         }
 
-        public T Map<T>(IReadOnlyDictionary<string, DocumentField> documentFields)
+        public T? Map<T>(IReadOnlyDictionary<string, DocumentField> documentFields)
         {
             Type targetType = typeof(T);
 

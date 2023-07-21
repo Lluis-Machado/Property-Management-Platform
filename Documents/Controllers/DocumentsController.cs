@@ -49,14 +49,15 @@ namespace Documents.Controllers
 
             List<CreateDocumentStatus> documents = await _documentsService.UploadAsync(archiveId, files, folderId);
 
-            if (documents.Any(doc => doc.Status != HttpStatusCode.OK))
+            if (documents.Any(doc => doc.Status == HttpStatusCode.OK))
+            {
+                if (folderId != null) await _foldersService.UpdateFolderHasDocuments((Guid)folderId, true);
+            } else if (documents.Any(doc => doc.Status != HttpStatusCode.OK))
             {
                 // some documents failed
                 this.HttpContext.Response.StatusCode = (int)HttpStatusCode.MultiStatus;
                 return documents;
             }
-
-            if (folderId != null) await _foldersService.UpdateFolderHasDocuments((Guid)folderId, true);
 
             // all documents ok
             return Ok(documents);

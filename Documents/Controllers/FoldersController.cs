@@ -124,7 +124,7 @@ namespace Documents.Controllers
 
             _logger.LogInformation($"Copying folder with ID: {folderId} from archive {currentFolder.ArchiveId} to {archiveId}");
 
-            var result = await _foldersService.CopyFolderAndChildren(currentFolder, folderDTO.ArchiveId, folderDTO.ParentId);
+            var result = await _foldersService.CopyFolderAndChildren(currentFolder, folderDTO);
 
             // TODO: Copy documents from each of the folders
 

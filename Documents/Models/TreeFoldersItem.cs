@@ -14,7 +14,12 @@ namespace DocumentsAPI.Models
             Name = folder.Name;
             ParentId = folder.ParentId;
             Deleted = folder.Deleted;
+            CreatedAt = folder.CreatedAt;
+            CreatedByUser = folder.CreatedByUser;
+            LastUpdateAt = folder.LastUpdateAt;
+            LastUpdateByUser = folder.LastUpdateByUser;
             ChildFolders = new List<TreeFolderItem>();
+
         }
 
         public Folder GetTopLevelFolder()
@@ -25,7 +30,11 @@ namespace DocumentsAPI.Models
                 ArchiveId = ArchiveId,
                 Name = Name,
                 ParentId = ParentId,
-                Deleted = Deleted
+                Deleted = Deleted,
+                CreatedAt = CreatedAt,
+                CreatedByUser = CreatedByUser,
+                LastUpdateAt = LastUpdateAt,
+                LastUpdateByUser = LastUpdateByUser,
             };
         }
 

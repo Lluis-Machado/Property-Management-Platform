@@ -5,6 +5,7 @@
         public Guid ArchiveId { get; set; }
         public string? Name { get; set; }
         public Guid? ParentId { get; set; }
+        public bool HasDocument { get; set; }
         List<FolderDTO>? Subfolders { get; set; }
 
         public Guid Id { get; set; }

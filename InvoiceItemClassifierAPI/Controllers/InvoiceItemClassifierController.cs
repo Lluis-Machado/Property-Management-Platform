@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -6,7 +7,7 @@ using static InvoiceLine;
 
 namespace InvoiceItemClassifierAPI.Controllers
 {
-
+    [Authorize]
     public class InvoiceItemClassifierController : Controller
     {
         // POST: Predict Invoice Item Categories

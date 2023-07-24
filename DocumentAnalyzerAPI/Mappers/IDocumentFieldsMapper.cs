@@ -4,6 +4,6 @@ namespace DocumentAnalyzerAPI.Mappers
 {
     public interface IDocumentFieldsMapper
     {
-        T Map<T>(IReadOnlyDictionary<string, DocumentField> documentFields);
+        T? Map<T>(IReadOnlyDictionary<string, DocumentField> documentFields);
     }
 }

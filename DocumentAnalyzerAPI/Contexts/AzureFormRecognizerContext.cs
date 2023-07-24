@@ -7,7 +7,7 @@ namespace DocumentAnalyzerAPI.Contexts
     {
         private readonly IConfiguration _configuration;
         private readonly string _connectionString;
-        private readonly string _key;
+        private readonly string? _key;
         public AzureFormRecognizerContext(IConfiguration configuration)
         {
             _configuration = configuration;
@@ -17,6 +17,10 @@ namespace DocumentAnalyzerAPI.Contexts
 
         public DocumentAnalysisClient GetDocumentAnalysisClient()
         {
+            if(_key is null)
+            {
+                throw new Exception("Azure Form Recognizer Key not configured");
+            }
             AzureKeyCredential credential = new(_key);
             return new(new Uri(_connectionString), credential);
         }

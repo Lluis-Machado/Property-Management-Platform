@@ -2,6 +2,7 @@
 using DocumentsAPI.DTOs;
 using DocumentsAPI.Models;
 using DocumentsAPI.Repositories;
+using System.Text;
 
 namespace DocumentsAPI.Services
 {
@@ -50,6 +51,8 @@ namespace DocumentsAPI.Services
             if (!await CheckFolderExist(folderId)) throw new Exception($"Folder {folderId} not found");
 
             var result = await _folderRepository.SetDeleteFolderAsync(folderId, true, userName);
+
+            // TODO: Delete children and documents!
             var folderDTO = _mapper.Map<Folder, FolderDTO>(result);
 
             return folderDTO;
@@ -108,6 +111,33 @@ namespace DocumentsAPI.Services
             return result;
         }
 
+        public async Task<List<TreeFolderItem>> ToFolderTreeView_Recursive(List<TreeFolderItem> folders, int level = 0)
+        {
+            List<TreeFolderItem> result = new();
+            if (folders.Count == 0) return result;
+            int lvl = level;
+            _logger.LogInformation($"Recursive | Level {lvl} | Processing {folders.Count} children");
+
+            foreach (var folder in folders)
+            {
+                var foldersList = (await _folderRepository.GetChildrenAsync(folder.Id)).ToList();
+                var cock = new List<TreeFolderItem>();
+                foldersList.ForEach(f => cock.Add(new TreeFolderItem(f)));
+                var list = await ToFolderTreeView_Recursive(cock, lvl++);
+                List<TreeFolderItem> children = new();
+                list.ForEach(f =>
+                {
+                    children.Add(f);
+                });
+                folder.ChildFolders = children;
+                result.Add(folder);
+            }
+
+            return result;
+
+
+        }
+
         public async Task<bool> UpdateFolderHasDocuments(Guid folderId, bool status = true)
         {
             return await _folderRepository.UpdateFolderHasDocumentsAsync(folderId, status);
@@ -140,17 +170,22 @@ namespace DocumentsAPI.Services
 
         // TODO: Optimize, change 'CreatedByUser' fields
         // TODO: Add documents copy from one folder to the other
-        public async Task<TreeFolderItem> CopyFolderAndChildren(Folder sourceFolder, UpdateFolderDTO folderDTO)
+        public async Task<TreeFolderItem> CopyFolderAndChildren(Folder sourceFolder, UpdateFolderDTO folderDTO, string username, bool deleteOriginal = false)
         {
             var idMapping = new Dictionary<Guid, Guid>(); // To keep track of the mapping between original and copied folder IDs
             var visited = new HashSet<Guid>(); // To keep track of visited folders
             var stack = new Stack<TreeFolderItem>(); // Stack for DFS traversal
             var root = new TreeFolderItem(sourceFolder); // Create a copy of the sourceFolder as the root of the copied tree
+            List<TreeFolderItem> returnFolders = new();
+
 
             Guid archiveId = folderDTO.ArchiveId;
             Guid? parentId = folderDTO.ParentId;
 
-            _logger.LogInformation($"Starting copy of folder {sourceFolder.Id} ({sourceFolder.Name}) from archive {sourceFolder.ArchiveId} to archive {archiveId}");
+            //DEBUG
+            StringBuilder log = new StringBuilder();
+
+            log.AppendLine($"Starting {(deleteOriginal ? "move" : "copy")} of folder {sourceFolder.Id} ({sourceFolder.Name}) from archive {sourceFolder.ArchiveId} to archive {archiveId}");
 
             // Create copy of source folder
             var docs = await _documentsService.GetDocumentsAsync(sourceFolder.ArchiveId, null, sourceFolder.Id, false);
@@ -160,17 +195,18 @@ namespace DocumentsAPI.Services
                 ArchiveId = archiveId,
                 ParentId = parentId,
                 HasDocument = docs.Any(),
-                CreatedAt = DateTime.Now,
-                CreatedByUser = "COPY TEST",
+                CreatedAt = sourceFolder.CreatedAt,
+                CreatedByUser = sourceFolder.CreatedByUser,
                 Deleted = sourceFolder.Deleted
             };
 
-            sourceFolderCopy.LastUpdateAt = sourceFolderCopy.CreatedAt;
-            sourceFolderCopy.LastUpdateByUser = sourceFolderCopy.CreatedByUser;
+            sourceFolderCopy.LastUpdateAt = DateTime.Now;
+            sourceFolderCopy.LastUpdateByUser = username ?? "na";
 
             var root2 = await _folderRepository.InsertFolderAsync(sourceFolderCopy);
             idMapping.Add(sourceFolder.Id, root2.Id);
             stack.Push(new TreeFolderItem(sourceFolder));
+            returnFolders.Add(new TreeFolderItem(root2));
 
             // Copy documents
             List<IFormFile> docBytes = new();
@@ -188,21 +224,21 @@ namespace DocumentsAPI.Services
                 var currentFolder = stack.Pop();
                 visited.Add(currentFolder.Id);
 
-                _logger.LogInformation($"\tProcessing folder {currentFolder.Id} ({currentFolder.Name}) - ParentID: {currentFolder.ParentId}");
+                log.AppendLine($"\tProcessing folder {currentFolder.Id} ({currentFolder.Name}) - ParentID: {currentFolder.ParentId}");
 
                 //var currentCopy = GetCopyById(root, currentFolder.Id); // Get the copy of the current folder in the copied tree
                 if (currentFolder != null)
                 {
                     var childFolders = await _folderRepository.GetChildrenAsync(currentFolder.Id, true);
-                    //_logger.LogInformation($"\t\tCurrent folder has {childFolders.Count()} children");
-                    if (idMapping.ContainsKey(currentFolder.Id)) _logger.LogInformation($"\tCurrent folder has id {currentFolder.Id} mapped to {idMapping[currentFolder.Id]}");
-                    else { _logger.LogWarning($"\t**Current folder has no ID mapping!!"); }
+                    log.AppendLine($"\t\tCurrent folder has {childFolders.Count()} children");
+                    //if (idMapping.ContainsKey(currentFolder.Id)) _logger.LogInformation($"\tCurrent folder has id {currentFolder.Id} mapped to {idMapping[currentFolder.Id]}");
+                    //else { _logger.LogWarning($"\t**Current folder has no ID mapping!!"); }
 
                     foreach (var childFolder in childFolders)
                     {
                         if (!visited.Contains(childFolder.Id))
                         {
-                            _logger.LogInformation($"\t\t\tProcessing child {childFolder.Id} ({childFolder.Name}) - ParentID: {childFolder.ParentId}");
+                            log.AppendLine($"\t\t\tProcessing child {childFolder.Id} ({childFolder.Name}) - ParentID: {childFolder.ParentId}");
 
                             var childDocs = await _documentsService.GetDocumentsAsync(childFolder.ArchiveId, null, childFolder.Id, false);
 
@@ -212,14 +248,14 @@ namespace DocumentsAPI.Services
                                 ArchiveId = archiveId,
                                 ParentId = childFolder.ParentId != null ? idMapping[(Guid)currentFolder.Id] : null,
                                 HasDocument = childDocs.Any(),
-                                CreatedAt = DateTime.Now,
+                                CreatedAt = childFolder.CreatedAt,
+                                CreatedByUser = childFolder.CreatedByUser,
                                 Deleted = childFolder.Deleted,
                                 Name = childFolder.Name,
-                                CreatedByUser = "COPY TEST CHILD"
                             };
 
-                            childCopy.LastUpdateAt = childCopy.CreatedAt;
-                            childCopy.LastUpdateByUser = childCopy.CreatedByUser;
+                            childCopy.LastUpdateAt = DateTime.Now;
+                            childCopy.LastUpdateByUser = username ?? "na";
 
                             var grandchildren = await _folderRepository.GetChildrenAsync(childFolder.Id, true);
                             foreach (var grandchild in grandchildren)
@@ -234,6 +270,7 @@ namespace DocumentsAPI.Services
                             List<IFormFile> childDocBytes = new();
                             foreach (var doc in childDocs)
                             {
+                                log.AppendLine($"\t\tProcessing document with name {doc.Name}");
                                 var file = (await _documentsService.DownloadAsync(childFolder.ArchiveId, doc.Id)).FileContents;
                                 var stream = new MemoryStream(file);
 
@@ -241,21 +278,32 @@ namespace DocumentsAPI.Services
                                 childDocBytes.Add(formfile);
 
                             }
-                            if (childDocs.Any()) await _documentsService.UploadAsync(archiveId, docBytes.ToArray(), childCopy.Id);
+                            if (childDocs.Any()) await _documentsService.UploadAsync(archiveId, childDocBytes.ToArray(), childCopy.Id);
 
 
                             currentFolder.ChildFolders.Add(new TreeFolderItem(childCopy)); // Add the child copy to the current copy's child list
                             idMapping.Add(childFolder.Id, childCopy.Id);
                             var childf = new TreeFolderItem(childFolder);
                             stack.Push(childf);
+                            returnFolders.Add(childf);
                         }
                     }
+
+
+                    // Move-specific code
+                    if (deleteOriginal)
+                    {
+                        log.AppendLine($"Deleting original folder {currentFolder.Id}");
+                        await DeleteFolderAsync(currentFolder.Id, username);
+                    }
+
                 }
             }
 
-            _logger.LogInformation($"DEBUG - Mapping: {Newtonsoft.Json.JsonConvert.SerializeObject(idMapping)}");
+            log.AppendLine($"DEBUG - Completed {(deleteOriginal ? "move" : "copy")} operation! Mapping: {Newtonsoft.Json.JsonConvert.SerializeObject(idMapping, Newtonsoft.Json.Formatting.Indented)}");
+            _logger.LogInformation(log.ToString());
 
-            return new TreeFolderItem(root2);
+            return (await ToFolderTreeView_Recursive(returnFolders)).FirstOrDefault();
         }
 
         private TreeFolderItem GetCopyById(TreeFolderItem root, Guid id)

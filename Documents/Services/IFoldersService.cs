@@ -17,7 +17,7 @@ namespace DocumentsAPI.Services
         Task<Folder> CreateFolderAsync(Guid archiveId, CreateFolderDTO createFolderDTO, string userName);
         Task<bool> UpdateFolderHasDocuments(Guid folderId, bool status = true);
         Task<List<TreeFolderItem>> UpdateChildrenArchiveAsync(Guid parentId, Guid oldArchiveId, Guid newArchiveId);
-        Task<TreeFolderItem> CopyFolderAndChildren(Folder sourceFolder, UpdateFolderDTO folderDTO);
+        Task<TreeFolderItem> CopyFolderAndChildren(Folder sourceFolder, UpdateFolderDTO folderDTO, string username, bool deleteOriginal = false);
         IFolderRepository GetFolderRepository();
 
     }

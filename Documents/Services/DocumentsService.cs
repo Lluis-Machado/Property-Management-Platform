@@ -9,17 +9,21 @@ namespace DocumentsAPI.Services
     {
         private readonly IConfiguration _config;
         private readonly IDocumentRepository _documentsRepository;
+        private readonly ILogger<DocumentsService> _logger;
 
-        public DocumentsService(IConfiguration config, IDocumentRepository documentsRepository)
+        public DocumentsService(IConfiguration config, IDocumentRepository documentsRepository, ILogger<DocumentsService> logger)
         {
             _config = config;
             _documentsRepository = documentsRepository;
+            _logger = logger;
         }
 
         public async Task<List<CreateDocumentStatus>> UploadAsync(Guid archiveId, IFormFile[] files, Guid? folderId = null)
         {
-            var documents = new List<CreateDocumentStatus>();
 
+            //_logger.LogInformation($"Documents - Starting upload of {files.Length} documents to archive {archiveId} - FolderID: {folderId}");
+
+            var documents = new List<CreateDocumentStatus>();
 
             await Parallel.ForEachAsync(files, parallelOptions: new ParallelOptions { MaxDegreeOfParallelism = 4 }, async (file, CancellationToken) =>
             {
@@ -29,7 +33,12 @@ namespace DocumentsAPI.Services
                 fileStream.Flush();
                 documents.Add(new CreateDocumentStatus(file.FileName, status));
                 fileStream.Dispose();
+                //_logger.LogInformation($"**Documents - Uploaded file {file.FileName} - Status: {(int)status}");
+
             });
+
+            _logger.LogInformation($"Documents - Upload completed, {documents.FindAll(d => d.Status == HttpStatusCode.Created).Count}/{files.Length} files OK");
+
 
             return documents;
 
@@ -69,9 +78,14 @@ namespace DocumentsAPI.Services
             return new NoContentResult();
         }
 
-        public async Task<IActionResult> CopyAsync(Guid archiveId, Guid documentId, string documentName, Guid? folderId = null)
+        public async Task<Guid> CopyAsync(Guid sourceArchive, Guid destinationArchive, Guid documentId, string documentName, Guid? folderId = null)
         {
-            await _documentsRepository.CopyDocumentAsync(archiveId, documentId, documentName, folderId);
+            return await _documentsRepository.CopyDocumentAsync(sourceArchive, destinationArchive, documentId, documentName, folderId);
+        }
+
+        public async Task<IActionResult> MoveAsync(Guid sourceArchive, Guid destinationArchive, Guid documentId, string documentName, Guid? folderId = null)
+        {
+            await _documentsRepository.MoveDocumentAsync(sourceArchive, destinationArchive, documentId, documentName, folderId);
             return new NoContentResult();
         }
     }

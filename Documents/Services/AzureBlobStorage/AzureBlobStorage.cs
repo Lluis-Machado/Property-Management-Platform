@@ -5,7 +5,6 @@ using DocumentsAPI.Contexts;
 using DocumentsAPI.Models;
 using DocumentsAPI.Repositories;
 using System.Net;
-using System.Reflection.Metadata;
 using Document = DocumentsAPI.Models.Document;
 
 namespace DocumentsAPI.Services.AzureBlobStorage
@@ -82,6 +81,15 @@ namespace DocumentsAPI.Services.AzureBlobStorage
             _context.CheckResponse(response.GetRawResponse());
         }
 
+        public async Task UpdateDocumentAsync(Guid archiveId, Guid documentId, Guid? folderId)
+        {
+            BlobClient blobClient = _context.GetBlobClient(archiveId.ToString(), documentId.ToString());
+
+            var blobProps = await blobClient.GetPropertiesAsync();
+            blobProps.Value.Metadata["display_name"] = folderId != null ? folderId.ToString() : "";
+            await blobClient.SetMetadataAsync(blobProps.Value.Metadata);
+        }
+
         public async Task UndeleteArchiveAsync(Guid archiveId)
         {
 
@@ -120,6 +128,8 @@ namespace DocumentsAPI.Services.AzureBlobStorage
 
             Response response = blobContentInfo.GetRawResponse();
 
+            //_logger.LogInformation($"DEBUG - UploadDocumentAsync - Response was {response.Status} - {Newtonsoft.Json.JsonConvert.SerializeObject(response.Content)}");
+
             return (HttpStatusCode)response.Status;
         }
 
@@ -141,12 +151,14 @@ namespace DocumentsAPI.Services.AzureBlobStorage
                     // It can be done by configuring Azure Search, but I ain't got time for that now
 
                     // If FolderID is null, it only returns documents which are in the root of the archive, not every single document regardless of folder!
-
-                    if ((folderId != null && (blobItem.Metadata["folder_id"] != folderId.ToString()) ||
-                        folderId == null && blobItem.Metadata["folder_id"] != null)) continue;
-
-                    Document document = MapDocument(blobItem);
-                    documents.Add(document);
+                    string? currFolderId;
+                    blobItem.Metadata.TryGetValue("folder_id", out currFolderId);
+                    if ((folderId == null && string.IsNullOrEmpty(currFolderId)) ||
+                        currFolderId == folderId.ToString())
+                    {
+                        Document document = MapDocument(blobItem);
+                        documents.Add(document);
+                    }
                 }
             }
             return documents;
@@ -208,7 +220,7 @@ namespace DocumentsAPI.Services.AzureBlobStorage
             if (versioning)
             {
                 BlobContainerClient container = _context.GetBlobContainerClient(archiveId.ToString());
-                
+
                 // List blobs in this container that match prefix.
                 // Include versions in listing.
                 Pageable<BlobItem> blobItems = container.GetBlobs
@@ -253,13 +265,14 @@ namespace DocumentsAPI.Services.AzureBlobStorage
         }
 
 
-        public async Task CopyDocumentAsync(Guid archiveId, Guid documentId, string newDocumentName, Guid? folderId = null)
+        public async Task<Guid> CopyDocumentAsync(Guid sourceArchive, Guid destinationArchive, Guid documentId, string newDocumentName, Guid? folderId = null)
         {
             // source blob
-            BlobClient sourceBlobClient = _context.GetBlobClient(archiveId.ToString(), documentId.ToString());
+            BlobClient sourceBlobClient = _context.GetBlobClient(sourceArchive.ToString(), documentId.ToString());
 
             // destination blob
-            BlobClient destinationBlobClient = _context.GetBlobClient(archiveId.ToString(), Guid.NewGuid().ToString());
+            Guid copyNewId = Guid.NewGuid();
+            BlobClient destinationBlobClient = _context.GetBlobClient(destinationArchive.ToString(), copyNewId.ToString());
 
             // destinatio blob metadata
             Dictionary<string, string> blobMetadata = new()
@@ -276,7 +289,54 @@ namespace DocumentsAPI.Services.AzureBlobStorage
             // copy
             CopyFromUriOperation copyFromUriOperation = await destinationBlobClient.StartCopyFromUriAsync(sourceBlobClient.Uri, blobCopyFromUriOptions);
             await copyFromUriOperation.WaitForCompletionAsync();
+            return copyNewId;
         }
+
+        public async Task MoveDocumentAsync(Guid sourceArchive, Guid destinationArchive, Guid documentId, string newDocumentName, Guid? folderId = null)
+        {
+
+            // source blob
+            BlobClient sourceBlobClient = _context.GetBlobClient(sourceArchive.ToString(), documentId.ToString());
+
+            if (sourceArchive == destinationArchive && folderId != null)
+            {
+                var test = await GetDocumentByIdAsync(sourceArchive, documentId);
+                if (test == null) throw new Exception("Source document not found");
+
+                // No need to check if the folder is the same, since we check it inside the DocumentsController method
+                // Not optimal, I know, but it's the only place in which I have access to all document's metadata
+
+                // Since the document is already inside the destination archive, simply update its metadata and return
+                await UpdateDocumentAsync(sourceArchive, documentId, folderId);
+                return;
+            }
+            else
+            {
+                // destination blob
+                BlobClient destinationBlobClient = _context.GetBlobClient(destinationArchive.ToString(), documentId.ToString());
+
+                // destination blob metadata
+                Dictionary<string, string> blobMetadata = new()
+            {
+                {"display_name", newDocumentName},
+            };
+                if (folderId != null) blobMetadata.Add("folderId", folderId.ToString());
+
+                BlobCopyFromUriOptions blobCopyFromUriOptions = new()
+                {
+                    Metadata = blobMetadata
+                };
+
+                // copy
+                CopyFromUriOperation copyFromUriOperation = await destinationBlobClient.StartCopyFromUriAsync(sourceBlobClient.Uri, blobCopyFromUriOptions);
+                await copyFromUriOperation.WaitForCompletionAsync();
+
+                // Delete original
+                await sourceBlobClient.DeleteAsync(DeleteSnapshotsOption.IncludeSnapshots);
+            }
+
+        }
+
         #endregion
 
         #region Helpers
@@ -288,12 +348,15 @@ namespace DocumentsAPI.Services.AzureBlobStorage
                 archiveDisplayName = blobContainerItem.Properties.Metadata["display_name"];
             }
 
+
+
             Archive archive = new()
             {
                 Id = Guid.Parse(blobContainerItem.Name),
                 Name = archiveDisplayName,
                 Deleted = blobContainerItem.IsDeleted ?? false,
-                LastUpdateAt = blobContainerItem.Properties.LastModified.DateTime
+                LastUpdateAt = blobContainerItem.Properties.LastModified.DateTime,
+               
             };
             return archive;
         }

@@ -1,10 +1,8 @@
 using DocumentsAPI.Models;
-using DocumentsAPI.Services;
 using DocumentsAPI.Repositories;
-using Microsoft.AspNetCore.Authorization;
+using DocumentsAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using System.Reflection.Metadata;
 using Document = DocumentsAPI.Models.Document;
 
 namespace Documents.Controllers
@@ -21,7 +19,7 @@ namespace Documents.Controllers
         private readonly IDocumentsService _documentsService;
         private readonly IFoldersService _foldersService;
 
-        public DocumentsController(IConfiguration config, IDocumentRepository documentsRepository, IFoldersService foldersService,ILogger<DocumentsController> logger, IDocumentsService documentsService)
+        public DocumentsController(IConfiguration config, IDocumentRepository documentsRepository, IFoldersService foldersService, ILogger<DocumentsController> logger, IDocumentsService documentsService)
         {
             _config = config;
             _documentsRepository = documentsRepository;
@@ -52,7 +50,8 @@ namespace Documents.Controllers
             if (documents.Any(doc => doc.Status == HttpStatusCode.OK))
             {
                 if (folderId != null) await _foldersService.UpdateFolderHasDocuments((Guid)folderId, true);
-            } else if (documents.Any(doc => doc.Status != HttpStatusCode.OK))
+            }
+            else if (documents.Any(doc => doc.Status != HttpStatusCode.OK))
             {
                 // some documents failed
                 this.HttpContext.Response.StatusCode = (int)HttpStatusCode.MultiStatus;
@@ -140,13 +139,35 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> CopyAsync(Guid archiveId, Guid documentId, [FromForm] string documentName, [FromForm] Guid? folderId = null)
+        public async Task<IActionResult> CopyAsync(Guid archiveId, Guid documentId, [FromForm] Guid destinationArchive, [FromForm] string documentName, [FromForm] Guid? folderId = null)
         {
-            await _documentsService.CopyAsync(archiveId, documentId, documentName, folderId);
+            var newDocGuid = await _documentsService.CopyAsync(sourceArchive: archiveId, destinationArchive: destinationArchive, documentId, documentName, folderId);
             if (folderId != null) await _foldersService.UpdateFolderHasDocuments((Guid)folderId, true);
 
-            return NoContent();
+            return Created($"{archiveId}/documents/{newDocGuid}", newDocGuid);
         }
+
+        // POST: Move document
+        [HttpPost]
+        [Route("{archiveId}/documents/{documentId}/move")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> MoveAsync(Guid archiveId, Guid documentId, [FromForm] Guid destinationArchive, [FromForm] string documentName, [FromForm] Guid? folderId = null)
+        {
+            // Check if user is trying to move a document to the same folder it's currently in
+            if (folderId != null && (archiveId == destinationArchive))
+            {
+                var doc = await _documentsService.GetDocumentByIdAsync((Guid)archiveId, documentId);
+                if (doc.FolderId == folderId) return UnprocessableEntity("Cannot move document to the same folder and archive it's currently in");
+            }
+
+            await _documentsService.MoveAsync(sourceArchive: archiveId, destinationArchive: destinationArchive, documentId, documentName, folderId);
+            if (folderId != null) await _foldersService.UpdateFolderHasDocuments((Guid)folderId, true);
+
+            return Created($"{archiveId}/documents/{documentId}", documentId);
+        }
+
 
     }
 }

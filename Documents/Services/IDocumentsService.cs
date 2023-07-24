@@ -12,6 +12,7 @@ namespace DocumentsAPI.Services
         Task<IActionResult> DeleteAsync(Guid archiveId, Guid documentId);
         Task<IActionResult> UndeleteAsync(Guid archiveId, Guid documentId);
         Task<IActionResult> RenameAsync(Guid archiveId, Guid documentId, string documentName);
-        Task<IActionResult> CopyAsync(Guid archiveId, Guid documentId, string documentName, Guid? folderId = null);
+        Task<Guid> CopyAsync(Guid sourceArchive, Guid destinationArchive, Guid documentId, string documentName, Guid? folderId = null);
+        Task<IActionResult> MoveAsync(Guid sourceArchive, Guid destinationArchive, Guid documentId, string documentName, Guid? folderId = null);
     }
 }

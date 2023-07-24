@@ -13,6 +13,7 @@ namespace DocumentsAPI.Repositories
         Task DeleteDocumentAsync(Guid archiveName, Guid documentId);
         Task UndeleteDocumentAsync(Guid archiveName, Guid documentId);
         Task RenameDocumentAsync(Guid archiveName, Guid documentId, string newDocumentName);
-        Task CopyDocumentAsync(Guid archiveName, Guid documentId, string newDocumentName, Guid? folderId = null);
+        Task<Guid> CopyDocumentAsync(Guid sourceArchive, Guid destinationArchive, Guid documentId, string newDocumentName, Guid? folderId = null);
+        Task MoveDocumentAsync(Guid sourceArchive, Guid destinationArchive, Guid documentId, string newDocumentName, Guid? folderId = null);
     }
 }

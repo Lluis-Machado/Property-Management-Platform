@@ -34,14 +34,15 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<Folder>> CreateAsync(Guid archiveId, [FromBody] CreateFolderDTO createFolderDTO)
+        public async Task<ActionResult<TreeFolderItem>> CreateAsync(Guid archiveId, [FromBody] CreateFolderDTO createFolderDTO)
         {
             if (createFolderDTO == null) return new BadRequestObjectResult("Incorrect body format");
 
             string userName = User?.Identity?.Name ?? "na";
 
             var folderCreated = await _foldersService.CreateFolderAsync(archiveId, createFolderDTO, userName);
-            return Created($"{archiveId}/folders/{folderCreated.Id}", folderCreated);
+            var folderCreatedTreeItem = new TreeFolderItem(folderCreated);
+            return Created($"{archiveId}/folders/{folderCreated.Id}", folderCreatedTreeItem);
         }
 
         //GET: Get Folder(s) by Archive ID
@@ -100,14 +101,10 @@ namespace Documents.Controllers
         }
 
         //POST: Copy Folder to another Archive and/or Folder
-        /**
-         * 1) Insert new Folder with specified Archive and Parent IDs
-         * 2) For every child, insert new Folder with specified archive and ParentId = ID of the folder created
-         * 3) If ArchiveID has changed, use DocumentsService to copy all documents with old FolderID, set ParentID = new IDs, and every level below recursively
-         * */
         [HttpPost]
         [Route("{archiveId}/folders/{folderId}/copy")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
@@ -122,13 +119,37 @@ namespace Documents.Controllers
                 return NotFound($"Folder with ID {folderId} not found");
             }
 
-            _logger.LogInformation($"Copying folder with ID: {folderId} from archive {currentFolder.ArchiveId} to {archiveId}");
+            //_logger.LogInformation($"Copying folder with ID: {folderId} from archive {currentFolder.ArchiveId} to {folderDTO.ArchiveId}");
 
-            var result = await _foldersService.CopyFolderAndChildren(currentFolder, folderDTO);
+            var result = await _foldersService.CopyFolderAndChildren(currentFolder, folderDTO, userName);
 
-            // TODO: Copy documents from each of the folders
+            return Ok(result);
+        }
 
-            return Created($"{archiveId}/folders/{result.Id}", result);
+        //POST: Copy Folder to another Archive and/or Folder
+        [HttpPost]
+        [Route("{archiveId}/folders/{folderId}/move")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
+        public async Task<ActionResult<TreeFolderItem>> MoveAsync(Guid archiveId, Guid folderId, [FromBody] UpdateFolderDTO folderDTO)
+        {
+            string userName = User?.Identity?.Name ?? "na";
+            var currentFolder = await _foldersService.GetFolderByIdAsync(folderId);
+            if (currentFolder == null)
+            {
+                _logger.LogWarning($"Folder CopyAsync - Folder with id {folderId} was not found in DB, returning 404");
+                return NotFound($"Folder with ID {folderId} not found");
+            }
+
+            //_logger.LogInformation($"Copying folder with ID: {folderId} from archive {currentFolder.ArchiveId} to {folderDTO.ArchiveId}");
+
+            var result = await _foldersService.CopyFolderAndChildren(currentFolder, folderDTO, userName, deleteOriginal: true);
+
+            return Ok(result);
         }
 
 

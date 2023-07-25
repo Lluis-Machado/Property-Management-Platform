@@ -49,7 +49,7 @@ namespace DocumentsAPI.Services
             return await _documentsRepository.GetDocumentsFlatListingAsync(archiveId, pSize, folderId, includeDeleted);
         }
 
-        public async Task<IEnumerable<Document>> SearchTagsDocumentsAsync(string query, bool includeDeleted = false)
+        public async Task<IEnumerable<Document>> SearchDocumentsTagsAsync(string query, bool includeDeleted = false)
         {
             return await _documentsRepository.SearchDocumentsTagsAsync(query, includeDeleted);
         }

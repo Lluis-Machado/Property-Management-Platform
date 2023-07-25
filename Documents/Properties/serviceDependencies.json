@@ -2,11 +2,11 @@
   "dependencies": {
     "secrets1": {
       "type": "secrets",
-      "dynamicId": null
+      "connectionId": null
     },
     "storage1": {
       "type": "storage",
-      "connectionId": "PlattesStageDev"
+      "connectionId": "PlattesStage"
     }
   }
 }

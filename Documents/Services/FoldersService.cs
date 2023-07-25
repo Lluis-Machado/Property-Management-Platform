@@ -222,7 +222,7 @@ namespace DocumentsAPI.Services
             while (stack.Count > 0)
             {
                 var currentFolder = stack.Pop();
-                visited.Add(currentFolder.Id);
+                if (!visited.Contains(currentFolder.Id)) visited.Add(currentFolder.Id); else continue;
 
                 log.AppendLine($"\tProcessing folder {currentFolder.Id} ({currentFolder.Name}) - ParentID: {currentFolder.ParentId}");
 
@@ -236,7 +236,7 @@ namespace DocumentsAPI.Services
 
                     foreach (var childFolder in childFolders)
                     {
-                        if (!visited.Contains(childFolder.Id))
+                        if (!visited.Contains(childFolder.Id) && stack.ToList().Where(item => item.Id == childFolder.Id).ToList().Count == 0 && idMapping.ContainsKey(currentFolder.Id))
                         {
                             log.AppendLine($"\t\t\tProcessing child {childFolder.Id} ({childFolder.Name}) - ParentID: {childFolder.ParentId}");
 
@@ -270,7 +270,7 @@ namespace DocumentsAPI.Services
                             List<IFormFile> childDocBytes = new();
                             foreach (var doc in childDocs)
                             {
-                                log.AppendLine($"\t\tProcessing document with name {doc.Name}");
+                                log.AppendLine($"\t\t\tProcessing document with name {doc.Name}");
                                 var file = (await _documentsService.DownloadAsync(childFolder.ArchiveId, doc.Id)).FileContents;
                                 var stream = new MemoryStream(file);
 

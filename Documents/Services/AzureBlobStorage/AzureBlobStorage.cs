@@ -16,9 +16,6 @@ namespace DocumentsAPI.Services.AzureBlobStorage
         private AzureBlobStorageContext _context { get; set; }
         private static ILogger<AzureBlobStorage> _logger { get; set; }
 
-        private static Mutex mutex = new Mutex();
-
-
         public AzureBlobStorage(AzureBlobStorageContext context, ILogger<AzureBlobStorage> logger)
         {
             _context = context;
@@ -312,8 +309,8 @@ namespace DocumentsAPI.Services.AzureBlobStorage
             Dictionary<string, string> blobMetadata = new()
             {
                 {"display_name", newDocumentName},
+                {"folder_id", folderId != null ? folderId.ToString() : ""},
             };
-            if (folderId != null) blobMetadata.Add("folder_id", folderId.ToString());
 
             BlobCopyFromUriOptions blobCopyFromUriOptions = new()
             {
@@ -353,8 +350,8 @@ namespace DocumentsAPI.Services.AzureBlobStorage
                 Dictionary<string, string> blobMetadata = new()
             {
                 {"display_name", newDocumentName},
+                {"folder_id", folderId != null ? folderId.ToString() : ""},
             };
-                if (folderId != null) blobMetadata.Add("folderId", folderId.ToString());
 
                 BlobCopyFromUriOptions blobCopyFromUriOptions = new()
                 {

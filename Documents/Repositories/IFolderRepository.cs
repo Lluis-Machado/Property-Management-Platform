@@ -10,6 +10,8 @@ namespace DocumentsAPI.Repositories
         Task<Folder> GetFolderByIdAsync(Guid? archiveId, Guid folderId);
         Task<Folder> InsertFolderAsync(Folder folder);
         Task<Folder> SetDeleteFolderAsync(Guid id, bool deleted, string userName);
+        Task DeleteFoldersByArchiveAsync(Guid archiveId, string username = "na");
+        Task UndeleteFoldersByArchiveAsync(Guid archiveId, string username = "na");
         Task<Folder> UpdateFolderAsync(Folder folder);
         Task<IEnumerable<Folder>> GetChildrenAsync(Guid folderId, bool includeDeleted = false);
         Task<IEnumerable<Folder>> GetFoldersAsync(Guid? archiveId, bool includeDeleted = false);

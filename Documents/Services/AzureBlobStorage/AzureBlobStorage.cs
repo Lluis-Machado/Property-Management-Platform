@@ -168,7 +168,7 @@ namespace DocumentsAPI.Services.AzureBlobStorage
         {
             BlobContainerClient blobContainerClient = _context.GetBlobContainerClient(archiveId.ToString());
 
-            var resultSegment = blobContainerClient.GetBlobsAsync(states: BlobStates.DeletedWithVersions, traits: BlobTraits.Metadata).AsPages();
+            var resultSegment = blobContainerClient.GetBlobsAsync(states: BlobStates.DeletedWithVersions, traits: BlobTraits.Metadata, prefix: documentId.ToString()).AsPages();
 
             Document? document = null;
 
@@ -252,15 +252,23 @@ namespace DocumentsAPI.Services.AzureBlobStorage
             // source blob
             BlobClient blobClient = _context.GetBlobClient(archiveId.ToString(), documentId.ToString());
 
+            Document doc = await GetDocumentByIdAsync(archiveId, documentId);
+
+            _logger.LogInformation($"Current doc ID: {documentId.ToString()} | Name: {doc.Name} | Extension: {doc.Extension} | NewName: {newDocumentName} | Condition: {newDocumentName.EndsWith(doc.Extension)}");
+
+            if (string.IsNullOrEmpty(doc.Extension)) newDocumentName += ".pdf";    // Assume pdf file format if none specified
+            else if (!newDocumentName.EndsWith(doc.Extension)) newDocumentName += doc.Extension;
+
             // destinatio blob metadata
             Dictionary<string, string> blobMetadata = new()
             {
                 {"display_name", newDocumentName},
+                {"folder_id", blobClient.GetProperties().Value.Metadata["folder_id"]}
             };
 
-            // delete
             Response<BlobInfo> responseBlobInfo = await blobClient.SetMetadataAsync(blobMetadata);
             Response response = responseBlobInfo.GetRawResponse();
+            _logger.LogInformation($"Trying rename of file {documentId.ToString()} to {newDocumentName}\nResponse:{response.Status}");
             _context.CheckResponse(response);
         }
 
@@ -363,7 +371,7 @@ namespace DocumentsAPI.Services.AzureBlobStorage
 
         private static Document MapDocument(BlobItem blobItem)
         {
-            bool hasMetadata = blobItem.Metadata.Count > 0;
+            bool hasMetadata = blobItem.Metadata.Count == 2;    // TODO: Change number depending on the number of fields present - Currently: 2
             string documentName = hasMetadata ? blobItem.Metadata["display_name"] : "NO NAME";
             Guid? folderId = hasMetadata ? (!string.IsNullOrEmpty(blobItem.Metadata["folder_id"]) ? new Guid(blobItem.Metadata["folder_id"]) : null) : null;
 

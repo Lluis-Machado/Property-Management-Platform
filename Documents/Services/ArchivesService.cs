@@ -7,11 +7,13 @@ namespace DocumentsAPI.Services
     {
         private readonly ILogger<ArchivesService> _logger;
         private readonly IArchiveRepository _archiveRepository;
+        private readonly IFolderRepository _folderRepository;
 
-        public ArchivesService(IArchiveRepository archiveRepository, ILogger<ArchivesService> logger)
+        public ArchivesService(IArchiveRepository archiveRepository, ILogger<ArchivesService> logger, IFolderRepository folderRepository)
         {
             _archiveRepository = archiveRepository;
             _logger = logger;
+            _folderRepository = folderRepository;
         }
 
         public async Task<Archive> CreateArchiveAsync(Archive archive)
@@ -35,12 +37,14 @@ namespace DocumentsAPI.Services
 
         public async Task DeleteArchiveAsync(Guid archiveId)
         {
-            await _archiveRepository.DeleteArchiveAsync(archiveId);
+            Task.WaitAll(_archiveRepository.DeleteArchiveAsync(archiveId),
+                          _folderRepository.DeleteFoldersByArchiveAsync(archiveId));
         }
 
         public async Task UndeleteArchiveAsync(Guid archiveId)
         {
-            await _archiveRepository.UndeleteArchiveAsync(archiveId);
+            Task.WaitAll(_archiveRepository.UndeleteArchiveAsync(archiveId),
+                          _folderRepository.UndeleteFoldersByArchiveAsync(archiveId));
         }
     }
 }

@@ -297,5 +297,47 @@ namespace DocumentsAPI.Repositories
             }
             parentFolder.ChildFolders = treeChildFolders;
         }
+
+        public async Task DeleteFoldersByArchiveAsync(Guid archiveId, string username = "na")
+        {
+            var parameters = new
+            {
+                archiveId,
+                username
+            };
+
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("UPDATE Folders ");
+            queryBuilder.Append(" SET Deleted = 1 ");
+            queryBuilder.Append(", LastUpdateByUser = @userName ");
+            queryBuilder.Append(", LastUpdateAt = CURRENT_TIMESTAMP ");
+            queryBuilder.Append(" OUTPUT INSERTED.*");
+            queryBuilder.Append(" WHERE ArchiveId = @archiveId ");
+
+            await _context
+                .CreateConnection()
+                .QueryAsync(queryBuilder.ToString(), parameters);
+        }
+
+        public async Task UndeleteFoldersByArchiveAsync(Guid archiveId, string username = "na")
+        {
+            var parameters = new
+            {
+                archiveId,
+                username
+            };
+
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("UPDATE Folders ");
+            queryBuilder.Append(" SET Deleted = 0 ");
+            queryBuilder.Append(", LastUpdateByUser = @userName ");
+            queryBuilder.Append(", LastUpdateAt = CURRENT_TIMESTAMP ");
+            queryBuilder.Append(" OUTPUT INSERTED.*");
+            queryBuilder.Append(" WHERE ArchiveId = @archiveId ");
+
+            await _context
+                .CreateConnection()
+                .QueryAsync(queryBuilder.ToString(), parameters);
+        }
     }
 }

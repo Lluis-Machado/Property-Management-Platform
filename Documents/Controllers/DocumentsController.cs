@@ -73,6 +73,17 @@ namespace Documents.Controllers
             return Ok(await _documentsService.GetDocumentsAsync(archiveId, 100, folderId, includeDeleted));
         }
 
+        // GET: Search documents
+        [HttpGet]
+        [Route("documents/search")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<IEnumerable<Document>>> SearchDocumentsTagsAsync([FromQuery] string query, [FromQuery] bool includeDeleted = false)
+        {
+            return Ok(await _documentsService.SearchDocumentsTagsAsync(query, includeDeleted));
+        }
+
         // GET: Download document
         [HttpGet]
         [Route("{archiveId}/documents/{documentId}")]

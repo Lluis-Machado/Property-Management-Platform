@@ -4,6 +4,7 @@ using Azure.Storage.Blobs.Models;
 using DocumentsAPI.Contexts;
 using DocumentsAPI.Models;
 using DocumentsAPI.Repositories;
+using System.Collections.Concurrent;
 using System.Net;
 using Document = DocumentsAPI.Models.Document;
 
@@ -14,6 +15,9 @@ namespace DocumentsAPI.Services.AzureBlobStorage
     {
         private AzureBlobStorageContext _context { get; set; }
         private static ILogger<AzureBlobStorage> _logger { get; set; }
+
+        private static Mutex mutex = new Mutex();
+
 
         public AzureBlobStorage(AzureBlobStorageContext context, ILogger<AzureBlobStorage> logger)
         {
@@ -86,7 +90,7 @@ namespace DocumentsAPI.Services.AzureBlobStorage
             BlobClient blobClient = _context.GetBlobClient(archiveId.ToString(), documentId.ToString());
 
             var blobProps = await blobClient.GetPropertiesAsync();
-            blobProps.Value.Metadata["display_name"] = folderId != null ? folderId.ToString() : "";
+            blobProps.Value.Metadata["folder_id"] = folderId != null ? folderId.ToString() : "";
             await blobClient.SetMetadataAsync(blobProps.Value.Metadata);
         }
 
@@ -162,6 +166,28 @@ namespace DocumentsAPI.Services.AzureBlobStorage
                 }
             }
             return documents;
+        }
+
+        public async Task<IEnumerable<Document>> SearchDocumentsTagsAsync(string query, bool includeDeleted = false)
+        {
+            BlobServiceClient blobServiceClient = _context.GetBlobServiceClient();
+
+            // TODO: Change "display_name" for "status" when it gets implemented
+            var resultSegment = blobServiceClient.FindBlobsByTagsAsync($"\"display_name\"='{query}'").AsPages();
+            // Enumerate the blobs returned for each page.
+            var documents = new ConcurrentBag<Document>();
+            await foreach (Page<TaggedBlobItem> blobPage in resultSegment)
+            {
+                var tasks = blobPage.Values.Select(async blobItem =>
+                {
+                    Document document = await GetDocumentByIdAsync(Guid.Parse(blobItem.BlobContainerName), Guid.Parse(blobItem.BlobName));
+                    documents.Add(document);
+                });
+
+                await Task.WhenAll(tasks);
+            }
+            return documents.ToList();
+
         }
 
         public async Task<Document?> GetDocumentByIdAsync(Guid archiveId, Guid documentId)
@@ -287,7 +313,7 @@ namespace DocumentsAPI.Services.AzureBlobStorage
             {
                 {"display_name", newDocumentName},
             };
-            if (folderId != null) blobMetadata.Add("folderId", folderId.ToString());
+            if (folderId != null) blobMetadata.Add("folder_id", folderId.ToString());
 
             BlobCopyFromUriOptions blobCopyFromUriOptions = new()
             {
@@ -364,7 +390,7 @@ namespace DocumentsAPI.Services.AzureBlobStorage
                 Name = archiveDisplayName,
                 Deleted = blobContainerItem.IsDeleted ?? false,
                 LastUpdateAt = blobContainerItem.Properties.LastModified.DateTime,
-               
+
             };
             return archive;
         }
@@ -388,6 +414,28 @@ namespace DocumentsAPI.Services.AzureBlobStorage
             };
             return document;
         }
+
+        //private static Document MapDocument(TaggedBlobItem taggedBlobItem)
+        //{
+        //    bool hasMetadata = taggedBlobItem.Tags.Count == 2;    // TODO: Change number depending on the number of fields present - Currently: 2
+        //    string documentName = hasMetadata ? taggedBlobItem.Tags["display_name"] : "NO NAME";
+        //    Guid? folderId = hasMetadata ? (!string.IsNullOrEmpty(taggedBlobItem.Tags["folder_id"]) ? new Guid(taggedBlobItem.Tags["folder_id"]) : null) : null;
+
+        //    Document document = new()
+        //    {
+        //        Id = Guid.Parse(taggedBlobItem.BlobName),
+        //        Name = documentName,
+        //        FolderId = folderId,
+        //        Extension = documentName.Contains('.') ? documentName[documentName.LastIndexOf('.')..] : "",
+        //        ContentLength = blobItem.Properties.ContentLength,
+        //        CreatedAt = blobItem.Properties.CreatedOn.GetValueOrDefault().DateTime,
+        //        LastUpdateAt = blobItem.Properties.LastModified.GetValueOrDefault().DateTime,
+        //        Deleted = blobItem.Deleted || !hasMetadata  // Some blobs marked as deleted on the Azure portal still say they are not deleted
+        //    };
+        //    return document;
+        //}
+
+
         #endregion
 
     }

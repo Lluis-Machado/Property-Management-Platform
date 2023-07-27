@@ -1,4 +1,6 @@
-﻿namespace AccountingAPI.DTOs
+﻿using static AccountingAPI.Utilities.PeriodStatusCodes;
+
+namespace AccountingAPI.DTOs
 {
     public class PeriodDTO
     {
@@ -6,7 +8,7 @@
         public Guid TenantId { get; set; }
         public int Year { get; set; }
         public int Month { get; set; }
-        public string Status { get; set; }
+        public PeriodStatus Status { get; set; }
         public bool Deleted { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime LastModificationAt { get; set; }
@@ -15,7 +17,6 @@
 
         public PeriodDTO()
         {
-            Status = string.Empty;
             CreatedBy = string.Empty;
             LastModificationBy = string.Empty;
         }

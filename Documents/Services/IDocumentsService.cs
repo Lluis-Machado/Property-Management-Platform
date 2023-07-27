@@ -1,4 +1,5 @@
-﻿using DocumentsAPI.Models;
+﻿using DocumentsAPI.DTOs;
+using DocumentsAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DocumentsAPI.Services
@@ -10,6 +11,7 @@ namespace DocumentsAPI.Services
         Task<Document?> GetDocumentByIdAsync(Guid archiveId, Guid documentId);
         Task<IEnumerable<Document>> SearchDocumentsTagsAsync(string query, bool includeDeleted = false);
         Task<FileContentResult> DownloadAsync(Guid archiveId, Guid documentId);
+        Task<List<FileContentResult>> SplitAsync(IFormFile file, DocSplitInterval[]? range);
         Task<IActionResult> DeleteAsync(Guid archiveId, Guid documentId);
         Task<IActionResult> UndeleteAsync(Guid archiveId, Guid documentId);
         Task<IActionResult> RenameAsync(Guid archiveId, Guid documentId, string documentName);

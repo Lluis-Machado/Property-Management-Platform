@@ -1,5 +1,7 @@
-﻿using DocumentsAPI.Models;
+﻿using DocumentsAPI.DTOs;
+using DocumentsAPI.Models;
 using DocumentsAPI.Repositories;
+using iText.Kernel.Pdf;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -92,6 +94,90 @@ namespace DocumentsAPI.Services
         {
             await _documentsRepository.MoveDocumentAsync(sourceArchive, destinationArchive, documentId, documentName, folderId);
             return new NoContentResult();
+        }
+
+        public async Task<List<FileContentResult>> SplitAsync(IFormFile file, DocSplitInterval[]? pageRanges)
+        {
+
+            List<byte[]> pdfByteArrays = new();
+            List<FileContentResult> res = new();
+
+            MemoryStream memoryStream = new MemoryStream();
+            file.CopyTo(memoryStream);
+            memoryStream.Position = 0;
+
+            // Create a MemoryStream from the original PDF byte array
+            {
+                // Open the original PDF document
+                using (PdfDocument pdfDocument = new PdfDocument(new PdfReader(memoryStream)))
+                {
+                    if (pageRanges == null || pageRanges.Length == 0)
+                    {
+                        // If the pageRanges array is null or empty, split each page
+                        for (int i = 1; i <= pdfDocument.GetNumberOfPages(); i++)
+                        {
+
+                            // Create a new MemoryStream to store the split PDF content
+                            using (MemoryStream splitMemoryStream = new MemoryStream())
+                            {
+                                // Create a new PdfDocument for each page
+                                using (PdfDocument splitPdfDocument = new PdfDocument(new PdfWriter(splitMemoryStream)))
+                                {
+                                    //splitMemoryStream.Position = 0;
+
+                                    // Copy the current page to the new PdfDocument
+                                    pdfDocument.CopyPagesTo(i, i, splitPdfDocument);
+
+                                    splitMemoryStream.Position = 0;
+
+                                    splitPdfDocument.Close();
+
+                                    // Save the content to a byte array
+                                    pdfByteArrays.Add(splitMemoryStream.ToArray());
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // If the pageRanges array is not null, split according to the specified ranges
+                        foreach (DocSplitInterval range in pageRanges)
+                        {
+                            // Ensure the range is within valid bounds
+                            int start = Math.Max(1, range.start);
+                            int end = Math.Min(pdfDocument.GetNumberOfPages(), range.end);
+
+                            if (start <= end)
+                            {
+                                // Create a new MemoryStream to store the split PDF content
+                                using (MemoryStream splitMemoryStream = new MemoryStream())
+                                {
+                                    // Create a new PdfDocument for the current range
+                                    using (PdfDocument splitPdfDocument = new PdfDocument(new PdfWriter(splitMemoryStream)))
+                                    {
+                                        // Copy the specified range to the new PdfDocument
+                                        pdfDocument.CopyPagesTo(start, end, splitPdfDocument);
+
+                                        splitPdfDocument.Close();
+
+                                        // Save the content to a byte array
+                                        pdfByteArrays.Add(splitMemoryStream.ToArray());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            for (int i = 0; i < pdfByteArrays.Count; i++)
+            {
+                res.Add(new FileContentResult(pdfByteArrays[i], "application/pdf") { FileDownloadName = $"{file.FileName}_{i + 1}" });
+            }
+
+            return res;
+
         }
     }
 }

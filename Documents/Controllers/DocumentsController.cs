@@ -1,8 +1,11 @@
+using DocumentsAPI.DTOs;
 using DocumentsAPI.Models;
 using DocumentsAPI.Repositories;
 using DocumentsAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Mime;
 using Document = DocumentsAPI.Models.Document;
 
 namespace Documents.Controllers
@@ -61,6 +64,36 @@ namespace Documents.Controllers
             // all documents ok
             return Ok(documents);
         }
+
+        // POST: Split document
+        [HttpPost]
+        [Route("documents/split")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<List<FileContentResult>>> SplitAsync(IFormFile file, [FromQuery] string? ranges = null) {
+            // empty request validation
+            if (file == null) return BadRequest();
+
+            DocSplitInterval[]? intervals = DocSplitInterval.FromRanges(ranges);
+
+            if (file == null || file.ContentType != "application/pdf") return BadRequest("Unsupported content type. Make sure the file is of type \"application/pdf\"");
+
+            var pdfFiles = await _documentsService.SplitAsync(file, intervals);
+
+            var pdfBase64Strings = new List<string>();
+            foreach (var pdf in pdfFiles)
+            {
+                // Convert each PDF to base64 string
+                string base64String = Convert.ToBase64String(pdf.FileContents);
+                pdfBase64Strings.Add(base64String);
+            }
+
+            // Return the list of base64 strings in JSON format
+            return Ok(new { SplitFiles = pdfBase64Strings});
+        }
+
+
 
         // GET: Get document(s)
         [HttpGet]

@@ -91,11 +91,13 @@ app.UseMiddleware<GlobalErrorHandlingMiddleware>();
 
 app.UseSwagger();
 
+#if DEVELOPMENT || STAGE
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.ConfigObject.AdditionalItems.Add("persistAuthorization", "true");
 });
+#endif
 
 app.UseHttpsRedirection();
 

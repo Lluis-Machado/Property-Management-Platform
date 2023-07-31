@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using TaxManagement.Models;
 using TaxManagement.Repositories;
+using TaxManagement.Validators;
 using TaxManagementAPI.DTOs;
 
 namespace TaxManagementAPI.Services
@@ -11,15 +13,31 @@ namespace TaxManagementAPI.Services
     {
         private readonly IDeclarantRepository _declarantRepo;
         private readonly IMapper _mapper;
+        private readonly IValidator<DeclarantDTO> _declarantValidator;
+        private readonly IValidator<CreateDeclarantDTO> _createDeclarantValidator;
+        private readonly IValidator<UpdateDeclarantDTO> _updateDeclarantValidator;
 
-        public DeclarantService(IDeclarantRepository declarantRepo, IMapper mapper)
+        public DeclarantService(IDeclarantRepository declarantRepo, IMapper mapper, IValidator<DeclarantDTO> declarantValidator, IValidator<CreateDeclarantDTO> createDeclarantValidator, IValidator<UpdateDeclarantDTO> updateDeclarantValidator)
         {
             _declarantRepo = declarantRepo;
             _mapper = mapper;
+            _declarantValidator = declarantValidator;
+            _createDeclarantValidator = createDeclarantValidator;
+            _updateDeclarantValidator = updateDeclarantValidator;
         }
 
         public async Task<ActionResult<DeclarantDTO>> UpdateDeclarantAsync(UpdateDeclarantDTO updateDeclarantDTO, Guid declarantId, string lastUpdateByUser)
         {
+
+            // Declarant validation
+            FluentValidation.Results.ValidationResult validationResult = await _updateDeclarantValidator.ValidateAsync(updateDeclarantDTO);
+            if (!validationResult.IsValid)
+                return new BadRequestObjectResult(validationResult.ToString("~"));
+
+            // declarant validation
+            var oldDeclarant = await DeclarantExists(declarantId);
+            if (oldDeclarant is null) return new NotFoundObjectResult("Declarant not found");
+
             var declarant = _mapper.Map<UpdateDeclarantDTO, Declarant>(updateDeclarantDTO);
 
             declarant.Id = declarantId;
@@ -37,6 +55,10 @@ namespace TaxManagementAPI.Services
 
         public async Task<DeclarantDTO> DeleteDeclarantAsync(Guid declarantId, string lastUserName)
         {
+            // declarant validation
+            var oldDeclarant = await DeclarantExists(declarantId);
+            if (oldDeclarant is null) throw new ValidationException("Declarant not found");
+
             var result = await _declarantRepo.SetDeleteDeclarantAsync(declarantId, true, lastUserName);
             var declarantDTO = _mapper.Map<Declarant, DeclarantDTO>(result);
 
@@ -45,6 +67,10 @@ namespace TaxManagementAPI.Services
 
         public async Task<DeclarantDTO> UndeleteDeclarantAsync(Guid declarantId, string lastUserName)
         {
+            // declarant validation
+            var oldDeclarant = await DeclarantExists(declarantId);
+            if (oldDeclarant is null) throw new ValidationException("Declarant not found");
+
             var result = await _declarantRepo.SetDeleteDeclarantAsync(declarantId, false, lastUserName);
             var declarantDTO = _mapper.Map<Declarant, DeclarantDTO>(result);
 
@@ -76,6 +102,12 @@ namespace TaxManagementAPI.Services
 
         public async Task<DeclarantDTO> CreateDeclarantAsync(CreateDeclarantDTO createDeclarantDTO, string userName)
         {
+
+            // declarant validation
+            FluentValidation.Results.ValidationResult validationResult = await _createDeclarantValidator.ValidateAsync(createDeclarantDTO);
+            if (!validationResult.IsValid) throw new ValidationException(validationResult.ToString("~"));
+
+
             var declarant = _mapper.Map<CreateDeclarantDTO, Declarant>(createDeclarantDTO);
 
             declarant.CreatedByUser = userName;

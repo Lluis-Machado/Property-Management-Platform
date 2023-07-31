@@ -15,25 +15,15 @@ namespace TaxManagement.Controllers
     public class DeclarationsController : Controller
     {
         private readonly ILogger<DeclarationsController> _logger;
-        private readonly IValidator<DeclarationDTO> _declarationValidator;
-        private readonly IValidator<CreateDeclarationDTO> _createDeclarationValidator;
-        private readonly IValidator<UpdateDeclarationDTO> _updateDeclarationValidator;
         private readonly IMapper _mapper;
         private readonly IDeclarationService _declarationService;
         private readonly IDeclarantService _declarantService;
 
         public DeclarationsController(IDeclarantService declarantService,
             IDeclarationService declarationService,
-            IValidator<DeclarationDTO> declarationValidator,
-            IValidator<UpdateDeclarationDTO> updateDeclarationValidator,
-            IValidator<CreateDeclarationDTO> createDeclarationValidator,
             ILogger<DeclarationsController> logger,
             IMapper mapper)
         {
-
-            _declarationValidator = declarationValidator;
-            _createDeclarationValidator = createDeclarationValidator;
-            _updateDeclarationValidator = updateDeclarationValidator;
             _logger = logger;
             _mapper = mapper;
             _declarationService = declarationService;
@@ -52,16 +42,9 @@ namespace TaxManagement.Controllers
             if (createDeclarationDTO == null) return BadRequest("Incorrect body format");
             if (createDeclarationDTO.DeclarantId != declarantId) return BadRequest("Incorrect declarant Id in body");
 
-            // declaration validation
-            ValidationResult validationResult = await _createDeclarationValidator.ValidateAsync(createDeclarationDTO);
-            if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
-            // declarant validation
-            var oldDeclarant = await _declarantService.DeclarantExists(declarantId);
-            if (oldDeclarant is null) return NotFound("Declarant not found");
-
             string userName = User?.Identity?.Name ?? "na";
 
-            var result = await _declarationService.CreateDeclarationAsync(createDeclarationDTO, userName);
+            var result = await _declarationService.CreateDeclarationAsync(createDeclarationDTO, declarantId, userName);
 
             return result;
         }
@@ -73,10 +56,6 @@ namespace TaxManagement.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<List<DeclarationDTO>>> GetAsync(Guid declarantId, bool includeDeleted = false)
         {
-            // declarant validation
-            var oldDeclarant = await _declarantService.DeclarantExists(declarantId);
-            if (oldDeclarant is null) return NotFound("Declarant not found");
-
             return Ok(await _declarationService.GetDeclarationsAsync(declarantId, includeDeleted));
         }
 
@@ -93,19 +72,10 @@ namespace TaxManagement.Controllers
             if (updateDeclarationDTO == null) return BadRequest("Incorrect body format");
             //if (updateDeclarationDTO.Id != declarationId) return BadRequest("Declaration Id from body incorrect");
 
-            // declarant validation
-            var oldDeclarant = await _declarantService.DeclarantExists(declarantId);
-            if (oldDeclarant is null) return NotFound("Declarant not found");
-
-            // declaration validation
-            ValidationResult validationResult = await _updateDeclarationValidator.ValidateAsync(updateDeclarationDTO);
-            if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
-            if (!await _declarationService.DeclarationExists(declarationId)) return NotFound("Declaration not found");
-
             updateDeclarationDTO.LastUpdateByUser = User?.Identity?.Name ?? "na";
             updateDeclarationDTO.LastUpdateAt = DateTime.Now;
 
-            var result = await _declarationService.UpdateDeclarationAsync(updateDeclarationDTO);
+            var result = await _declarationService.UpdateDeclarationAsync(updateDeclarationDTO, declarantId, declarationId);
 
             return Ok(result);
         }
@@ -118,15 +88,7 @@ namespace TaxManagement.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> DeleteAsync(Guid declarantId, Guid declarationId)
         {
-            // declarant validation
-            var oldDeclarant = await _declarantService.DeclarantExists(declarantId);
-            if (oldDeclarant is null) return NotFound("Declarant not found");
-
-            // declaration validation
-            if (!await _declarationService.DeclarationExists(declarationId)) return NotFound("Declaration not found");
-
             string userName = User?.Identity?.Name ?? "na";
-
             var result = await _declarationService.SetDeletedDeclarationAsync(declarantId, declarationId, true, userName);
 
             return Ok(result);
@@ -139,20 +101,11 @@ namespace TaxManagement.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UndeleteAsync(Guid declarantId, Guid declarationId)
         {
-            // declarant validation
-            // declarant validation
-            var oldDeclarant = await _declarantService.DeclarantExists(declarantId);
-            if (oldDeclarant is null) return NotFound("Declarant not found");
-
-            // declaration validation
-            if (!await _declarationService.DeclarationExists(declarationId)) return NotFound("Declaration not found");
-
             string userName = User?.Identity?.Name ?? "na";
             var result = await _declarationService.SetDeletedDeclarationAsync(declarantId, declarationId, false, userName);
 
             return Ok(result);
         }
-
 
     }
 }

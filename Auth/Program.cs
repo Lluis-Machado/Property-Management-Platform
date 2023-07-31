@@ -83,7 +83,10 @@ app.UseCors("AllowAllOrigins");
 
 #if DEVELOPMENT || STAGE
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(c =>
+{
+    c.ConfigObject.AdditionalItems.Add("persistAuthorization", "true");
+});
 #endif
 
 app.UseHttpsRedirection();

@@ -104,15 +104,13 @@ var app = builder.Build();
 // Middlewares
 app.UseMiddleware<GlobalErrorHandlingMiddleware>();
 
-// Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.ConfigObject.AdditionalItems.Add("persistAuthorization", "true");
-    });
-//}
+#if DEVELOPMENT || STAGE
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.ConfigObject.AdditionalItems.Add("persistAuthorization", "true");
+});
+#endif
 
 app.UseHttpsRedirection();
 

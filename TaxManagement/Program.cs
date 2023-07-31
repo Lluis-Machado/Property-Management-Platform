@@ -39,7 +39,6 @@ builder.Services.AddScoped<IValidator<CreateDeclarantDTO>, CreateDeclarantValida
 builder.Services.AddScoped<IValidator<UpdateDeclarantDTO>, UpdateDeclarantValidator>();
 builder.Services.AddScoped<IValidator<DeclarationDTO>, DeclarationValidator>();
 builder.Services.AddScoped<IValidator<CreateDeclarationDTO>, CreateDeclarationValidator>();
-builder.Services.AddScoped<IValidator<UpdateDeclarationDTO>, UpdateDeclarationValidator>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
@@ -103,7 +102,7 @@ var app = builder.Build();
 }
 #endif
 
-    app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 
 app.UseAuthentication();
 

@@ -68,14 +68,13 @@ builder.Services.AddAuthentication(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
+#if DEVELOPMENT || STAGE
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.ConfigObject.AdditionalItems.Add("persistAuthorization", "true");
 });
-//}
+#endif
 
 app.UseHttpsRedirection();
 

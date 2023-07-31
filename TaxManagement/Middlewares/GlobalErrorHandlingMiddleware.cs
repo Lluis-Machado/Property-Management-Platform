@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace TaxManagement.Middelwares
@@ -17,6 +18,13 @@ namespace TaxManagement.Middelwares
             try
             {
                 await next(context);
+            }
+            catch (ValidationException e)
+            {
+                _logger.LogError("Validation exception ocurred: {@Exception}", e);
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                context.Response.ContentType = "text/html";
+                await context.Response.WriteAsync(e.Message);
             }
             catch (Exception e)
             {

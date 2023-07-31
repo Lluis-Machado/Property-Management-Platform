@@ -19,8 +19,14 @@ namespace Authentication.Middlewares
             }
             catch (Exception e)
             {
-                _logger.LogError("Internal exception ocurred: {@Exception}", e);
+                _logger.LogError("Internal exception occurred: {@Exception}", e);
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+#if DEVELOPMENT || STAGE
+                context.Response.ContentType = "text/html";
+                string responseContent = $"An error occurred: {e.Message}\n\nStack Trace:\n{e.StackTrace}";
+                await context.Response.WriteAsync(responseContent);
+#endif
             }
         }
     }

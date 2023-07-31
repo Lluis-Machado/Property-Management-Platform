@@ -48,6 +48,7 @@ namespace Authentication.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> CreateRole([FromBody] Auth0Role auth0Role)
@@ -60,6 +61,7 @@ namespace Authentication.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UpdateRole(string roleId, [FromBody] object roleUpdate)
@@ -69,7 +71,7 @@ namespace Authentication.Controllers
 
         [HttpDelete("{roleId}")]
         [Authorize]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -78,7 +80,7 @@ namespace Authentication.Controllers
         public async Task<IActionResult> DeleteRole(string roleId)
         {
             await _rolesAPI.DeleteRoleAsync(roleId);
-            return Ok();
+            return NoContent();
         }
         #endregion
 
@@ -101,6 +103,7 @@ namespace Authentication.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> AssignPermissionsToRole(string roleId, [FromBody] List<Auth0Permission> permissions)
@@ -111,7 +114,7 @@ namespace Authentication.Controllers
 
         [HttpDelete("{roleId}/permissions")]
         [Authorize]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.TooManyRequests)]
@@ -119,7 +122,7 @@ namespace Authentication.Controllers
         public async Task<IActionResult> DeletePermissionsFromRole(string roleId, [FromBody] List<Auth0Permission> permissions)
         {
             await _rolesAPI.DeletePermissionsFromRoleAsync(roleId, permissions);
-            return Ok();
+            return NoContent();
         }
         #endregion
     }

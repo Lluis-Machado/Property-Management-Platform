@@ -10,8 +10,8 @@ namespace Authentication.Security
     [AttributeUsage(AttributeTargets.All)]
     public class Authorize : Attribute, IAuthorizationFilter
     {
-        // IMPORTANT: These are the default permissions. If no permission are setted, then only admin can access
-        public string[] DefaultPermissions = { "admin" };
+        // IMPORTANT: These are the default permissions. If no permission are set, then only admins can access
+        public readonly string[] DefaultPermissions = { "admin" };
 
         private readonly IList<string> _permissions;
 

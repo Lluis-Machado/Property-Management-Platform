@@ -17,13 +17,16 @@ namespace Authentication.Middlewares
             {
                 await next(context);
             }
-            catch (ApiException ex)
+            catch (ApiException e)
             {
-                _logger.LogError("ApiException ocurred: {@ErrorMessage}", ex.ErrorMessage + "\n" + ex.StackTrace);
+                _logger.LogError("ApiException occurred: {@ErrorMessage}", e.ErrorMessage + "\n" + e.StackTrace);
+                context.Response.StatusCode = (int)e.StatusCode;
 
-                context.Response.StatusCode = (int)ex.StatusCode;
+#if DEVELOPMENT || STAGE
                 context.Response.ContentType = "text/html";
-                await context.Response.WriteAsync(ex.ErrorMessage);
+                string responseContent = $"An error occurred: {e.Message}\n\nStack Trace:\n{e.StackTrace}";
+                await context.Response.WriteAsync(responseContent);
+#endif
             }
         }
     }

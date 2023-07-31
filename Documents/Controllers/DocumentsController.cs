@@ -54,7 +54,7 @@ namespace Documents.Controllers
             {
                 if (folderId != null) await _foldersService.UpdateFolderHasDocuments((Guid)folderId, true);
             }
-            else if (documents.Any(doc => doc.Status != HttpStatusCode.OK))
+            if (documents.Any(doc => doc.Status != HttpStatusCode.OK))
             {
                 // some documents failed
                 this.HttpContext.Response.StatusCode = (int)HttpStatusCode.MultiStatus;

@@ -11,7 +11,8 @@ namespace DocumentsAPI.Services
         Task<Document?> GetDocumentByIdAsync(Guid archiveId, Guid documentId);
         Task<IEnumerable<Document>> SearchDocumentsTagsAsync(string query, bool includeDeleted = false);
         Task<FileContentResult> DownloadAsync(Guid archiveId, Guid documentId);
-        Task<List<FileContentResult>> SplitAsync(IFormFile file, DocSplitInterval[]? range);
+        Task<IEnumerable<FileContentResult>> SplitAsync(IFormFile file, DocSplitInterval[]? range);
+        Task<IEnumerable<string>> SplitBlobAsync(Guid archiveId, Guid documentId, DocSplitInterval[]? range);
         Task<IActionResult> DeleteAsync(Guid archiveId, Guid documentId);
         Task<IActionResult> UndeleteAsync(Guid archiveId, Guid documentId);
         Task<IActionResult> RenameAsync(Guid archiveId, Guid documentId, string documentName);

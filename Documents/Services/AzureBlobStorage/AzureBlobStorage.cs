@@ -2,6 +2,7 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using DocumentsAPI.Contexts;
+using DocumentsAPI.DTOs;
 using DocumentsAPI.Models;
 using DocumentsAPI.Repositories;
 using System.Collections.Concurrent;
@@ -110,9 +111,10 @@ namespace DocumentsAPI.Services.AzureBlobStorage
 
         #region Documents 
 
-        public async Task<HttpStatusCode> UploadDocumentAsync(Guid archiveId, string fileName, Stream fileContent, Guid? folderId = null)
+        public async Task<DocumentUploadDTO> UploadDocumentAsync(Guid archiveId, string fileName, Stream fileContent, Guid? folderId = null)
         {
-            BlobClient blobClient = _context.GetBlobClient(archiveId.ToString(), Guid.NewGuid().ToString());
+            Guid docNewGuid = Guid.NewGuid();
+            BlobClient blobClient = _context.GetBlobClient(archiveId.ToString(), docNewGuid.ToString());
 
             Dictionary<string, string> blobMetadata = new()
             {
@@ -129,9 +131,14 @@ namespace DocumentsAPI.Services.AzureBlobStorage
 
             Response response = blobContentInfo.GetRawResponse();
 
+
             //_logger.LogInformation($"DEBUG - UploadDocumentAsync - Response was {response.Status} - {Newtonsoft.Json.JsonConvert.SerializeObject(response.Content)}");
 
-            return (HttpStatusCode)response.Status;
+            return new DocumentUploadDTO()
+            {
+                documentId = docNewGuid,
+                statusCode = (HttpStatusCode)response.Status
+            };
         }
 
         public async Task<IEnumerable<Document>> GetDocumentsFlatListingAsync(Guid archiveId, int? segmentSize, Guid? folderId = null, bool includeDeleted = false)

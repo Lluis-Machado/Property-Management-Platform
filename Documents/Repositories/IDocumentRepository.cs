@@ -1,11 +1,12 @@
-﻿using DocumentsAPI.Models;
+﻿using DocumentsAPI.DTOs;
+using DocumentsAPI.Models;
 using System.Net;
 
 namespace DocumentsAPI.Repositories
 {
     public interface IDocumentRepository
     {
-        Task<HttpStatusCode> UploadDocumentAsync(Guid archiveName, string fileName, Stream pFileContent, Guid? folderId = null);
+        Task<DocumentUploadDTO> UploadDocumentAsync(Guid archiveName, string fileName, Stream pFileContent, Guid? folderId = null);
         Task<IEnumerable<Document>> GetDocumentsFlatListingAsync(Guid archiveId, int? pSegmentSize, Guid? folderId = null, bool includeDeleted = false);
         Task<Document?> GetDocumentByIdAsync(Guid archiveId, Guid documentId);
         Task<IEnumerable<Document>> SearchDocumentsTagsAsync(string query, bool includeDeleted = false);

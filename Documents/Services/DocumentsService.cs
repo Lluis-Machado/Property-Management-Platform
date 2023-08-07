@@ -31,7 +31,7 @@ namespace DocumentsAPI.Services
             {
                 Stream fileStream = file.OpenReadStream();
                 fileStream.Position = 0;
-                HttpStatusCode status = await _documentsRepository.UploadDocumentAsync(archiveId, file.FileName, fileStream, folderId);
+                HttpStatusCode status = (await _documentsRepository.UploadDocumentAsync(archiveId, file.FileName, fileStream, folderId)).statusCode;
                 fileStream.Flush();
                 documents.Add(new CreateDocumentStatus(file.FileName, status));
                 fileStream.Dispose();
@@ -96,7 +96,7 @@ namespace DocumentsAPI.Services
             return new NoContentResult();
         }
 
-        public async Task<List<FileContentResult>> SplitAsync(IFormFile file, DocSplitInterval[]? pageRanges)
+        public async Task<IEnumerable<FileContentResult>> SplitAsync(IFormFile file, DocSplitInterval[]? pageRanges)
         {
 
             List<byte[]> pdfByteArrays = new();
@@ -179,5 +179,97 @@ namespace DocumentsAPI.Services
             return res;
 
         }
+
+        public async Task<IEnumerable<string>> SplitBlobAsync(Guid archiveId, Guid documentId, DocSplitInterval[]? pageRanges)
+        {
+            var document = _documentsRepository.GetDocumentByIdAsync(archiveId, documentId);
+            var docBytes = _documentsRepository.DownloadDocumentAsync(archiveId, documentId);
+
+            Task.WaitAll(new Task[]{ document, docBytes});
+
+            MemoryStream memoryStream = new MemoryStream(await docBytes);
+            memoryStream.Position = 0;
+
+            List<string> docIds = new();
+
+            // Create a MemoryStream from the original PDF byte array
+            {
+                // Open the original PDF document
+                using (PdfDocument pdfDocument = new PdfDocument(new PdfReader(memoryStream)))
+                {
+                    if (pageRanges == null || pageRanges.Length == 0)
+                    {
+                        // If the pageRanges array is null or empty, split each page
+                        for (int i = 1; i <= pdfDocument.GetNumberOfPages(); i++)
+                        {
+
+                            // Create a new MemoryStream to store the split PDF content
+                            using (MemoryStream splitMemoryStream = new MemoryStream())
+                            {
+                                // Create a new PdfDocument for each page
+                                using (PdfDocument splitPdfDocument = new PdfDocument(new PdfWriter(splitMemoryStream)))
+                                {
+                                    //splitMemoryStream.Position = 0;
+
+                                    // Copy the current page to the new PdfDocument
+                                    pdfDocument.CopyPagesTo(i, i, splitPdfDocument);
+
+                                    splitMemoryStream.Position = 0;
+
+                                    splitPdfDocument.Close();
+
+                                    // Upload file
+                                    string docName = (await document)!.Name!;
+                                    Guid? folderId = (await document)!.FolderId;
+
+                                    var addedDoc = await _documentsRepository.UploadDocumentAsync(archiveId, $"{docName}_{i}", splitMemoryStream, folderId);
+
+                                    docIds.Add(addedDoc.documentId.ToString());
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // If the pageRanges array is not null, split according to the specified ranges
+                        foreach (DocSplitInterval range in pageRanges)
+                        {
+                            // Ensure the range is within valid bounds
+                            int start = Math.Max(1, range.start);
+                            int end = Math.Min(pdfDocument.GetNumberOfPages(), range.end);
+
+                            if (start <= end)
+                            {
+                                // Create a new MemoryStream to store the split PDF content
+                                using (MemoryStream splitMemoryStream = new MemoryStream())
+                                {
+                                    // Create a new PdfDocument for the current range
+                                    using (PdfDocument splitPdfDocument = new PdfDocument(new PdfWriter(splitMemoryStream)))
+                                    {
+                                        // Copy the specified range to the new PdfDocument
+                                        pdfDocument.CopyPagesTo(start, end, splitPdfDocument);
+
+                                        splitPdfDocument.Close();
+
+                                        // Upload file
+                                        string docName = (await document)!.Name!;
+                                        Guid? folderId = (await document)!.FolderId;
+
+                                        var addedDoc = await _documentsRepository.UploadDocumentAsync(archiveId, $"{docName}_{start}-{end}", splitMemoryStream, folderId);
+
+                                        docIds.Add(addedDoc.documentId.ToString());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            return docIds;
+
+        }
+
     }
 }

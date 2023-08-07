@@ -67,7 +67,7 @@ namespace Documents.Controllers
 
         // POST: Split document
         [HttpPost]
-        [Route("documents/split")]
+        [Route("split")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
@@ -93,6 +93,22 @@ namespace Documents.Controllers
             return Ok(new { SplitFiles = pdfBase64Strings});
         }
 
+        // POST: Split document already present in Blob Storage
+        [HttpPost]
+        [Route("{archiveId}/documents/{documentId}/split")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<List<FileContentResult>>> SplitBlobAsync(Guid archiveId, Guid documentId, [FromQuery] string? ranges = null)
+        {
+
+            DocSplitInterval[]? intervals = DocSplitInterval.FromRanges(ranges);
+
+            var splitIds = await _documentsService.SplitBlobAsync(archiveId, documentId, intervals);
+
+            return Ok(splitIds);
+        }
+
 
 
         // GET: Get document(s)
@@ -108,7 +124,7 @@ namespace Documents.Controllers
 
         // GET: Search documents
         [HttpGet]
-        [Route("documents/search")]
+        [Route("search")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]

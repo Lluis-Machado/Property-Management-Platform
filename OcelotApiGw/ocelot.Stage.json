@@ -2,11 +2,11 @@
   "Routes": [
     {
       "DownstreamPathTemplate": "/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "authentication.plattesapis.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 10002
         }
       ],
       "UpstreamPathTemplate": "/auth/{everything}",
@@ -15,11 +15,11 @@
     },
     {
       "DownstreamPathTemplate": "/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "tax-management.plattesapis.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 10013
         }
       ],
       "UpstreamPathTemplate": "/tax-Management/{everything}",
@@ -28,11 +28,11 @@
     },
     {
       "DownstreamPathTemplate": "/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "documents.plattesapis.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 10006
         }
       ],
       "UpstreamPathTemplate": "/documents/{everything}",
@@ -41,11 +41,11 @@
     },
     {
       "DownstreamPathTemplate": "/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "logs.plattesapis.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 10009
         }
       ],
       "UpstreamPathTemplate": "/logs/{everything}",
@@ -54,11 +54,11 @@
     },
     {
       "DownstreamPathTemplate": "/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "accounting.plattesapis.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 10001
         }
       ],
       "UpstreamPathTemplate": "/accounting/{everything}",
@@ -67,11 +67,11 @@
     },
     {
       "DownstreamPathTemplate": "/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "contacts.plattesapis.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 10004
         }
       ],
       "UpstreamPathTemplate": "/contacts/{everything}",
@@ -80,11 +80,11 @@
     },
     {
       "DownstreamPathTemplate": "/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "countries.plattesapis.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 10014
         }
       ],
       "UpstreamPathTemplate": "/countries/{everything}",
@@ -93,11 +93,11 @@
     },
     {
       "DownstreamPathTemplate": "/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "properties.plattesapis.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 10012
         }
       ],
       "UpstreamPathTemplate": "/properties/{everything}",
@@ -106,11 +106,11 @@
     },
     {
       "DownstreamPathTemplate": "/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "ownership.plattesapis.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 10011
         }
       ],
       "UpstreamPathTemplate": "/ownership/{everything}",
@@ -119,11 +119,11 @@
     },
     {
       "DownstreamPathTemplate": "/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "companies.plattesapis.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 10003
         }
       ],
       "UpstreamPathTemplate": "/companies/{everything}",
@@ -132,16 +132,29 @@
     },
     {
       "DownstreamPathTemplate": "/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "docanalyzer.plattesapis.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 10005
         }
       ],
       "UpstreamPathTemplate": "/docanalyzer/{everything}",
       "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
       "SwaggerKey": "docanalyzer"
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 10007
+        }
+      ],
+      "UpstreamPathTemplate": "/invoiceitemanalyzer/{everything}",
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
+      "SwaggerKey": "invoiceitemanalyzer"
     }
   ],
   "SwaggerEndPoints": [
@@ -149,9 +162,9 @@
       "Key": "auth",
       "Config": [
         {
-          "Name": "Auth API",
+          "Name": "Authentication API",
           "Version": "v1",
-          "Url": "https://authentication.plattesapis.net/swagger/v1/swagger.json"
+          "Url": "http://localhost:10002/swagger/v1/swagger.json"
         }
       ]
     },
@@ -159,9 +172,9 @@
       "Key": "tax-Management",
       "Config": [
         {
-          "Name": "tax-Management API",
+          "Name": "Tax-Management API",
           "Version": "v1",
-          "Url": "https://tax-management.plattesapis.net/swagger/v1/swagger.json"
+          "Url": "http://localhost:10013/swagger/v1/swagger.json"
         }
       ]
     },
@@ -171,7 +184,7 @@
         {
           "Name": "Documents API",
           "Version": "v1",
-          "Url": "https://documents.plattesapis.net/swagger/v1/swagger.json"
+          "Url": "http://localhost:10006/swagger/v1/swagger.json"
         }
       ]
     },
@@ -181,7 +194,7 @@
         {
           "Name": "Logs API",
           "Version": "v1",
-          "Url": "https://logs.plattesapis.net/swagger/v1/swagger.json"
+          "Url": "http://localhost:10009/swagger/v1/swagger.json"
         }
       ]
     },
@@ -191,7 +204,7 @@
         {
           "Name": "Accounting API",
           "Version": "v1",
-          "Url": "https://accounting.plattesapis.net/swagger/v1/swagger.json"
+          "Url": "http://localhost:10001/swagger/v1/swagger.json"
         }
       ]
     },
@@ -201,7 +214,7 @@
         {
           "Name": "Contacts API",
           "Version": "v1",
-          "Url": "https://contacts.plattesapis.net/swagger/v1/swagger.json"
+          "Url": "http://localhost:10004/swagger/v1/swagger.json"
         }
       ]
     },
@@ -211,7 +224,7 @@
         {
           "Name": "Countries API",
           "Version": "v1",
-          "Url": "https://countries.plattesapis.net/swagger/v1/swagger.json"
+          "Url": "http://localhost:10014/swagger/v1/swagger.json"
         }
       ]
     },
@@ -221,7 +234,7 @@
         {
           "Name": "Properties API",
           "Version": "v1",
-          "Url": "https://properties.plattesapis.net/swagger/v1/swagger.json"
+          "Url": "http://localhost:10012/swagger/v1/swagger.json"
         }
       ]
     },
@@ -231,7 +244,7 @@
         {
           "Name": "Ownership API",
           "Version": "v1",
-          "Url": "https://ownership.plattesapis.net/swagger/v1/swagger.json"
+          "Url": "http://localhost:10011/swagger/v1/swagger.json"
         }
       ]
     },
@@ -241,7 +254,7 @@
         {
           "Name": "Companies API",
           "Version": "v1",
-          "Url": "https://companies.plattesapis.net/swagger/v1/swagger.json"
+          "Url": "http://localhost:10003/swagger/v1/swagger.json"
         }
       ]
     },
@@ -251,7 +264,17 @@
         {
           "Name": "DocAnalyzer API",
           "Version": "v1",
-          "Url": "https://docanalyzer.plattesapis.net/swagger/v1/swagger.json"
+          "Url": "http://localhost:10005/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "invoiceitemanalyzer",
+      "Config": [
+        {
+          "Name": "InvoiceItemAnalyzer API",
+          "Version": "v1",
+          "Url": "http://localhost:10007/swagger/v1/swagger.json"
         }
       ]
     }

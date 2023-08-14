@@ -10,6 +10,8 @@ using PropertiesAPI.Services;
 using PropertiesAPI.Validators;
 using Serilog;
 using System.Security.Claims;
+using MassTransit;
+using MessagingContracts;
 using PropertiesAPI.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -80,15 +82,20 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+/*builder.Services.AddMassTransit(config =>
+{
+    config.UsingRabbitMq((ctx, cfg) =>
+    {
+        cfg.Host("amqp://guest:guest@localhost:5672");
+    });
+});
+*/
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-#if DEVELOPMENT || STAGE
+#if PRODUCTION == false
 app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
-    c.ConfigObject.AdditionalItems.Add("persistAuthorization", "true");
-});
+app.UseSwaggerUI();
 #endif
 
 app.UseHttpsRedirection();

@@ -101,17 +101,6 @@ namespace ContactsAPI.Controllers
             return contact;
         }
 
-        [HttpGet("{contactId}/properties")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<ContactDetailsDTO>> GetContactWithProperties(Guid contactId)
-        {
-            var contact = await _contactsService.GetWithProperties(contactId);
-
-            return contact;
-        }
-
         [HttpDelete]
         [Route("{contactId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]

@@ -71,9 +71,9 @@ namespace ContactsAPI.Services
             if (contactDTO.OwnershipInfo is null)
                 contactDTO.OwnershipInfo = new List<ContactOwnershipInfoDTO>();
 
-            if(ownerships is not null)
+            if (ownerships is not null)
             {
-                foreach(var item in ownerships)
+                foreach (var item in ownerships)
                 {
                     var clientP = new PropertyServiceClient();
                     var property = await clientP.GetPropertyByIdAsync(item.PropertyId) ?? null;
@@ -95,6 +95,8 @@ namespace ContactsAPI.Services
 
         public async Task<ActionResult<ContactDetailedDto>> UpdateContactAsync(Guid contactId, UpdateContactDTO updateContactDTO, string lastUser)
         {
+            var oldContact = await _contactsRepo.GetContactByIdAsync(contactId);
+
             var contact = _mapper.Map<UpdateContactDTO, Contact>(updateContactDTO);
 
             contact.LastUpdateByUser = lastUser;
@@ -112,11 +114,17 @@ namespace ContactsAPI.Services
         {
             var exist = await _contactsRepo.CheckIfNIEUnique(NIE, contactId);
 
-            return exist;      
+            return exist;
         }
 
         public async Task<IActionResult> DeleteContactAsync(Guid contactId, string lastUser)
         {
+            /*var clientO = new OwnershipServiceClient();
+            var ownerships = await clientO.GetOwnershipByIdAsync(contactId);
+
+            if (ownerships.Any() && ownerships.Any(x => x.MainOwnership == true))
+                return new BadRequestObjectResult("Contact has properties where they are the main owner.");*/
+
             var updateResult = await _contactsRepo.SetDeleteAsync(contactId, true, lastUser);
             if (!updateResult.IsAcknowledged) return new NotFoundObjectResult("Contact not found");
 

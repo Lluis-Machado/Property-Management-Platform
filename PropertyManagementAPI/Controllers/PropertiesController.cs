@@ -5,11 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using PropertiesAPI.Dtos;
 using PropertiesAPI.Models;
 using PropertiesAPI.Services;
-using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Threading.Tasks;
-using PropertiesAPI.Services;
 
 namespace PropertiesAPI.Controllers
 {

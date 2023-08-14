@@ -7,6 +7,14 @@ using PropertiesAPI.Exceptions;
 using PropertiesAPI.Models;
 using PropertiesAPI.Repositories;
 using System.Xml;
+using MassTransit;
+using MessagingContracts;
+using System.Text.Json;
+using System;
+using System.Net.Http;
+using MongoDB.Bson.IO;
+using MongoDB.Bson;
+
 
 namespace PropertiesAPI.Services
 {
@@ -16,16 +24,21 @@ namespace PropertiesAPI.Services
         private readonly IMapper _mapper;
         private readonly IValidator<CreatePropertyDto> _createPropertyValidator;
         private readonly IValidator<UpdatePropertyDto> _updatePropertyValidator;
+       // private readonly IPublishEndpoint _publishEndpoint;
 
         public PropertiesService(IPropertiesRepository propertiesRepo,
             IMapper mapper,
             IValidator<CreatePropertyDto> createPropertyValidator,
-            IValidator<UpdatePropertyDto> updatePropertyValidator)
+            IValidator<UpdatePropertyDto> updatePropertyValidator//,
+            //IPublishEndpoint publishEndpoint
+            )
         {
             _propertiesRepo = propertiesRepo;
             _mapper = mapper;
             _createPropertyValidator = createPropertyValidator;
             _updatePropertyValidator = updatePropertyValidator;
+            //_publishEndpoint = publishEndpoint;
+
         }
 
         public async Task<ActionResult<PropertyDetailedDto>> CreateProperty(CreatePropertyDto createPropertyDto, string userName)
@@ -34,8 +47,6 @@ namespace PropertiesAPI.Services
             await _createPropertyValidator.ValidateAndThrowAsync(createPropertyDto);
 
             var property = _mapper.Map<CreatePropertyDto, Property>(createPropertyDto);
-            if(createPropertyDto.Address is not null)
-                property.PropertyAddress = _mapper.Map<AddressDto, PropertyAddress>(createPropertyDto.Address);
 
             property.CreatedByUser = userName;
             property.LastUpdateByUser = userName;
@@ -45,24 +56,24 @@ namespace PropertiesAPI.Services
             if (!string.IsNullOrEmpty(property.CadastreRef))
             {
                 string catUrl = await CreateCatastreURL(property.CadastreRef);
+                if (catUrl == "invalid")
+                    return new BadRequestObjectResult("Invalid cadastre ref.");
                 property.CadastreUrl = catUrl;
             }
 
             property = await _propertiesRepo.InsertOneAsync(property);
-            
+
+            //await PerformAudit(property, propertyId);
+
             var propertyDto = _mapper.Map<Property, PropertyDetailedDto>(property);
-            
-            propertyDto.Address = _mapper.Map<PropertyAddress, AddressDto>(property.PropertyAddress);
-            
-            if(property.MainOwnerType == "Contact")
-                propertyDto.MainOwner = await GetContactData(property.MainOwnerId);
-            //else if (property.MainOwnerType == "Company")
-            //    propertyDto.MainOwner = await GetCompanyData(property.MainOwnerId);
+
+
+            await CreateMainOwnership(createPropertyDto.MainOwnerId, "Contact", property.Id);
 
             return new CreatedResult($"properties/{propertyDto.Id}", propertyDto);
         }
 
-      
+
 
         public async Task<ActionResult<PropertyDetailedDto>> UpdateProperty(UpdatePropertyDto updatePropertyDto, string lastUser, Guid propertyId)
         {
@@ -71,11 +82,10 @@ namespace PropertiesAPI.Services
 
             await PropertyExists(propertyId);
 
+            var oldProperty = await _propertiesRepo.GetByIdAsync(propertyId);
+
             var property = _mapper.Map<UpdatePropertyDto, Property>(updatePropertyDto);
 
-            if (updatePropertyDto.Address is not null)
-                property.PropertyAddress = _mapper.Map<AddressDto, PropertyAddress>(updatePropertyDto.Address);
-            
             property.LastUpdateAt = DateTime.UtcNow;
             property.LastUpdateByUser = lastUser;
             property.Id = propertyId;
@@ -87,20 +97,27 @@ namespace PropertiesAPI.Services
             }
 
             property = await _propertiesRepo.UpdateAsync(property);
-            
+
+            //await PerformAudit(property, propertyId);
+
             var propertyDto = _mapper.Map<Property, PropertyDetailedDto>(property);
-            propertyDto.Address = updatePropertyDto.Address!;
-
-            if (property.MainOwnerType == "Contact")
-                propertyDto.MainOwner = await GetContactData(property.MainOwnerId);
-            //else if (property.MainOwnerType == "Company")
-            //    propertyDto.MainOwner = await GetCompanyData(property.MainOwnerId);
-
-            if (property.ParentPropertyId is not null)
-                propertyDto.ParentProperty = await GetParentPropertyData((Guid)property.ParentPropertyId);
 
             return new OkObjectResult(propertyDto);
         }
+
+     /*   public async Task PerformAudit(Property property, Guid propertyId)
+        {
+            Audit audit = new Audit();
+            audit.Object = JsonSerializer.Serialize(property);
+            audit.Id = propertyId;
+            audit.ObjectType = "Property";
+
+            string serializedAudit = JsonSerializer.Serialize(audit);
+            MessageContract m = new MessageContract();
+            m.Payload = serializedAudit;
+
+            await _publishEndpoint.Publish<MessageContract>(m);
+        }*/
 
         private async Task<BasicPropertyDto> GetParentPropertyData(Guid propertyParentPropertyId)
         {
@@ -117,32 +134,23 @@ namespace PropertiesAPI.Services
         {
             var results = await _propertiesRepo.GetAsync();
             var propertyDtOs = results.Any() ? _mapper.Map<IEnumerable<PropertyDto>>(results) : Enumerable.Empty<PropertyDto>();
-            
 
-            foreach (var property in propertyDtOs)
-            {
-                foreach (var result in results)
-                {
-                    if (result.Id != property.Id) continue;
-                    var address = _mapper.Map<PropertyAddress, AddressDto>(result.PropertyAddress);
-                    property.Address = address;
-
-                    if (result.MainOwnerType == "Contact")
-                            property.MainOwner = await GetContactData(result.MainOwnerId);
-                    //else if (property.MainOwnerType == "Company")
-                    //    propertyDto.MainOwner = await GetCompanyData(property.MainOwnerId);
-
-                    if (result.ParentPropertyId is not null)
-                        property.ParentProperty = await GetParentPropertyData((Guid)result.ParentPropertyId);
-                }
-            }
-            
             return new OkObjectResult(propertyDtOs);
         }
 
         public async Task<IActionResult> DeleteProperty(Guid propertyId, string lastUser)
         {
             await PropertyExists(propertyId);
+
+            var client = new OwnershipServiceClient();
+            var ownerships = await client.GetOwnershipsByIdAsync(propertyId);
+
+            if (ownerships!.Any())
+                foreach (var ownership in ownerships!)
+                {
+                    var clientO = new OwnershipServiceClient();
+                    await client.DeleteOwnershipAsync(ownership.Id);
+                }
 
             await _propertiesRepo.SetDeleteAsync(propertyId, true, lastUser);
 
@@ -164,10 +172,10 @@ namespace PropertiesAPI.Services
             if (property is null) throw new NotFoundException("Property");
 
             return true;
-        } 
+        }
         public async Task<ActionResult<PropertyDetailedDto>> GetProperty(Guid propertyId)
         {
-           return new OkObjectResult(await GetPropertyDto(propertyId));
+            return new OkObjectResult(await GetPropertyDto(propertyId));
         }
 
         private async Task<PropertyDetailedDto> GetPropertyDto(Guid propertyId)
@@ -175,22 +183,10 @@ namespace PropertiesAPI.Services
             var property = await _propertiesRepo.GetPropertyByIdAsync(propertyId);
 
             var propertyDto = _mapper.Map<Property, PropertyDetailedDto>(property);
-            propertyDto.Address = _mapper.Map<PropertyAddress, AddressDto>(property.PropertyAddress);
-            
-            //var clientO = new OwnershipServiceClient();
-            //var ownerships = await clientO.GetOwnershipByIdAsync(propertyId);
-            
-
-
-            if (property.ParentPropertyId is not null)
-                propertyDto.ParentProperty = await GetParentData((Guid)property.ParentPropertyId);
-
-            if(property.MainOwnerType == "Contact")
-                propertyDto.MainOwner = await GetContactData(property.MainOwnerId);
 
             return propertyDto;
         }
-        
+
         private async Task<OwnerDto> GetContactData(Guid id)
         {
             var contactDto = new OwnerDto();
@@ -199,10 +195,25 @@ namespace PropertiesAPI.Services
             var contact = await clientC.GetContactByIdAsync(id);
 
             contactDto.Id = contact!.Id;
-            contactDto.OwnerName  = contact.FirstName + " " + contact.LastName;
+            contactDto.OwnerName = contact.FirstName + " " + contact.LastName;
             contactDto.OwnerType = "Contact";
 
             return contactDto;
+        }
+
+        private async Task CreateMainOwnership(Guid ownerId, string ownerType, Guid propertyId)
+        {
+            var ownershipDto = new OwnershipDto
+            {
+                OwnerId = ownerId,
+                OwnerType = ownerType,
+                PropertyId = propertyId,
+                Share = 100,
+                MainOwnership = true
+            };
+
+            var client = new OwnershipServiceClient();
+            await client.CreateOwnershipAsync(ownershipDto);
         }
 
         private async Task<BasicPropertyDto> GetParentData(Guid id)
@@ -232,6 +243,13 @@ namespace PropertiesAPI.Services
             return childProperties;
         }
 
+       /* public async Task PerformAudit(string data)
+        {
+            // Create the audit message and publish it
+            var auditMessage = new MessageContract { Payload = data };
+            await _publishEndpoint.Publish(auditMessage);
+        }*/
+
         private async Task<string> CreateCatastreURL(string refCatastre)
         {
             Uri uri = new Uri($"http://ovc.catastro.meh.es/OVCServWeb/OVCWcfCallejero/COVCCallejero.svc/rest/Consulta_DNPRC?RefCat={refCatastre}");
@@ -239,14 +257,26 @@ namespace PropertiesAPI.Services
             {
                 var resp = await client.GetAsync(uri);
                 if (!resp.IsSuccessStatusCode) return "";
+
                 XmlDocument xml = new XmlDocument();
                 xml.LoadXml(await resp.Content.ReadAsStringAsync());
-                var del = xml.GetElementsByTagName("cp")[0].InnerText;
-                var mun = xml.GetElementsByTagName("cm")[0].InnerText;
+
+                var delNode = xml.GetElementsByTagName("cp")?.Item(0);
+                var munNode = xml.GetElementsByTagName("cm")?.Item(0);
+
+                if (delNode == null || munNode == null)
+                {
+                    // Handle the case where either "cp" or "cm" tags are missing in the XML
+                    return "invalid";
+                }
+
+                var del = delNode.InnerText;
+                var mun = munNode.InnerText;
 
                 return $"https://www1.sedecatastro.gob.es/CYCBienInmueble/OVCConCiud.aspx?del={del}&mun={mun}&RefC={refCatastre}";
-
             }
+
+
         }
     }
 }

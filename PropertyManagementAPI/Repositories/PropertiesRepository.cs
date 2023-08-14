@@ -23,9 +23,10 @@ namespace PropertiesAPI.Repositories
         public async Task<List<Property>> GetAsync()
         {
             var filter = Builders<Property>.Filter.Empty;
+            filter = filter & Builders<Property>.Filter.Eq(c => c.Deleted, false);
 
-            return await _collection.Find(filter)
-                .ToListAsync();
+            var results = await _collection.Find(filter).ToListAsync();
+            return results;
         }
 
         public async Task<Property> GetPropertyByIdAsync(Guid propertyId)
@@ -38,7 +39,7 @@ namespace PropertiesAPI.Repositories
 
         public async Task<List<Property>> GetPropertiesByParentIdAsync(Guid parentPropertyId)
         {
-            var filter = Builders<Property>.Filter.Eq(p => p.ParentPropertyId, parentPropertyId);
+            var filter = Builders<Property>.Filter.Eq(p => p.MainPropertyId, parentPropertyId);
 
             return await _collection.Find(filter)
                 .ToListAsync();
@@ -68,7 +69,7 @@ namespace PropertiesAPI.Repositories
                 .Eq(actualProperty => actualProperty.Id, childId);
 
             var update = Builders<Property>.Update
-                .Set(actualProperty => actualProperty.ParentPropertyId, parentId);
+                .Set(actualProperty => actualProperty.MainPropertyId, parentId);
 
             return await _collection.UpdateOneAsync(filter, update);
         }
@@ -85,7 +86,20 @@ namespace PropertiesAPI.Repositories
 
             return await _collection.UpdateOneAsync(filter, update);
         }
+        public async Task<UpdateResult> SetMainOwner(Guid propertyId, Guid ownerId, string ownerType, string lastUser)
+        {
+            var filter = Builders<Property>.Filter
+                .Eq(actualProperty => actualProperty.Id, propertyId);
 
-        
+            var update = Builders<Property>.Update
+                .Set(actualProperty => actualProperty.LastUpdateByUser, lastUser)
+                .Set(actualProperty => actualProperty.LastUpdateAt, DateTime.UtcNow)
+                //  .Set(actualProperty => actualProperty.MainOwnerType, ownerType)
+                .Set(actualProperty => actualProperty.ContactPersonId, ownerId);
+
+            return await _collection.UpdateOneAsync(filter, update);
+        }
+
+
     }
 }

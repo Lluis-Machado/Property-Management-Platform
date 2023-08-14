@@ -15,7 +15,7 @@ public class OwnershipServiceClient
         _httpClient = new HttpClient();
 
 #if DEVELOPMENT
-        _httpClient.BaseAddress = new Uri("https://localhost:7000/"); // Replace with the base URL of the ownership service
+        _httpClient.BaseAddress = new Uri("https://localhost:7007/"); // Replace with the base URL of the ownership service
 #elif STAGE
         _httpClient.BaseAddress = new Uri("https://stage.plattesapis.net/ownership/"); // Replace with the base URL of the ownership service
 #else
@@ -26,7 +26,7 @@ public class OwnershipServiceClient
         _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     }
 
-    /*public async Task<List<PropertyOwnershipDto>?> GetOwnershipByIdAsync(Guid id)
+    public async Task<List<OwnershipDto>?> GetOwnershipsByIdAsync(Guid id)
     {
         var response = await _httpClient.GetAsync($"ownership/{id}/property");
         if (response.IsSuccessStatusCode)
@@ -34,7 +34,7 @@ public class OwnershipServiceClient
             var content = await response.Content.ReadAsStringAsync();
             if (content == null)
                 return null;
-            return JsonSerializer.Deserialize<List<PropertyOwnershipDto>>(content, new JsonSerializerOptions
+            return JsonSerializer.Deserialize<List<OwnershipDto>>(content, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
@@ -48,27 +48,7 @@ public class OwnershipServiceClient
         throw new Exception($"Failed to get ownership by ID. Status code: {response.StatusCode}");
     }
 
-    public async Task<PropertyOwnershipDto?> UpsertOwnershipAsync(PropertyOwnershipDto ownership)
-    {
-        var json = JsonSerializer.Serialize(ownership);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-        var response = await _httpClient.PatchAsync("ownership", content);
-        if (response.IsSuccessStatusCode)
-        {
-            var createdContent = await response.Content.ReadAsStringAsync();
-            var obj = JsonSerializer.Deserialize<PropertyOwnershipDto>(createdContent, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
-
-            return obj;
-        }
-
-        throw new Exception($"Failed to create ownership. Status code: {response.StatusCode}");
-    }
-
-    public async Task<PropertyOwnershipDto?> CreateOwnershipAsync(CreatePropertyOwnershipDto ownership)
+    public async Task<OwnershipDto?> CreateOwnershipAsync(OwnershipDto ownership)
     {
         var json = JsonSerializer.Serialize(ownership);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -78,7 +58,7 @@ public class OwnershipServiceClient
         if (response.IsSuccessStatusCode)
         {
             var createdContent = await response.Content.ReadAsStringAsync();
-            var obj = JsonSerializer.Deserialize<PropertyOwnershipDto>(createdContent, new JsonSerializerOptions
+            var obj = JsonSerializer.Deserialize<OwnershipDto>(createdContent, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
@@ -88,7 +68,7 @@ public class OwnershipServiceClient
 
 
         throw new Exception($"Failed to create ownership. Status code: {response.StatusCode}\nDEBUG: Request uri: {_httpClient.BaseAddress}\nMessage received: {response.Content.ReadAsStringAsync().Result}");
-    }*/
+    }
     public async Task<bool> DeleteOwnershipAsync(Guid id)
     {
         var response = await _httpClient.DeleteAsync($"ownership/{id}");

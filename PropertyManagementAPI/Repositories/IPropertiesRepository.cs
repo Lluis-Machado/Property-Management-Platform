@@ -13,5 +13,7 @@ namespace PropertiesAPI.Repositories
         Task<Property> UpdateAsync(Property property);
         Task<UpdateResult> SetDeleteAsync(Guid propertyId, bool deleted, string lastUser);
         Task<UpdateResult> UpdateParentIdAsync(Guid parentId, Guid childId);
+        Task<UpdateResult> SetMainOwner(Guid propertyId, Guid ownerId, string ownerType, string lastUser);
+
     }
 }

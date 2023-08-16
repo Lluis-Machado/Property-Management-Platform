@@ -2,12 +2,21 @@
 {
     public class Company : BaseModel
     {
+        // Company Information
         public string Name { get; set; } = string.Empty;
         public string? Nif { get; set; }
+        public string? GermanTaxOffice { get; set; }
+        public string? CompanyPurpose { get; set; }
+        public string? TaxNumber { get; set; }
+        public string? UStIDNumber { get; set; }
+        public DateOnly? FoundingDate { get; set; }
 
+        // Contact Information
         public string? Email { get; set; }
         public string? PhoneNumber { get; set; }
-        public CompanyAddress Address{ get; set; } = new CompanyAddress();
+
+        // Addresses
+        public List<CompanyAddress> Addresses { get; set; } = new List<CompanyAddress>();
 
     }
 }

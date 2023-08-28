@@ -6,7 +6,8 @@
     },
     "storage1": {
       "type": "storage",
-      "connectionId": "PlattesStage"
+      "connectionId": "PlattesStage",
+      "dynamicId": null
     }
   }
 }

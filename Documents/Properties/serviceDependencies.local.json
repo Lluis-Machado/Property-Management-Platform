@@ -11,7 +11,8 @@
       "secretStore": "LocalSecretsFile",
       "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Storage/storageAccounts/plattesstage",
       "type": "storage.azure",
-      "connectionId": "PlattesStage"
+      "connectionId": "PlattesStage",
+      "dynamicId": null
     }
   }
 }

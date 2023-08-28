@@ -47,6 +47,7 @@ namespace DocumentsAPI.Services.AzureBlobStorage
             {
                 foreach (BlobContainerItem blobContainerItem in blobPage.Values)
                 {
+                    if (blobContainerItem.Name.StartsWith("azure-webjobs")) continue;
                     Archive archive = MapArchive(blobContainerItem);
                     archives.Add(archive);
                 }

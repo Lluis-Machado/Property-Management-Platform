@@ -209,20 +209,18 @@ namespace DocumentsAPI.Services
                                 // Create a new PdfDocument for each page
                                 using (PdfDocument splitPdfDocument = new PdfDocument(new PdfWriter(splitMemoryStream)))
                                 {
-                                    //splitMemoryStream.Position = 0;
 
                                     // Copy the current page to the new PdfDocument
                                     pdfDocument.CopyPagesTo(i, i, splitPdfDocument);
 
                                     splitMemoryStream.Position = 0;
 
-                                    splitPdfDocument.Close();
-
                                     // Upload file
                                     string docName = (await document)!.Name!;
                                     Guid? folderId = (await document)!.FolderId;
 
                                     var addedDoc = await _documentsRepository.UploadDocumentAsync(archiveId, $"{docName}_{i}", splitMemoryStream, folderId);
+                                    splitPdfDocument.Close();
 
                                     docIds.Add(addedDoc.documentId.ToString());
                                 }
@@ -249,13 +247,14 @@ namespace DocumentsAPI.Services
                                         // Copy the specified range to the new PdfDocument
                                         pdfDocument.CopyPagesTo(start, end, splitPdfDocument);
 
-                                        splitPdfDocument.Close();
+                                        splitMemoryStream.Position = 0;
 
                                         // Upload file
                                         string docName = (await document)!.Name!;
                                         Guid? folderId = (await document)!.FolderId;
 
                                         var addedDoc = await _documentsRepository.UploadDocumentAsync(archiveId, $"{docName}_{start}-{end}", splitMemoryStream, folderId);
+                                        splitPdfDocument.Close();
 
                                         docIds.Add(addedDoc.documentId.ToString());
                                     }

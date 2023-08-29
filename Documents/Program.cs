@@ -31,7 +31,9 @@ builder.Services.AddTransient<AzureErrorHandlingMiddleware>();
 builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
 
 builder.Services.AddSingleton<DapperContext>();
+builder.Services.AddSingleton<MongoContext>();
 builder.Services.AddSingleton<AzureBlobStorageContext>();
+builder.Services.AddScoped<IBlobMetadataRepository, BlobMetadataRepository>();
 builder.Services.AddScoped<IDocumentRepository, AzureBlobStorage>();
 builder.Services.AddScoped<IDocumentsService, DocumentsService>();
 builder.Services.AddScoped<IArchiveRepository, AzureBlobStorage>();

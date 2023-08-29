@@ -18,5 +18,7 @@ namespace DocumentsAPI.Services
         Task<IActionResult> RenameAsync(Guid archiveId, Guid documentId, string documentName);
         Task<Guid> CopyAsync(Guid sourceArchive, Guid destinationArchive, Guid documentId, string documentName, Guid? folderId = null);
         Task<IActionResult> MoveAsync(Guid sourceArchive, Guid destinationArchive, Guid documentId, string documentName, Guid? folderId = null);
+
+        Task<IEnumerable<BlobMetadata>> SearchMetadataAsync(string? displayName, Guid? folderId = null, Guid? containerId = null, bool includeDeleted = false);
     }
 }

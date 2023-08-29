@@ -124,13 +124,24 @@ namespace Documents.Controllers
 
         // GET: Search documents
         [HttpGet]
-        [Route("search")]
+        [Route("searchTags")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<IEnumerable<Document>>> SearchDocumentsTagsAsync([FromQuery] string query, [FromQuery] bool includeDeleted = false)
         {
             return Ok(await _documentsService.SearchDocumentsTagsAsync(query, includeDeleted));
+        }
+
+        // GET: Search documents by metadata
+        [HttpGet]
+        [Route("search")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<IEnumerable<BlobMetadata>>> SearchDocumentsMetadataAsync([FromQuery] string? displayName, [FromQuery] Guid? folderId = null, [FromQuery] Guid? containerId = null, [FromQuery] bool includeDeleted = false)
+        {
+            return Ok(await _documentsService.SearchMetadataAsync(displayName, folderId, containerId, includeDeleted));
         }
 
         // GET: Download document

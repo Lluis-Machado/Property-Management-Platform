@@ -11,12 +11,14 @@ namespace DocumentsAPI.Services
     {
         private readonly IConfiguration _config;
         private readonly IDocumentRepository _documentsRepository;
+        private readonly IBlobMetadataRepository _blobMetadataRepository;
         private readonly ILogger<DocumentsService> _logger;
 
-        public DocumentsService(IConfiguration config, IDocumentRepository documentsRepository, ILogger<DocumentsService> logger)
+        public DocumentsService(IConfiguration config, IDocumentRepository documentsRepository, ILogger<DocumentsService> logger, IBlobMetadataRepository blobMetadataRepository)
         {
             _config = config;
             _documentsRepository = documentsRepository;
+            _blobMetadataRepository = blobMetadataRepository;
             _logger = logger;
         }
 
@@ -94,6 +96,11 @@ namespace DocumentsAPI.Services
         {
             await _documentsRepository.MoveDocumentAsync(sourceArchive, destinationArchive, documentId, documentName, folderId);
             return new NoContentResult();
+        }
+
+        public async Task<IEnumerable<BlobMetadata>> SearchMetadataAsync(string? displayName, Guid? folderId = null, Guid? containerId = null, bool includeDeleted = false)
+        {
+            return await _blobMetadataRepository.SearchMetadata(displayName, folderId, containerId, includeDeleted);
         }
 
         public async Task<IEnumerable<FileContentResult>> SplitAsync(IFormFile file, DocSplitInterval[]? pageRanges)

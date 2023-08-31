@@ -26,11 +26,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\PMP_REWORK\MessagingContracts\MessagingContracts.csproj" />
+    <Folder Include="Validators\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Validators\" />
+    <ProjectReference Include="..\MessagingContracts\MessagingContracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

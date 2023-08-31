@@ -33,12 +33,13 @@ namespace DocumentsAPI.Services
             {
                 Stream fileStream = file.OpenReadStream();
                 fileStream.Position = 0;
-                HttpStatusCode status = (await _documentsRepository.UploadDocumentAsync(archiveId, file.FileName, fileStream, folderId)).statusCode;
+                var uploadedDoc = await _documentsRepository.UploadDocumentAsync(archiveId, file.FileName, fileStream, folderId);
                 fileStream.Flush();
-                documents.Add(new CreateDocumentStatus(file.FileName, status));
+                documents.Add(new CreateDocumentStatus(file.FileName, uploadedDoc.statusCode));
                 fileStream.Dispose();
                 //_logger.LogInformation($"**Documents - Uploaded file {file.FileName} - Status: {(int)status}");
-
+                // Add metadata
+                await _blobMetadataRepository.InsertAsync(new BlobMetadata() { BlobId = uploadedDoc.documentId, ContainerId = archiveId, DisplayName = file.FileName, FolderId = folderId });
             });
 
             _logger.LogInformation($"Documents - Upload completed, {documents.FindAll(d => d.Status == HttpStatusCode.Created).Count}/{files.Length} files OK");
@@ -71,30 +72,43 @@ namespace DocumentsAPI.Services
 
         public async Task<IActionResult> DeleteAsync(Guid archiveId, Guid documentId)
         {
-            await _documentsRepository.DeleteDocumentAsync(archiveId, documentId);
+
+            Task.WaitAll(new Task[] {
+                _documentsRepository.DeleteDocumentAsync(archiveId, documentId),
+                _blobMetadataRepository.DeleteAsync(documentId)
+            });
             return new NoContentResult();
         }
 
         public async Task<IActionResult> UndeleteAsync(Guid archiveId, Guid documentId)
         {
-            await _documentsRepository.UndeleteDocumentAsync(archiveId, documentId);
+            Task.WaitAll(new Task[] {
+                _documentsRepository.UndeleteDocumentAsync(archiveId, documentId),
+                _blobMetadataRepository.UndeleteAsync(documentId)
+            });
             return new NoContentResult();
         }
 
         public async Task<IActionResult> RenameAsync(Guid archiveId, Guid documentId, string documentName)
         {
-            await _documentsRepository.RenameDocumentAsync(archiveId, documentId, documentName);
+            Task.WaitAll(new Task[] {
+                _documentsRepository.RenameDocumentAsync(archiveId, documentId, documentName),
+                _blobMetadataRepository.UpdateAsync(new BlobMetadata() { BlobId = documentId, ContainerId = archiveId, DisplayName = documentName })
+            });
             return new NoContentResult();
         }
 
         public async Task<Guid> CopyAsync(Guid sourceArchive, Guid destinationArchive, Guid documentId, string documentName, Guid? folderId = null)
         {
-            return await _documentsRepository.CopyDocumentAsync(sourceArchive, destinationArchive, documentId, documentName, folderId);
+            var newDocGuid = await _documentsRepository.CopyDocumentAsync(sourceArchive, destinationArchive, documentId, documentName, folderId);
+            await _blobMetadataRepository.InsertAsync(new BlobMetadata() { BlobId = newDocGuid, ContainerId = destinationArchive, DisplayName = documentName, FolderId = folderId });
+            return newDocGuid;
         }
 
         public async Task<IActionResult> MoveAsync(Guid sourceArchive, Guid destinationArchive, Guid documentId, string documentName, Guid? folderId = null)
         {
             await _documentsRepository.MoveDocumentAsync(sourceArchive, destinationArchive, documentId, documentName, folderId);
+            await _blobMetadataRepository.UpdateAsync(new BlobMetadata() { BlobId = documentId, ContainerId = destinationArchive, DisplayName = documentName, FolderId = folderId });
             return new NoContentResult();
         }
 
@@ -192,7 +206,7 @@ namespace DocumentsAPI.Services
             var document = _documentsRepository.GetDocumentByIdAsync(archiveId, documentId);
             var docBytes = _documentsRepository.DownloadDocumentAsync(archiveId, documentId);
 
-            Task.WaitAll(new Task[]{ document, docBytes});
+            Task.WaitAll(new Task[] { document, docBytes });
 
             MemoryStream memoryStream = new MemoryStream(await docBytes);
             memoryStream.Position = 0;
@@ -227,6 +241,7 @@ namespace DocumentsAPI.Services
                                     Guid? folderId = (await document)!.FolderId;
 
                                     var addedDoc = await _documentsRepository.UploadDocumentAsync(archiveId, $"{docName}_{i}", splitMemoryStream, folderId);
+                                    await _blobMetadataRepository.InsertAsync(new BlobMetadata() { BlobId = addedDoc.documentId, ContainerId = archiveId, DisplayName = $"{docName}_{i}", FolderId = folderId });
                                     splitPdfDocument.Close();
 
                                     docIds.Add(addedDoc.documentId.ToString());
@@ -261,6 +276,7 @@ namespace DocumentsAPI.Services
                                         Guid? folderId = (await document)!.FolderId;
 
                                         var addedDoc = await _documentsRepository.UploadDocumentAsync(archiveId, $"{docName}_{start}-{end}", splitMemoryStream, folderId);
+                                        await _blobMetadataRepository.InsertAsync(new BlobMetadata() { BlobId = addedDoc.documentId, ContainerId = archiveId, DisplayName = $"{docName}_{start}-{end}", FolderId = folderId });
                                         splitPdfDocument.Close();
 
                                         docIds.Add(addedDoc.documentId.ToString());

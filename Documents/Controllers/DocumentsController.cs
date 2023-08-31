@@ -135,13 +135,24 @@ namespace Documents.Controllers
 
         // GET: Search documents by metadata
         [HttpGet]
+        [Route("{archiveId}/documents/search")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<IEnumerable<BlobMetadata>>> SearchDocumentsMetadataAsync(Guid archiveId, [FromQuery] string? displayName, [FromQuery] Guid? folderId = null, [FromQuery] bool includeDeleted = false)
+        {
+            return Ok(await _documentsService.SearchMetadataAsync(displayName, folderId, archiveId, includeDeleted));
+        }
+
+        // GET: Search documents by metadata across all containers
+        [HttpGet]
         [Route("search")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<BlobMetadata>>> SearchDocumentsMetadataAsync([FromQuery] string? displayName, [FromQuery] Guid? folderId = null, [FromQuery] Guid? containerId = null, [FromQuery] bool includeDeleted = false)
+        public async Task<ActionResult<IEnumerable<BlobMetadata>>> SearchDocumentsMetadataAsync([FromQuery] string? displayName, [FromQuery] Guid? folderId = null, [FromQuery] Guid? archiveId = null, [FromQuery] bool includeDeleted = false)
         {
-            return Ok(await _documentsService.SearchMetadataAsync(displayName, folderId, containerId, includeDeleted));
+            return Ok(await _documentsService.SearchMetadataAsync(displayName, folderId, archiveId, includeDeleted));
         }
 
         // GET: Download document

@@ -1,6 +1,8 @@
 ﻿using DocumentsAPI.Contexts;
 using DocumentsAPI.Models;
+using MongoDB.Bson;
 using MongoDB.Driver;
+using Document = DocumentsAPI.Models.Document;
 
 namespace DocumentsAPI.Repositories
 {
@@ -85,10 +87,17 @@ namespace DocumentsAPI.Repositories
 
         public async Task<BlobMetadata> UpdateAsync(BlobMetadata blobMetadata, string username = "sa")
         {
-            var filter = Builders<BlobMetadata>.Filter.Eq(b => b.BlobId, blobMetadata.BlobId);
+            var filter = Builders<BlobMetadata>.Filter.Eq(b => b.BlobId, blobMetadata.BlobId) & Builders<BlobMetadata>.Filter.Eq(b => b.ContainerId, blobMetadata.ContainerId);
+            var blob = await _collection.FindAsync(filter);
+            if (!blob.Any()) throw new Exception($"Blob {blobMetadata.BlobId} not found");
+
+            var foundBlob = blob.First();
 
             blobMetadata.LastUpdateAt = DateTime.UtcNow;
             blobMetadata.LastUpdateByUser = username;
+
+            if (blobMetadata.FolderId == Guid.Empty) blobMetadata.FolderId = foundBlob.FolderId;
+            if (string.IsNullOrEmpty(blobMetadata.DisplayName)) blobMetadata.DisplayName = foundBlob.DisplayName;
 
             await _collection.ReplaceOneAsync(filter, blobMetadata);
 
@@ -117,29 +126,40 @@ namespace DocumentsAPI.Repositories
         public async Task<IEnumerable<BlobMetadata>> SearchMetadata(string? displayName, Guid? folderId = null, Guid? containerId = null, bool includeDeleted = false)
         {
 
-            // Create index in MongoDB for each field if not already present
+            //// Create index in MongoDB for each field if not already present
 
-            var currentIndexes = await _collection.Indexes.ListAsync();
-            if (!currentIndexes.Any())
-            {
-                var indexes = new List<CreateIndexModel<BlobMetadata>>
-                {
-                    new CreateIndexModel<BlobMetadata>(Builders<BlobMetadata>.IndexKeys.Text("DisplayName")),
-                    new CreateIndexModel<BlobMetadata>(Builders<BlobMetadata>.IndexKeys.Text("FolderId")),
-                    new CreateIndexModel<BlobMetadata>(Builders<BlobMetadata>.IndexKeys.Text("ContainerId"))
-                };
-                await _collection.Indexes.CreateManyAsync(indexes);
-            }
+            //var currentIndexes = await _collection.Indexes.ListAsync();
+            //if (currentIndexes.ToList()?.Count <= 1)
+            //{
+            //    //var indexes = new List<CreateIndexModel<BlobMetadata>>
+            //    //{
+            //    //    new CreateIndexModel<BlobMetadata>(Builders<BlobMetadata>.IndexKeys.Text("DisplayName")),
+            //    //    new CreateIndexModel<BlobMetadata>(Builders<BlobMetadata>.IndexKeys.Text("FolderId")),
+            //    //    new CreateIndexModel<BlobMetadata>(Builders<BlobMetadata>.IndexKeys.Text("ContainerId"))
+            //    //};
+            //    //await _collection.Indexes.CreateManyAsync(indexes);
+
+            //    await _collection.Indexes.CreateOneAsync(new CreateIndexModel<BlobMetadata>(Builders<BlobMetadata>.IndexKeys.Text("DisplayName")));
+            //}
 
             var filter = Builders<BlobMetadata>.Filter.Empty;
 
-            if (!string.IsNullOrEmpty(displayName)) filter &= Builders<BlobMetadata>.Filter.Text(displayName);
-            if (folderId != null) filter &= Builders<BlobMetadata>.Filter.Text(folderId.ToString());
-            if (containerId != null) filter &= Builders<BlobMetadata>.Filter.Text(containerId.ToString());
+            //if (!string.IsNullOrEmpty(displayName)) filter &= Builders<BlobMetadata>.Filter.Text(displayName);
+            if (!string.IsNullOrEmpty(displayName)) filter &= Builders<BlobMetadata>.Filter.Regex("DisplayName", new BsonRegularExpression(displayName, "i"));
+            if (folderId != null) filter &= Builders<BlobMetadata>.Filter.Eq(b => b.FolderId, folderId);
+            if (containerId != null) filter &= Builders<BlobMetadata>.Filter.Eq(b => b.ContainerId, containerId);
             if (!includeDeleted) filter &= Builders<BlobMetadata>.Filter.Eq(b => b.Deleted, false);
 
-            var result = await _collection.FindAsync(filter);
-            return result.ToList();
+            try
+            {
+                var result = await _collection.FindAsync(filter);
+                return result.ToList();
+
+            }
+            catch (MongoCommandException ex)
+            {
+                return new List<BlobMetadata>();
+            }
         }
     }
 }

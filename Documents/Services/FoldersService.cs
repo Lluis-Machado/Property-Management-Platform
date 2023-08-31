@@ -169,7 +169,6 @@ namespace DocumentsAPI.Services
 
 
         // TODO: Optimize, change 'CreatedByUser' fields
-        // TODO: Add documents copy from one folder to the other
         public async Task<TreeFolderItem> CopyFolderAndChildren(Folder sourceFolder, UpdateFolderDTO folderDTO, string username, bool deleteOriginal = false)
         {
             var idMapping = new Dictionary<Guid, Guid>(); // To keep track of the mapping between original and copied folder IDs

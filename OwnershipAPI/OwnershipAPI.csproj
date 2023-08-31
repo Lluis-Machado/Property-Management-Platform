@@ -7,6 +7,27 @@
     <Configurations>Development;Stage;Production</Configurations>
   </PropertyGroup>
 
+	<ItemGroup>
+		<Content Remove="appsettings.Development.json" />
+		<Content Remove="appsettings.Production.json" />
+		<Content Remove="appsettings.Stage.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="appsettings.Development.json">
+			<IsTransformFile>true</IsTransformFile>
+			<DependentUpon>appsettings.json</DependentUpon>
+		</None>
+		<None Include="appsettings.Production.json">
+			<IsTransformFile>true</IsTransformFile>
+			<DependentUpon>appsettings.json</DependentUpon>
+		</None>
+		<None Include="appsettings.Stage.json">
+			<IsTransformFile>true</IsTransformFile>
+			<DependentUpon>appsettings.json</DependentUpon>
+		</None>
+	</ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="12.0.1" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
@@ -25,5 +46,11 @@
     <PackageReference Include="Serilog.Sinks.MongoDB" Version="5.3.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
+
+	<ItemGroup>
+		<Content Update="appsettings.json">
+			<TransformOnBuild>true</TransformOnBuild>
+		</Content>
+	</ItemGroup>
 
 </Project>

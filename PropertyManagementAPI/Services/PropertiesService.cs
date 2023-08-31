@@ -14,6 +14,7 @@ using System;
 using System.Net.Http;
 using MongoDB.Bson.IO;
 using MongoDB.Bson;
+using Microsoft.AspNetCore.Http;
 
 
 namespace PropertiesAPI.Services
@@ -24,20 +25,20 @@ namespace PropertiesAPI.Services
         private readonly IMapper _mapper;
         private readonly IValidator<CreatePropertyDto> _createPropertyValidator;
         private readonly IValidator<UpdatePropertyDto> _updatePropertyValidator;
-       // private readonly IPublishEndpoint _publishEndpoint;
+        private readonly IPublishEndpoint _publishEndpoint;
 
         public PropertiesService(IPropertiesRepository propertiesRepo,
             IMapper mapper,
             IValidator<CreatePropertyDto> createPropertyValidator,
-            IValidator<UpdatePropertyDto> updatePropertyValidator//,
-            //IPublishEndpoint publishEndpoint
+            IValidator<UpdatePropertyDto> updatePropertyValidator,
+            IPublishEndpoint publishEndpoint
             )
         {
             _propertiesRepo = propertiesRepo;
             _mapper = mapper;
             _createPropertyValidator = createPropertyValidator;
             _updatePropertyValidator = updatePropertyValidator;
-            //_publishEndpoint = publishEndpoint;
+            _publishEndpoint = publishEndpoint;
 
         }
 
@@ -63,7 +64,7 @@ namespace PropertiesAPI.Services
 
             property = await _propertiesRepo.InsertOneAsync(property);
 
-            //await PerformAudit(property, propertyId);
+            _ = PerformAudit(property, property.Id);
 
             var propertyDto = _mapper.Map<Property, PropertyDetailedDto>(property);
 
@@ -98,14 +99,14 @@ namespace PropertiesAPI.Services
 
             property = await _propertiesRepo.UpdateAsync(property);
 
-            //await PerformAudit(property, propertyId);
+            _ = PerformAudit(property, propertyId);
 
             var propertyDto = _mapper.Map<Property, PropertyDetailedDto>(property);
 
             return new OkObjectResult(propertyDto);
         }
 
-     /*   public async Task PerformAudit(Property property, Guid propertyId)
+        public async Task PerformAudit(Property property, Guid propertyId)
         {
             Audit audit = new Audit();
             audit.Object = JsonSerializer.Serialize(property);
@@ -117,7 +118,7 @@ namespace PropertiesAPI.Services
             m.Payload = serializedAudit;
 
             await _publishEndpoint.Publish<MessageContract>(m);
-        }*/
+        }
 
         private async Task<BasicPropertyDto> GetParentPropertyData(Guid propertyParentPropertyId)
         {
@@ -133,9 +134,8 @@ namespace PropertiesAPI.Services
         public async Task<ActionResult<IEnumerable<PropertyDto>>> GetProperties(bool includeDeleted = false)
         {
             var results = await _propertiesRepo.GetAsync();
-            var propertyDtOs = results.Any() ? _mapper.Map<IEnumerable<PropertyDto>>(results) : Enumerable.Empty<PropertyDto>();
-
-            return new OkObjectResult(propertyDtOs);
+            var propertyDtos = results.Any() ? _mapper.Map<IEnumerable<PropertyDto>>(results) : Enumerable.Empty<PropertyDto>();
+            return new OkObjectResult(propertyDtos);
         }
 
         public async Task<IActionResult> DeleteProperty(Guid propertyId, string lastUser)
@@ -184,6 +184,10 @@ namespace PropertiesAPI.Services
 
             var propertyDto = _mapper.Map<Property, PropertyDetailedDto>(property);
 
+            var childs = await GetChildData(propertyId);
+
+            propertyDto.ChildProperties = childs;
+
             return propertyDto;
         }
 
@@ -226,29 +230,13 @@ namespace PropertiesAPI.Services
             return propertyDto;
         }
 
-        private async Task<List<BasicPropertyDto>> GetChildData(Guid id)
+        private async Task<List<PropertyDto>> GetChildData(Guid id)
         {
-            var childProperties = new List<BasicPropertyDto>();
 
             var properties = await _propertiesRepo.GetPropertiesByParentIdAsync(id);
-
-            foreach (var property in properties)
-            {
-                var propertyDto = new BasicPropertyDto();
-                propertyDto.Id = property.Id;
-                propertyDto.PropertyName = property.Name!;
-                childProperties.Add(propertyDto);
-            }
-
-            return childProperties;
+            var propertyDtOs = properties.Any() ? _mapper.Map<IEnumerable<PropertyDto>>(properties) : Enumerable.Empty<PropertyDto>();
+            return propertyDtOs.ToList<PropertyDto>() ;
         }
-
-       /* public async Task PerformAudit(string data)
-        {
-            // Create the audit message and publish it
-            var auditMessage = new MessageContract { Payload = data };
-            await _publishEndpoint.Publish(auditMessage);
-        }*/
 
         private async Task<string> CreateCatastreURL(string refCatastre)
         {

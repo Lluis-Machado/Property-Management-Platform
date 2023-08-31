@@ -25,16 +25,31 @@
 
         // Purchase Information
         public DateOnly? PurchaseDate { get; set; }
-        public Price? PurchasePriceAJD { get; set; }
-        public Price? PurchasePriceTotal { get; set; }
+        public Price? PurchasePriceNet { get; set; }
+        public Price? PurchasePriceGross { get; set; }
+
         public Price? PurchasePriceTax { get; set; }
+        public decimal? PurchasePriceTaxPercentage { get; set; }
+
+        public Price? PurchasePriceAJD { get; set; }
+        public decimal? PurchasePriceAJDPercentage { get; set; }
         public Price? PurchasePriceTPO { get; set; }
-        public Price? PurchasePrice { get; set; }
+        public decimal? PurchasePriceTPOPercentage { get; set; }
+
+        public Price? PurchasePriceTotal { get; set; }
+        public Price? PriceTotal { get; set; }
+
 
         // Furniture Information
-        public Price? FurniturePriceIVA { get; set; }
-        public Price? FurniturePriceTPO { get; set; }
         public Price? FurniturePrice { get; set; }
+        public Price? FurniturePriceIVA { get; set; }
+        public decimal? FurniturePriceIVAPercentage { get; set; }
+
+        public Price? FurniturePriceTPO { get; set; }
+        public decimal? FurniturePriceTPOPercentage { get; set; }
+        public Price? FurniturePriceTotal { get; set; }
+        public Price? FurniturePriceGross { get; set; }
+
         public int? GarbageCollection { get; set; }
         public int? GarbagePriceAmount { get; set; }
 
@@ -47,7 +62,7 @@
         public string? Comments { get; set; }
 
         // Address Information
-        public List<PropertyAddress> PropertyAddress { get; set; } = new List<PropertyAddress>();
+        public PropertyAddress PropertyAddress { get; set; } = new();
 
         // Identifiers
         public Guid? MainPropertyId { get; set; }

@@ -136,6 +136,19 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
+          "Port": 10015
+        }
+      ],
+      "UpstreamPathTemplate": "/audits/{everything}",
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
+      "SwaggerKey": "audits"
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
           "Port": 10005
         }
       ],
@@ -255,6 +268,16 @@
           "Name": "Companies API",
           "Version": "v1",
           "Url": "http://localhost:10003/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "audits",
+      "Config": [
+        {
+          "Name": "Audits API",
+          "Version": "v1",
+          "Url": "http://localhost:10015/swagger/v1/swagger.json"
         }
       ]
     },

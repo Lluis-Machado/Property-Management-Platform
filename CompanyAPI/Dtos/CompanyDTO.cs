@@ -1,4 +1,6 @@
-﻿namespace CompanyAPI.Dtos;
+﻿using CompanyAPI.Models;
+
+namespace CompanyAPI.Dtos;
 
 public class CompanyDto
 {
@@ -11,8 +13,14 @@ public class CompanyDto
     public string? UStIDNumber { get; set; }
     public DateOnly? FoundingDate { get; set; }
 
+
     // Contact Information
     public string? Email { get; set; }
+    public int? CountryMaskId { get; set; }
     public string? PhoneNumber { get; set; }
+    public string? Comments { get; set; }
+
+
+
 
 }

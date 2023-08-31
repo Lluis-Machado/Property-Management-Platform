@@ -3,7 +3,10 @@ using ContactsAPI.DTOs;
 using ContactsAPI.Models;
 using ContactsAPI.Repositories;
 using FluentValidation;
+using MassTransit;
+using MessagingContracts;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace ContactsAPI.Services
 {
@@ -14,19 +17,22 @@ namespace ContactsAPI.Services
         private readonly IValidator<CreateContactDto> _createContactValidator;
         private readonly IValidator<UpdateContactDTO> _updateContactValidator;
         private readonly IMapper _mapper;
+        private readonly IPublishEndpoint _publishEndpoint;
 
 
         public ContactsService(IContactsRepository contactsRepo
             , IValidator<ContactDTO> contactValidator
             , IValidator<CreateContactDto> createContactValidator
             , IValidator<UpdateContactDTO> updateContactValidator
-            , IMapper mapper)
+            , IMapper mapper
+            , IPublishEndpoint publishEndpoint)
         {
             _contactsRepo = contactsRepo;
             _contactValidator = contactValidator;
             _createContactValidator = createContactValidator;
             _updateContactValidator = updateContactValidator;
             _mapper = mapper;
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<ActionResult<ContactDetailedDto>> CreateAsync(CreateContactDto createContactDto, string lastUser)
@@ -39,6 +45,7 @@ namespace ContactsAPI.Services
             contact.LastUpdateAt = DateTime.UtcNow;
 
             contact = await _contactsRepo.InsertOneAsync(contact);
+            _ = PerformAudit(contact, contact.Id);
 
             var contactDto = _mapper.Map<Contact, ContactDetailedDto>(contact);
             return new CreatedResult($"contacts/{contactDto.Id}", contactDto);
@@ -105,6 +112,8 @@ namespace ContactsAPI.Services
 
             contact = await _contactsRepo.UpdateAsync(contact);
 
+            _ = PerformAudit(contact, contactId);
+
             var contactDTO = _mapper.Map<Contact, ContactDetailedDto>(contact);
 
             return new OkObjectResult(contactDTO);
@@ -152,6 +161,20 @@ namespace ContactsAPI.Services
             IEnumerable<ContactDTO> paginatedContactsDTO = _mapper.Map<IEnumerable<Contact>, IEnumerable<ContactDTO>>(paginatedContacts);
 
             return paginatedContactsDTO;
+        }
+
+        public async Task PerformAudit(Contact contact, Guid id)
+        {
+            Audit audit = new Audit();
+            audit.Object = JsonSerializer.Serialize(contact);
+            audit.Id = id;
+            audit.ObjectType = "Contact";
+
+            string serializedAudit = JsonSerializer.Serialize(audit);
+            MessageContract m = new MessageContract();
+            m.Payload = serializedAudit;
+
+            await _publishEndpoint.Publish<MessageContract>(m);
         }
     }
 }

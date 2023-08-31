@@ -22,6 +22,7 @@
         public List<ContactAddress> Addresses { get; set; } = new();
         public List<ContactPhones> Phones { get; set; } = new();
         public List<ContactIdentification> Identifications { get; set; } = new();
+        public List<ContactBankInformation> BankInformation { get; set; } = new();
 
     }
 }

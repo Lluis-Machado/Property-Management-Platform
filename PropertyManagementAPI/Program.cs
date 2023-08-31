@@ -82,14 +82,18 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-/*builder.Services.AddMassTransit(config =>
+builder.Services.AddMassTransit(config =>
 {
     config.UsingRabbitMq((ctx, cfg) =>
     {
         cfg.Host("amqp://guest:guest@localhost:5672");
+
+        // Configure retry policy
+        cfg.UseMessageRetry(r => r.Intervals(TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(10)));
+
     });
 });
-*/
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

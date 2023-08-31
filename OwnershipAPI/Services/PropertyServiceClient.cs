@@ -13,7 +13,7 @@ public class PropertyServiceClient
     {
         _httpClient = new HttpClient();
 #if DEVELOPMENT
-        _httpClient.BaseAddress = new Uri("https://localhost:7228/"); // Replace with the base URL of the ownership service
+        _httpClient.BaseAddress = new Uri("https://localhost:7012/"); // Replace with the base URL of the ownership service
 #elif STAGE
         _httpClient.BaseAddress = new Uri("https://stage.plattesapis.net/properties/"); // Replace with the base URL of the ownership service
 #else
@@ -26,7 +26,7 @@ public class PropertyServiceClient
 
     public async Task<PropertyDto?> GetPropertyByIdAsync(Guid id)
     {
-        var response = await _httpClient.GetAsync($"property/{id}");
+        var response = await _httpClient.GetAsync($"properties/{id}");
         if (response.IsSuccessStatusCode)
         {
             var content = await response.Content.ReadAsStringAsync();

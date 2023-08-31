@@ -45,6 +45,14 @@ namespace PropertiesAPI.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<Property>> GetSidePropertiesByParentIdAsync(Guid parentPropertyId)
+        {
+            var filter = Builders<Property>.Filter.Eq(p => p.MainPropertyId, parentPropertyId);
+
+            return await _collection.Find(filter)
+                .ToListAsync();
+        }
+
         public async Task<Property> GetByIdAsync(Guid propertyId)
         {
             var filter = Builders<Property>.Filter

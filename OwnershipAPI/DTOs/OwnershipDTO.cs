@@ -5,7 +5,7 @@
         public Guid Id { get; set; }
         public Guid PropertyId { get; set; }
         public Guid OwnerId { get; set; }
-        public string OwnerType { get; set; }
+        public string OwnerType { get; set; } = string.Empty;
         public decimal Share { get; set; } = 0;
         public bool MainOwnership { get; set; }
         public bool Deleted { get; set; } = false;

@@ -14,7 +14,6 @@ public class OwnershipService : IOwnershipService
     private readonly IOwnershipRepository _ownershipRepo;
     private readonly IValidator<OwnershipDto> _ownershipValidator;
 
-
     public OwnershipService(IOwnershipRepository ownershipRepo, IValidator<OwnershipDto> ownershipValidator,
         IMapper mapper)
     {

@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using CompanyAPI.Dtos;
+//using Microsoft.AspNetCore.Authorization;
+using Authorize = AuthorizeAPI.Authorize;
 
 namespace CompanyAPI.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     [Route("companies")]
     public class CompanyController : ControllerBase
@@ -26,9 +28,9 @@ namespace CompanyAPI.Controllers
             // validations
             if (companyDto == null) return new BadRequestObjectResult("Incorrect body format");
 
-            var lastUser = "test";
+            var lastUser = User?.Identity?.Name ?? "na";
 
-            return await _companyService.CreateAsync(companyDto, lastUser);
+            return await _companyService.CreateAsync(companyDto, lastUser!);
         }
 
         [HttpPatch]
@@ -41,9 +43,9 @@ namespace CompanyAPI.Controllers
             // validations
             if (companyDto == null) return new BadRequestObjectResult("Incorrect body format");
             
-            var lastUser = "test";
+            string lastUser = User?.Identity?.Name ?? "na";
 
-            return await _companyService.UpdateAsync(companyId, companyDto, lastUser);
+            return await _companyService.UpdateAsync(companyId, companyDto, lastUser!);
         }
 
         [HttpGet]

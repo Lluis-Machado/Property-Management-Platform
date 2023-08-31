@@ -10,6 +10,7 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Security.Claims;
 using ContactsAPI.Middlewares;
+using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -79,6 +80,20 @@ builder.Services.AddAuthentication(options =>
     {
         NameClaimType = ClaimTypes.NameIdentifier
     };
+});
+
+builder.Services.AddMassTransit(config =>
+{
+    config.UsingRabbitMq((ctx, cfg) =>
+    {
+        cfg.Host("amqp://guest:guest@localhost:5672");
+
+        // Configure retry policy
+        cfg.UseMessageRetry(r => r.Intervals(TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(10)));
+
+    });
+
+
 });
 
 var app = builder.Build();

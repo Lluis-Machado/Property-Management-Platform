@@ -5,8 +5,5 @@
         public string ObjectType { get; set; } = "";
 
         public string Object { get; set; } = "";
-
-
-
     }
 }

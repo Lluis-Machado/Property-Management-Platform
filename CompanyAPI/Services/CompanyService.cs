@@ -3,9 +3,12 @@ using CompanyAPI.Dtos;
 using CompanyAPI.Models;
 using CompanyAPI.Repositories;
 using FluentValidation;
+using MassTransit;
+using MessagingContracts;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace CompanyAPI.Services
@@ -16,16 +19,20 @@ namespace CompanyAPI.Services
         private readonly IValidator<CreateCompanyDto> _createCompanyValidator;
         private readonly IValidator<UpdateCompanyDto> _updateCompanyValidator;
         private readonly IMapper _mapper;
+        private readonly IPublishEndpoint _publishEndpoint;
+
 
         public CompanyService(ICompanyRepository companyRepo,
             IValidator<CreateCompanyDto> createCompanyValidator,
             IValidator<UpdateCompanyDto> updateCompanyValidator,
-            IMapper mapper)
+            IMapper mapper,
+            IPublishEndpoint publishEndpoint)
         {
             _companyRepo = companyRepo;
             _createCompanyValidator = createCompanyValidator;
             _updateCompanyValidator = updateCompanyValidator;
             _mapper = mapper;
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<ActionResult<CompanyDetailedDto>> CreateAsync(CreateCompanyDto createCompanyDto, string lastUser)
@@ -38,6 +45,7 @@ namespace CompanyAPI.Services
             company.LastUpdateAt = DateTime.UtcNow;
 
             company = await _companyRepo.InsertOneAsync(company);
+            _ = PerformAudit(company, company.Id);
 
             var companyDto = _mapper.Map<Company, CompanyDetailedDto>(company);
             return new CreatedResult($"company/{companyDto.Id}", companyDto);
@@ -101,6 +109,7 @@ namespace CompanyAPI.Services
             company.Id = companyId;
 
             company = await _companyRepo.UpdateAsync(company);
+            await PerformAudit(company, company.Id);
 
             var companyDTO = _mapper.Map<Company, CompanyDetailedDto>(company);
 
@@ -121,6 +130,20 @@ namespace CompanyAPI.Services
             if (!updateResult.IsAcknowledged) return new NotFoundObjectResult("Company not found");
 
             return new NoContentResult();
+        }
+
+        public async Task PerformAudit(Company company, Guid id)
+        {
+            Audit audit = new Audit();
+            audit.Object = JsonSerializer.Serialize(company);
+            audit.Id = id;
+            audit.ObjectType = "Company";
+
+            string serializedAudit = JsonSerializer.Serialize(audit);
+            MessageContract m = new MessageContract();
+            m.Payload = serializedAudit;
+
+            await _publishEndpoint.Publish<MessageContract>(m);
         }
     }
 }

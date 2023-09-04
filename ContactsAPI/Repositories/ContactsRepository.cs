@@ -1,6 +1,7 @@
 ﻿using ContactsAPI.Contexts;
 using ContactsAPI.Models;
 using MongoDB.Driver;
+using System.Collections.Concurrent;
 
 namespace ContactsAPI.Repositories
 {
@@ -21,6 +22,9 @@ namespace ContactsAPI.Repositories
 
         public async Task<List<Contact>> GetAsync(bool includeDeleted = false)
         {
+
+            var test = await SearchAsync("kerry");
+
             FilterDefinition<Contact> filter;
 
             if (includeDeleted)
@@ -89,6 +93,46 @@ namespace ContactsAPI.Repositories
             var count = await _collection.CountDocumentsAsync(filter);
 
             return count == 0;
+        }
+
+        public async Task<IEnumerable<Contact>> SearchAsync(string query)
+        {
+            var foundContacts = new ConcurrentBag<Contact>();
+
+            var props = typeof(Contact).GetProperties();
+            var propsNames = new List<string>();
+
+            foreach (var property in props)
+            {
+                propsNames.Add(property.Name);
+            }
+
+            var subProps1 = typeof(ContactAddress).GetProperties();
+            var subProps2 = typeof(ContactBankInformation).GetProperties();
+            var subProps3 = typeof(ContactIdentification).GetProperties();
+            var subProps4 = typeof(ContactPhones).GetProperties();
+
+            foreach (var addressProp in subProps1)  propsNames.Add("Addresses." + addressProp.Name);
+            foreach (var bankProp in subProps2)     propsNames.Add("BankInformation." + bankProp.Name);
+            foreach (var idProp in subProps3)       propsNames.Add("Identifications." + idProp.Name);
+            foreach (var phoneProp in subProps4)    propsNames.Add("Phones." + phoneProp.Name);
+
+            propsNames.Remove("Addresses");
+            propsNames.Remove("BankInformation");
+            propsNames.Remove("Identifications");
+            propsNames.Remove("Phones");
+
+            //Parallel.ForEach(propsNames, new ParallelOptions { MaxDegreeOfParallelism = 8 }, async property =>
+            foreach (var property in propsNames)
+            {
+                var search = await _collection.FindAsync(Builders<Contact>.Filter.Regex(property, new MongoDB.Bson.BsonRegularExpression(query, "i")));
+                await search.ForEachAsync(elem => foundContacts.Add(elem));
+            }
+            //);
+
+
+
+            return foundContacts;
         }
 
     }

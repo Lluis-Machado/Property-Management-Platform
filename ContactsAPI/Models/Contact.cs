@@ -14,8 +14,6 @@
 
         // Contact Information
         public string? Email { get; set; }
-        // Bank Information
-        public string? IBAN { get; set; }
 
 
         // Multiples

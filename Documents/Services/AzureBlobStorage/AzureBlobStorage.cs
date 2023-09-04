@@ -29,7 +29,7 @@ namespace DocumentsAPI.Services.AzureBlobStorage
         {
             Dictionary<string, string> metadata = new();
 
-            if (archive.Name != null) metadata.Add("display_name", archive.Name);
+            if (archive.Name != null) metadata.Add("display_name", Uri.EscapeDataString(archive.Name));
 
             BlobContainerClient blobContainerClient = _context.GetBlobContainerClient(archive.Id.ToString());
             await blobContainerClient.CreateAsync(default, metadata);
@@ -384,18 +384,15 @@ namespace DocumentsAPI.Services.AzureBlobStorage
             string? archiveDisplayName = null;
             if (blobContainerItem.Properties.Metadata != null)
             {
-                archiveDisplayName = blobContainerItem.Properties.Metadata["display_name"];
+                archiveDisplayName = Uri.UnescapeDataString(blobContainerItem.Properties.Metadata["display_name"]);
             }
-
-
 
             Archive archive = new()
             {
                 Id = Guid.Parse(blobContainerItem.Name),
                 Name = archiveDisplayName,
                 Deleted = blobContainerItem.IsDeleted ?? false,
-                LastUpdateAt = blobContainerItem.Properties.LastModified.DateTime,
-
+                LastUpdateAt = blobContainerItem.Properties.LastModified.DateTime.ToLocalTime(),
             };
             return archive;
         }
@@ -403,7 +400,7 @@ namespace DocumentsAPI.Services.AzureBlobStorage
         private static Document MapDocument(BlobItem blobItem)
         {
             bool hasMetadata = blobItem.Metadata.Count == 2;    // TODO: Change number depending on the number of fields present - Currently: 2
-            string documentName = hasMetadata ? blobItem.Metadata["display_name"] : "NO NAME";
+            string documentName = hasMetadata ? Uri.UnescapeDataString(blobItem.Metadata["display_name"]) : "NO NAME";
             Guid? folderId = hasMetadata ? (!string.IsNullOrEmpty(blobItem.Metadata["folder_id"]) ? new Guid(blobItem.Metadata["folder_id"]) : null) : null;
 
             Document document = new()
@@ -413,8 +410,8 @@ namespace DocumentsAPI.Services.AzureBlobStorage
                 FolderId = folderId,
                 Extension = documentName.Contains('.') ? documentName[documentName.LastIndexOf('.')..] : "",
                 ContentLength = blobItem.Properties.ContentLength,
-                CreatedAt = blobItem.Properties.CreatedOn.GetValueOrDefault().DateTime,
-                LastUpdateAt = blobItem.Properties.LastModified.GetValueOrDefault().DateTime,
+                CreatedAt = blobItem.Properties.CreatedOn.GetValueOrDefault().DateTime.ToLocalTime(),
+                LastUpdateAt = blobItem.Properties.LastModified.GetValueOrDefault().DateTime.ToLocalTime(),
                 Deleted = blobItem.Deleted || !hasMetadata  // Some blobs marked as deleted on the Azure portal still say they are not deleted
             };
             return document;

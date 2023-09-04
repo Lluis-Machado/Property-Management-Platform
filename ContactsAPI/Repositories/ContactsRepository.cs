@@ -99,6 +99,15 @@ namespace ContactsAPI.Repositories
 
             // TODO: Check whether or not to search in the BaseModel fields (created/updated user and date)
 
+            // Check if index exists
+
+            var indexes = await _collection.Indexes.ListAsync();
+            if (indexes.ToList().Count == 1)
+            {
+                await _collection.Indexes.CreateOneAsync(new CreateIndexModel<Contact>(Builders<Contact>.IndexKeys.Text("$**")));
+            }
+
+
             var foundContacts = new ConcurrentBag<Contact>();
 
             var props = typeof(Contact).GetProperties();
@@ -124,13 +133,13 @@ namespace ContactsAPI.Repositories
             propsNames.Remove("Identifications");
             propsNames.Remove("Phones");
 
-            //Parallel.ForEach(propsNames, new ParallelOptions { MaxDegreeOfParallelism = 8 }, async property =>
-            foreach (var property in propsNames)
+            Parallel.ForEach(propsNames, new ParallelOptions { MaxDegreeOfParallelism = 8 }, async property =>
+            //foreach (var property in propsNames)
             {
                 var search = await _collection.FindAsync(Builders<Contact>.Filter.Regex(property, new MongoDB.Bson.BsonRegularExpression(query, "i")));
                 await search.ForEachAsync(elem => foundContacts.Add(elem));
             }
-            //);
+            );
 
 
 

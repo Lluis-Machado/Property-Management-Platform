@@ -119,7 +119,7 @@ namespace DocumentsAPI.Services.AzureBlobStorage
 
             Dictionary<string, string> blobMetadata = new()
             {
-                {"display_name", fileName},
+                {"display_name", Uri.EscapeDataString(fileName)},
                 {"folder_id", folderId.ToString() ?? ""},
             };
 
@@ -133,7 +133,7 @@ namespace DocumentsAPI.Services.AzureBlobStorage
             Response response = blobContentInfo.GetRawResponse();
 
 
-            //_logger.LogInformation($"DEBUG - UploadDocumentAsync - Response was {response.Status} - {Newtonsoft.Json.JsonConvert.SerializeObject(response.Content)}");
+            _logger.LogInformation($"DEBUG - UploadDocumentAsync - Response for upload of file {fileName} was {response.Status} - {Newtonsoft.Json.JsonConvert.SerializeObject(response.Content)}");
 
             return new DocumentUploadDTO()
             {

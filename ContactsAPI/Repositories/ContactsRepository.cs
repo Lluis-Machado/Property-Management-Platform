@@ -8,10 +8,12 @@ namespace ContactsAPI.Repositories
     public class ContactsRepository : IContactsRepository
     {
         private readonly IMongoCollection<Contact> _collection;
-        public ContactsRepository(MongoContext context)
+        private readonly ILogger<ContactsRepository> _logger;
+        public ContactsRepository(MongoContext context, ILogger<ContactsRepository> logger)
         {
             var database = context.GetDataBase("contacts");
             _collection = database.GetCollection<Contact>("contacts");
+            _logger = logger;
         }
 
         public async Task<Contact> InsertOneAsync(Contact contact)
@@ -22,9 +24,6 @@ namespace ContactsAPI.Repositories
 
         public async Task<List<Contact>> GetAsync(bool includeDeleted = false)
         {
-
-            var test = await SearchAsync("kerry");
-
             FilterDefinition<Contact> filter;
 
             if (includeDeleted)
@@ -41,7 +40,7 @@ namespace ContactsAPI.Repositories
         }
 
 
-        public async Task<Contact> GetContactByIdAsync(Guid id)
+        public async Task<Contact?> GetContactByIdAsync(Guid id)
         {
             var filter = Builders<Contact>.Filter.Eq(c => c.Id, id);
 
@@ -97,6 +96,9 @@ namespace ContactsAPI.Repositories
 
         public async Task<IEnumerable<Contact>> SearchAsync(string query)
         {
+
+            // TODO: Check whether or not to search in the BaseModel fields (created/updated user and date)
+
             var foundContacts = new ConcurrentBag<Contact>();
 
             var props = typeof(Contact).GetProperties();

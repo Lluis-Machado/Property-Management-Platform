@@ -70,7 +70,16 @@ namespace ContactsAPI.Controllers
         }
 
         [HttpGet]
-        [Route("declarants/paginated")]
+        [Route("search")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<IEnumerable<ContactDTO>>> SearchAsync(string query)
+        {
+            return await _contactsService.SearchAsync(query);
+        }
+
+        [HttpGet]
+        [Route("paginated")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<IEnumerable<ContactDTO>>> GetPaginatedAsync(int pageNumber, int pageSize)

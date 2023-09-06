@@ -10,15 +10,15 @@
         // Cadastre Information
         public string? CadastreRef { get; set; }
         public string? CadastreUrl { get; set; }
-        public string? CadastreValue { get; set; }
+        public Price? CadastreValue { get; set; }
         public string? AutonomousRegion { get; set; }
         public string? FederalState { get; set; }
         public Price? LoanPrice { get; set; }
         public Price? BuildingPrice { get; set; }
-        public Price? TotalPrice { get; set; }
         public Price? PlotPrice { get; set; }
-        public string? IBIAmount { get; set; }
+        public Price? IBIAmount { get; set; }
         public int? IBICollection { get; set; }
+        public DateOnly? IBICollectionDate { get; set; }
         public int? Year { get; set; }
         public string? Municipality { get; set; }
         public string? PropertyScanMail { get; set; }
@@ -51,7 +51,8 @@
         public Price? FurniturePriceGross { get; set; }
 
         public int? GarbageCollection { get; set; }
-        public int? GarbagePriceAmount { get; set; }
+        public DateOnly? GarbageCollectionDate { get; set; }
+        public Price? GarbagePriceAmount { get; set; }
 
         // Sale Information
         public DateOnly? SaleDate { get; set; }
@@ -67,7 +68,7 @@
         // Identifiers
         public Guid? MainPropertyId { get; set; }
         public Guid ContactPersonId { get; set; }
-        public Guid BillingContactId { get; set; }
+        public Guid? BillingContactId { get; set; }
 
     }
 

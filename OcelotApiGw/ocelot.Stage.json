@@ -162,6 +162,19 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
+          "Port": 10016
+        }
+      ],
+      "UpstreamPathTemplate": "/core/{everything}",
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
+      "SwaggerKey": "core"
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
           "Port": 10007
         }
       ],
@@ -288,6 +301,16 @@
           "Name": "DocAnalyzer API",
           "Version": "v1",
           "Url": "http://localhost:10005/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "core",
+      "Config": [
+        {
+          "Name": "Core API",
+          "Version": "v1",
+          "Url": "http://localhost:10016/swagger/v1/swagger.json"
         }
       ]
     },

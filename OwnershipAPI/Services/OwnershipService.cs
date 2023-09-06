@@ -57,6 +57,21 @@ public class OwnershipService : IOwnershipService
         return new OkObjectResult(ownershipDtos);
     }
 
+    public async Task<ActionResult<IEnumerable<OwnershipDto>>> GetOwnershipsOfCompanyAsync(Guid id)
+    {
+        var results = await _ownershipRepo.GetWithCompanyIdAsync(id);
+
+        var ownershipDtos = _mapper.Map<List<OwnershipDetailedDto>>(results);
+
+        foreach (var ownership in ownershipDtos)
+        {
+            var clientC = new PropertyServiceClient();
+            var property = await clientC.GetPropertyByIdAsync(ownership.PropertyId);
+            ownership.PropertyName = property!.Name;
+        }
+        return new OkObjectResult(ownershipDtos);
+    }
+
     public async Task<ActionResult<IEnumerable<OwnershipDto>>> GetOwnershipsOfPropertyAsync(Guid id)
     {
         var results = await _ownershipRepo.GetWithPropertyIdAsync(id);
@@ -65,13 +80,13 @@ public class OwnershipService : IOwnershipService
 
         foreach (var ownership in ownershipDtos)
         {
-            if (ownership.OwnerType == "Contact")
+            if (ownership.OwnerType.ToLower() == "contact")
             {
                 var clientC = new ContactServiceClient();
                 var contact = await clientC.GetContactByIdAsync(ownership.OwnerId);
                 ownership.OwnerName = $"{contact!.FirstName} {contact.LastName}";
             }
-            if (ownership.OwnerType == "Company")
+            if (ownership.OwnerType.ToLower() == "company")
             {
                 var clientC = new CompanyServiceClient();
                 var company = await clientC.GetCompanyByIdAsync(ownership.OwnerId);

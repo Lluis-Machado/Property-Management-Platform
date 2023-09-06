@@ -19,6 +19,7 @@ public class CompanyServiceClient
 #else
         _httpClient.BaseAddress = new Uri("https://plattesapis.net/company/"); // Replace with the base URL of the ownership service
 #endif
+        _httpClient.BaseAddress = new Uri("https://stage.plattesapis.net/companies/"); // Replace with the base URL of the ownership service
 
         _httpClient.DefaultRequestHeaders.Accept.Clear();
         _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -26,7 +27,7 @@ public class CompanyServiceClient
 
     public async Task<CompanyDto?> GetCompanyByIdAsync(Guid id)
     {
-        var response = await _httpClient.GetAsync($"company/{id}");
+        var response = await _httpClient.GetAsync($"companies/{id}");
         if (response.IsSuccessStatusCode)
         {
             var content = await response.Content.ReadAsStringAsync();

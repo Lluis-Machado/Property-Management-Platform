@@ -7,7 +7,7 @@ using Authorize = AuthorizeAPI.Authorize;
 
 namespace CompanyAPI.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [Route("companies")]
     public class CompanyController : ControllerBase

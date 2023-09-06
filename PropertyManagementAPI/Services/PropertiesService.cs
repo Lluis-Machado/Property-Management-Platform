@@ -15,7 +15,7 @@ using System.Net.Http;
 using MongoDB.Bson.IO;
 using MongoDB.Bson;
 using Microsoft.AspNetCore.Http;
-
+using Microsoft.IdentityModel.Tokens;
 
 namespace PropertiesAPI.Services
 {
@@ -68,8 +68,8 @@ namespace PropertiesAPI.Services
 
             var propertyDto = _mapper.Map<Property, PropertyDetailedDto>(property);
 
-
-            await CreateMainOwnership(createPropertyDto.MainOwnerId, "Contact", property.Id);
+            if(!createPropertyDto.MainOwnerType.IsNullOrEmpty())
+                await CreateMainOwnership(createPropertyDto.MainOwnerId, createPropertyDto.MainOwnerType, property.Id);
 
             return new CreatedResult($"properties/{propertyDto.Id}", propertyDto);
         }

@@ -39,6 +39,15 @@ namespace OwnershipAPI.Services
                 .ToListAsync();
         }
 
+        public async Task<List<Ownership>> GetWithCompanyIdAsync(Guid id)
+        {
+            var filter = Builders<Ownership>.Filter.Eq(c => c.OwnerId, id);
+            filter = filter & Builders<Ownership>.Filter.Eq(c => c.Deleted, false);
+
+            return await _collection.Find(filter)
+                .ToListAsync();
+        }
+
         public async Task<List<Ownership>> GetWithPropertyIdAsync(Guid id)
         {
             var filter = Builders<Ownership>.Filter.Eq(c => c.PropertyId, id);

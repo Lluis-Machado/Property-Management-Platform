@@ -58,9 +58,18 @@ namespace ContactsAPI.Services
             return new OkObjectResult(contacts);
         }
 
-        public async Task<ContactDetailedDto> GetByIdAsync(Guid id)
+        public async Task<ActionResult<IEnumerable<ContactDTO>>> SearchAsync(string query)
+        {
+            var contacts = await _contactsRepo.SearchAsync(query);
+
+            return new OkObjectResult(contacts);
+        }
+
+        public async Task<ContactDetailedDto?> GetByIdAsync(Guid id)
         {
             var contact = await _contactsRepo.GetContactByIdAsync(id);
+
+            if (contact == null) return null;
 
             var contactDto = _mapper.Map<Contact, ContactDetailedDto>(contact);
 

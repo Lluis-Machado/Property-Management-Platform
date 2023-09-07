@@ -93,7 +93,6 @@ builder.Services.AddMassTransit(config =>
 
     });
 
-
 });
 
 var app = builder.Build();
@@ -105,7 +104,9 @@ app.UseSwagger();
 app.UseSwaggerUI();
 //}
 
+#if DEVELOPMENT == false
 app.UseHttpsRedirection();
+#endif
 
 app.UseAuthentication();
 

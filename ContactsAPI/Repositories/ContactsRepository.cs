@@ -2,6 +2,7 @@
 using ContactsAPI.Models;
 using MongoDB.Driver;
 using System.Collections.Concurrent;
+using System.Reflection;
 
 namespace ContactsAPI.Repositories
 {
@@ -99,6 +100,13 @@ namespace ContactsAPI.Repositories
 
             // TODO: Check whether or not to search in the BaseModel fields (created/updated user and date)
 
+            // Split the query into individual search tokens
+            string[] tokenize = query.Split(' ');
+
+            // Tokens follow AND logic
+            // Example: "Cristiano Ronaldo CR7" will look for a contact with "Cristiano" AND "Ronaldo" AND "CR7" in any of its fields
+
+
             // Check if index exists
 
             var indexes = await _collection.Indexes.ListAsync();
@@ -110,40 +118,85 @@ namespace ContactsAPI.Repositories
 
             var foundContacts = new ConcurrentBag<Contact>();
 
-            var props = typeof(Contact).GetProperties();
-            var propsNames = new List<string>();
-
-            foreach (var property in props)
+            var propsNames = new List<string>
             {
-                propsNames.Add(property.Name);
-            }
+                "FirstName",
+                "LastName",
+                "Email",
+                "BirthDay"
+            };
+
 
             var subProps1 = typeof(ContactAddress).GetProperties();
             var subProps2 = typeof(ContactBankInformation).GetProperties();
             var subProps3 = typeof(ContactIdentification).GetProperties();
             var subProps4 = typeof(ContactPhones).GetProperties();
 
-            foreach (var addressProp in subProps1)  propsNames.Add("Addresses." + addressProp.Name);
-            foreach (var bankProp in subProps2)     propsNames.Add("BankInformation." + bankProp.Name);
-            foreach (var idProp in subProps3)       propsNames.Add("Identifications." + idProp.Name);
-            foreach (var phoneProp in subProps4)    propsNames.Add("Phones." + phoneProp.Name);
+            foreach (var addressProp in subProps1) propsNames.Add("Addresses." + addressProp.Name);
+            foreach (var bankProp in subProps2) propsNames.Add("BankInformation." + bankProp.Name);
+            foreach (var idProp in subProps3) propsNames.Add("Identifications." + idProp.Name);
+            foreach (var phoneProp in subProps4) propsNames.Add("Phones." + phoneProp.Name);
 
             propsNames.Remove("Addresses");
             propsNames.Remove("BankInformation");
             propsNames.Remove("Identifications");
             propsNames.Remove("Phones");
 
-            Parallel.ForEach(propsNames, new ParallelOptions { MaxDegreeOfParallelism = 8 }, async property =>
+            ParallelOptions po = new ParallelOptions { MaxDegreeOfParallelism = 8 };
+
+            await Parallel.ForEachAsync(propsNames, parallelOptions: po, async (property, CancellationToken) =>
             //foreach (var property in propsNames)
             {
-                var search = await _collection.FindAsync(Builders<Contact>.Filter.Regex(property, new MongoDB.Bson.BsonRegularExpression(query, "i")));
-                await search.ForEachAsync(elem => foundContacts.Add(elem));
+                for (int i = 0; i < tokenize.Length; i++)
+                {
+                    var search = await _collection.FindAsync(Builders<Contact>.Filter.Regex(property, new MongoDB.Bson.BsonRegularExpression(tokenize[i], "i")));
+                    var searchResults = search.ToList();
+                    searchResults.ForEach(elem => { if (!foundContacts.Contains(elem)) foundContacts.Add(elem); });
+
+                }
+
+                //foreach (string token in tokenize)
+                //{
+                //    var search = await _collection.FindAsync(Builders<Contact>.Filter.Regex(property, new MongoDB.Bson.BsonRegularExpression(query, "i")));
+
+                //    await search.ForEachAsync(elem => { if (!foundContacts.Contains(elem)) foundContacts.Add(elem); });
+                //}
             }
             );
 
+            // Remove duplicates
+            List<Contact> found = foundContacts.GroupBy(c => c.Id).Select(c => c.First()).ToList();
 
+            _logger.LogInformation("TOTAL FOUND CONTACTS: " + foundContacts.Count);
 
-            return foundContacts;
+            List<Contact> contactsToRemove = new();
+
+            // If multiple tokens are present, do a second pass for filtering
+            if (tokenize.Length > 1)
+            {
+                found.ToList().ForEach(contact =>
+                {
+                    bool keep = false;
+                    for (int i = 1; i < tokenize.Length; i++) {
+                        
+                        foreach (PropertyInfo prop in contact.GetType().GetProperties())
+                        {
+                            var val = prop.GetValue(contact, null)?.ToString();
+                            if (val != null && val.Contains(tokenize[i]))
+                            {
+                                keep = true;
+                                break;
+                            }
+                        }
+
+                        if (!keep)
+                            contactsToRemove.Add(contact);
+                    }
+
+                });
+            }
+
+            return found.Except(contactsToRemove).ToList();
         }
 
     }

@@ -64,10 +64,11 @@ public class PropertyServiceClient
         request.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");
 
         var response = await _httpClient.SendAsync(request);
+        var content = await response.Content.ReadAsStringAsync();
+
 
         if (response.IsSuccessStatusCode)
         {
-            var content = await response.Content.ReadAsStringAsync();
             return string.IsNullOrEmpty(content) ? null : content;
         }
 
@@ -76,7 +77,7 @@ public class PropertyServiceClient
             return null;
         }
 
-        throw new Exception($"Failed to create property. Status code: {response.StatusCode}");
+        throw new Exception($"Failed to create property. Status code: {response.StatusCode}. {content}");
     }
 
 }

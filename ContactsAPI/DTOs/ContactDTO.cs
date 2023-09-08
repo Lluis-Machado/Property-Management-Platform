@@ -7,7 +7,7 @@ namespace ContactsAPI.DTOs
         // Personal Information
         public string? FirstName { get; set; }
         public string LastName { get; set; } = string.Empty;
-        public int? Title { get; set; }
+        public int?[] Title { get; set; } = new int?[] { };
         public int? Gender { get; set; }
         public int MaritalStatus { get; set; }
 
@@ -18,6 +18,11 @@ namespace ContactsAPI.DTOs
         public string? Email { get; set; }
         // Bank Information
         public string? IBAN { get; set; }
+
+        public string? Comments { get; set; }
+        public string? Salutation { get; set; }
+
+
         public Guid Id { get; set; }
 
 

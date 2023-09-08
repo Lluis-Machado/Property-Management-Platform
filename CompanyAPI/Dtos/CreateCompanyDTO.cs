@@ -9,7 +9,6 @@ namespace CompanyAPI.Dtos
         public string? Nif { get; set; }
         public string? GermanTaxOffice { get; set; }
         public string? CompanyPurpose { get; set; }
-        public string? TaxNumber { get; set; }
         public string? UStIDNumber { get; set; }
         public DateOnly? FoundingDate { get; set; }
 

@@ -53,6 +53,30 @@ namespace Archives.Controllers
             return Created($"archives/{createdArchive.Name}", createdArchive);
         }
 
+        // POST: Create archive
+        [HttpPost]
+        [Route("archives/property")]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> CreateForProperty([FromBody] CreateArchiveDTO archiveDTO)
+        {
+            //validations
+            if (archiveDTO == null) return BadRequest("Incorrect body format");
+
+            var archive = _mapper.Map<CreateArchiveDTO, Archive>(archiveDTO);
+
+            // TODO: Move validation out of controller!
+            ValidationResult validationResult = await _archiveValidator.ValidateAsync(archive);
+            if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
+
+            if (archive.Name == null) return BadRequest("Archive Name is empty");
+
+            Archive createdArchive = await _archivesService.CreateArchiveAsync(archive);
+            //TODO
+            return Created($"archives/{createdArchive.Name}", createdArchive);
+        }
+
         // GET: Get archive(s)
         [HttpGet]
         [Route("archives")]

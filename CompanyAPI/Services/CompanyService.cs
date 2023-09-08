@@ -37,6 +37,8 @@ namespace CompanyAPI.Services
 
         public async Task<ActionResult<CompanyDetailedDto>> CreateAsync(CreateCompanyDto createCompanyDto, string lastUser)
         {
+            createCompanyDto = TrimListItems(createCompanyDto);
+
             var company = _mapper.Map<CreateCompanyDto, Company>(createCompanyDto);
 
             company.LastUpdateByUser = lastUser;
@@ -49,6 +51,27 @@ namespace CompanyAPI.Services
 
             var companyDto = _mapper.Map<Company, CompanyDetailedDto>(company);
             return new CreatedResult($"company/{companyDto.Id}", companyDto);
+        }
+
+        private CreateCompanyDto TrimListItems(CreateCompanyDto createCompanyDto)
+        {
+            CompanyAddress emptyAddress = new();
+            emptyAddress.AddressLine1 = "";
+            emptyAddress.AddressLine2 = "";
+            emptyAddress.ShortComment = null;
+            emptyAddress.City = "";
+            emptyAddress.PostalCode = "";
+
+            List<CompanyAddress> emptyAddresses = new List<CompanyAddress>();
+
+            foreach (var address in createCompanyDto.Addresses)
+            {
+                if (JsonSerializer.Serialize(address) != JsonSerializer.Serialize(emptyAddress))
+                    emptyAddresses.Add(address);
+            }
+            createCompanyDto.Addresses = emptyAddresses;
+            return createCompanyDto;
+
         }
 
         public async Task<ActionResult<IEnumerable<CompanyDto>>> GetAsync(bool includeDeleted = false)
@@ -66,39 +89,6 @@ namespace CompanyAPI.Services
 
             return companyDTO;
         }
-
-     /*   public async Task<CompanyDetailsDto> GetCompanyWithProperties(Guid id)
-        {
-            var company = await _companyRepo.GetCompanyByIdAsync(id);
-
-            var client = new OwnershipServiceClient();
-            List<CompanyOwnershipDTO> ownerships = await client.GetOwnershipByIdAsync(id) ?? new List<CompanyOwnershipDTO>();
-
-            var companyDTO = _mapper.Map<Company, CompanyDetailsDTO>(company);
-
-            if (companyDTO.OwnershipInfo is null)
-                companyDTO.OwnershipInfo = new List<CompanyOwnershipInfoDTO>();
-
-            if (ownerships is not null)
-            {
-                foreach (var item in ownerships)
-                {
-                    var clientP = new PropertyServiceClient();
-                    var property = await clientP.GetPropertyByIdAsync(item.PropertyId) ?? null;
-                    if (property is not null)
-                    {
-                        CompanyOwnershipInfoDTO ownershipInfo = new CompanyOwnershipInfoDTO()
-                        {
-                            PropertyName = property.Name ?? "",
-                            Share = item.Share
-                        };
-                        companyDTO.OwnershipInfo.Add(ownershipInfo);
-                    }
-                }
-            }
-
-            return companyDTO;
-        }*/
 
         public async Task<ActionResult<CompanyDetailedDto>> UpdateAsync(Guid companyId, UpdateCompanyDto updateCompanyDto, string lastUser)
         {

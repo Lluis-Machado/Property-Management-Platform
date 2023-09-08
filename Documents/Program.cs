@@ -15,6 +15,8 @@ using Serilog;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using MassTransit;
+using DocumentsAPI.Consumers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -96,6 +98,19 @@ builder.Services.AddAuthentication(options =>
     {
         NameClaimType = ClaimTypes.NameIdentifier
     };
+});
+
+builder.Services.AddMassTransit(config => {
+
+    config.AddConsumer<ArchiveConsumer>();
+
+    config.UsingRabbitMq((ctx, cfg) => {
+        cfg.Host("amqp://guest:guest@localhost:5672");
+
+        cfg.ReceiveEndpoint("archives", c => {
+            c.ConfigureConsumer<ArchiveConsumer>(ctx);
+        });
+    });
 });
 
 // Other services

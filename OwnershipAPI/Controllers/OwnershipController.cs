@@ -51,6 +51,13 @@ public class OwnershipController : ControllerBase
     {
         return await _ownershipService.GetOwnershipsOfContactAsync(id);
     }
+    [HttpGet("{id}/company")]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+    public async Task<ActionResult<IEnumerable<OwnershipDto>>> GetOwnershipsOfCompanyAsync(Guid id)
+    {
+        return await _ownershipService.GetOwnershipsOfCompanyAsync(id);
+    }
 
     [HttpGet("{id}/property")]
     [ProducesResponseType((int)HttpStatusCode.OK)]

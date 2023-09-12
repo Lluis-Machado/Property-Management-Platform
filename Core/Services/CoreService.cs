@@ -4,9 +4,10 @@ namespace CoreAPI.Services
 {
     public class CoreService : ICoreService
     {
-        public async Task<string> CreateProperty(string requestBody)
+
+        public async Task<string> CreateProperty(string requestBody, IHttpContextAccessor contextAccessor)
         {
-            var client = new PropertyServiceClient();
+            var client = new PropertyServiceClient(contextAccessor);
             string? property = await client.CreateProperty(requestBody);
 
             JsonDocument jsonDocument = JsonDocument.Parse(property);
@@ -15,51 +16,43 @@ namespace CoreAPI.Services
             string propertyId = root.GetProperty("id").GetString();
             string propertyName = root.GetProperty("name").GetString();
 
-            string archivePayload = $"{{\"name\":\"{propertyName}\"}}";
-            var archive = await CreateArchive(archivePayload);
-
-            JsonDocument jsonDocumentA = JsonDocument.Parse(archive);
-
-            // Get the root element of the JSON document
-            JsonElement rootA = jsonDocumentA.RootElement;
-
-            // Extract the ID value
-            string archiveId = rootA.GetProperty("id").GetString();
-
-            string[] folderNames = { "Invoices", "Documents", "Other" };
-
-            foreach (var name in folderNames)
+            var archivePayload = new
             {
-                string folderPayload = $"{{\"name\":\"{name}\"}}";
-                _ = await CreateFolder(folderPayload, archiveId);
-            }
+                name = propertyName,
+                id = propertyId
+            };
+
+            var archive = await CreateArchive(JsonSerializer.Serialize(archivePayload), contextAccessor, "Property");
+
             return property;
         }
 
-        public async Task<string> CreateFolder(string requestBody, string archiveId)
+        [Obsolete("Deprecated, Folder creation is handled automatically in the Documents microservice")]
+        public async Task<string> CreateFolder(string requestBody, string archiveId, IHttpContextAccessor contextAccessor)
         {
-            var client = new DocumentsServiceClient();
+            var client = new DocumentsServiceClient(contextAccessor);
             string? document = await client.CreateFolder(requestBody, archiveId); 
             return document;
         }
 
-        public async Task<string> CreateArchive(string requestBody)
+        public async Task<string> CreateArchive(string requestBody, IHttpContextAccessor contextAccessor, string? type)
         {
-            var client = new DocumentsServiceClient();
-            string? archive = await client.CreateArchive(requestBody);
+            // TODO: Change from REST call to RabbitMQ message
+            var client = new DocumentsServiceClient(contextAccessor);
+            string? archive = await client.CreateArchive(requestBody, type);
             return archive;
         }
 
-        public async Task<object> GetContact(Guid Id)
+        public async Task<object> GetContact(Guid Id, IHttpContextAccessor contextAccessor)
         {
-            var clientC = new CompanyServiceClient();
+            var clientC = new CompanyServiceClient(contextAccessor);
             var company = await clientC.GetCompanyByIdAsync(Id);
             return company;
         }
 
-        public async Task<object> GetProperty(Guid Id)
+        public async Task<object> GetProperty(Guid Id, IHttpContextAccessor contextAccessor)
         {
-            var client = new PropertyServiceClient();
+            var client = new PropertyServiceClient(contextAccessor);
             var property = await client.GetPropertyByIdAsync(Id);
             return property;
         }

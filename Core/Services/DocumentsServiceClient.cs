@@ -8,8 +8,9 @@ namespace CoreAPI.Services;
 public class DocumentsServiceClient
 {
     private readonly HttpClient _httpClient;
+    private readonly IHttpContextAccessor _contextAccessor;
 
-    public DocumentsServiceClient()
+    public DocumentsServiceClient(IHttpContextAccessor contextAccessor)
     {
         _httpClient = new HttpClient();
 #if DEVELOPMENT
@@ -23,15 +24,22 @@ public class DocumentsServiceClient
 
         _httpClient.DefaultRequestHeaders.Accept.Clear();
         _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        _contextAccessor = contextAccessor;
     }
 
 
-    public async Task<string?> CreateArchive(string requestBody)
+    public async Task<string?> CreateArchive(string requestBody, string? type)
     {
-        using var request = new HttpRequestMessage(HttpMethod.Post, "archives");
-        var _authorizationToken = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjZ1TTcwYmU1OElvMjNNRUZELWh1SSJ9.eyJpc3MiOiJodHRwczovL3N0YWdlLXBsYXR0ZXMuZXUuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDY0YzBiZmIzMGI3ZWI3YzU3OTcyNjlkYyIsImF1ZCI6Ind1Zi1hdXRoMC1hcGkiLCJpYXQiOjE2OTM4OTc5NDQsImV4cCI6MTY5NTE5Mzk0NCwiYXpwIjoiNkVaRGNDbGk1TDA4Z1d2czB5NmtLY2NQcW5GTHNVQzIiLCJndHkiOiJwYXNzd29yZCIsInBlcm1pc3Npb25zIjpbImFkbWluIiwicmVhZCIsInJlYWQ6ZG9jdW1lbnRzIiwid3JpdGUiLCJ3cml0ZTpkb2N1bWVudHMiXX0.Dhx_--KxU6mjNeDVH1lXv2qezBpA70387rMMObouVkdoFphc2igAbFuSOADmKkeLasuccnbIyA9SClaCjlXCEkYDtTQ1byWsvben_r20S9qbDcZjqzLRLWXVMwR0DZh_o2A1RUiujBK_EsHs8noyMJiFb6uofpQNVu6GMNHAsxn9P6wB1T_rLiAbftfC8_tmRDV__EqsxmDd417tthQzaQ8ewWK6K1Gtnp81sB9LT4eLnUCHxH5f-Z9fDw5sv1gv6QYUoVv2iT61Fj2T8xZCt2VMvxCHyOStZeAOh2Xw-t-hdjXpgdjktv_66UB7EN6IUKXoOJrrlfaBnSGmaHnfAw";
+        string url = string.IsNullOrEmpty(type) ? string.Empty : $"/{type}";
 
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authorizationToken);
+        using var request = new HttpRequestMessage(HttpMethod.Post, "archives"+url);
+
+        // Add authorization token to the request headers
+        var _auth = _contextAccessor?.HttpContext?.Request.Headers.Authorization.FirstOrDefault();
+        if (_auth != null)
+        {
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _auth.Split(' ')[1]);
+        }
         request.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");
 
         var response = await _httpClient.SendAsync(request);

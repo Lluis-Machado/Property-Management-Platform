@@ -16,6 +16,7 @@
         public int? CountryMaskId { get; set; }
         public string? PhoneNumber { get; set; }
         public string? Comments { get; set; }
+        
 
         public int Version { get; set; }
 

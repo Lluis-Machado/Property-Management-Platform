@@ -37,7 +37,7 @@ namespace ContactsAPI.Controllers
             ValidationResult validationResult = await _createContactValidator.ValidateAsync(contactDTO);
             if (!validationResult.IsValid) return new BadRequestObjectResult(validationResult.ToString("~"));
 
-            var lastUser = "test";
+            var lastUser = User?.Identity?.Name;
 
             return await _contactsService.CreateAsync(contactDTO, lastUser);
         }
@@ -56,7 +56,7 @@ namespace ContactsAPI.Controllers
             ValidationResult validationResult = await _updateContactValidator.ValidateAsync(contactDTO);
             if (!validationResult.IsValid) return new BadRequestObjectResult(validationResult.ToString("~"));
 
-            var lastUser = "test";
+            var lastUser = User?.Identity?.Name;
 
             return await _contactsService.UpdateContactAsync(contactId, contactDTO, lastUser);
         }

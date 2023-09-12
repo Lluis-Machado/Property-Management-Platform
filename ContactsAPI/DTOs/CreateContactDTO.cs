@@ -16,8 +16,13 @@ namespace ContactsAPI.DTOs
 
         // Contact Information
         public string? Email { get; set; }
-        // Bank Information
-        public string? IBAN { get; set; }
+        public string? Comments { get; set; }
+        public string? Salutation { get; set; }
+
+
+        public string? Comments { get; set; }
+        public string? Salutation { get; set; }
+
 
         public string? Comments { get; set; }
         public string? Salutation { get; set; }

@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+﻿using CoreAPI.Models;
+using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace CoreAPI.Services
 {
@@ -55,6 +57,30 @@ namespace CoreAPI.Services
             var client = new PropertyServiceClient(contextAccessor);
             var property = await client.GetPropertyByIdAsync(Id);
             return property;
+        }
+
+        public Task FixOwnerships()
+        {
+            
+            List<Ownership> ownerships = new();
+            List<Guid> brokenOwnerships = ownerships.Where(x => x.Id == Guid.Empty).Select(x => x.Id).ToList();
+            brokenOwnerships = ownerships.Where(x => x.PropertyId == Guid.Empty).Select(x => x.Id).ToList();
+            brokenOwnerships = ownerships.Where(x => x.OwnerId == Guid.Empty).Select(x => x.Id).ToList();
+            brokenOwnerships = ownerships.Where(x => x.OwnerType.ToLower() != "contacts" || x.OwnerType.ToLower() != "company").Select(x => x.Id).ToList();
+
+
+
+            List<Guid> properties = ownerships.Select(x => x.PropertyId).ToList();
+            List<Guid> companies = ownerships.Where(x => x.OwnerType.ToLower() == "company").Select(x => x.OwnerId).ToList();
+            List<Guid> contacts = ownerships.Where(x => x.OwnerType.ToLower() == "contact").Select(x => x.OwnerId).ToList();
+
+
+
+
+            return null;
+
+
+
         }
     }
 }

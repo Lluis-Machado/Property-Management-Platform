@@ -7,5 +7,6 @@
         Task<string> CreateFolder(string requestBody, string archiveId);
         Task<object> GetContact(Guid Id);
         Task<object> GetProperty(Guid Id);
+        Task FixOwnerships();
     }
 }

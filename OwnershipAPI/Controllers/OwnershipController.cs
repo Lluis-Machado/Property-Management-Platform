@@ -35,7 +35,39 @@ public class OwnershipController : ControllerBase
 
         return await _ownershipService.UpsertOwnershipAsync(ownershipDto, lastUser);
     }
-    
+
+    [HttpPost("ownerships")]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    public async Task<ActionResult> CreateMultipleAsync([FromBody] List<OwnershipOperationDto> ownerships)
+    {
+        // validations
+        foreach (var ownershipDto in ownerships)
+        {
+            if (ownershipDto is null) return new BadRequestObjectResult("Incorrect body format");
+        }
+
+        var lastUser = "test";
+        lastUser = UserNameValidator.GetValidatedUserName(lastUser);
+
+        //await _ownershipService.ProcessMultiple(OwnershipOperationDto);
+
+        decimal share = ownerships.Sum(x => x.Values.Share);
+        if (share != 100)
+            return new BadRequestObjectResult("Share not 100");
+        foreach (var ownershipDto in ownerships)
+        {
+            if(ownershipDto.Operation == "delete")
+                await _ownershipService.DeleteOwnershipAsync(ownershipDto.Values.Id, lastUser);
+            else
+                await _ownershipService.UpsertOwnershipAsync(ownershipDto.Values, lastUser);
+        }
+
+        return new OkObjectResult(ownerships);
+    }
+
     [HttpGet]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]

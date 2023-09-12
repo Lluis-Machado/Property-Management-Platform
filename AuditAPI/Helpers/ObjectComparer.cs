@@ -1,6 +1,8 @@
-﻿using System;
+﻿using MongoDB.Bson.IO;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text.Json;
 
 public static class ObjectComparer
 {
@@ -19,6 +21,14 @@ public static class ObjectComparer
 
             if (property.Name == "LastUpdateAt" || property.Name == "LastUpdateByUser" || !Equals(value1, value2))
             {
+                if (property.Name == "Addresses" && Equals(JsonSerializer.Serialize(value1), JsonSerializer.Serialize(value2)))
+                    continue;
+                if (property.Name == "Phones" && Equals(JsonSerializer.Serialize(value1), JsonSerializer.Serialize(value2)))
+                    continue;
+                if (property.Name == "Identifications" && Equals(JsonSerializer.Serialize(value1), JsonSerializer.Serialize(value2)))
+                    continue;
+                if (property.Name == "BankInformation" && Equals(JsonSerializer.Serialize(value1), JsonSerializer.Serialize(value2)))
+                    continue;
                 diffProperties[property.Name] = Tuple.Create(value1!, value2!);
             }
             

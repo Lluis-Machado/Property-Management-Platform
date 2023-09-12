@@ -53,8 +53,8 @@ namespace PropertiesAPI.Dtos
         public Price? FurniturePriceTotal { get; set; }
         public Price? FurniturePriceGross { get; set; }
 
-        public DateOnly? GarbageCollection { get; set; }
-        public int? GarbageCollectionDate { get; set; }
+        public int? GarbageCollection { get; set; }
+        public DateOnly? GarbageCollectionDate { get; set; }
 
         public Price? GarbagePriceAmount { get; set; }
 

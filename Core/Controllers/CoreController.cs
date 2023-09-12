@@ -48,10 +48,15 @@ namespace CoreAPI.Controllers
         public async Task<ActionResult<string>> CreateProperty([FromBody] object requestBody)
         {
             var property = await _coreService.CreateProperty(requestBody.ToString());
-
-
-
             return Ok(property);
+        }
+
+        [HttpPost("ownership/fix")]
+        //[Route]
+        public async Task<ActionResult> FixOwnerships()
+        {
+            await _coreService.FixOwnerships();
+            return Ok();
         }
     }
 }

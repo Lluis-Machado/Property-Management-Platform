@@ -6,11 +6,12 @@ namespace CoreAPI.Services
 {
     public class CoreService : ICoreService
     {
-
         public async Task<string> CreateProperty(string requestBody, IHttpContextAccessor contextAccessor)
         {
             var client = new PropertyServiceClient(contextAccessor);
             string? property = await client.CreateProperty(requestBody);
+
+            if (string.IsNullOrEmpty(property)) throw new Exception("Property service response is empty");
 
             JsonDocument jsonDocument = JsonDocument.Parse(property);
             JsonElement root = jsonDocument.RootElement;
@@ -75,11 +76,7 @@ namespace CoreAPI.Services
             List<Guid> contacts = ownerships.Where(x => x.OwnerType.ToLower() == "contact").Select(x => x.OwnerId).ToList();
 
 
-
-
-            return null;
-
-
+            return Task.CompletedTask;
 
         }
     }

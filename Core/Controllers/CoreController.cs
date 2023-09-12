@@ -58,6 +58,10 @@ namespace CoreAPI.Controllers
             // TODO: Update property, if name changed then update Archive display_name as well
 
             return NoContent();
+
+        }
+
+
         [HttpPost("ownership/fix")]
         //[Route]
         public async Task<ActionResult> FixOwnerships()

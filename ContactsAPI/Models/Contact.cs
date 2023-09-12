@@ -21,6 +21,9 @@
         public string? Comments { get; set; }
         public string? Salutation { get; set; }
 
+        public string? Comments { get; set; }
+        public string? Salutation { get; set; }
+
 
         // Multiples
         public List<ContactAddress> Addresses { get; set; } = new();

@@ -29,6 +29,8 @@ public static class ObjectComparer
                     continue;
                 if (property.Name == "BankInformation" && Equals(JsonSerializer.Serialize(value1), JsonSerializer.Serialize(value2)))
                     continue;
+                if (property.Name == "Contacts" && Equals(JsonSerializer.Serialize(value1), JsonSerializer.Serialize(value2)))
+                    continue;
                 diffProperties[property.Name] = Tuple.Create(value1!, value2!);
             }
             

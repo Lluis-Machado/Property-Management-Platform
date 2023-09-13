@@ -49,7 +49,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AuthorizeAPI\AuthorizeAPI.csproj" />
     <ProjectReference Include="..\MessagingContracts\MessagingContracts.csproj" />
   </ItemGroup>
 

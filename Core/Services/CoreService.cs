@@ -1,4 +1,6 @@
 ﻿using CoreAPI.Models;
+using MassTransit;
+using MessagingContracts;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
@@ -6,6 +8,10 @@ namespace CoreAPI.Services
 {
     public class CoreService : ICoreService
     {
+        private readonly IBus _bus;
+        public CoreService(IBus bus) {
+            _bus = bus;
+        }
 
         public async Task<string> CreateProperty(string requestBody, IHttpContextAccessor contextAccessor)
         {
@@ -49,6 +55,8 @@ namespace CoreAPI.Services
         {
             var clientC = new CompanyServiceClient(contextAccessor);
             var company = await clientC.GetCompanyByIdAsync(Id);
+            await SendMessageToAuditQueue(new MessageContract() { Payload = company });
+
             return company;
         }
 
@@ -56,31 +64,20 @@ namespace CoreAPI.Services
         {
             var client = new PropertyServiceClient(contextAccessor);
             var property = await client.GetPropertyByIdAsync(Id);
+            await SendMessageToArchivePropertyQueue(new MessageContract() { Payload = property } );
             return property;
         }
 
-        public Task FixOwnerships()
+        public async Task SendMessageToAuditQueue(MessageContract message)
         {
-            
-            List<Ownership> ownerships = new();
-            List<Guid> brokenOwnerships = ownerships.Where(x => x.Id == Guid.Empty).Select(x => x.Id).ToList();
-            brokenOwnerships = ownerships.Where(x => x.PropertyId == Guid.Empty).Select(x => x.Id).ToList();
-            brokenOwnerships = ownerships.Where(x => x.OwnerId == Guid.Empty).Select(x => x.Id).ToList();
-            brokenOwnerships = ownerships.Where(x => x.OwnerType.ToLower() != "contacts" || x.OwnerType.ToLower() != "company").Select(x => x.Id).ToList();
+            var sendEndpoint = await _bus.GetSendEndpoint(new Uri("rabbitmq://localhost/audit1"));
+            await sendEndpoint.Send<MessageContract>(message);
+        }
 
-
-
-            List<Guid> properties = ownerships.Select(x => x.PropertyId).ToList();
-            List<Guid> companies = ownerships.Where(x => x.OwnerType.ToLower() == "company").Select(x => x.OwnerId).ToList();
-            List<Guid> contacts = ownerships.Where(x => x.OwnerType.ToLower() == "contact").Select(x => x.OwnerId).ToList();
-
-
-
-
-            return null;
-
-
-
+        public async Task SendMessageToArchivePropertyQueue(MessageContract message)
+        {
+            var sendEndpoint = await _bus.GetSendEndpoint(new Uri("rabbitmq://localhost/aproperty2"));
+            await sendEndpoint.Send<MessageContract>(message);
         }
     }
 }

@@ -64,6 +64,11 @@ namespace DocumentsAPI.Services
             return await _documentsRepository.GetDocumentByIdAsync(archiveId, documentId);
         }
 
+        public async Task<string?> GetDocumentUrlByIdAsync(Guid archiveId, Guid documentId)
+        {
+            return await _documentsRepository.GetDocumentUrlByIdAsync(archiveId, documentId);
+        }
+
         public async Task<FileContentResult> DownloadAsync(Guid archiveId, Guid documentId)
         {
             byte[] byteArray = await _documentsRepository.DownloadDocumentAsync(archiveId, documentId);

@@ -1,11 +1,15 @@
 ﻿using DocumentsAPI.Models;
 using DocumentsAPI.Repositories;
+using FluentValidation;
+using FluentValidation.Results;
+using static DocumentsAPI.Models.Archive;
 
 namespace DocumentsAPI.Services
 {
     public class ArchivesService : IArchivesService
     {
         private readonly ILogger<ArchivesService> _logger;
+        private readonly IValidator<Archive> _archiveValidator;
         private readonly IArchiveRepository _archiveRepository;
         private readonly IFolderRepository _folderRepository;
 
@@ -16,11 +20,22 @@ namespace DocumentsAPI.Services
             _folderRepository = folderRepository;
         }
 
-        public async Task<Archive> CreateArchiveAsync(Archive archive)
+        public async Task<Archive> CreateArchiveAsync(Archive archive, ARCHIVE_TYPE type = ARCHIVE_TYPE.NONE, Guid? objectId = null)
         {
+            // Validations
+            if (type != ARCHIVE_TYPE.NONE && objectId == null) {
+                throw new Exception($"Cannot create a {type.ToString().ToLowerInvariant()} archive without the corresponding {type.ToString().ToLowerInvariant()} Guid");
+            }
+
+            ValidationResult validationResult = await _archiveValidator.ValidateAsync(archive);
+            if (!validationResult.IsValid) throw new ValidationException(validationResult.ToString("~"));
+
             //create archive
-            archive.Id = Guid.NewGuid();
+            archive.Id = objectId ?? Guid.NewGuid();
+            archive.ArchiveType = type;
             await _archiveRepository.CreateArchiveAsync(archive);
+
+            if (type != ARCHIVE_TYPE.NONE) await _folderRepository.CreateDefaultFolders(archive);
 
             return archive;
         }

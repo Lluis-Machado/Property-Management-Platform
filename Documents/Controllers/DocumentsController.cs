@@ -168,6 +168,19 @@ namespace Documents.Controllers
             return File(byteArray, results.ContentType);
         }
 
+        // GET: Download document
+        [HttpGet]
+        [Route("{archiveId}/documents/{documentId}/url")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult> GetDocumentUrlAsync(Guid archiveId, Guid documentId)
+        {
+            var results = await _documentsService.GetDocumentUrlByIdAsync(archiveId, documentId);
+            return Ok(results);
+        }
+
+
         // DELETE: Delete document
         [HttpDelete]
         [Route("{archiveId}/documents/{documentId}")]

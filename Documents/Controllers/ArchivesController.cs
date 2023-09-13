@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using DocumentsAPI.DTOs;
 using AutoMapper;
+using static DocumentsAPI.Models.Archive;
 
 namespace Archives.Controllers
 {
@@ -53,28 +54,58 @@ namespace Archives.Controllers
             return Created($"archives/{createdArchive.Name}", createdArchive);
         }
 
-        // POST: Create archive
+        // POST: Create archive for a property
         [HttpPost]
-        [Route("archives/property")]
+        [Route("archives/property/{propertyId}")]
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> CreateForProperty([FromBody] CreateArchiveDTO archiveDTO)
+        public async Task<IActionResult> CreateForProperty(Guid propertyId, [FromBody] CreateArchiveDTO archiveDTO)
         {
             //validations
             if (archiveDTO == null) return BadRequest("Incorrect body format");
+            if (archiveDTO.Name == null) return BadRequest("Archive Name is empty");
 
             var archive = _mapper.Map<CreateArchiveDTO, Archive>(archiveDTO);
 
-            // TODO: Move validation out of controller!
-            ValidationResult validationResult = await _archiveValidator.ValidateAsync(archive);
-            if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
+            Archive createdArchive = await _archivesService.CreateArchiveAsync(archive, ARCHIVE_TYPE.PROPERTY);
+            return Created($"archives/property/{createdArchive.FullArchiveId}", createdArchive);
+        }
 
-            if (archive.Name == null) return BadRequest("Archive Name is empty");
+        // POST: Create archive for a contact
+        [HttpPost]
+        [Route("archives/contact/{contactId}")]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> CreateForContact(Guid contactId, [FromBody] CreateArchiveDTO archiveDTO)
+        {
+            //validations
+            if (archiveDTO == null) return BadRequest("Incorrect body format");
+            if (archiveDTO.Name == null) return BadRequest("Archive Name is empty");
 
-            Archive createdArchive = await _archivesService.CreateArchiveAsync(archive);
-            //TODO
-            return Created($"archives/{createdArchive.Name}", createdArchive);
+            var archive = _mapper.Map<CreateArchiveDTO, Archive>(archiveDTO);
+
+            Archive createdArchive = await _archivesService.CreateArchiveAsync(archive, ARCHIVE_TYPE.CONTACT);
+            return Created($"archives/property/{createdArchive.FullArchiveId}", createdArchive);
+        }
+
+        // POST: Create archive for a company
+        [HttpPost]
+        [Route("archives/company/{companyId}")]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> CreateForCompany(Guid companyId, [FromBody] CreateArchiveDTO archiveDTO)
+        {
+            //validations
+            if (archiveDTO == null) return BadRequest("Incorrect body format");
+            if (archiveDTO.Name == null) return BadRequest("Archive Name is empty");
+
+            var archive = _mapper.Map<CreateArchiveDTO, Archive>(archiveDTO);
+
+            Archive createdArchive = await _archivesService.CreateArchiveAsync(archive, ARCHIVE_TYPE.COMPANY);
+            return Created($"archives/property/{createdArchive.FullArchiveId}", createdArchive);
         }
 
         // GET: Get archive(s)

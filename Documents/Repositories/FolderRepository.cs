@@ -18,6 +18,11 @@ namespace DocumentsAPI.Repositories
             _logger = logger;
         }
 
+        public async Task CreateDefaultFolders(Archive archive)
+        {
+            // TODO
+        }
+
         public async Task<bool> CheckFolderExists(Guid folderId)
         {
             var parameters = new

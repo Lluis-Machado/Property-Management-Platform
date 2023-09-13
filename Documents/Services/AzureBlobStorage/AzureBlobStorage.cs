@@ -1,12 +1,17 @@
 ﻿using Azure;
+using Azure.Identity;
+using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Azure.Storage.Sas;
 using DocumentsAPI.Contexts;
 using DocumentsAPI.DTOs;
 using DocumentsAPI.Models;
 using DocumentsAPI.Repositories;
+using MongoDB.Driver.Core.Configuration;
 using System.Collections.Concurrent;
 using System.Net;
+using System.Reflection.Metadata;
 using Document = DocumentsAPI.Models.Document;
 
 namespace DocumentsAPI.Services.AzureBlobStorage
@@ -210,6 +215,32 @@ namespace DocumentsAPI.Services.AzureBlobStorage
             }
 
             return document;
+        }
+
+        public async Task<string?> GetDocumentUrlByIdAsync(Guid archiveId, Guid documentId)
+        {
+
+            BlobContainerClient blobContainerClient = _context.GetBlobContainerClient(archiveId.ToString());
+            BlobClient blobClient = blobContainerClient.GetBlobClient(documentId.ToString());
+
+
+            BlobSasBuilder sasBuilder = new BlobSasBuilder()
+            {
+                BlobContainerName = blobContainerClient.Name,
+                BlobName = blobClient.Name,
+                Resource = "b",
+                StartsOn = DateTimeOffset.UtcNow,
+                ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(15)
+            };
+            sasBuilder.SetPermissions(BlobSasPermissions.Read);
+
+            StorageSharedKeyCredential creds = new StorageSharedKeyCredential(_context.GetStorageAccount(), _context.GetAccountKey());
+
+            // SAS Token
+            string sasUri = sasBuilder.ToSasQueryParameters(creds).ToString();
+
+
+            return blobClient.Uri + "?" + sasUri;
         }
 
         public async Task<bool> DocumentExistsAsync(Guid archiveId, Guid documentId)

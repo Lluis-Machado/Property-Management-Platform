@@ -9,6 +9,7 @@ namespace DocumentsAPI.Repositories
         Task<DocumentUploadDTO> UploadDocumentAsync(Guid archiveName, string fileName, Stream pFileContent, Guid? folderId = null);
         Task<IEnumerable<Document>> GetDocumentsFlatListingAsync(Guid archiveId, int? pSegmentSize, Guid? folderId = null, bool includeDeleted = false);
         Task<Document?> GetDocumentByIdAsync(Guid archiveId, Guid documentId);
+        Task<string?> GetDocumentUrlByIdAsync(Guid archiveId, Guid documentId);
         Task<IEnumerable<Document>> SearchDocumentsTagsAsync(string query, bool includeDeleted = false);
         Task<bool> DocumentExistsAsync(Guid archiveName, Guid documentId);
         Task<byte[]> DownloadDocumentAsync(Guid archiveName, Guid documentId);

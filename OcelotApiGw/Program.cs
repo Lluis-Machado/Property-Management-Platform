@@ -3,8 +3,17 @@ using Microsoft.OpenApi.Models;
 using Ocelot.Cache.CacheManager;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Serilog
+var logger = new LoggerConfiguration()
+  .ReadFrom.Configuration(builder.Configuration)
+  .Enrich.FromLogContext()
+  .CreateLogger();
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog(logger);
 
 builder.Services.AddControllers();
 

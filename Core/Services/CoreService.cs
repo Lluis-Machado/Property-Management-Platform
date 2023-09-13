@@ -18,6 +18,8 @@ namespace CoreAPI.Services
             var client = new PropertyServiceClient(contextAccessor);
             string? property = await client.CreateProperty(requestBody);
 
+            if (string.IsNullOrEmpty(property)) throw new Exception("Property service response is empty");
+
             JsonDocument jsonDocument = JsonDocument.Parse(property);
             JsonElement root = jsonDocument.RootElement;
 

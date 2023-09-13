@@ -4,6 +4,7 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using ContactsAPI.DTOs;
+using AuthorizeAPI;
 
 namespace ContactsAPI.Controllers
 {

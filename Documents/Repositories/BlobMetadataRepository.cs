@@ -87,11 +87,14 @@ namespace DocumentsAPI.Repositories
 
         public async Task<BlobMetadata> UpdateAsync(BlobMetadata blobMetadata, string username = "sa")
         {
-            var filter = Builders<BlobMetadata>.Filter.Eq(b => b.BlobId, blobMetadata.BlobId) & Builders<BlobMetadata>.Filter.Eq(b => b.ContainerId, blobMetadata.ContainerId);
+            var filter = Builders<BlobMetadata>.Filter.Eq(b => b.BlobId, blobMetadata.BlobId);
             var blob = await _collection.FindAsync(filter);
-            if (!blob.Any()) throw new Exception($"Blob {blobMetadata.BlobId} not found");
-
-            var foundBlob = blob.First();
+            var foundBlob = blob.FirstOrDefault();
+            if (foundBlob is null)
+            {
+                // If no blob is found, error control
+                return await InsertAsync(blobMetadata, username);
+            }
 
             blobMetadata.LastUpdateAt = DateTime.UtcNow;
             blobMetadata.LastUpdateByUser = username;
@@ -99,7 +102,15 @@ namespace DocumentsAPI.Repositories
             if (blobMetadata.FolderId == Guid.Empty) blobMetadata.FolderId = foundBlob.FolderId;
             if (string.IsNullOrEmpty(blobMetadata.DisplayName)) blobMetadata.DisplayName = foundBlob.DisplayName;
 
-            await _collection.ReplaceOneAsync(filter, blobMetadata);
+            var update = Builders<BlobMetadata>.Update
+                .Set(b => b.FolderId, blobMetadata.FolderId)
+                .Set(b => b.DisplayName, blobMetadata.DisplayName)
+                .Set(b => b.ContainerId, blobMetadata.ContainerId)
+                .Set(b => b.LastUpdateByUser, username)
+                .Set(b => b.LastUpdateAt, DateTime.UtcNow)
+                .Set(b => b.Deleted, blobMetadata.Deleted);
+
+            await _collection.UpdateOneAsync(filter, update);
 
             return blobMetadata;
         }

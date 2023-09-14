@@ -72,7 +72,6 @@ namespace DocumentsAPI.Services
 
         public async Task<IActionResult> DeleteAsync(Guid archiveId, Guid documentId)
         {
-
             Task.WaitAll(new Task[] {
                 _documentsRepository.DeleteDocumentAsync(archiveId, documentId),
                 _blobMetadataRepository.DeleteAsync(documentId)

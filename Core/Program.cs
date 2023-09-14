@@ -1,6 +1,6 @@
-
 using CoreAPI.Services;
 using FluentValidation;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -70,6 +70,18 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddMassTransit(config =>
+{
+    config.UsingRabbitMq((ctx, cfg) =>
+    {
+        cfg.Host("amqp://guest:guest@localhost:5672");
+
+        // Configure retry policy
+        cfg.UseMessageRetry(r => r.Intervals(TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(10)));
+
+    });
+});
 
 var app = builder.Build();
 

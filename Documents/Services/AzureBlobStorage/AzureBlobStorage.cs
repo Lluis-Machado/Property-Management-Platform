@@ -324,7 +324,7 @@ namespace DocumentsAPI.Services.AzureBlobStorage
             // destinatio blob metadata
             Dictionary<string, string> blobMetadata = new()
             {
-                {"display_name", newDocumentName},
+                {"display_name", Uri.EscapeDataString(newDocumentName)},
                 {"folder_id", blobClient.GetProperties().Value.Metadata["folder_id"]}
             };
 
@@ -347,7 +347,7 @@ namespace DocumentsAPI.Services.AzureBlobStorage
             // destinatio blob metadata
             Dictionary<string, string> blobMetadata = new()
             {
-                {"display_name", newDocumentName},
+                {"display_name", Uri.EscapeDataString(newDocumentName)},
                 {"folder_id", folderId != null ? folderId.ToString() : ""},
             };
 
@@ -368,7 +368,7 @@ namespace DocumentsAPI.Services.AzureBlobStorage
             // source blob
             BlobClient sourceBlobClient = _context.GetBlobClient(sourceArchive.ToString(), documentId.ToString());
 
-            if (sourceArchive == destinationArchive && folderId != null)
+            if (sourceArchive == destinationArchive)
             {
                 var test = await GetDocumentByIdAsync(sourceArchive, documentId);
                 if (test == null) throw new Exception("Source document not found");
@@ -388,7 +388,7 @@ namespace DocumentsAPI.Services.AzureBlobStorage
                 // destination blob metadata
                 Dictionary<string, string> blobMetadata = new()
             {
-                {"display_name", newDocumentName},
+                {"display_name", Uri.EscapeDataString(newDocumentName)},
                 {"folder_id", folderId != null ? folderId.ToString() : ""},
             };
 

@@ -8,6 +8,5 @@
         Task<string> CreateFolder(string requestBody, string archiveId, IHttpContextAccessor contextAccessor);
         Task<object> GetContact(Guid Id, IHttpContextAccessor contextAccessor);
         Task<object> GetProperty(Guid Id, IHttpContextAccessor contextAccessor);
-        Task FixOwnerships();
     }
 }

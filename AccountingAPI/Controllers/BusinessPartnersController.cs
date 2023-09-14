@@ -38,7 +38,7 @@ namespace AccountingAPI.Controllers
             return Created($"businessPartners/{businessPartnerDTO.Id}", businessPartnerDTO);
         }
 
-        // GET: Get businessPartner(s)
+        // GET: Get businessPartner(s) for a specific tenant
         [HttpGet]
         [Route("tenants/{tenantId}/businessPartners")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -46,6 +46,16 @@ namespace AccountingAPI.Controllers
         public async Task<ActionResult<IEnumerable<BusinessPartnerDTO>>> GetBusinessPartnersAsync(Guid tenantId, [FromQuery] bool includeDeleted = false, [FromQuery] int? page = null, [FromQuery] int? pageSize = null)
         {
             return Ok(await _businessPartnerService.GetBusinessPartnersAsync(tenantId, includeDeleted, page, pageSize));
+        }
+
+        // GET: Get businessPartner(s) for a specific tenant
+        [HttpGet]
+        [Route("businessPartners")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<IEnumerable<BusinessPartnerDTO>>> GetAllBusinessPartnersAsync([FromQuery] bool includeDeleted = false, [FromQuery] int? page = null, [FromQuery] int? pageSize = null)
+        {
+            return Ok(await _businessPartnerService.GetBusinessPartnersAsync(null, includeDeleted, page, pageSize));
         }
 
         // PATCH: Update businessPartner

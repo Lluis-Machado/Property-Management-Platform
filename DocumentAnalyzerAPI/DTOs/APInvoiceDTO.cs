@@ -9,6 +9,8 @@ namespace DocumentAnalyzerAPI.DTOs
         public string? Currency { get; set; }
         public List<APInvoiceLineDTO> InvoiceLines { get; set; }
         public decimal? TotalAmount { get; set; }
+        public decimal? TotalTax { get; set; }
+
 
         public APInvoiceDTO()
         {

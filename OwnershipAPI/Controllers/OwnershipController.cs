@@ -54,7 +54,7 @@ public class OwnershipController : ControllerBase
 
         //await _ownershipService.ProcessMultiple(OwnershipOperationDto);
 
-        decimal share = ownerships.Sum(x => x.Values.Share);
+        decimal share = ownerships.Where(x => x.Values.Deleted == true).Sum(x => x.Values.Share);
         if (share != 100)
             return new BadRequestObjectResult("Share not 100");
         foreach (var ownershipDto in ownerships)

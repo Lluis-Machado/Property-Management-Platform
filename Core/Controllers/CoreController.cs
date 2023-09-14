@@ -28,10 +28,10 @@ namespace CoreAPI.Controllers
         }
 
         [HttpGet]
-        [Route("company/{Id}")]
+        [Route("companies/{Id}")]
         public async Task<ActionResult<string>> GetCompany(Guid Id)
         {
-            var contact = await _coreService.GetContact(Id, _contextAccessor);
+            var contact = await _coreService.GetCompany(Id, _contextAccessor);
             return Ok(contact);
         }
 
@@ -43,17 +43,76 @@ namespace CoreAPI.Controllers
             return Ok(property);
         }
 
+
+        [HttpGet]
+        [Route("contacts")]
+        public async Task<ActionResult<string>> GetContacts(bool includeDeleted = false)
+        {
+            var contact = await _coreService.GetContacts(includeDeleted, _contextAccessor);
+            return Ok(contact);
+        }
+
+        [HttpGet]
+        [Route("companies")]
+        public async Task<ActionResult<string>> GetCompanies(bool includeDeleted = false)
+        {
+            var contact = await _coreService.GetCompanies(includeDeleted, _contextAccessor);
+            return Ok(contact);
+        }
+
+        [HttpGet]
+        [Route("properties")]
+        public async Task<ActionResult<string>> GetProperties(bool includeDeleted = false)
+        {
+            var property = await _coreService.GetProperties(includeDeleted, _contextAccessor);
+            return Ok(property);
+        }
+
         [HttpPost("properties")]
         public async Task<ActionResult<string>> CreateProperty([FromBody] string requestBody)
         {
-            var property = await _coreService.CreateProperty(requestBody, _contextAccessor);
+            var property = await _coreService.CreateProperty(requestBody);
 
             return Ok(property);
+        }
+
+        [HttpPost("companies")]
+        public async Task<ActionResult<string>> CreateCompany([FromBody] string requestBody)
+        {
+            var company = await _coreService.CreateCompany(requestBody);
+
+            return Ok(company);
+        }
+
+        [HttpPost("contacts")]
+        public async Task<ActionResult<string>> CreateContact([FromBody] string requestBody)
+        {
+            var contacts = await _coreService.CreateContact(requestBody);
+
+            return Ok(contacts);
         }
 
         [HttpPatch]
         [Route("properties/{Id}")]
         public async Task<ActionResult<string>> UpdateProperty(Guid Id, [FromBody] string requestBody)
+        {
+            // TODO: Update property, if name changed then update Archive display_name as well
+
+            return NoContent();
+        }
+
+        [HttpPatch]
+        [Route("contacts/{Id}")]
+        public async Task<ActionResult<string>> UpdateContact(Guid Id, [FromBody] string requestBody)
+        {
+            // TODO: Update property, if name changed then update Archive display_name as well
+
+            return NoContent();
+        }
+
+        [HttpPatch]
+        [Route("companies/{Id}")]
+        public async Task<ActionResult<string>> UpdateCompanies(Guid Id, [FromBody] string requestBody)
         {
             // TODO: Update property, if name changed then update Archive display_name as well
 

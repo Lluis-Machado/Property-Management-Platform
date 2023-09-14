@@ -27,7 +27,8 @@ namespace DocumentAnalyzerAPI.Mappers
                 RefNumber = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields,"InvoiceId"),
                 Date = AzureFormRecgonizerUtilities.MapFieldValue<DateTimeOffset?>(documentFields,"InvoiceDate")?.DateTime,
                 Currency = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "InvoiceTotal"),
-                TotalAmount = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "InvoiceTotal")
+                TotalAmount = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "InvoiceTotal"),
+                TotalTax = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "TotalTax")
             };
 
             DateTime? serviceDateFrom = AzureFormRecgonizerUtilities.MapFieldValue<DateTimeOffset?>(documentFields, "ServiceStartDate")?.DateTime;
@@ -35,10 +36,8 @@ namespace DocumentAnalyzerAPI.Mappers
 
             if (documentFields.TryGetValue("Items", out var itemsField))
             {
-
                 if (itemsField.FieldType == DocumentFieldType.List)
                 {
-
                     foreach (DocumentField itemField in itemsField.Value.AsList())
                     {
                         IReadOnlyDictionary<string, DocumentField>? itemFields = itemField.Value.AsDictionary();
@@ -48,7 +47,6 @@ namespace DocumentAnalyzerAPI.Mappers
                         aPInvoiceDTO.InvoiceLines.Add(aPInvoiceLineDTO);
                     }
                 }
-
             }
 
             // if no invoice lines detected, create one with total values

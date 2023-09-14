@@ -53,7 +53,7 @@ namespace AccountingAPI.Repositories
             return await connection.QuerySingleAsync<BusinessPartner>(queryBuilder.ToString(), parameters);
         }
 
-        public async Task<IEnumerable<BusinessPartner>> GetBusinessPartnersAsync(Guid tenantId, bool includeDeleted = false)
+        public async Task<IEnumerable<BusinessPartner>> GetBusinessPartnersAsync(Guid? tenantId, bool includeDeleted = false)
         {
             var parameters = new
             {
@@ -71,7 +71,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",LastModificationAt");
             queryBuilder.Append(",LastModificationBy");
             queryBuilder.Append(" FROM BusinessPartners");
-            queryBuilder.Append(" WHERE tenantId = @tenantId");
+            queryBuilder.Append(" WHERE 1 = 1");
+            if (tenantId is not null) queryBuilder.Append(" AND tenantId = @tenantId");
             if (!includeDeleted) queryBuilder.Append(" AND Deleted = @deleted");
 
             using var connection = _context.CreateConnection(); // Create a new connection

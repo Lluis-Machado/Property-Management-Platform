@@ -1,6 +1,6 @@
 ﻿using AccountingAPI.DTOs;
 using AccountingAPI.Services;
-using Microsoft.AspNetCore.Authorization;
+using AuthorizeAPI;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 

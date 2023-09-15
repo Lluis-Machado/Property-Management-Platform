@@ -60,6 +60,15 @@ namespace AccountingAPI.Services
 
             return _mapper.Map<BusinessPartnerDTO>(businessPartner);
         }
+        
+        public async Task<IEnumerable<BusinessPartnerDTO>> GetBusinessPartnerByCIFAsync(string CIF, bool includeDeleted = false)
+        {
+            List<BusinessPartner>? businessPartner = (await _businessPartnerRepository.GetBusinessPartnerByCIFAsync(CIF, includeDeleted)).ToList();
+
+            if (businessPartner is null || !businessPartner.Any()) throw new NotFoundException($"Business Partner match with CIF {CIF}");
+
+            return _mapper.Map<IEnumerable<BusinessPartnerDTO>>(businessPartner);
+        }
 
         public async Task<BusinessPartnerDTO> UpdateBusinessPartnerAsync(Guid tenantId, Guid businessPartnerId, UpdateBusinessPartnerDTO updateBusinessPartnerDTO, string userName)
         {

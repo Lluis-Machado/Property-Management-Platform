@@ -50,6 +50,7 @@ namespace CoreAPI.Services
             // TODO: Change from REST call to RabbitMQ message
             var client = new DocumentsServiceClient(contextAccessor);
             string? archive = await client.CreateArchive(requestBody, type);
+
             return archive;
         }
 

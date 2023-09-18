@@ -9,9 +9,9 @@
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
         public decimal TotalPrice { get; set; }
-        public BasicExpenseCategoryDTO ExpenseCategory { get; set; }
-        public DateTime ServiceDateFrom { get; set; }
-        public DateTime ServiceDateTo { get; set; }
+        public BasicExpenseCategoryDTO? ExpenseCategory { get; set; }
+        public DateTime? ServiceDateFrom { get; set; }
+        public DateTime? ServiceDateTo { get; set; }
         public FixedAssetDTO? FixedAsset { get; set; }
         public bool Deleted { get; set; }
         public DateTime CreatedAt { get; set; }

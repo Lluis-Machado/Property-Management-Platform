@@ -17,11 +17,15 @@ namespace DocumentAnalyzerAPI.Mappers
                 quantity = 1;
             }
 
+            }
+            Decimal.TryParse(taxStringClean, out tax);
+            var totalPrice = unitPrice * (decimal)quantity;
             APInvoiceLineDTO aPInvoiceLineDTO = new()
             {
                 UnitPrice = unitPrice,
                 Quantity = quantity,
-                Tax = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "Tax"),
+                TotalPrice = totalPrice,
+                Tax = tax,
                 Description = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "Description"),
             };
             

@@ -31,8 +31,9 @@ namespace DocumentsAPI.Services
             if (!validationResult.IsValid) throw new ValidationException(validationResult.ToString("~"));
 
             //create archive
-            archive.Id = objectId ?? Guid.NewGuid();
+            archive.Id = Guid.NewGuid();
             archive.ArchiveType = type;
+            archive.RelatedItemId = objectId;
             await _archiveRepository.CreateArchiveAsync(archive);
 
             if (type != ARCHIVE_TYPE.NONE) await _folderRepository.CreateDefaultFolders(archive);

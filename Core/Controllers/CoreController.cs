@@ -18,7 +18,6 @@ namespace CoreAPI.Controllers
             _contextAccessor = contextAccessor;
         }
 
-
         [HttpGet]
         [Route("contacts/{Id}")]
         public async Task<ActionResult<string>> GetContact(Guid Id)

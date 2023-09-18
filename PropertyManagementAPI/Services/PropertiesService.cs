@@ -106,6 +106,14 @@ namespace PropertiesAPI.Services
             return new OkObjectResult(propertyDto);
         }
 
+        public async Task<IActionResult> UpdatePropertyArchiveIdAsync(Guid propertyId, Guid archiveId, string username)
+        {
+            await PropertyExists(propertyId);
+
+            await _propertiesRepo.UpdateArchiveIdAsync(propertyId, archiveId, username);
+            return new NoContentResult();
+        }
+
         public async Task PerformAudit(Property property, Guid propertyId)
         {
             Audit audit = new Audit();

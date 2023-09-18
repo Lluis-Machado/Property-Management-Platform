@@ -19,7 +19,8 @@ public class CompanyDto
     public string? PhoneNumber { get; set; }
     public string? Comments { get; set; }
 
-
+    public Guid? TenantId { get; set; }
+    public Guid? ArchiveId { get; set; }
 
 
 }

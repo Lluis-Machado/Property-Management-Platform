@@ -32,9 +32,9 @@ namespace PropertiesAPI.Controllers
             if (propertyDto is null) return BadRequest("Incorrect body format");
 
             // Check user
-            var userName = "user";// UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
+            var username = "user";// UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            var result = await _propertiesService.CreateProperty(propertyDto, userName);
+            var result = await _propertiesService.CreateProperty(propertyDto, username);
             return result;
         }
 
@@ -70,10 +70,23 @@ namespace PropertiesAPI.Controllers
             // Validations
             if (propertyDTO is null) return new BadRequestObjectResult("Incorrect body format");
 
-            string userName = "user";// UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
+            string username = User?.Identity?.Name ?? "na";
 
-            var result = await _propertiesService.UpdateProperty(propertyDTO, userName, propertyId);
+            var result = await _propertiesService.UpdateProperty(propertyDTO, username, propertyId);
             return result;
+        }
+
+        // PATCH: Update property archive id
+        [HttpPatch("{propertyId}/{archiveId}")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<IActionResult> UpdatePropertyArchiveIdAsync(Guid propertyId, Guid archiveId)
+        {
+            //string username = "user";// UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
+            string username = User?.Identity?.Name ?? "na";
+
+            return await _propertiesService.UpdatePropertyArchiveIdAsync(propertyId, archiveId, username);
         }
 
         // DELETE: Delete property
@@ -82,9 +95,9 @@ namespace PropertiesAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteAsync(Guid propertyId)
         {
-            string userName = "user";// UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
+            string username = User?.Identity?.Name ?? "na";
 
-            var result = await _propertiesService.DeleteProperty(propertyId, userName);
+            var result = await _propertiesService.DeleteProperty(propertyId, username);
             return result;
         }
 
@@ -94,9 +107,9 @@ namespace PropertiesAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UndeleteAsync(Guid propertyId)
         {
-            string userName = "user";// UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
+            string username = User?.Identity?.Name ?? "na";
 
-            var result = await _propertiesService.UndeleteProperty(propertyId, userName);
+            var result = await _propertiesService.UndeleteProperty(propertyId, username);
             return result;
         }
     }

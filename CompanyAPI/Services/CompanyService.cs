@@ -106,6 +106,12 @@ namespace CompanyAPI.Services
             return new OkObjectResult(companyDTO);
         }
 
+        public async Task<IActionResult> UpdateCompanyArchiveIdAsync(Guid companyId, Guid archiveId, string lastUser)
+        {
+            await _companyRepo.UpdateCompanyArchiveIdAsync(companyId, archiveId, lastUser);
+            return new NoContentResult();
+        }
+
         public async Task<IActionResult> DeleteAsync(Guid companyId, string lastUser)
         {
             var updateResult = await _companyRepo.SetDeleteAsync(companyId, true, lastUser);

@@ -9,9 +9,15 @@ namespace CoreAPI.Services
     public class CoreService : ICoreService
     {
         private readonly IBus _bus;
-        public CoreService(IBus bus) {
+        private readonly ILogger<CoreService> _logger;
+        public CoreService(IBus bus, ILogger<CoreService> logger)
+        {
             _bus = bus;
+            _logger = logger;
         }
+
+        // TODO: Create tenant when creating company or contact!
+
 
         public async Task<string> CreateProperty(string requestBody, IHttpContextAccessor contextAccessor)
         {
@@ -32,7 +38,7 @@ namespace CoreAPI.Services
                 id = propertyId
             };
 
-            var archive = await CreateArchive(JsonSerializer.Serialize(archivePayload), contextAccessor, "Property");
+            var archive = await CreateArchive(archivePayload, contextAccessor, "Property");
 
             return property;
         }
@@ -45,11 +51,29 @@ namespace CoreAPI.Services
             return document;
         }
 
-        public async Task<string> CreateArchive(string requestBody, IHttpContextAccessor contextAccessor, string? type)
+        public async Task<string> CreateArchive(dynamic requestBody, IHttpContextAccessor contextAccessor, string? type)
         {
             // TODO: Change from REST call to RabbitMQ message
             var client = new DocumentsServiceClient(contextAccessor);
-            string? archive = await client.CreateArchive(requestBody, type);
+            string? archive = await client.CreateArchive(JsonSerializer.Serialize(requestBody), type);
+            // Update object who caused the creation of the archive
+
+            switch (type?.ToLowerInvariant())
+            {
+                case "property":
+                    await new PropertyServiceClient(contextAccessor).UpdatePropertyArchive(requestBody.id, archive);
+                    break;
+                case "contact":
+                    await new ContactServiceClient(contextAccessor).UpdateContactArchive(requestBody.id, archive);
+                    break;
+                case "company":
+                    await new CompanyServiceClient(contextAccessor).UpdateCompanyArchive(requestBody.id, archive);
+                    break;
+                default:
+                    _logger.LogWarning($"Invalid or absent type for archive {archive}!");
+                    break;
+            }
+
             return archive;
         }
 

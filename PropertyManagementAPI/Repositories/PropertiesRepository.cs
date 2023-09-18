@@ -82,6 +82,19 @@ namespace PropertiesAPI.Repositories
             return await _collection.UpdateOneAsync(filter, update);
         }
 
+        public async Task<UpdateResult> UpdateArchiveIdAsync(Guid propertyId, Guid archiveId, string username)
+        {
+            var filter = Builders<Property>.Filter
+                .Eq(actualProperty => actualProperty.Id, propertyId);
+
+            var update = Builders<Property>.Update
+                .Set(actualProperty => actualProperty.ArchiveId, archiveId)
+                .Set(actualProperty => actualProperty.LastUpdateAt, DateTime.UtcNow)
+                .Set(actualProperty => actualProperty.LastUpdateByUser, username);
+
+            return await _collection.UpdateOneAsync(filter, update);
+        }
+
         public async Task<UpdateResult> SetDeleteAsync(Guid propertyId, bool deleted, string lastUser)
         {
             var filter = Builders<Property>.Filter

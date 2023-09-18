@@ -1,5 +1,6 @@
 ﻿using CompanyAPI.Contexts;
 using CompanyAPI.Models;
+using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 
 namespace CompanyAPI.Repositories
@@ -60,6 +61,19 @@ namespace CompanyAPI.Repositories
             await _collection.ReplaceOneAsync(filter, company);
 
             return company;
+        }
+
+        public async Task<UpdateResult> UpdateCompanyArchiveIdAsync(Guid companyId, Guid archiveId, string lastUser)
+        {
+            var filter = Builders<Company>.Filter
+                .Eq(actualCompany => actualCompany.Id, companyId);
+
+            var update = Builders<Company>.Update
+                .Set(actualCompany => actualCompany.ArchiveId, archiveId)
+                .Set(actualCompany => actualCompany.LastUpdateByUser, lastUser)
+                .Set(actualCompany => actualCompany.LastUpdateAt, DateTime.UtcNow);
+
+            return await _collection.UpdateOneAsync(filter, update);
         }
 
         public async Task<UpdateResult> SetDeleteAsync(Guid companyId, bool deleted, string lastUser)

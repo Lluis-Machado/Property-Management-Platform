@@ -41,14 +41,9 @@ namespace Archives.Controllers
         {
             //validations
             if (archiveDTO == null) return BadRequest("Incorrect body format");
+            if (archiveDTO.Name is null) return BadRequest("Archive Name is empty");
 
             var archive = _mapper.Map<CreateArchiveDTO, Archive>(archiveDTO);
-
-            // TODO: Move validation out of controller!
-            ValidationResult validationResult = await _archiveValidator.ValidateAsync(archive);
-            if (!validationResult.IsValid) return BadRequest(validationResult.ToString("~"));
-
-            if (archive.Name == null) return BadRequest("Archive Name is empty");
 
             Archive createdArchive = await _archivesService.CreateArchiveAsync(archive);
             return Created($"archives/{createdArchive.Name}", createdArchive);
@@ -63,13 +58,13 @@ namespace Archives.Controllers
         public async Task<IActionResult> CreateForProperty(Guid propertyId, [FromBody] CreateArchiveDTO archiveDTO)
         {
             //validations
-            if (archiveDTO == null) return BadRequest("Incorrect body format");
-            if (archiveDTO.Name == null) return BadRequest("Archive Name is empty");
+            if (archiveDTO is null) return BadRequest("Incorrect body format");
+            if (archiveDTO.Name is null) return BadRequest("Archive Name is empty");
 
             var archive = _mapper.Map<CreateArchiveDTO, Archive>(archiveDTO);
 
-            Archive createdArchive = await _archivesService.CreateArchiveAsync(archive, ARCHIVE_TYPE.PROPERTY);
-            return Created($"archives/property/{createdArchive.FullArchiveId}", createdArchive);
+            Archive createdArchive = await _archivesService.CreateArchiveAsync(archive, ARCHIVE_TYPE.PROPERTY, propertyId);
+            return Created($"archives/property/{createdArchive.Name}", createdArchive);
         }
 
         // POST: Create archive for a contact
@@ -86,8 +81,8 @@ namespace Archives.Controllers
 
             var archive = _mapper.Map<CreateArchiveDTO, Archive>(archiveDTO);
 
-            Archive createdArchive = await _archivesService.CreateArchiveAsync(archive, ARCHIVE_TYPE.CONTACT);
-            return Created($"archives/property/{createdArchive.FullArchiveId}", createdArchive);
+            Archive createdArchive = await _archivesService.CreateArchiveAsync(archive, ARCHIVE_TYPE.CONTACT, contactId);
+            return Created($"archives/property/{createdArchive.Name}", createdArchive);
         }
 
         // POST: Create archive for a company
@@ -104,8 +99,8 @@ namespace Archives.Controllers
 
             var archive = _mapper.Map<CreateArchiveDTO, Archive>(archiveDTO);
 
-            Archive createdArchive = await _archivesService.CreateArchiveAsync(archive, ARCHIVE_TYPE.COMPANY);
-            return Created($"archives/property/{createdArchive.FullArchiveId}", createdArchive);
+            Archive createdArchive = await _archivesService.CreateArchiveAsync(archive, ARCHIVE_TYPE.COMPANY, companyId);
+            return Created($"archives/property/{createdArchive.Name}", createdArchive);
         }
 
         // GET: Get archive(s)

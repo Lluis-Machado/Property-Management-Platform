@@ -1,4 +1,5 @@
 ﻿using ContactsAPI.DTOs;
+using ContactsAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ContactsAPI.Services
@@ -7,6 +8,7 @@ namespace ContactsAPI.Services
     {
         Task<ActionResult<ContactDetailedDto>> CreateAsync(CreateContactDto contact, string lastUser);
         Task<ActionResult<ContactDetailedDto>> UpdateContactAsync(Guid contactId, UpdateContactDTO contact, string lastUser);
+        Task<IActionResult> UpdateContactArchiveIdAsync(Guid contactId, Guid archiveId, string lastUser);
         Task<ActionResult<IEnumerable<ContactDTO>>> GetAsync(bool includeDeleted = false);
         Task<ActionResult<IEnumerable<ContactDTO>>> SearchAsync(string query);
         Task<ContactDetailedDto> GetByIdAsync(Guid contactId);

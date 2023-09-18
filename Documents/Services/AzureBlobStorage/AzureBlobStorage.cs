@@ -34,7 +34,9 @@ namespace DocumentsAPI.Services.AzureBlobStorage
         {
             Dictionary<string, string> metadata = new();
 
-            if (archive.Name != null) metadata.Add("display_name", Uri.EscapeDataString(archive.Name));
+            metadata.Add("display_name", Uri.EscapeDataString(archive.Name ?? "NO NAME"));
+            metadata.Add("type", archive.ArchiveType.ToString());
+            metadata.Add("relatedId", archive.RelatedItemId.ToString());
 
             BlobContainerClient blobContainerClient = _context.GetBlobContainerClient(archive.Id.ToString());
             await blobContainerClient.CreateAsync(default, metadata);
@@ -413,15 +415,26 @@ namespace DocumentsAPI.Services.AzureBlobStorage
         private static Archive MapArchive(BlobContainerItem blobContainerItem)
         {
             string? archiveDisplayName = null;
+            string? archiveType = null;
+            string? relatedObjectId = null;
             if (blobContainerItem.Properties.Metadata != null)
             {
-                archiveDisplayName = Uri.UnescapeDataString(blobContainerItem.Properties.Metadata["display_name"]);
+                blobContainerItem.Properties.Metadata.TryGetValue("display_name", out archiveDisplayName);
+                blobContainerItem.Properties.Metadata.TryGetValue("type", out archiveType);
+                blobContainerItem.Properties.Metadata.TryGetValue("relatedId", out relatedObjectId);
             }
+            
+            archiveDisplayName = string.IsNullOrEmpty(archiveDisplayName) ? "NO NAME" : Uri.UnescapeDataString(archiveDisplayName);
+
+            Archive.ARCHIVE_TYPE type = Archive.ARCHIVE_TYPE.NONE;
+            Enum.TryParse(archiveType, out type);
 
             Archive archive = new()
             {
                 Id = Guid.Parse(blobContainerItem.Name),
                 Name = archiveDisplayName,
+                ArchiveType = type,
+                RelatedItemId = string.IsNullOrEmpty(relatedObjectId) ? null : Guid.Parse(relatedObjectId),
                 Deleted = blobContainerItem.IsDeleted ?? false,
                 LastUpdateAt = blobContainerItem.Properties.LastModified.DateTime.ToLocalTime(),
             };

@@ -26,16 +26,17 @@ namespace DocumentsAPI.Models
 
         public string? Name { get; set; }
         public ARCHIVE_TYPE ArchiveType { get; set; }
-        public string FullArchiveId { get; set; }
+        public Guid? RelatedItemId { get; set; }
 
 
         [JsonConstructor]
         public Archive() { }
 
-        public Archive(string pName, ARCHIVE_TYPE archiveType = ARCHIVE_TYPE.NONE)
+        public Archive(string pName, ARCHIVE_TYPE archiveType = ARCHIVE_TYPE.NONE, Guid? relatedItemId)
         {
             Name = pName;
             ArchiveType = archiveType;
+            RelatedItemId = relatedItemId;
         }
     }
 }

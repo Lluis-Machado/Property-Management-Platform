@@ -1,6 +1,7 @@
 ﻿using Azure.AI.FormRecognizer.DocumentAnalysis;
 using DocumentAnalyzerAPI.DTOs;
 using DocumentAnalyzerAPI.Mappers;
+using System.Text.RegularExpressions;
 
 namespace DocumentAnalyzerAPI.Services
 {
@@ -22,7 +23,25 @@ namespace DocumentAnalyzerAPI.Services
             AnalyzeResult analyzeResult = await _azureFormRecognizer.AnalyzeDocumentAsync(document, modelId);
             documentAnalysisDTO.AnalyzeResult = analyzeResult;
             documentAnalysisDTO.Form = _documentFieldsMapper.Map<T>(analyzeResult.Documents[0].Fields);
+            var cif = FindString(analyzeResult.Content);
+            documentAnalysisDTO.CIF = cif;
             return documentAnalysisDTO;
+        }
+
+        public static string FindString(string input)
+        {
+            // The regex pattern:
+            // ^[a-e] - Starts with a or b or c or d or e
+            // [0-9]{8}  - Followed by 8 numbers (total length = 9)
+            string pattern = @"[A-E](?<!\d)[0-9]{8}(?!\d)";
+
+            Match match = Regex.Match(input, pattern);
+
+            if (match.Success)
+            {
+                return match.Value;
+            }
+            return null;
         }
 
         private static string GetModelIdForEnum<T>()

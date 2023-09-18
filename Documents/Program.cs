@@ -107,7 +107,7 @@ builder.Services.AddMassTransit(config => {
     config.UsingRabbitMq((ctx, cfg) => {
         cfg.Host("amqp://guest:guest@localhost:5672");
 
-        cfg.ReceiveEndpoint("aproperty", c => {
+        cfg.ReceiveEndpoint("archive", c => {
             c.ConfigureConsumer<ArchiveConsumer>(ctx);
         });
     });

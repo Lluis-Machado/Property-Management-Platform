@@ -6,6 +6,8 @@ namespace DocumentAnalyzerAPI.DTOs
     {
         public T? Form { get; set; }
         public AnalyzeResult? AnalyzeResult { get; set; }
+
+        public string CIF { get; set; } = string.Empty;
     }
 
 }

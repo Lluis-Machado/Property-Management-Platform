@@ -9,20 +9,23 @@ namespace CoreAPI.Services
     public class CoreService : ICoreService
     {
         private readonly IBus _bus;
+        private readonly PropertyServiceClient _pClient;
+        private readonly IHttpContextAccessor _contextAccessor;
+
+        public CoreService(IBus bus,PropertyServiceClient pClient, IHttpContextAccessor contextAccessor)
+        {
         private readonly ILogger<CoreService> _logger;
         public CoreService(IBus bus, ILogger<CoreService> logger)
         {
             _bus = bus;
+            _pClient = _pClient;
+            _contextAccessor = contextAccessor;
             _logger = logger;
         }
 
-        // TODO: Create tenant when creating company or contact!
-
-
         public async Task<string> CreateProperty(string requestBody, IHttpContextAccessor contextAccessor)
         {
-            var client = new PropertyServiceClient(contextAccessor);
-            string? property = await client.CreateProperty(requestBody);
+            string? property = await _pClient.CreateProperty(requestBody);
 
             if (string.IsNullOrEmpty(property)) throw new Exception("Property service response is empty");
 
@@ -35,8 +38,10 @@ namespace CoreAPI.Services
             var archivePayload = new
             {
                 name = propertyName,
-                id = propertyId
+                id = propertyId,
+                type = "property"
             };
+            await SendMessageToArchiveQueue(new MessageContract() { Payload = archivePayload.ToString() });
 
             var archive = await CreateArchive(archivePayload, contextAccessor, "Property");
 
@@ -90,20 +95,75 @@ namespace CoreAPI.Services
         {
             var client = new PropertyServiceClient(contextAccessor);
             var property = await client.GetPropertyByIdAsync(Id);
-            await SendMessageToArchivePropertyQueue(new MessageContract() { Payload = property } );
+            await SendMessageToArchiveQueue(new MessageContract() { Payload = property } );
             return property;
         }
 
         public async Task SendMessageToAuditQueue(MessageContract message)
         {
             var sendEndpoint = await _bus.GetSendEndpoint(new Uri("rabbitmq://localhost/audit1"));
-            await sendEndpoint.Send<MessageContract>(message);
+            await sendEndpoint.Send(message);
         }
 
-        public async Task SendMessageToArchivePropertyQueue(MessageContract message)
+        public async Task SendMessageToArchiveQueue(MessageContract message)
         {
-            var sendEndpoint = await _bus.GetSendEndpoint(new Uri("rabbitmq://localhost/aproperty2"));
-            await sendEndpoint.Send<MessageContract>(message);
+            var sendEndpoint = await _bus.GetSendEndpoint(new Uri("rabbitmq://localhost/archive"));
+            await sendEndpoint.Send(message);
+        }
+
+        Task<string> ICoreService.CreateProperty(string requestBody)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<string> ICoreService.CreateCompany(string requestBody)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<string> ICoreService.CreateContact(string requestBody)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<string> ICoreService.CreateArchive(string requestBody, IHttpContextAccessor contextAccessor, string? type)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<string> ICoreService.CreateFolder(string requestBody, string archiveId, IHttpContextAccessor contextAccessor)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<object> ICoreService.GetContact(Guid Id, IHttpContextAccessor contextAccessor)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<object> ICoreService.GetProperty(Guid Id, IHttpContextAccessor contextAccessor)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<object> ICoreService.GetCompany(Guid Id, IHttpContextAccessor contextAccessor)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<object> ICoreService.GetContacts(bool includeDeleted, IHttpContextAccessor contextAccessor)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<object> ICoreService.GetProperties(bool includeDeleted, IHttpContextAccessor contextAccessor)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<object> ICoreService.GetCompanies(bool includeDeleted, IHttpContextAccessor contextAccessor)
+        {
+            throw new NotImplementedException();
         }
     }
 }

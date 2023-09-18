@@ -2,6 +2,7 @@
 using DocumentsAPI.Services;
 using MassTransit;
 using MessagingContracts;
+using Newtonsoft.Json;
 using System.Dynamic;
 
 namespace DocumentsAPI.Consumers
@@ -23,7 +24,25 @@ namespace DocumentsAPI.Consumers
 
             try
             {
-                dynamic archive = Newtonsoft.Json.JsonConvert.DeserializeObject<ExpandoObject>(message?.Payload!);
+                dynamic payload = JsonConvert.DeserializeObject(context.Message.Payload);
+
+                // Now you can access the properties of the payload dynamically
+                string name = payload.name;
+                Guid id = payload.id;
+                string type = payload.type;
+
+                switch (type)
+                {
+                    case "property":
+                        break;
+                    case "contact":
+                        break;
+                    case "company":
+                        break;
+                    default:
+                        break;
+                }
+
             } catch (Exception ex)
             {
                 _logger.LogError(ex, "Error consuming Archive message contract");

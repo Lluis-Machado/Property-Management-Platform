@@ -6,7 +6,7 @@ using AuthorizeAPI;
 
 namespace DocumentAnalyzerAPI.Controllers
 {
-    [Authorize]
+    //[Authorize]
     public class DocumentAnalyzerController : Controller
     {
         private readonly ILogger<DocumentAnalyzerController> _logger;

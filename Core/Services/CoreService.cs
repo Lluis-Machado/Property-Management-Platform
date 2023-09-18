@@ -9,23 +9,19 @@ namespace CoreAPI.Services
     public class CoreService : ICoreService
     {
         private readonly IBus _bus;
-        private readonly PropertyServiceClient _pClient;
         private readonly IHttpContextAccessor _contextAccessor;
-
-        public CoreService(IBus bus,PropertyServiceClient pClient, IHttpContextAccessor contextAccessor)
-        {
         private readonly ILogger<CoreService> _logger;
-        public CoreService(IBus bus, ILogger<CoreService> logger)
+
+        public CoreService(IBus bus, IHttpContextAccessor contextAccessor, ILogger< CoreService> logger)
         {
             _bus = bus;
-            _pClient = _pClient;
             _contextAccessor = contextAccessor;
             _logger = logger;
         }
 
         public async Task<string> CreateProperty(string requestBody, IHttpContextAccessor contextAccessor)
         {
-            string? property = await _pClient.CreateProperty(requestBody);
+            string? property = await new PropertyServiceClient(contextAccessor).CreateProperty(requestBody);
 
             if (string.IsNullOrEmpty(property)) throw new Exception("Property service response is empty");
 

@@ -23,7 +23,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.16" />
-    <PackageReference Include="Microsoft.VisualStudio.SlowCheetah" Version="4.0.30">
+    <PackageReference Include="Microsoft.VisualStudio.SlowCheetah" Version="4.0.50">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -31,7 +31,7 @@
     <PackageReference Include="MongoDB.Driver" Version="2.21.0" />
     <PackageReference Include="MongoDB.Driver.Core" Version="2.21.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.30.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.32.2" />
   </ItemGroup>
 
   <ItemGroup>

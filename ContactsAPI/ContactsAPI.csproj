@@ -35,7 +35,7 @@
     <PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="7.3.1" />
     <PackageReference Include="MassTransit.RabbitMQ" Version="8.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.16" />
-    <PackageReference Include="Microsoft.VisualStudio.SlowCheetah" Version="4.0.30">
+    <PackageReference Include="Microsoft.VisualStudio.SlowCheetah" Version="4.0.50">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

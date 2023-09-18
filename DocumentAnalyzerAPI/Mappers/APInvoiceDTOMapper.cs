@@ -44,10 +44,8 @@ namespace DocumentAnalyzerAPI.Mappers
 
             if (documentFields.TryGetValue("Items", out var itemsField))
             {
-
                 if (itemsField.FieldType == DocumentFieldType.List)
                 {
-
                     foreach (DocumentField itemField in itemsField.Value.AsList())
                     {
                         IReadOnlyDictionary<string, DocumentField>? itemFields = itemField.Value.AsDictionary();
@@ -57,7 +55,6 @@ namespace DocumentAnalyzerAPI.Mappers
                         aPInvoiceDTO.InvoiceLines.Add(aPInvoiceLineDTO);
                     }
                 }
-
             }
 
             // if no invoice lines detected, create one with total values

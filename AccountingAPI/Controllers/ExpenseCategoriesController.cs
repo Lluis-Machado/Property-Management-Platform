@@ -2,7 +2,7 @@
 using AccountingAPI.Models;
 using AccountingAPI.Services;
 using AccountingAPI.Validators;
-using Microsoft.AspNetCore.Authorization;
+using AuthorizeAPI;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 

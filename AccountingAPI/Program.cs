@@ -144,14 +144,13 @@ ValidatorOptions.Global.DefaultClassLevelCascadeMode = CascadeMode.Stop;
 ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Stop;
 
 // Swagger
-//if (app.Environment.IsDevelopment())
-//{
-    app.UseSwagger();
+#if DEVELOPMENT || STAGE
+app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.ConfigObject.AdditionalItems.Add("persistAuthorization", "true");
     });
-//}
+#endif
 
 app.UseHttpsRedirection();
 

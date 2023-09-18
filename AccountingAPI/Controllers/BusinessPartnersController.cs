@@ -1,7 +1,7 @@
 ﻿using AccountingAPI.DTOs;
 using AccountingAPI.Services;
 using AccountingAPI.Validators;
-using Microsoft.AspNetCore.Authorization;
+using AuthorizeAPI;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -48,14 +48,17 @@ namespace AccountingAPI.Controllers
             return Ok(await _businessPartnerService.GetBusinessPartnersAsync(tenantId, includeDeleted, page, pageSize));
         }
 
-        // GET: Get businessPartner(s) for a specific tenant
+
+        // GET: Get all businessPartner(s) for a specific tenant. Optionally, search by CIF (VATNumber)
         [HttpGet]
         [Route("businessPartners")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<BusinessPartnerDTO>>> GetAllBusinessPartnersAsync([FromQuery] bool includeDeleted = false, [FromQuery] int? page = null, [FromQuery] int? pageSize = null)
+        public async Task<ActionResult<IEnumerable<BusinessPartnerDTO>>> GetAllBusinessPartnersAsync([FromQuery] string? CIF, [FromQuery] bool includeDeleted = false, [FromQuery] int? page = null, [FromQuery] int? pageSize = null)
         {
-            return Ok(await _businessPartnerService.GetBusinessPartnersAsync(null, includeDeleted, page, pageSize));
+            if (string.IsNullOrEmpty(CIF))
+                return Ok(await _businessPartnerService.GetBusinessPartnersAsync(null, includeDeleted, page, pageSize));
+            else return Ok(await _businessPartnerService.GetBusinessPartnerByCIFAsync(CIF, includeDeleted));
         }
 
         // PATCH: Update businessPartner

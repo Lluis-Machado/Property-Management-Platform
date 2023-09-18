@@ -2,7 +2,7 @@
 using AccountingAPI.Models;
 using Dapper;
 using System.Text;
-
+using System.Text.RegularExpressions;
 
 namespace AccountingAPI.Repositories
 {
@@ -74,6 +74,42 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(" WHERE 1 = 1");
             if (tenantId is not null) queryBuilder.Append(" AND tenantId = @tenantId");
             if (!includeDeleted) queryBuilder.Append(" AND Deleted = @deleted");
+            queryBuilder.Append(" ORDER BY Name ASC");
+
+            using var connection = _context.CreateConnection(); // Create a new connection
+            return await connection.QueryAsync<BusinessPartner>(queryBuilder.ToString(), parameters);
+        }
+
+
+        // This should only ever return one business partner. However, it returns a list because
+        // this can help identify eventual duplicates in the database.
+        public async Task<IEnumerable<BusinessPartner>> GetBusinessPartnerByCIFAsync(string CIF, bool includeDeleted = false)
+        {
+
+            // CIF cleanup before search: Remove hyphens (-) and country identification letters
+            string cleanCIF = CIF.Replace("-", "");
+            Regex reg = new Regex(@"^(es|de|it)", RegexOptions.IgnoreCase);
+            cleanCIF = reg.Replace(cleanCIF, "");
+
+            var parameters = new
+            {
+                cleanCIF = $"%{cleanCIF}%",
+                deleted = includeDeleted ? 1 : 0
+            };
+            StringBuilder queryBuilder = new();
+            queryBuilder.Append("SELECT Id");
+            queryBuilder.Append(",Name");
+            queryBuilder.Append(",VATNumber");
+            queryBuilder.Append(",TenantId");
+            queryBuilder.Append(",Deleted");
+            queryBuilder.Append(",CreatedAt");
+            queryBuilder.Append(",CreatedBy");
+            queryBuilder.Append(",LastModificationAt");
+            queryBuilder.Append(",LastModificationBy");
+            queryBuilder.Append(" FROM BusinessPartners");
+            queryBuilder.Append(" WHERE VATNumber LIKE @cleanCIF");
+            if (!includeDeleted) queryBuilder.Append(" AND Deleted = @deleted");
+            queryBuilder.Append(" ORDER BY Name ASC");
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QueryAsync<BusinessPartner>(queryBuilder.ToString(), parameters);

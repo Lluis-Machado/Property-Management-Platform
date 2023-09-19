@@ -37,7 +37,7 @@ namespace DocumentsAPI.Services
             {
                 Stream fileStream = file.OpenReadStream();
                 fileStream.Position = 0;
-                var uploadedDoc = await _documentsRepository.UploadDocumentAsync(archiveId, file.FileName, fileStream, folderId);
+                var uploadedDoc = await _documentsRepository.UploadDocumentAsync(archiveId, file.FileName, fileStream, file.ContentType, folderId);
                 fileStream.Flush();
                 documents.Add(new CreateDocumentStatus(file.FileName, uploadedDoc.statusCode));
                 fileStream.Dispose();
@@ -86,8 +86,6 @@ namespace DocumentsAPI.Services
             }.Build();
 
             var results = Inspector.Inspect(byteArray).ByMimeType();
-
-            _logger.LogInformation($"DownloadAsync - Document {documentId.ToString()} has detected MimeTypes: {JsonSerializer.Serialize(results.ToList())}");
 
             return new FileContentResult(byteArray, results.FirstOrDefault()?.MimeType ?? "application/pdf");
         }
@@ -260,7 +258,7 @@ namespace DocumentsAPI.Services
                                     string docName = (await document)!.Name!;
                                     Guid? folderId = (await document)!.FolderId;
 
-                                    var addedDoc = await _documentsRepository.UploadDocumentAsync(archiveId, $"{docName}_{i}", splitMemoryStream, folderId);
+                                    var addedDoc = await _documentsRepository.UploadDocumentAsync(archiveId, $"{docName}_{i}", splitMemoryStream, "application/pdf", folderId);
                                     await _blobMetadataRepository.InsertAsync(new BlobMetadata() { BlobId = addedDoc.documentId, ContainerId = archiveId, DisplayName = $"{docName}_{i}", FolderId = folderId });
                                     splitPdfDocument.Close();
 
@@ -295,7 +293,7 @@ namespace DocumentsAPI.Services
                                         string docName = (await document)!.Name!;
                                         Guid? folderId = (await document)!.FolderId;
 
-                                        var addedDoc = await _documentsRepository.UploadDocumentAsync(archiveId, $"{docName}_{start}-{end}", splitMemoryStream, folderId);
+                                        var addedDoc = await _documentsRepository.UploadDocumentAsync(archiveId, $"{docName}_{start}-{end}", splitMemoryStream, "application/pdf", folderId);
                                         await _blobMetadataRepository.InsertAsync(new BlobMetadata() { BlobId = addedDoc.documentId, ContainerId = archiveId, DisplayName = $"{docName}_{start}-{end}", FolderId = folderId });
                                         splitPdfDocument.Close();
 

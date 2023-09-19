@@ -116,7 +116,7 @@ namespace DocumentsAPI.Services.AzureBlobStorage
 
         #region Documents 
 
-        public async Task<DocumentUploadDTO> UploadDocumentAsync(Guid archiveId, string fileName, Stream fileContent, Guid? folderId = null)
+        public async Task<DocumentUploadDTO> UploadDocumentAsync(Guid archiveId, string fileName, Stream fileContent, string contentType, Guid? folderId = null)
         {
             Guid docNewGuid = Guid.NewGuid();
             BlobClient blobClient = _context.GetBlobClient(archiveId.ToString(), docNewGuid.ToString());
@@ -127,9 +127,12 @@ namespace DocumentsAPI.Services.AzureBlobStorage
                 {"folder_id", folderId.ToString() ?? ""},
             };
 
+            BlobHttpHeaders blobHttpHeaders = new () { ContentType = contentType};
+
             BlobUploadOptions blobUploadOptions = new()
             {
-                Metadata = blobMetadata
+                Metadata = blobMetadata,
+                HttpHeaders = blobHttpHeaders
             };
 
             Response<BlobContentInfo> blobContentInfo = await blobClient.UploadAsync(fileContent, blobUploadOptions);
@@ -229,7 +232,8 @@ namespace DocumentsAPI.Services.AzureBlobStorage
                 BlobName = blobClient.Name,
                 Resource = "b",
                 StartsOn = DateTimeOffset.UtcNow,
-                ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(15)
+                ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(15),
+                ContentType = blobClient.GetProperties().Value.ContentType
             };
             sasBuilder.SetPermissions(BlobSasPermissions.Read);
 

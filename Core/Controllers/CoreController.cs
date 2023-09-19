@@ -20,7 +20,7 @@ namespace CoreAPI.Controllers
         [Route("contacts/{Id}")]
         public async Task<ActionResult<string>> GetContact(Guid Id)
         {
-            var contact = await _coreService.GetContact(Id, _contextAccessor);
+            var contact = await _coreService.GetContact(Id);
             return Ok(contact);
         }
 
@@ -28,7 +28,7 @@ namespace CoreAPI.Controllers
         [Route("companies/{Id}")]
         public async Task<ActionResult<string>> GetCompany(Guid Id)
         {
-            var contact = await _coreService.GetCompany(Id, _contextAccessor);
+            var contact = await _coreService.GetCompany(Id);
             return Ok(contact);
         }
 
@@ -36,7 +36,7 @@ namespace CoreAPI.Controllers
         [Route("properties/{Id}")]
         public async Task<ActionResult<string>> GetProperty(Guid Id)
         {
-            var property = await _coreService.GetProperty(Id, _contextAccessor);
+            var property = await _coreService.GetProperty(Id);
             return Ok(property);
         }
 
@@ -45,7 +45,7 @@ namespace CoreAPI.Controllers
         [Route("contacts")]
         public async Task<ActionResult<string>> GetContacts(bool includeDeleted = false)
         {
-            var contact = await _coreService.GetContacts(includeDeleted, _contextAccessor);
+            var contact = await _coreService.GetContacts(includeDeleted);
             return Ok(contact);
         }
 
@@ -53,7 +53,7 @@ namespace CoreAPI.Controllers
         [Route("companies")]
         public async Task<ActionResult<string>> GetCompanies(bool includeDeleted = false)
         {
-            var contact = await _coreService.GetCompanies(includeDeleted, _contextAccessor);
+            var contact = await _coreService.GetCompanies(includeDeleted);
             return Ok(contact);
         }
 
@@ -61,14 +61,14 @@ namespace CoreAPI.Controllers
         [Route("properties")]
         public async Task<ActionResult<string>> GetProperties(bool includeDeleted = false)
         {
-            var property = await _coreService.GetProperties(includeDeleted, _contextAccessor);
+            var property = await _coreService.GetProperties(includeDeleted);
             return Ok(property);
         }
 
         [HttpPost("properties")]
         public async Task<ActionResult<string>> CreateProperty([FromBody] string requestBody)
         {
-            var property = await _coreService.CreateProperty(requestBody, _contextAccessor);
+            var property = await _coreService.CreateProperty(requestBody);
 
             return Ok(property);
         }
@@ -76,7 +76,7 @@ namespace CoreAPI.Controllers
         [HttpPost("companies")]
         public async Task<ActionResult<string>> CreateCompany([FromBody] string requestBody)
         {
-            var company = await _coreService.CreateCompany(requestBody, _contextAccessor);
+            var company = await _coreService.CreateCompany(requestBody);
 
             return Ok(company);
         }
@@ -84,7 +84,7 @@ namespace CoreAPI.Controllers
         [HttpPost("contacts")]
         public async Task<ActionResult<string>> CreateContact([FromBody] string requestBody)
         {
-            var contacts = await _coreService.CreateContact(requestBody, _contextAccessor);
+            var contacts = await _coreService.CreateContact(requestBody);
 
             return Ok(contacts);
         }

@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OwnershipAPI.DTOs;
 using OwnershipAPI.Models;
@@ -50,9 +49,9 @@ public class OwnershipService : IOwnershipService
 
         foreach (var ownership in ownershipDtos)
         {
-                var clientC = new PropertyServiceClient();
-                var property = await clientC.GetPropertyByIdAsync(ownership.PropertyId);
-                ownership.PropertyName = property!.Name;
+            var clientC = new PropertyServiceClient();
+            var property = await clientC.GetPropertyByIdAsync(ownership.PropertyId);
+            ownership.PropertyName = property!.Name;
         }
         return new OkObjectResult(ownershipDtos);
     }

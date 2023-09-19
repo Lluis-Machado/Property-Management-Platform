@@ -1,7 +1,5 @@
 ﻿using CoreAPI.Services;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
-using MongoDB.Bson.IO;
 
 namespace CoreAPI.Controllers
 {
@@ -70,7 +68,7 @@ namespace CoreAPI.Controllers
         [HttpPost("properties")]
         public async Task<ActionResult<string>> CreateProperty([FromBody] string requestBody)
         {
-            var property = await _coreService.CreateProperty(requestBody);
+            var property = await _coreService.CreateProperty(requestBody, _contextAccessor);
 
             return Ok(property);
         }
@@ -78,7 +76,7 @@ namespace CoreAPI.Controllers
         [HttpPost("companies")]
         public async Task<ActionResult<string>> CreateCompany([FromBody] string requestBody)
         {
-            var company = await _coreService.CreateCompany(requestBody);
+            var company = await _coreService.CreateCompany(requestBody, _contextAccessor);
 
             return Ok(company);
         }
@@ -86,7 +84,7 @@ namespace CoreAPI.Controllers
         [HttpPost("contacts")]
         public async Task<ActionResult<string>> CreateContact([FromBody] string requestBody)
         {
-            var contacts = await _coreService.CreateContact(requestBody);
+            var contacts = await _coreService.CreateContact(requestBody, _contextAccessor);
 
             return Ok(contacts);
         }
@@ -104,7 +102,7 @@ namespace CoreAPI.Controllers
         [Route("contacts/{Id}")]
         public async Task<ActionResult<string>> UpdateContact(Guid Id, [FromBody] string requestBody)
         {
-            // TODO: Update property, if name changed then update Archive display_name as well
+            // TODO: Update contact
 
             return NoContent();
         }
@@ -113,7 +111,7 @@ namespace CoreAPI.Controllers
         [Route("companies/{Id}")]
         public async Task<ActionResult<string>> UpdateCompanies(Guid Id, [FromBody] string requestBody)
         {
-            // TODO: Update property, if name changed then update Archive display_name as well
+            // TODO: Update company
 
             return NoContent();
         }

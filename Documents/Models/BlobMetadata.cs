@@ -1,6 +1,6 @@
 ﻿namespace DocumentsAPI.Models
 {
-    public class BlobMetadata: BaseModel
+    public class BlobMetadata : BaseModel
     {
         public Guid BlobId { get; set; }
         public Guid ContainerId { get; set; }

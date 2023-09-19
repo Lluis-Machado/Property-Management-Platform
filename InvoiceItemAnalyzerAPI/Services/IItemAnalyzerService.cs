@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using InvoiceItemAnalyzerAPI.DTOs;
+﻿using InvoiceItemAnalyzerAPI.DTOs;
+using System.Collections.Generic;
 
 namespace InvoiceItemAnalyzerAPI.Services
 {

@@ -4,8 +4,6 @@ using DocumentsAPI.Repositories;
 using DocumentsAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using System.Net.Http.Headers;
-using System.Net.Mime;
 using Document = DocumentsAPI.Models.Document;
 
 namespace Documents.Controllers
@@ -71,7 +69,8 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<List<FileContentResult>>> SplitAsync(IFormFile file, [FromQuery] string? ranges = null) {
+        public async Task<ActionResult<List<FileContentResult>>> SplitAsync(IFormFile file, [FromQuery] string? ranges = null)
+        {
             // empty request validation
             if (file == null) return BadRequest();
 
@@ -90,7 +89,7 @@ namespace Documents.Controllers
             }
 
             // Return the list of base64 strings in JSON format
-            return Ok(new { SplitFiles = pdfBase64Strings});
+            return Ok(new { SplitFiles = pdfBase64Strings });
         }
 
         // POST: Split document already present in Blob Storage

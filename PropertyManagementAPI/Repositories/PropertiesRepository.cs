@@ -1,7 +1,6 @@
 ﻿using MongoDB.Driver;
 using PropertiesAPI.Contexts;
 using PropertiesAPI.Models;
-using System.Xml;
 
 namespace PropertiesAPI.Repositories
 {

@@ -122,7 +122,7 @@ namespace AccountingAPI.Services
             return depreciationDTO;
         }
 
-        public async Task<IEnumerable<FixedAssetYearDetailsDTO>> GetFixedAssetsYearDetailsAsync(Guid tenantId, int year, bool includeDeleted = false,  int? page = null, int? pageSize = null)
+        public async Task<IEnumerable<FixedAssetYearDetailsDTO>> GetFixedAssetsYearDetailsAsync(Guid tenantId, int year, bool includeDeleted = false, int? page = null, int? pageSize = null)
         {
             List<FixedAssetYearDetailsDTO> fixedAssetYearDetailsDTOs = new();
 

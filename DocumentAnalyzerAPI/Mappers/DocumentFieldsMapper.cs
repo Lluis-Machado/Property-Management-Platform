@@ -24,7 +24,7 @@ namespace DocumentAnalyzerAPI.Mappers
             {
                 mappingMethod = _aPInvoiceDTOMapper.MapToAPInvoiceAndLinesDTO;
             }
-            else if(targetType == typeof(ARInvoiceDTO))
+            else if (targetType == typeof(ARInvoiceDTO))
             {
                 mappingMethod = _aRInvoiceDTOMapper.MapToARInvoiceAndLinesDTO;
             }

@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using LinkAPI.Dtos;
 using LinkAPI.Models;
 
 namespace LinkAPI.Dtos

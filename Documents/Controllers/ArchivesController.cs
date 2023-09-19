@@ -1,12 +1,10 @@
-﻿using DocumentsAPI.Services;
+﻿using AutoMapper;
+using DocumentsAPI.DTOs;
 using DocumentsAPI.Models;
+using DocumentsAPI.Services;
 using FluentValidation;
-using FluentValidation.Results;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using DocumentsAPI.DTOs;
-using AutoMapper;
 using static DocumentsAPI.Models.Archive;
 
 namespace Archives.Controllers

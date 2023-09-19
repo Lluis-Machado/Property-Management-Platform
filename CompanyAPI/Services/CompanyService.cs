@@ -6,10 +6,7 @@ using FluentValidation;
 using MassTransit;
 using MessagingContracts;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace CompanyAPI.Services
 {

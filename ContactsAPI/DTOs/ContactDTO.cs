@@ -1,6 +1,4 @@
-﻿using ContactsAPI.Models;
-
-namespace ContactsAPI.DTOs
+﻿namespace ContactsAPI.DTOs
 {
     public class ContactDTO
     {

@@ -1,7 +1,4 @@
-﻿using MongoDB.Bson.IO;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text.Json;
 
 public static class ObjectComparer
@@ -33,7 +30,7 @@ public static class ObjectComparer
                     continue;
                 diffProperties[property.Name] = Tuple.Create(value1!, value2!);
             }
-            
+
         }
 
         return diffProperties;

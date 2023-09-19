@@ -17,7 +17,7 @@ namespace DocumentAnalyzerAPI.Contexts
 
         public DocumentAnalysisClient GetDocumentAnalysisClient()
         {
-            if(_key is null)
+            if (_key is null)
             {
                 throw new Exception("Azure Form Recognizer Key not configured");
             }

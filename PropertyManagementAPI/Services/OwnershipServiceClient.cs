@@ -1,8 +1,8 @@
-﻿using System.Net;
+﻿using PropertiesAPI.Dtos;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using PropertiesAPI.Dtos;
 
 namespace PropertiesAPI.Services;
 

@@ -1,7 +1,6 @@
 ﻿using Dapper;
 using DocumentsAPI.Contexts;
 using DocumentsAPI.Models;
-using DocumentsAPI.Repositories;
 using System.Text;
 
 namespace DocumentsAPI.Repositories

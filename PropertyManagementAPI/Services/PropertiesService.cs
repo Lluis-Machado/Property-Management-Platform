@@ -1,21 +1,15 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using MassTransit;
+using MessagingContracts;
 using Microsoft.AspNetCore.Mvc;
-using PropertiesAPI.Services;
+using Microsoft.IdentityModel.Tokens;
 using PropertiesAPI.Dtos;
 using PropertiesAPI.Exceptions;
 using PropertiesAPI.Models;
 using PropertiesAPI.Repositories;
-using System.Xml;
-using MassTransit;
-using MessagingContracts;
 using System.Text.Json;
-using System;
-using System.Net.Http;
-using MongoDB.Bson.IO;
-using MongoDB.Bson;
-using Microsoft.AspNetCore.Http;
-using Microsoft.IdentityModel.Tokens;
+using System.Xml;
 
 namespace PropertiesAPI.Services
 {
@@ -68,7 +62,7 @@ namespace PropertiesAPI.Services
 
             var propertyDto = _mapper.Map<Property, PropertyDetailedDto>(property);
 
-            if(!createPropertyDto.MainOwnerType.IsNullOrEmpty())
+            if (!createPropertyDto.MainOwnerType.IsNullOrEmpty())
                 await CreateMainOwnership(createPropertyDto.MainOwnerId, createPropertyDto.MainOwnerType, property.Id);
 
             return new CreatedResult($"properties/{propertyDto.Id}", propertyDto);
@@ -243,7 +237,7 @@ namespace PropertiesAPI.Services
 
             var properties = await _propertiesRepo.GetPropertiesByParentIdAsync(id);
             var propertyDtOs = properties.Any() ? _mapper.Map<IEnumerable<PropertyDto>>(properties) : Enumerable.Empty<PropertyDto>();
-            return propertyDtOs.ToList<PropertyDto>() ;
+            return propertyDtOs.ToList<PropertyDto>();
         }
 
         private async Task<string> CreateCatastreURL(string refCatastre)

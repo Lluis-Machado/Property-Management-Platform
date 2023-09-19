@@ -2,7 +2,6 @@
 using DocumentAnalyzerAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using AuthorizeAPI;
 
 namespace DocumentAnalyzerAPI.Controllers
 {

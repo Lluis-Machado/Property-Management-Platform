@@ -1,11 +1,6 @@
 ﻿using Azure;
 using Azure.Identity;
 using Azure.Storage.Blobs;
-using Azure.ResourceManager.Storage;
-using Azure.Core;
-using Azure.ResourceManager;
-using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
-using Azure.Storage;
 
 namespace DocumentsAPI.Contexts
 {
@@ -64,14 +59,14 @@ namespace DocumentsAPI.Contexts
 
             switch (account)
             {
-                case "plattesdevelopment": connKey = "vy3Cr6H7MLPxd1pNKKiC3Q/TTT8rGrcKn4tSggmyj5AM44crG+8+FOUq3usXj7itqei4zyGi7OzV+AStEqLXGw=="; break; 
-                case "plattesstage": connKey = "Kq8pWJRl25kL1S4uUKzW3Nhey4K1y2eSIaibidLUEY563AQp75lPaarf37DvoPx/MtkoXzBe50P6+AStPMnCGQ=="; break; 
+                case "plattesdevelopment": connKey = "vy3Cr6H7MLPxd1pNKKiC3Q/TTT8rGrcKn4tSggmyj5AM44crG+8+FOUq3usXj7itqei4zyGi7OzV+AStEqLXGw=="; break;
+                case "plattesstage": connKey = "Kq8pWJRl25kL1S4uUKzW3Nhey4K1y2eSIaibidLUEY563AQp75lPaarf37DvoPx/MtkoXzBe50P6+AStPMnCGQ=="; break;
                 case "plattesproduction": throw new NotImplementedException("PENDING CREATION OF PRODUCTION STORAGE ACCOUNT");
             }
 
             if (string.IsNullOrEmpty(connKey)) throw new Exception("Could not retrieve Blob Storage account key");
 
-           return connKey;
+            return connKey;
 
         }
 

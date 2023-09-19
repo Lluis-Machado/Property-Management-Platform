@@ -1,9 +1,8 @@
-﻿using CompanyAPI.Services;
+﻿using CompanyAPI.Dtos;
+using CompanyAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using CompanyAPI.Dtos;
 //using Microsoft.AspNetCore.Authorization;
-using Authorize = AuthorizeAPI.Authorize;
 
 namespace CompanyAPI.Controllers
 {
@@ -42,7 +41,7 @@ namespace CompanyAPI.Controllers
         {
             // validations
             if (companyDto == null) return new BadRequestObjectResult("Incorrect body format");
-            
+
             string lastUser = User?.Identity?.Name ?? "na";
 
             return await _companyService.UpdateAsync(companyId, companyDto, lastUser!);

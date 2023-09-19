@@ -23,7 +23,8 @@ namespace DocumentsAPI.Services
         public async Task<Archive> CreateArchiveAsync(Archive archive, ARCHIVE_TYPE type = ARCHIVE_TYPE.NONE, Guid? objectId = null)
         {
             // Validations
-            if (type != ARCHIVE_TYPE.NONE && objectId == null) {
+            if (type != ARCHIVE_TYPE.NONE && objectId == null)
+            {
                 throw new Exception($"Cannot create a {type.ToString().ToLowerInvariant()} archive without the corresponding {type.ToString().ToLowerInvariant()} Guid");
             }
 

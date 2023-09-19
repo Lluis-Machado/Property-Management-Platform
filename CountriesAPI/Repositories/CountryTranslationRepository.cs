@@ -1,11 +1,11 @@
 ﻿using CountriesAPI.Contexts;
 using CountriesAPI.Models;
-using System.Text;
 using Dapper;
+using System.Text;
 
 namespace CountriesAPI.Repositories
 {
-    public class CountryTranslationRepository :ICountryTranslationRepository
+    public class CountryTranslationRepository : ICountryTranslationRepository
     {
         private readonly IDapperContext _context;
 

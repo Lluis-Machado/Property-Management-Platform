@@ -10,12 +10,12 @@ namespace LinkAPI.Contexts
         public MongoContext(IConfiguration configuration)
         {
             _configuration = configuration;
-            _connectionString = _configuration.GetConnectionString(name : "MongoConnection");
+            _connectionString = _configuration.GetConnectionString(name: "MongoConnection");
         }
 
         public IMongoDatabase GetDatabase(string databaseName)
         {
-            MongoClient dbClient = new (_connectionString);
+            MongoClient dbClient = new(_connectionString);
             return dbClient.GetDatabase(databaseName);
         }
     }

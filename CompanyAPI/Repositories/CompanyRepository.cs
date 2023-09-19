@@ -1,6 +1,5 @@
 ﻿using CompanyAPI.Contexts;
 using CompanyAPI.Models;
-using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 
 namespace CompanyAPI.Repositories
@@ -13,7 +12,7 @@ namespace CompanyAPI.Repositories
             var database = context.GetDataBase("companies");
             _collection = database.GetCollection<Company>("companies");
         }
-        
+
         public async Task<Company> InsertOneAsync(Company company)
         {
             await _collection.InsertOneAsync(company);

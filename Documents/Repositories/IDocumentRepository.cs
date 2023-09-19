@@ -1,6 +1,5 @@
 ﻿using DocumentsAPI.DTOs;
 using DocumentsAPI.Models;
-using System.Net;
 
 namespace DocumentsAPI.Repositories
 {

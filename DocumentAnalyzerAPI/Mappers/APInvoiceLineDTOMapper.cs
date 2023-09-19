@@ -21,7 +21,7 @@ namespace DocumentAnalyzerAPI.Mappers
             decimal tax;
             string taxString = (string?)AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "TaxRate");
             string taxStringClean = "";
-            if(!String.IsNullOrEmpty(taxString))
+            if (!String.IsNullOrEmpty(taxString))
             {
                 Regex.Replace(taxString, @"[^\d]", "");
 
@@ -36,7 +36,7 @@ namespace DocumentAnalyzerAPI.Mappers
                 Tax = tax,
                 Description = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "Description"),
             };
-            
+
 
             return aPInvoiceLineDTO;
         }

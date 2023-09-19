@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace DocumentAnalyzerAPI.Services
 {
-    public class DocumentAnalyzerService: IDocumentAnalyzerService
+    public class DocumentAnalyzerService : IDocumentAnalyzerService
     {
         private readonly IAzureFormRecognizer _azureFormRecognizer;
         private readonly IDocumentFieldsMapper _documentFieldsMapper;

@@ -1,5 +1,4 @@
 ﻿using Azure;
-using Azure.Identity;
 using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
@@ -8,10 +7,8 @@ using DocumentsAPI.Contexts;
 using DocumentsAPI.DTOs;
 using DocumentsAPI.Models;
 using DocumentsAPI.Repositories;
-using MongoDB.Driver.Core.Configuration;
 using System.Collections.Concurrent;
 using System.Net;
-using System.Reflection.Metadata;
 using Document = DocumentsAPI.Models.Document;
 
 namespace DocumentsAPI.Services.AzureBlobStorage
@@ -423,7 +420,7 @@ namespace DocumentsAPI.Services.AzureBlobStorage
                 blobContainerItem.Properties.Metadata.TryGetValue("type", out archiveType);
                 blobContainerItem.Properties.Metadata.TryGetValue("relatedId", out relatedObjectId);
             }
-            
+
             archiveDisplayName = string.IsNullOrEmpty(archiveDisplayName) ? "NO NAME" : Uri.UnescapeDataString(archiveDisplayName);
 
             Archive.ARCHIVE_TYPE type = Archive.ARCHIVE_TYPE.NONE;

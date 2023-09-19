@@ -1,5 +1,4 @@
-﻿using DocumentsAPI.Models;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace DocumentsAPI.Models
 {
@@ -32,7 +31,7 @@ namespace DocumentsAPI.Models
         [JsonConstructor]
         public Archive() { }
 
-        public Archive(string pName, ARCHIVE_TYPE archiveType = ARCHIVE_TYPE.NONE, Guid? relatedItemId)
+        public Archive(string pName, Guid? relatedItemId, ARCHIVE_TYPE archiveType = ARCHIVE_TYPE.NONE)
         {
             Name = pName;
             ArchiveType = archiveType;

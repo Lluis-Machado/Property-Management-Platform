@@ -24,8 +24,8 @@ namespace DocumentAnalyzerAPI.Mappers
             ARInvoiceDTO aPInvoiceDTO = new()
             {
                 BusinessPartner = businessPartnerDTO,
-                RefNumber = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields,"InvoiceId"),
-                Date = AzureFormRecgonizerUtilities.MapFieldValue<DateTimeOffset?>(documentFields,"InvoiceDate")?.DateTime,
+                RefNumber = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "InvoiceId"),
+                Date = AzureFormRecgonizerUtilities.MapFieldValue<DateTimeOffset?>(documentFields, "InvoiceDate")?.DateTime,
                 Currency = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "InvoiceTotal"),
                 TotalAmount = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "InvoiceTotal")
             };
@@ -44,7 +44,7 @@ namespace DocumentAnalyzerAPI.Mappers
                         IReadOnlyDictionary<string, DocumentField>? itemFields = itemField.Value.AsDictionary();
                         ARInvoiceLineDTO aRInvoiceLineDTO = _aRInvoiceLineDTOMapper.MapToARInvoiceLineDTO(itemFields);
                         aRInvoiceLineDTO.ServiceDateFrom = serviceDateFrom;
-                        aRInvoiceLineDTO.ServiceDateTo = serviceDateTo;   
+                        aRInvoiceLineDTO.ServiceDateTo = serviceDateTo;
                         aPInvoiceDTO.InvoiceLines.Add(aRInvoiceLineDTO);
                     }
                 }
@@ -66,6 +66,6 @@ namespace DocumentAnalyzerAPI.Mappers
             return aPInvoiceDTO;
         }
 
-       
+
     }
 }

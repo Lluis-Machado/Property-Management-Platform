@@ -1,7 +1,7 @@
-﻿using System.Net;
+﻿using OwnershipAPI.DTOs;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using OwnershipAPI.DTOs;
 
 namespace OwnershipAPI.Services;
 

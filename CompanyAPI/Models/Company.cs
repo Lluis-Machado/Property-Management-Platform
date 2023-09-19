@@ -17,7 +17,7 @@
         public string? PhoneNumber { get; set; }
 
         public string? Comments { get; set; }
-        
+
         // Lists
         public List<CompanyAddress> Addresses { get; set; } = new();
         public List<CompanyContact> Contacts { get; set; } = new();

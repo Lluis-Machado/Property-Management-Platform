@@ -16,7 +16,7 @@ namespace AccountingAPI.Services
         private readonly IMapper _mapper;
         private readonly ILogger<APInvoiceService> _logger;
 
-        public FixedAssetService(ILogger<APInvoiceService> logger, IMapper mapper, IFixedAssetRepository fixedAssetRepository,ITenantService tenantService, IValidator<CreateFixedAssetDTO> createFixedAssetDTOValidator, IValidator<UpdateFixedAssetDTO> updateFixedAssetDTOValidator)
+        public FixedAssetService(ILogger<APInvoiceService> logger, IMapper mapper, IFixedAssetRepository fixedAssetRepository, ITenantService tenantService, IValidator<CreateFixedAssetDTO> createFixedAssetDTOValidator, IValidator<UpdateFixedAssetDTO> updateFixedAssetDTOValidator)
         {
             _logger = logger;
             _mapper = mapper;
@@ -42,7 +42,7 @@ namespace AccountingAPI.Services
             return _mapper.Map<FixedAssetDTO>(fixedAsset);
         }
 
-        public async Task<IEnumerable<FixedAssetDTO>> GetFixedAssetsAsync(Guid tenantId,bool includeDeleted = false, int? page = null, int? pageSize = null)
+        public async Task<IEnumerable<FixedAssetDTO>> GetFixedAssetsAsync(Guid tenantId, bool includeDeleted = false, int? page = null, int? pageSize = null)
         {
             IEnumerable<FixedAsset> fixedAssets = await _fixedAssetRepository.GetFixedAssetsAsync(tenantId, true);
 

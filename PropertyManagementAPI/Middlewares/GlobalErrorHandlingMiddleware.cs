@@ -1,6 +1,6 @@
-﻿using System.Net;
-using FluentValidation;
+﻿using FluentValidation;
 using PropertiesAPI.Exceptions;
+using System.Net;
 
 namespace PropertiesAPI.Middlewares
 {

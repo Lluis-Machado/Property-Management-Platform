@@ -65,7 +65,7 @@ namespace TaxManagement.Repositories
             queryBuilder.Append(",Status");
             queryBuilder.Append(",CreatedByUser");
             queryBuilder.Append(",CreatedAt");
-            queryBuilder.Append(",LastUpdateByUser"); 
+            queryBuilder.Append(",LastUpdateByUser");
             queryBuilder.Append(",LastUpdateAt");
             queryBuilder.Append(" FROM Declarations");
             queryBuilder.Append(" WHERE DeclarantId = @declarantId");

@@ -12,7 +12,7 @@ namespace TaxManagementAPI.Services
         Task<DeclarantDTO> DeleteDeclarantAsync(Guid declarantId, string userName);
         Task<DeclarantDTO> UndeleteDeclarantAsync(Guid declarantId, string userName);
         Task<DeclarantDTO?> DeclarantExists(Guid declarantId);
-        
+
         // Removed to avoid compilation issues - Izar
         // MessageContract CreateContract(Guid id, string action, object oldObject, object newObject, string userName);
     }

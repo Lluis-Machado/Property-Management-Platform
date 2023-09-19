@@ -1,6 +1,4 @@
-﻿using static DocumentsAPI.Models.Archive;
-
-namespace DocumentsAPI.DTOs
+﻿namespace DocumentsAPI.DTOs
 {
     public class CreateArchiveDTO
     {

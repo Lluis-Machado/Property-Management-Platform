@@ -1,9 +1,5 @@
-﻿using AuditsAPI.Dtos;
-using AuditsAPI.Models;
+﻿using AuditsAPI.Models;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace AuditsAPI.Services
 {

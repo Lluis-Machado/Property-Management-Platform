@@ -1,16 +1,15 @@
+using FluentValidation;
 using LinkAPI.Contexts;
+using LinkAPI.Dtos;
 using LinkAPI.Middelwares;
-using LinkAPI.Models;
 using LinkAPI.Repositories;
 using LinkAPI.Services;
-using FluentValidation;
+using LinkAPI.Validators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Security.Claims;
-using LinkAPI.Dtos;
-using LinkAPI.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,7 +28,7 @@ builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
 builder.Services.AddScoped<IValidator<LinkDto>, LinkValidator>();
 
 // Add services to the container.
-builder.Services.AddSingleton<IMongoContext ,MongoContext>();
+builder.Services.AddSingleton<IMongoContext, MongoContext>();
 builder.Services.AddScoped<ILinkRepository, LinkRepository>();
 
 builder.Services.AddScoped<ILinkService, LinkService>();

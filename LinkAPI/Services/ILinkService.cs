@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using LinkAPI.Dtos;
+﻿using LinkAPI.Dtos;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LinkAPI.Services
 {

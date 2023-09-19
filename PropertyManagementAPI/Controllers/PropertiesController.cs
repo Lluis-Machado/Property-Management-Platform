@@ -1,9 +1,5 @@
-﻿using FluentValidation;
-using FluentValidation.Results;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using PropertiesAPI.Dtos;
-using PropertiesAPI.Models;
 using PropertiesAPI.Services;
 using System.Net;
 

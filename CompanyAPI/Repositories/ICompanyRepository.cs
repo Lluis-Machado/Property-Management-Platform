@@ -1,5 +1,4 @@
 ﻿using CompanyAPI.Models;
-using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 
 namespace CompanyAPI.Repositories

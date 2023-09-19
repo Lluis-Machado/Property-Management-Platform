@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Text.Json;
 
 namespace CoreAPI.Services;
 
@@ -32,7 +31,7 @@ public class DocumentsServiceClient
     {
         string url = string.IsNullOrEmpty(type) ? string.Empty : $"/{type}";
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, "archives"+url);
+        using var request = new HttpRequestMessage(HttpMethod.Post, "archives" + url);
 
         // Add authorization token to the request headers
         var _auth = _contextAccessor?.HttpContext?.Request.Headers.Authorization.FirstOrDefault();

@@ -1,6 +1,4 @@
-﻿using ContactsAPI.DTOs;
-using ContactsAPI.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using ContactsAPI.Models;
 using MongoDB.Driver;
 
 namespace ContactsAPI.Repositories

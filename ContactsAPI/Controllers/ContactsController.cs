@@ -1,10 +1,9 @@
-﻿using ContactsAPI.Services;
+﻿using ContactsAPI.DTOs;
+using ContactsAPI.Services;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using ContactsAPI.DTOs;
-using AuthorizeAPI;
 
 
 namespace ContactsAPI.Controllers

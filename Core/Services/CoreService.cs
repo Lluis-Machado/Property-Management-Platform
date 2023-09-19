@@ -1,7 +1,5 @@
-﻿using CoreAPI.Models;
-using MassTransit;
+﻿using MassTransit;
 using MessagingContracts;
-using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
 namespace CoreAPI.Services
@@ -12,7 +10,7 @@ namespace CoreAPI.Services
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly ILogger<CoreService> _logger;
 
-        public CoreService(IBus bus, IHttpContextAccessor contextAccessor, ILogger< CoreService> logger)
+        public CoreService(IBus bus, IHttpContextAccessor contextAccessor, ILogger<CoreService> logger)
         {
             _bus = bus;
             _contextAccessor = contextAccessor;
@@ -48,7 +46,7 @@ namespace CoreAPI.Services
         public async Task<string> CreateFolder(string requestBody, string archiveId, IHttpContextAccessor contextAccessor)
         {
             var client = new DocumentsServiceClient(contextAccessor);
-            string? document = await client.CreateFolder(requestBody, archiveId); 
+            string? document = await client.CreateFolder(requestBody, archiveId);
             return document;
         }
 
@@ -91,7 +89,7 @@ namespace CoreAPI.Services
         {
             var client = new PropertyServiceClient(contextAccessor);
             var property = await client.GetPropertyByIdAsync(Id);
-            await SendMessageToArchiveQueue(new MessageContract() { Payload = property } );
+            await SendMessageToArchiveQueue(new MessageContract() { Payload = property });
             return property;
         }
 
@@ -107,57 +105,37 @@ namespace CoreAPI.Services
             await sendEndpoint.Send(message);
         }
 
-        Task<string> ICoreService.CreateProperty(string requestBody)
+        public async Task<string> CreateCompany(string requestBody, IHttpContextAccessor contextAccessor)
         {
             throw new NotImplementedException();
         }
 
-        Task<string> ICoreService.CreateCompany(string requestBody)
+        public async Task<string> CreateContact(string requestBody, IHttpContextAccessor contextAccessor)
         {
             throw new NotImplementedException();
         }
 
-        Task<string> ICoreService.CreateContact(string requestBody)
+        public async Task<string> CreateArchive(string requestBody, IHttpContextAccessor contextAccessor, string? type)
         {
             throw new NotImplementedException();
         }
 
-        Task<string> ICoreService.CreateArchive(string requestBody, IHttpContextAccessor contextAccessor, string? type)
+        public async Task<object> GetCompany(Guid Id, IHttpContextAccessor contextAccessor)
         {
             throw new NotImplementedException();
         }
 
-        Task<string> ICoreService.CreateFolder(string requestBody, string archiveId, IHttpContextAccessor contextAccessor)
+        public async Task<object> GetContacts(bool includeDeleted, IHttpContextAccessor contextAccessor)
         {
             throw new NotImplementedException();
         }
 
-        Task<object> ICoreService.GetContact(Guid Id, IHttpContextAccessor contextAccessor)
+        public async Task<object> GetProperties(bool includeDeleted, IHttpContextAccessor contextAccessor)
         {
             throw new NotImplementedException();
         }
 
-        Task<object> ICoreService.GetProperty(Guid Id, IHttpContextAccessor contextAccessor)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<object> ICoreService.GetCompany(Guid Id, IHttpContextAccessor contextAccessor)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<object> ICoreService.GetContacts(bool includeDeleted, IHttpContextAccessor contextAccessor)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<object> ICoreService.GetProperties(bool includeDeleted, IHttpContextAccessor contextAccessor)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<object> ICoreService.GetCompanies(bool includeDeleted, IHttpContextAccessor contextAccessor)
+        public async Task<object> GetCompanies(bool includeDeleted, IHttpContextAccessor contextAccessor)
         {
             throw new NotImplementedException();
         }

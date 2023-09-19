@@ -2,7 +2,6 @@
 using AuditsAPI.Models;
 using AuditsAPI.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson.IO;
 using System.Text.Json;
 
 namespace AuditsAPI.Services
@@ -37,13 +36,13 @@ namespace AuditsAPI.Services
                 audits.Add(obj!);
             }
             List<Dictionary<string, Tuple<object, object>>> differences = new();
-            if (audits.Count>1)
-            { 
-                for (int i = 0; i < audits.Count-1; i++)
+            if (audits.Count > 1)
+            {
+                for (int i = 0; i < audits.Count - 1; i++)
                 {
                     audits[i].Version = i + 1;
-                    audits[i+1].Version = i + 2;
-                    differences.Add(ObjectComparer.CompareObjects(audits[i], audits[i+1]));
+                    audits[i + 1].Version = i + 2;
+                    differences.Add(ObjectComparer.CompareObjects(audits[i], audits[i + 1]));
                 }
             }
             //

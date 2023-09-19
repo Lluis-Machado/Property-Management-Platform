@@ -1,6 +1,4 @@
-﻿using CompanyAPI.Models;
-
-namespace CompanyAPI.Dtos;
+﻿namespace CompanyAPI.Dtos;
 
 public class CompanyDto
 {

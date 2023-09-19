@@ -82,7 +82,8 @@ namespace AccountingAPI.Services
             TenantDTO tenantDTO = await GetTenantByIdAsync(tenantId);
 
             // check if already deleted/undeleted
-            if (tenantDTO.Deleted == deleted) {
+            if (tenantDTO.Deleted == deleted)
+            {
                 string action = deleted ? "deleted" : "undeleted";
                 throw new ConflictException($"Tenant already {action}");
             }

@@ -1,10 +1,9 @@
-﻿using System.Net;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using OwnershipAPI.DTOs;
 using OwnershipAPI.Exceptions;
-using OwnershipAPI.Models;
 using OwnershipAPI.Services;
 using OwnershipAPI.Validators;
+using System.Net;
 
 namespace OwnershipAPI.Controllers;
 
@@ -59,7 +58,7 @@ public class OwnershipController : ControllerBase
             return new BadRequestObjectResult("Share not 100");
         foreach (var ownershipDto in ownerships)
         {
-            if(ownershipDto.Operation == "delete")
+            if (ownershipDto.Operation == "delete")
                 await _ownershipService.DeleteOwnershipAsync(ownershipDto.Values.Id, lastUser);
             else
                 await _ownershipService.UpsertOwnershipAsync(ownershipDto.Values, lastUser);

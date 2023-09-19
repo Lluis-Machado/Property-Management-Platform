@@ -3,7 +3,11 @@ using DocumentsAPI.Models;
 using DocumentsAPI.Repositories;
 using iText.Kernel.Pdf;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.StaticFiles;
+using MimeDetective;
 using System.Net;
+using System.Text.Json;
 
 namespace DocumentsAPI.Services
 {
@@ -72,7 +76,20 @@ namespace DocumentsAPI.Services
         public async Task<FileContentResult> DownloadAsync(Guid archiveId, Guid documentId)
         {
             byte[] byteArray = await _documentsRepository.DownloadDocumentAsync(archiveId, documentId);
-            return new FileContentResult(byteArray, "application/pdf");
+
+            var Inspector = new ContentInspectorBuilder()
+            {
+                Definitions = new MimeDetective.Definitions.CondensedBuilder()
+                {
+                    UsageType = MimeDetective.Definitions.Licensing.UsageType.PersonalNonCommercial
+                }.Build()
+            }.Build();
+
+            var results = Inspector.Inspect(byteArray).ByMimeType();
+
+            _logger.LogInformation($"DownloadAsync - Document {documentId.ToString()} has detected MimeTypes: {JsonSerializer.Serialize(results.ToList())}");
+
+            return new FileContentResult(byteArray, results.FirstOrDefault()?.MimeType ?? "application/pdf");
         }
 
         public async Task<IActionResult> DeleteAsync(Guid archiveId, Guid documentId)
@@ -234,7 +251,6 @@ namespace DocumentsAPI.Services
                                 // Create a new PdfDocument for each page
                                 using (PdfDocument splitPdfDocument = new PdfDocument(new PdfWriter(splitMemoryStream)))
                                 {
-
                                     // Copy the current page to the new PdfDocument
                                     pdfDocument.CopyPagesTo(i, i, splitPdfDocument);
 

@@ -58,10 +58,13 @@ namespace DocumentsAPI.Repositories
             return blobMetadata;
         }
 
-        public async Task<UpdateResult> DeleteAsync(Guid blobId, string username = "sa")
+        public async Task<UpdateResult?> DeleteAsync(Guid blobId, string username = "sa")
         {
             var blob = await GetByBlobIdAsync(blobId);
-            if (blob == null) throw new Exception($"Blob {blobId} not found");
+            //if (blob == null) throw new Exception($"Blob {blobId} not found");
+
+            // Changed so it doesn't throw an exception
+            if (blob == null) return null;
 
             var update = Builders<BlobMetadata>.Update
                 .Set(b => b.Deleted, true)

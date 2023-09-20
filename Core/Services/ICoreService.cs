@@ -6,6 +6,10 @@
         Task<string> CreateCompany(string requestBody);
         Task<string> CreateContact(string requestBody);
 
+        Task<string> UpdateProperty(string requestBody);
+        Task<string> UpdateCompany(string requestBody);
+        Task<string> UpdateContact(string requestBody);
+
 
         Task<string> CreateArchive(string requestBody, IHttpContextAccessor contextAccessor, string? type);
         [Obsolete("Deprecated, Folder creation is handled automatically in the Documents microservice")]

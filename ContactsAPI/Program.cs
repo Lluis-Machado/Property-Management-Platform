@@ -35,6 +35,7 @@ builder.Services.AddSingleton<MongoContext>();
 builder.Services.AddScoped<IContactsRepository, ContactsRepository>();
 builder.Services.AddScoped<IContactsService, ContactsService>();
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+builder.Services.AddScoped<ExecutionTimingFilter>();
 
 
 builder.Services.AddControllers();

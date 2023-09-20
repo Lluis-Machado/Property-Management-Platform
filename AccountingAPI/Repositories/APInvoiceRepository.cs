@@ -51,7 +51,7 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",INSERTED.LastModificationAt");
             queryBuilder.Append(",INSERTED.LastModificationBy");
             queryBuilder.Append(" VALUES(");
-            queryBuilder.Append("@BusinessPartnerId");
+            queryBuilder.Append(" @BusinessPartnerId");
             queryBuilder.Append(",@RefNumber");
             queryBuilder.Append(",@Date");
             queryBuilder.Append(",@Currency");
@@ -119,7 +119,7 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(" FROM APInvoices ");
             queryBuilder.Append(" INNER JOIN BusinessPartners ON BusinessPartners.Id = APInvoices.BusinessPartnerId");
             queryBuilder.Append(" WHERE BusinessPartners.TenantId = @tenantId");
-            queryBuilder.Append(" AND Id = @invoiceId");
+            queryBuilder.Append(" AND APInvoices.Id = @invoiceId");
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QuerySingleOrDefaultAsync<APInvoice?>(queryBuilder.ToString(), parameters);
@@ -151,7 +151,7 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",LastModificationAt = @LastModificationAt");
             queryBuilder.Append(",LastModificationBy = @LastModificationBy");
             queryBuilder.Append(" OUTPUT INSERTED.Id");
-            queryBuilder.Append(",INSERTED.BusinessPartnerId");
+            /*queryBuilder.Append(",INSERTED.BusinessPartnerId");
             queryBuilder.Append(",INSERTED.RefNumber");
             queryBuilder.Append(",INSERTED.Date");
             queryBuilder.Append(",INSERTED.Currency");
@@ -161,7 +161,7 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",INSERTED.CreatedAt");
             queryBuilder.Append(",INSERTED.CreatedBy");
             queryBuilder.Append(",INSERTED.LastModificationAt");
-            queryBuilder.Append(",INSERTED.LastModificationBy");
+            queryBuilder.Append(",INSERTED.LastModificationBy");*/
             queryBuilder.Append(" WHERE Id = @Id");
 
             using var connection = _context.CreateConnection(); // Create a new connection

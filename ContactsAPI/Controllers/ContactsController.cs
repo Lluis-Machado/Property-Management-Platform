@@ -11,6 +11,7 @@ namespace ContactsAPI.Controllers
     //[Authorize]
     [ApiController]
     [Route("contacts")]
+    [ServiceFilter(typeof(ExecutionTimingFilter))]
     public class ContactsController : ControllerBase
     {
         private readonly IContactsService _contactsService;

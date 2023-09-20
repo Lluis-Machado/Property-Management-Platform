@@ -10,13 +10,19 @@ namespace CoreAPI.Services
     {
         private readonly IBus _bus;
         private readonly PropertyServiceClient _pClient;
+        private readonly OwnershipServiceClient _oClient;
+
         private readonly IHttpContextAccessor _contextAccessor;
 
-        public CoreService(IBus bus,PropertyServiceClient pClient, IHttpContextAccessor contextAccessor)
+        public CoreService(IBus bus,
+            PropertyServiceClient pClient,
+            OwnershipServiceClient oClient,
+            IHttpContextAccessor contextAccessor)
         {
             _bus = bus;
-            _pClient = _pClient;
+            _pClient = pClient;
             _contextAccessor = contextAccessor;
+            _oClient = oClient;
         }
 
         public async Task<string> CreateProperty(string requestBody)
@@ -25,11 +31,11 @@ namespace CoreAPI.Services
 
             if (string.IsNullOrEmpty(property)) throw new Exception("Property service response is empty");
 
-            JsonDocument jsonDocument = JsonDocument.Parse(property);
-            JsonElement root = jsonDocument.RootElement;
+            var propertyId = GetPropertyFromJson(property,"Id");
+            var propertyName = GetPropertyFromJson(property, "Name");
 
-            string propertyId = root.GetProperty("id").GetString();
-            string propertyName = root.GetProperty("name").GetString();
+            var ownerType = GetPropertyFromJson(requestBody, "MainOwnerType");
+            var ownerId = GetPropertyFromJson(requestBody, "MainOwnerId");
 
             var archivePayload = new
             {
@@ -37,12 +43,56 @@ namespace CoreAPI.Services
                 id = propertyId,
                 type = "property"
             };
-            await SendMessageToArchiveQueue(new MessageContract() { Payload = archivePayload.ToString() });
+            if (!String.IsNullOrEmpty(ownerType))
+                await CreateMainOwnership(ownerId, ownerType, propertyId);
+            /* await SendMessageToArchiveQueue(new MessageContract() { Payload = archivePayload.ToString() });
 
-            var archive = await CreateArchive(JsonSerializer.Serialize(archivePayload), _contextAccessor, "Property");
+             var archive = await CreateArchive(JsonSerializer.Serialize(archivePayload), _contextAccessor, "Property");*/
 
             return property;
         }
+
+        public void RestoreVersion(string requestBody, string type)
+        {
+            switch (type)
+            {
+                case "Property":
+                    UpdateProperty(requestBody);
+                    break;
+                case "Contact":
+                    UpdateContact(requestBody);
+                    break;
+                case "Company":
+                    UpdateCompany(requestBody);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private string GetPropertyFromJson(string json, string property)
+        {
+            JsonDocument jsonDocument = JsonDocument.Parse(json);
+            JsonElement root = jsonDocument.RootElement;
+
+            return root.GetProperty(property).GetString();
+        }
+
+        private async Task CreateMainOwnership(string ownerId, string ownerType, string propertyId)
+        {
+            var ownershipDto = new 
+            {
+                OwnerId = ownerId,
+                OwnerType = ownerType,
+                PropertyId = propertyId,
+                Share = 100,
+                MainOwnership = true
+            };
+
+           await _oClient.CreateOwnership(ownershipDto.ToString());
+        }
+
+
 
         [Obsolete("Deprecated, Folder creation is handled automatically in the Documents microservice")]
         public async Task<string> CreateFolder(string requestBody, string archiveId, IHttpContextAccessor contextAccessor)
@@ -143,6 +193,21 @@ namespace CoreAPI.Services
         }
 
         Task<object> ICoreService.GetCompanies(bool includeDeleted, IHttpContextAccessor contextAccessor)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> UpdateProperty(string requestBody)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> UpdateCompany(string requestBody)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> UpdateContact(string requestBody)
         {
             throw new NotImplementedException();
         }

@@ -1,18 +1,16 @@
 using FluentValidation;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PropertiesAPI.Contexts;
 using PropertiesAPI.Dtos;
-using PropertiesAPI.Models;
+using PropertiesAPI.Middlewares;
 using PropertiesAPI.Repositories;
 using PropertiesAPI.Services;
 using PropertiesAPI.Validators;
 using Serilog;
 using System.Security.Claims;
-using MassTransit;
-using MessagingContracts;
-using PropertiesAPI.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 

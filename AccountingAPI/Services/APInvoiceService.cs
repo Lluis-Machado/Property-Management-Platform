@@ -91,7 +91,7 @@ namespace AccountingAPI.Services
             Pagination.Paginate(ref invoices, page, pageSize);
 
             IEnumerable<APInvoiceLineDTO> invoiceLinesDTOs = await GetAPInvoiceLinesAsync(tenantId, includeDeleted);
-            IEnumerable<BusinessPartnerDTO> businessPartnerDTOs = await _businessPartnerService.GetBusinessPartnersAsync(tenantId, includeDeleted);      
+            IEnumerable<BusinessPartnerDTO> businessPartnerDTOs = await _businessPartnerService.GetBusinessPartnersAsync(tenantId, includeDeleted);
             Parallel.ForEach(invoices, (invoice) =>
             {
                 APInvoiceDTO invoiceDTO = _mapper.Map<APInvoiceDTO>(invoice);
@@ -192,8 +192,8 @@ namespace AccountingAPI.Services
         public async Task<APInvoiceLineDTO> CreateAPInvoiceLineAsync(Guid tenantId, Guid invoiceId, CreateAPInvoiceLineDTO createInvoiceLineDTO, DateTime invoiceDate, string userName)
         {
             // check if expense category exists
-            //if (createInvoiceLineDTO.ExpenseCategoryId is null) throw new Exception("No expense category ID defined");
-            ExpenseCategoryDTO expenseCategoryDTO = await _expenseCategoryService.GetExpenseCategoryByIdAsync(createInvoiceLineDTO.ExpenseCategoryId);
+            if (createInvoiceLineDTO.ExpenseCategoryId is null) throw new Exception("Expense category ID cannot be null");
+            ExpenseCategoryDTO expenseCategoryDTO = await _expenseCategoryService.GetExpenseCategoryByIdAsync((Guid)createInvoiceLineDTO.ExpenseCategoryId);
 
             APInvoiceLine invoiceLine = _mapper.Map<APInvoiceLine>(createInvoiceLineDTO);
             invoiceLine.TotalPrice = createInvoiceLineDTO.UnitPrice * createInvoiceLineDTO.Quantity;

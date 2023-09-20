@@ -1,5 +1,4 @@
 using DocumentAnalyzerAPI.Contexts;
-using DocumentAnalyzerAPI.DTOs;
 using DocumentAnalyzerAPI.Mappers;
 using DocumentAnalyzerAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

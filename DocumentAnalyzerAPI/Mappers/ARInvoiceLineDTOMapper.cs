@@ -24,7 +24,7 @@ namespace DocumentAnalyzerAPI.Mappers
                 Tax = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "Tax"),
                 Description = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "Description"),
             };
-            
+
 
             return aRInvoiceLineDTO;
         }

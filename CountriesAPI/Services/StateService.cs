@@ -32,7 +32,7 @@ namespace CountriesAPI.Services
             return await GetAllStatesAsync(countryId);
         }
 
-        private async Task<IEnumerable<StateDTO>> GetTranslatedStatesAsync(string languageCode,int? countryId = null)
+        private async Task<IEnumerable<StateDTO>> GetTranslatedStatesAsync(string languageCode, int? countryId = null)
         {
             List<StateDTO> stateDTOs = new();
 

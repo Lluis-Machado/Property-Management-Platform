@@ -1,8 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Net;
-using AuditsAPI.Models;
+﻿using AuditsAPI.Models;
 using AuditsAPI.Services;
-using AuditsAPI.Dtos;
+using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace AuditsAPI.Controllers
 {

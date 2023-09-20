@@ -4,8 +4,6 @@ using DocumentsAPI.Repositories;
 using DocumentsAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using System.Net.Http.Headers;
-using System.Net.Mime;
 using Document = DocumentsAPI.Models.Document;
 
 namespace Documents.Controllers
@@ -71,7 +69,8 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<List<FileContentResult>>> SplitAsync(IFormFile file, [FromQuery] string? ranges = null) {
+        public async Task<ActionResult<List<FileContentResult>>> SplitAsync(IFormFile file, [FromQuery] string? ranges = null)
+        {
             // empty request validation
             if (file == null) return BadRequest();
 
@@ -90,7 +89,7 @@ namespace Documents.Controllers
             }
 
             // Return the list of base64 strings in JSON format
-            return Ok(new { SplitFiles = pdfBase64Strings});
+            return Ok(new { SplitFiles = pdfBase64Strings });
         }
 
         // POST: Split document already present in Blob Storage
@@ -167,6 +166,19 @@ namespace Documents.Controllers
             byte[] byteArray = results.FileContents;
             return File(byteArray, results.ContentType);
         }
+
+        // GET: Download document
+        [HttpGet]
+        [Route("{archiveId}/documents/{documentId}/url")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult> GetDocumentUrlAsync(Guid archiveId, Guid documentId)
+        {
+            var results = await _documentsService.GetDocumentUrlByIdAsync(archiveId, documentId);
+            return Ok(results);
+        }
+
 
         // DELETE: Delete document
         [HttpDelete]

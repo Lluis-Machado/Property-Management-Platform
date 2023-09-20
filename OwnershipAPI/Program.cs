@@ -1,16 +1,15 @@
-using OwnershipAPI.Contexts;
-using OwnershipAPI.Middlewares;
-using OwnershipAPI.Models;
-using OwnershipAPI.Repositories;
-using OwnershipAPI.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using OwnershipAPI.Contexts;
+using OwnershipAPI.DTOs;
+using OwnershipAPI.Middlewares;
+using OwnershipAPI.Repositories;
+using OwnershipAPI.Services;
+using OwnershipAPI.Validators;
 using Serilog;
 using System.Security.Claims;
-using OwnershipAPI.DTOs;
-using OwnershipAPI.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 

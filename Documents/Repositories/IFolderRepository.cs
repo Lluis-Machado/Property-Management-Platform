@@ -6,6 +6,7 @@ namespace DocumentsAPI.Repositories
     {
         List<TreeFolderItem> ToFolderTreeView(List<Folder> folders);
         Task<bool> CheckFolderExists(Guid folderId);
+        Task CreateDefaultFolders(Archive archive);
         Task<bool> UpdateFolderHasDocumentsAsync(Guid folderId, bool status = true);
         Task<Folder> GetFolderByIdAsync(Guid? archiveId, Guid folderId);
         Task<Folder> InsertFolderAsync(Folder folder);

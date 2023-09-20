@@ -9,6 +9,7 @@ namespace DocumentsAPI.Services
         Task<List<CreateDocumentStatus>> UploadAsync(Guid archiveId, IFormFile[] files, Guid? folderId = null);
         Task<IEnumerable<Document>> GetDocumentsAsync(Guid archiveId, int? pSize = 100, Guid? folderId = null, bool includeDeleted = false);
         Task<Document?> GetDocumentByIdAsync(Guid archiveId, Guid documentId);
+        Task<string?> GetDocumentUrlByIdAsync(Guid archiveId, Guid documentId);
         Task<IEnumerable<Document>> SearchDocumentsTagsAsync(string query, bool includeDeleted = false);
         Task<FileContentResult> DownloadAsync(Guid archiveId, Guid documentId);
         Task<IEnumerable<FileContentResult>> SplitAsync(IFormFile file, DocSplitInterval[]? range);

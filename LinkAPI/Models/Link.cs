@@ -8,7 +8,8 @@
         public Guid ObjectBId { get; set; }
         public string? ObjectBType { get; set; }
 
-        public Link() { 
+        public Link()
+        {
 
         }
     }

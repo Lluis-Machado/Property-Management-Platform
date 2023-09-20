@@ -1,5 +1,4 @@
 using CoreAPI.Services;
-using FluentValidation;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -20,9 +19,11 @@ builder.Logging.AddSerilog(logger);
 
 // Add services to the container.
 
-builder.Services.AddScoped<ICoreService, CoreService>();
+builder.Services.AddSingleton<ICoreService, CoreService>();
 builder.Services.AddTransient<PropertyServiceClient>();
-builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddTransient<CompanyServiceClient>();
+builder.Services.AddTransient<ContactServiceClient>();
+builder.Services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
 
 //builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
@@ -31,7 +32,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opt =>
 {
-    opt.SwaggerDoc("v1", new OpenApiInfo { Title = "MyAPI", Version = "v1" });
+    opt.SwaggerDoc("v1", new OpenApiInfo { Title = "CoreAPI", Version = "v1" });
     opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,

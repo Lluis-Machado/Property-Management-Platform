@@ -1,7 +1,6 @@
 ﻿using Dapper;
 using DocumentsAPI.Contexts;
 using DocumentsAPI.Models;
-using DocumentsAPI.Repositories;
 using System.Text;
 
 namespace DocumentsAPI.Repositories
@@ -16,6 +15,11 @@ namespace DocumentsAPI.Repositories
         {
             _context = context;
             _logger = logger;
+        }
+
+        public async Task CreateDefaultFolders(Archive archive)
+        {
+            // TODO
         }
 
         public async Task<bool> CheckFolderExists(Guid folderId)

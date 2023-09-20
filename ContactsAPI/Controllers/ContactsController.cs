@@ -1,9 +1,9 @@
-﻿using ContactsAPI.Services;
+﻿using ContactsAPI.DTOs;
+using ContactsAPI.Services;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using ContactsAPI.DTOs;
 
 
 namespace ContactsAPI.Controllers
@@ -39,7 +39,7 @@ namespace ContactsAPI.Controllers
             ValidationResult validationResult = await _createContactValidator.ValidateAsync(contactDTO);
             if (!validationResult.IsValid) return new BadRequestObjectResult(validationResult.ToString("~"));
 
-            var lastUser = User?.Identity?.Name;
+            var lastUser = User?.Identity?.Name ?? "sa";
 
             return await _contactsService.CreateAsync(contactDTO, lastUser);
         }
@@ -58,9 +58,20 @@ namespace ContactsAPI.Controllers
             ValidationResult validationResult = await _updateContactValidator.ValidateAsync(contactDTO);
             if (!validationResult.IsValid) return new BadRequestObjectResult(validationResult.ToString("~"));
 
-            var lastUser = User?.Identity?.Name;
+            var lastUser = User?.Identity?.Name ?? "sa";
 
             return await _contactsService.UpdateContactAsync(contactId, contactDTO, lastUser);
+        }
+
+        [HttpPatch]
+        [Route("{contactId}/{archiveId}")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<IActionResult> UpdateArchiveIdAsync(Guid contactId, Guid archiveId)
+        {
+            var lastUser = User?.Identity?.Name ?? "sa";
+            return await _contactsService.UpdateContactArchiveIdAsync(contactId, archiveId, lastUser);
         }
 
         [HttpGet]

@@ -1,7 +1,5 @@
-﻿using CoreAPI.Models;
-using MassTransit;
+﻿using MassTransit;
 using MessagingContracts;
-using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
 namespace CoreAPI.Services
@@ -13,6 +11,7 @@ namespace CoreAPI.Services
         private readonly OwnershipServiceClient _oClient;
 
         private readonly IHttpContextAccessor _contextAccessor;
+        private readonly ILogger<CoreService> _logger;
 
         public CoreService(IBus bus,
             PropertyServiceClient pClient,
@@ -20,14 +19,13 @@ namespace CoreAPI.Services
             IHttpContextAccessor contextAccessor)
         {
             _bus = bus;
-            _pClient = pClient;
+            _pClient = _pClient;
             _contextAccessor = contextAccessor;
-            _oClient = oClient;
         }
 
         public async Task<string> CreateProperty(string requestBody)
         {
-            string? property = await _pClient.CreateProperty(requestBody);
+            string? property = await new PropertyServiceClient(_contextAccessor).CreateProperty(requestBody);
 
             if (string.IsNullOrEmpty(property)) throw new Exception("Property service response is empty");
 
@@ -95,38 +93,53 @@ namespace CoreAPI.Services
 
 
         [Obsolete("Deprecated, Folder creation is handled automatically in the Documents microservice")]
-        public async Task<string> CreateFolder(string requestBody, string archiveId, IHttpContextAccessor contextAccessor)
+        public async Task<string> CreateFolder(string requestBody, string archiveId)
         {
-            var client = new DocumentsServiceClient(contextAccessor);
-            string? document = await client.CreateFolder(requestBody, archiveId); 
+            var client = new DocumentsServiceClient(_contextAccessor);
+            string? document = await client.CreateFolder(requestBody, archiveId);
             return document;
         }
 
-        public async Task<string> CreateArchive(string requestBody, IHttpContextAccessor contextAccessor, string? type)
+        public async Task<string> CreateArchive(dynamic requestBody, string? type)
         {
             // TODO: Change from REST call to RabbitMQ message
-            var client = new DocumentsServiceClient(contextAccessor);
-            string? archive = await client.CreateArchive(requestBody, type);
+            var client = new DocumentsServiceClient(_contextAccessor);
+            string? archive = await client.CreateArchive(JsonSerializer.Serialize(requestBody), type);
+            // Update object who caused the creation of the archive
+
+            switch (type?.ToLowerInvariant())
+            {
+                case "property":
+                    await new PropertyServiceClient(_contextAccessor).UpdatePropertyArchive(requestBody.id, archive);
+                    break;
+                case "contact":
+                    await new ContactServiceClient(_contextAccessor).UpdateContactArchive(requestBody.id, archive);
+                    break;
+                case "company":
+                    await new CompanyServiceClient(_contextAccessor).UpdateCompanyArchive(requestBody.id, archive);
+                    break;
+                default:
+                    _logger.LogWarning($"Invalid or absent type for archive {archive}!");
+                    break;
+            }
 
             return archive;
         }
 
-        public async Task<object> GetContact(Guid Id, IHttpContextAccessor contextAccessor)
+        public async Task<object> GetContact(Guid Id)
         {
-            var clientC = new CompanyServiceClient(contextAccessor);
+            var clientC = new CompanyServiceClient(_contextAccessor);
             var company = await clientC.GetCompanyByIdAsync(Id);
-
             await SendMessageToAuditQueue(new MessageContract() { Payload = company });
 
             return company;
         }
 
-        public async Task<object> GetProperty(Guid Id, IHttpContextAccessor contextAccessor)
+        public async Task<object> GetProperty(Guid Id)
         {
-            var client = new PropertyServiceClient(contextAccessor);
+            var client = new PropertyServiceClient(_contextAccessor);
             var property = await client.GetPropertyByIdAsync(Id);
-
-            await SendMessageToArchiveQueue(new MessageContract() { Payload = property } );
+            await SendMessageToArchiveQueue(new MessageContract() { Payload = property });
             return property;
         }
 
@@ -142,57 +155,37 @@ namespace CoreAPI.Services
             await sendEndpoint.Send(message);
         }
 
-        Task<string> ICoreService.CreateProperty(string requestBody)
+        public async Task<string> CreateCompany(string requestBody)
         {
             throw new NotImplementedException();
         }
 
-        Task<string> ICoreService.CreateCompany(string requestBody)
+        public async Task<string> CreateContact(string requestBody)
         {
             throw new NotImplementedException();
         }
 
-        Task<string> ICoreService.CreateContact(string requestBody)
+        public async Task<string> CreateArchive(string requestBody, string? type)
         {
             throw new NotImplementedException();
         }
 
-        Task<string> ICoreService.CreateArchive(string requestBody, IHttpContextAccessor contextAccessor, string? type)
+        public async Task<object> GetCompany(Guid Id)
         {
             throw new NotImplementedException();
         }
 
-        Task<string> ICoreService.CreateFolder(string requestBody, string archiveId, IHttpContextAccessor contextAccessor)
+        public async Task<object> GetContacts(bool includeDeleted)
         {
             throw new NotImplementedException();
         }
 
-        Task<object> ICoreService.GetContact(Guid Id, IHttpContextAccessor contextAccessor)
+        public async Task<object> GetProperties(bool includeDeleted)
         {
             throw new NotImplementedException();
         }
 
-        Task<object> ICoreService.GetProperty(Guid Id, IHttpContextAccessor contextAccessor)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<object> ICoreService.GetCompany(Guid Id, IHttpContextAccessor contextAccessor)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<object> ICoreService.GetContacts(bool includeDeleted, IHttpContextAccessor contextAccessor)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<object> ICoreService.GetProperties(bool includeDeleted, IHttpContextAccessor contextAccessor)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<object> ICoreService.GetCompanies(bool includeDeleted, IHttpContextAccessor contextAccessor)
+        public async Task<object> GetCompanies(bool includeDeleted)
         {
             throw new NotImplementedException();
         }

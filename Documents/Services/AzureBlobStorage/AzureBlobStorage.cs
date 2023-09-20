@@ -1,6 +1,8 @@
 ﻿using Azure;
+using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Azure.Storage.Sas;
 using DocumentsAPI.Contexts;
 using DocumentsAPI.DTOs;
 using DocumentsAPI.Models;
@@ -29,7 +31,9 @@ namespace DocumentsAPI.Services.AzureBlobStorage
         {
             Dictionary<string, string> metadata = new();
 
-            if (archive.Name != null) metadata.Add("display_name", Uri.EscapeDataString(archive.Name));
+            metadata.Add("display_name", Uri.EscapeDataString(archive.Name ?? "NO NAME"));
+            metadata.Add("type", archive.ArchiveType.ToString());
+            metadata.Add("relatedId", archive.RelatedItemId.ToString());
 
             BlobContainerClient blobContainerClient = _context.GetBlobContainerClient(archive.Id.ToString());
             await blobContainerClient.CreateAsync(default, metadata);
@@ -112,7 +116,7 @@ namespace DocumentsAPI.Services.AzureBlobStorage
 
         #region Documents 
 
-        public async Task<DocumentUploadDTO> UploadDocumentAsync(Guid archiveId, string fileName, Stream fileContent, Guid? folderId = null)
+        public async Task<DocumentUploadDTO> UploadDocumentAsync(Guid archiveId, string fileName, Stream fileContent, string contentType, Guid? folderId = null)
         {
             Guid docNewGuid = Guid.NewGuid();
             BlobClient blobClient = _context.GetBlobClient(archiveId.ToString(), docNewGuid.ToString());
@@ -123,9 +127,12 @@ namespace DocumentsAPI.Services.AzureBlobStorage
                 {"folder_id", folderId.ToString() ?? ""},
             };
 
+            BlobHttpHeaders blobHttpHeaders = new () { ContentType = contentType};
+
             BlobUploadOptions blobUploadOptions = new()
             {
-                Metadata = blobMetadata
+                Metadata = blobMetadata,
+                HttpHeaders = blobHttpHeaders
             };
 
             Response<BlobContentInfo> blobContentInfo = await blobClient.UploadAsync(fileContent, blobUploadOptions);
@@ -210,6 +217,33 @@ namespace DocumentsAPI.Services.AzureBlobStorage
             }
 
             return document;
+        }
+
+        public async Task<string?> GetDocumentUrlByIdAsync(Guid archiveId, Guid documentId)
+        {
+
+            BlobContainerClient blobContainerClient = _context.GetBlobContainerClient(archiveId.ToString());
+            BlobClient blobClient = blobContainerClient.GetBlobClient(documentId.ToString());
+
+
+            BlobSasBuilder sasBuilder = new BlobSasBuilder()
+            {
+                BlobContainerName = blobContainerClient.Name,
+                BlobName = blobClient.Name,
+                Resource = "b",
+                StartsOn = DateTimeOffset.UtcNow,
+                ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(15),
+                ContentType = blobClient.GetProperties().Value.ContentType
+            };
+            sasBuilder.SetPermissions(BlobSasPermissions.Read);
+
+            StorageSharedKeyCredential creds = new StorageSharedKeyCredential(_context.GetStorageAccount(), _context.GetAccountKey());
+
+            // SAS Token
+            string sasUri = sasBuilder.ToSasQueryParameters(creds).ToString();
+
+
+            return blobClient.Uri + "?" + sasUri;
         }
 
         public async Task<bool> DocumentExistsAsync(Guid archiveId, Guid documentId)
@@ -382,15 +416,26 @@ namespace DocumentsAPI.Services.AzureBlobStorage
         private static Archive MapArchive(BlobContainerItem blobContainerItem)
         {
             string? archiveDisplayName = null;
+            string? archiveType = null;
+            string? relatedObjectId = null;
             if (blobContainerItem.Properties.Metadata != null)
             {
-                archiveDisplayName = Uri.UnescapeDataString(blobContainerItem.Properties.Metadata["display_name"]);
+                blobContainerItem.Properties.Metadata.TryGetValue("display_name", out archiveDisplayName);
+                blobContainerItem.Properties.Metadata.TryGetValue("type", out archiveType);
+                blobContainerItem.Properties.Metadata.TryGetValue("relatedId", out relatedObjectId);
             }
+
+            archiveDisplayName = string.IsNullOrEmpty(archiveDisplayName) ? "NO NAME" : Uri.UnescapeDataString(archiveDisplayName);
+
+            Archive.ARCHIVE_TYPE type = Archive.ARCHIVE_TYPE.NONE;
+            Enum.TryParse(archiveType, out type);
 
             Archive archive = new()
             {
                 Id = Guid.Parse(blobContainerItem.Name),
                 Name = archiveDisplayName,
+                ArchiveType = type,
+                RelatedItemId = string.IsNullOrEmpty(relatedObjectId) ? null : Guid.Parse(relatedObjectId),
                 Deleted = blobContainerItem.IsDeleted ?? false,
                 LastUpdateAt = blobContainerItem.Properties.LastModified.DateTime.ToLocalTime(),
             };

@@ -19,6 +19,7 @@ namespace ContactsAPI.DTOs
         public string? Comments { get; set; }
         public string? Salutation { get; set; }
 
+
         // Multiples
         public List<ContactAddress> Addresses { get; set; } = new();
         public List<ContactPhones> Phones { get; set; } = new();

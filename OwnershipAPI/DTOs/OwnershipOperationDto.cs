@@ -1,6 +1,4 @@
-﻿using OwnershipAPI.Models;
-
-namespace OwnershipAPI.DTOs
+﻿namespace OwnershipAPI.DTOs
 {
     public class OwnershipOperationDto
     {

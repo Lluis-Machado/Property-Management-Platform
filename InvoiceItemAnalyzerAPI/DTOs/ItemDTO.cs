@@ -1,6 +1,4 @@
-﻿using Microsoft.ML.Data;
-
-namespace InvoiceItemAnalyzerAPI.DTOs
+﻿namespace InvoiceItemAnalyzerAPI.DTOs
 {
     public class ItemDTO
     {

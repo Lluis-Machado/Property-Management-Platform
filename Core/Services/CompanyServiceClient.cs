@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
-using System.Text.Json;
 
 namespace CoreAPI.Services;
 
@@ -57,5 +56,35 @@ public class CompanyServiceClient
         }
 
         throw new Exception($"Failed to get ownership by ID. Status code: {response.StatusCode}");
+    }
+
+    public async Task<string?> UpdateCompanyArchive(string companyId, string archiveId)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Patch, $"{companyId}/{archiveId}");
+
+        // Add authorization token to the request headers
+        var _auth = _contextAccessor?.HttpContext?.Request.Headers.Authorization.FirstOrDefault();
+        if (_auth != null)
+        {
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _auth.Split(' ')[1]);
+        }
+
+        var response = await _httpClient.SendAsync(request);
+        if (response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            if (string.IsNullOrEmpty(content))
+            {
+                return null;
+            }
+            return content;
+        }
+
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            return null;
+        }
+
+        throw new Exception($"Failed to update company archive by IDD. Status code: {response.StatusCode}");
     }
 }

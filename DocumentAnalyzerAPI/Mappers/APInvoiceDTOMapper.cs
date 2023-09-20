@@ -24,14 +24,14 @@ namespace DocumentAnalyzerAPI.Mappers
             var totalAmount = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "InvoiceTotal");
             var totalTax = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "TotalTax");
             var totalBaseAmount = totalAmount - totalTax;
-            var totalTaxPercentage = (totalAmount *100)/totalBaseAmount -100;
-            if (totalTaxPercentage != null) 
-            totalTaxPercentage = Math.Round((decimal)totalTaxPercentage, 2);
+            var totalTaxPercentage = (totalAmount * 100) / totalBaseAmount - 100;
+            if (totalTaxPercentage != null)
+                totalTaxPercentage = Math.Round((decimal)totalTaxPercentage, 2);
             APInvoiceDTO aPInvoiceDTO = new()
             {
                 BusinessPartner = businessPartnerDTO,
-                RefNumber = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields,"InvoiceId"),
-                Date = AzureFormRecgonizerUtilities.MapFieldValue<DateTimeOffset?>(documentFields,"InvoiceDate")?.DateTime,
+                RefNumber = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "InvoiceId"),
+                Date = AzureFormRecgonizerUtilities.MapFieldValue<DateTimeOffset?>(documentFields, "InvoiceDate")?.DateTime,
                 Currency = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "InvoiceTotal"),
                 TotalAmount = totalAmount,
                 TotalTax = totalTax,
@@ -51,7 +51,7 @@ namespace DocumentAnalyzerAPI.Mappers
                         IReadOnlyDictionary<string, DocumentField>? itemFields = itemField.Value.AsDictionary();
                         APInvoiceLineDTO aPInvoiceLineDTO = _aPInvoiceLineDTOMapper.MapToAPInvoiceLineDTO(itemFields);
                         aPInvoiceLineDTO.ServiceDateFrom = serviceDateFrom;
-                        aPInvoiceLineDTO.ServiceDateTo = serviceDateTo;   
+                        aPInvoiceLineDTO.ServiceDateTo = serviceDateTo;
                         aPInvoiceDTO.InvoiceLines.Add(aPInvoiceLineDTO);
                     }
                 }
@@ -72,6 +72,6 @@ namespace DocumentAnalyzerAPI.Mappers
             return aPInvoiceDTO;
         }
 
-       
+
     }
 }

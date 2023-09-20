@@ -9,6 +9,7 @@ namespace CompanyAPI.Services
         Task<ActionResult<IEnumerable<CompanyDto>>> GetAsync(bool includeDeleted = false);
         Task<CompanyDetailedDto> GetByIdAsync(Guid id);
         Task<ActionResult<CompanyDetailedDto>> UpdateAsync(Guid companyId, UpdateCompanyDto updateCompanyDto, string lastUser);
+        Task<IActionResult> UpdateCompanyArchiveIdAsync(Guid companyId, Guid archiveId, string lastUser);
         Task<IActionResult> DeleteAsync(Guid companyId, string lastUser);
         Task<IActionResult> UndeleteAsync(Guid companyId, string lastUser);
     }

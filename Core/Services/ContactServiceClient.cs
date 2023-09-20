@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
-using System.Text.Json;
 
 namespace CoreAPI.Services;
 
@@ -25,9 +24,9 @@ public class ContactServiceClient
         _contextAccessor = contextAccessor;
     }
 
-    public async Task<string?> GetCompanyByIdAsync(Guid id)
+    public async Task<string?> GetContactByIdAsync(Guid id)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, $"companies/{id}");
+        var request = new HttpRequestMessage(HttpMethod.Get, $"{id}");
 
         // Add authorization token to the request headers
         var _auth = _contextAccessor?.HttpContext?.Request.Headers.Authorization.FirstOrDefault();
@@ -56,6 +55,39 @@ public class ContactServiceClient
             return null;
         }
 
-        throw new Exception($"Failed to get ownership by ID. Status code: {response.StatusCode}");
+        throw new Exception($"Failed to get contact by ID. Status code: {response.StatusCode}");
     }
+
+    public async Task<string?> UpdateContactArchive(string contactId, string archiveId)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Patch, $"{contactId}/{archiveId}");
+
+        // Add authorization token to the request headers
+        var _auth = _contextAccessor?.HttpContext?.Request.Headers.Authorization.FirstOrDefault();
+        if (_auth != null)
+        {
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _auth.Split(' ')[1]);
+        }
+
+        var response = await _httpClient.SendAsync(request);
+        if (response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            if (string.IsNullOrEmpty(content))
+            {
+                return null;
+            }
+            return content;
+        }
+
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            return null;
+        }
+
+        throw new Exception($"Failed to update contact archive by ID. Status code: {response.StatusCode}");
+    }
+
+
+
 }

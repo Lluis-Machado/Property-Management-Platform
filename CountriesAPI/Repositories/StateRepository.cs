@@ -1,11 +1,11 @@
 ﻿using CountriesAPI.Contexts;
 using CountriesAPI.Models;
-using System.Text;
 using Dapper;
+using System.Text;
 
 namespace CountriesAPI.Repositories
 {
-    public class StateRepository :IStateRepository
+    public class StateRepository : IStateRepository
     {
         private readonly IDapperContext _context;
 
@@ -27,7 +27,7 @@ namespace CountriesAPI.Repositories
             queryBuilder.Append(",StateCode");
             queryBuilder.Append(",Name");
             queryBuilder.Append(" FROM States");
-            if(countryId is not null) queryBuilder.Append(" WHERE CountryId = @countryId");
+            if (countryId is not null) queryBuilder.Append(" WHERE CountryId = @countryId");
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QueryAsync<State>(queryBuilder.ToString(), parameters);

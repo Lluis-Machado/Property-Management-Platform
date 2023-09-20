@@ -1,7 +1,4 @@
 ﻿using LogsAPI.Models;
-using LogsAPI.Services;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace LogsAPI.Services
 {

@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
+using LinkAPI.Dtos;
 using LinkAPI.Models;
 using LinkAPI.Repositories;
-using LinkAPI.Dtos;
-using LinkAPI.Validators;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LinkAPI.Services;
 

@@ -1,6 +1,5 @@
 ﻿using Authentication.Models;
 using Authentication.Security;
-using Authentication.Services.Auth0;
 using AuthenticationAPI.Services.Auth0.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;

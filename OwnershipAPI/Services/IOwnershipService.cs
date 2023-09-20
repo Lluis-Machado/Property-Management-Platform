@@ -1,10 +1,4 @@
-﻿using OwnershipAPI.Models;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using FluentValidation;
-using FluentValidation.Results;
+﻿using Microsoft.AspNetCore.Mvc;
 using OwnershipAPI.DTOs;
 
 namespace OwnershipAPI.Services

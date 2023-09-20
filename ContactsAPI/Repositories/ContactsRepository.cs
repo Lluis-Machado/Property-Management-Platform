@@ -66,6 +66,20 @@ namespace ContactsAPI.Repositories
             return contact;
         }
 
+        public async Task<UpdateResult> UpdateContactArchiveIdAsync(Guid contactId, Guid archiveId, string lastUser)
+        {
+            var filter = Builders<Contact>.Filter
+                            .Eq(actualContact => actualContact.Id, contactId);
+
+            var update = Builders<Contact>.Update
+                .Set(actualContact => actualContact.ArchiveId, archiveId)
+                .Set(actualContact => actualContact.LastUpdateByUser, lastUser)
+                .Set(actualContact => actualContact.LastUpdateAt, DateTime.UtcNow);
+
+            return await _collection.UpdateOneAsync(filter, update);
+        }
+
+
         public async Task<UpdateResult> SetDeleteAsync(Guid contactId, bool deleted, string lastUser)
         {
             var filter = Builders<Contact>.Filter
@@ -152,22 +166,14 @@ namespace ContactsAPI.Repositories
                     var search = await _collection.FindAsync(Builders<Contact>.Filter.Regex(property, new MongoDB.Bson.BsonRegularExpression(tokenize[i], "i")));
                     var searchResults = search.ToList();
                     searchResults.ForEach(elem => { if (!foundContacts.Contains(elem)) foundContacts.Add(elem); });
-
                 }
-
-                //foreach (string token in tokenize)
-                //{
-                //    var search = await _collection.FindAsync(Builders<Contact>.Filter.Regex(property, new MongoDB.Bson.BsonRegularExpression(query, "i")));
-
-                //    await search.ForEachAsync(elem => { if (!foundContacts.Contains(elem)) foundContacts.Add(elem); });
-                //}
             }
             );
 
             // Remove duplicates
             List<Contact> found = foundContacts.GroupBy(c => c.Id).Select(c => c.First()).ToList();
 
-            _logger.LogInformation("TOTAL FOUND CONTACTS: " + foundContacts.Count);
+            //_logger.LogInformation("TOTAL FOUND CONTACTS: " + foundContacts.Count);
 
             List<Contact> contactsToRemove = new();
 
@@ -177,8 +183,9 @@ namespace ContactsAPI.Repositories
                 found.ToList().ForEach(contact =>
                 {
                     bool keep = false;
-                    for (int i = 1; i < tokenize.Length; i++) {
-                        
+                    for (int i = 1; i < tokenize.Length; i++)
+                    {
+
                         foreach (PropertyInfo prop in contact.GetType().GetProperties())
                         {
                             var val = prop.GetValue(contact, null)?.ToString();

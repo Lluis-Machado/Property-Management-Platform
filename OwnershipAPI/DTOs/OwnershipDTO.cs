@@ -1,6 +1,6 @@
 ﻿namespace OwnershipAPI.DTOs
 {
-    public class OwnershipDto 
+    public class OwnershipDto
     {
         public Guid Id { get; set; }
         public Guid PropertyId { get; set; }
@@ -10,7 +10,7 @@
         public bool MainOwnership { get; set; }
         public bool Deleted { get; set; } = false;
 
-        
+
         public OwnershipDto() { }
     }
 }

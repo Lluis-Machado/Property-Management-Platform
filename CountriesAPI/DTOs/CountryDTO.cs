@@ -7,7 +7,7 @@
         public string LanguageCode { get; set; }
         public string Name { get; set; }
 
-        public CountryDTO() 
+        public CountryDTO()
         {
             CountryCode = string.Empty;
             Name = string.Empty;

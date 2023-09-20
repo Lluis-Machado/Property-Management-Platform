@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using LinkAPI.Dtos;
-using LinkAPI.Models;
 
 namespace LinkAPI.Validators
 {
@@ -8,7 +7,7 @@ namespace LinkAPI.Validators
     {
         public LinkValidator()
         {
-            
+
 
         }
     }

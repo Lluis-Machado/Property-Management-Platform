@@ -1,9 +1,7 @@
 using AuthenticationAPI.Services.Auth0.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using System.Dynamic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
-using System.Security;
 
 namespace Authentication.Controllers
 {
@@ -42,8 +40,8 @@ namespace Authentication.Controllers
         {
             string[] allowedRoles = { "admin", "backoffice" };
 
-            var tokenInfo = (System.Text.Json.JsonElement) await _publicTokenApi.GetTokenAsync(username, password);
-            
+            var tokenInfo = (System.Text.Json.JsonElement)await _publicTokenApi.GetTokenAsync(username, password);
+
             string? token = tokenInfo.GetProperty("access_token").ToString().Replace("bearer", "", StringComparison.OrdinalIgnoreCase)?.Trim();
             if (string.IsNullOrEmpty(token)) return BadRequest("Token is empty, check credentials");
             var handler = new JwtSecurityTokenHandler();

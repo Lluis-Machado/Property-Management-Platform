@@ -3,7 +3,11 @@ using DocumentsAPI.Models;
 using DocumentsAPI.Repositories;
 using iText.Kernel.Pdf;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.StaticFiles;
+using MimeDetective;
 using System.Net;
+using System.Text.Json;
 
 namespace DocumentsAPI.Services
 {
@@ -33,7 +37,7 @@ namespace DocumentsAPI.Services
             {
                 Stream fileStream = file.OpenReadStream();
                 fileStream.Position = 0;
-                var uploadedDoc = await _documentsRepository.UploadDocumentAsync(archiveId, file.FileName, fileStream, folderId);
+                var uploadedDoc = await _documentsRepository.UploadDocumentAsync(archiveId, file.FileName, fileStream, file.ContentType, folderId);
                 fileStream.Flush();
                 documents.Add(new CreateDocumentStatus(file.FileName, uploadedDoc.statusCode));
                 fileStream.Dispose();
@@ -64,10 +68,26 @@ namespace DocumentsAPI.Services
             return await _documentsRepository.GetDocumentByIdAsync(archiveId, documentId);
         }
 
+        public async Task<string?> GetDocumentUrlByIdAsync(Guid archiveId, Guid documentId)
+        {
+            return await _documentsRepository.GetDocumentUrlByIdAsync(archiveId, documentId);
+        }
+
         public async Task<FileContentResult> DownloadAsync(Guid archiveId, Guid documentId)
         {
             byte[] byteArray = await _documentsRepository.DownloadDocumentAsync(archiveId, documentId);
-            return new FileContentResult(byteArray, "application/pdf");
+
+            var Inspector = new ContentInspectorBuilder()
+            {
+                Definitions = new MimeDetective.Definitions.CondensedBuilder()
+                {
+                    UsageType = MimeDetective.Definitions.Licensing.UsageType.PersonalNonCommercial
+                }.Build()
+            }.Build();
+
+            var results = Inspector.Inspect(byteArray).ByMimeType();
+
+            return new FileContentResult(byteArray, results.FirstOrDefault()?.MimeType ?? "application/pdf");
         }
 
         public async Task<IActionResult> DeleteAsync(Guid archiveId, Guid documentId)
@@ -229,7 +249,6 @@ namespace DocumentsAPI.Services
                                 // Create a new PdfDocument for each page
                                 using (PdfDocument splitPdfDocument = new PdfDocument(new PdfWriter(splitMemoryStream)))
                                 {
-
                                     // Copy the current page to the new PdfDocument
                                     pdfDocument.CopyPagesTo(i, i, splitPdfDocument);
 
@@ -239,7 +258,7 @@ namespace DocumentsAPI.Services
                                     string docName = (await document)!.Name!;
                                     Guid? folderId = (await document)!.FolderId;
 
-                                    var addedDoc = await _documentsRepository.UploadDocumentAsync(archiveId, $"{docName}_{i}", splitMemoryStream, folderId);
+                                    var addedDoc = await _documentsRepository.UploadDocumentAsync(archiveId, $"{docName}_{i}", splitMemoryStream, "application/pdf", folderId);
                                     await _blobMetadataRepository.InsertAsync(new BlobMetadata() { BlobId = addedDoc.documentId, ContainerId = archiveId, DisplayName = $"{docName}_{i}", FolderId = folderId });
                                     splitPdfDocument.Close();
 
@@ -274,7 +293,7 @@ namespace DocumentsAPI.Services
                                         string docName = (await document)!.Name!;
                                         Guid? folderId = (await document)!.FolderId;
 
-                                        var addedDoc = await _documentsRepository.UploadDocumentAsync(archiveId, $"{docName}_{start}-{end}", splitMemoryStream, folderId);
+                                        var addedDoc = await _documentsRepository.UploadDocumentAsync(archiveId, $"{docName}_{start}-{end}", splitMemoryStream, "application/pdf", folderId);
                                         await _blobMetadataRepository.InsertAsync(new BlobMetadata() { BlobId = addedDoc.documentId, ContainerId = archiveId, DisplayName = $"{docName}_{start}-{end}", FolderId = folderId });
                                         splitPdfDocument.Close();
 

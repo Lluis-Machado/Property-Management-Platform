@@ -1,10 +1,7 @@
 ﻿using LogsAPI.Models;
 using LogsAPI.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 using System.Net;
-using System.Threading.Tasks;
 
 namespace LogsAPI.Controllers
 {

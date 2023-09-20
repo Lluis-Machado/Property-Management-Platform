@@ -1,14 +1,13 @@
+using AuditsAPI.Consumers;
+using AuditsAPI.Contexts;
+using AuditsAPI.Repositories;
+using AuditsAPI.Services;
 using MassTransit;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
-using MessagingContracts;
-using AuditsAPI.Consumers;
-using AuditsAPI.Repositories;
-using AuditsAPI.Contexts;
-using AuditsAPI.Services;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,14 +55,17 @@ builder.Services.AddSwaggerGen(opt =>
     });
 });
 
-builder.Services.AddMassTransit(config => {
+builder.Services.AddMassTransit(config =>
+{
 
     config.AddConsumer<AuditConsumer>();
 
-    config.UsingRabbitMq((ctx, cfg) => {
+    config.UsingRabbitMq((ctx, cfg) =>
+    {
         cfg.Host("amqp://guest:guest@localhost:5672");
 
-        cfg.ReceiveEndpoint("auditx", c => {
+        cfg.ReceiveEndpoint("auditx", c =>
+        {
             c.ConfigureConsumer<AuditConsumer>(ctx);
         });
     });

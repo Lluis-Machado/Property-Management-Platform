@@ -7,7 +7,7 @@
         public string? City { get; set; }
         public int? State { get; set; }
         public string? PostalCode { get; set; }
-        public int? Country { get; set; }
+        public int Country { get; set; } = 1;
         public int? AddressType { get; set; }
 
     }

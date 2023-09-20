@@ -1,17 +1,16 @@
 using CompanyAPI.Contexts;
 using CompanyAPI.Dtos;
+using CompanyAPI.Middlewares;
 using CompanyAPI.Repositories;
 using CompanyAPI.Services;
 using CompanyAPI.Validators;
 using FluentValidation;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Security.Claims;
-using CompanyAPI.Middlewares;
-using Microsoft.Extensions.DependencyInjection;
-using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -92,7 +91,7 @@ builder.Services.AddMassTransit(config =>
         cfg.UseMessageRetry(r => r.Intervals(TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(10)));
 
     });
-   
+
 
 });
 

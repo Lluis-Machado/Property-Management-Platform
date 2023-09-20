@@ -1,9 +1,8 @@
-﻿using CompanyAPI.Services;
+﻿using CompanyAPI.Dtos;
+using CompanyAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using CompanyAPI.Dtos;
 //using Microsoft.AspNetCore.Authorization;
-using Authorize = AuthorizeAPI.Authorize;
 
 namespace CompanyAPI.Controllers
 {
@@ -42,18 +41,30 @@ namespace CompanyAPI.Controllers
         {
             // validations
             if (companyDto == null) return new BadRequestObjectResult("Incorrect body format");
-            
+
             string lastUser = User?.Identity?.Name ?? "na";
 
             return await _companyService.UpdateAsync(companyId, companyDto, lastUser!);
         }
 
+        [HttpPatch]
+        [Route("{companyId}/{archiveId}")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<IActionResult> UpdateArchiveIdAsync(Guid companyId, Guid archiveId)
+        {
+            string lastUser = User?.Identity?.Name ?? "na";
+
+            return await _companyService.UpdateCompanyArchiveIdAsync(companyId, archiveId, lastUser);
+        }
+
         [HttpGet]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<CompanyDto>>> GetAsync(bool includeDeteted = false)
+        public async Task<ActionResult<IEnumerable<CompanyDto>>> GetAsync(bool includeDeleted = false)
         {
-            return await _companyService.GetAsync(includeDeteted);
+            return await _companyService.GetAsync(includeDeleted);
         }
 
         [HttpGet("{companyId}")]

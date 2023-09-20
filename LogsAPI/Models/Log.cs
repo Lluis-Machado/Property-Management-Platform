@@ -1,8 +1,5 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using System.Dynamic;
-using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
 
 namespace LogsAPI.Models
 {
@@ -26,4 +23,4 @@ namespace LogsAPI.Models
         public IDictionary<string, object>? Properties { get; set; }
     }
 }
-   
+

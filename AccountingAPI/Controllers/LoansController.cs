@@ -44,7 +44,7 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<IEnumerable<LoanDTO>>> GetLoansAsync(Guid tenantId, [FromQuery] int? page = null, [FromQuery] int? pageSize = null, [FromQuery] bool includeDeleted = false)
         {
-            return Ok(await _loanService.GetLoansAsync(tenantId,page, pageSize, includeDeleted));
+            return Ok(await _loanService.GetLoansAsync(tenantId, page, pageSize, includeDeleted));
         }
 
         // PATCH: update loan

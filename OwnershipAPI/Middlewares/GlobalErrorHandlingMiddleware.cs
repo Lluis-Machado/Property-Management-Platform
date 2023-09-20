@@ -1,5 +1,5 @@
-﻿using OwnershipAPI.Exceptions;
-using FluentValidation;
+﻿using FluentValidation;
+using OwnershipAPI.Exceptions;
 //using System.ComponentModel.DataAnnotations;
 using System.Net;
 

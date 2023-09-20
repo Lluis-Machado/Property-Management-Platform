@@ -45,4 +45,9 @@
       <TransformOnBuild>true</TransformOnBuild>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <None Update="InvoiceItemModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

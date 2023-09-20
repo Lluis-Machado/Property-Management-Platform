@@ -1,10 +1,8 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using TaxManagement.Models;
 using TaxManagement.Repositories;
-using TaxManagement.Validators;
 using TaxManagementAPI.DTOs;
 
 namespace TaxManagementAPI.Services

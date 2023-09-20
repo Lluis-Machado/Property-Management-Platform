@@ -1,8 +1,6 @@
 ﻿using DocumentsAPI.DTOs;
 using DocumentsAPI.Models;
 using DocumentsAPI.Repositories;
-using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace DocumentsAPI.Services
 {

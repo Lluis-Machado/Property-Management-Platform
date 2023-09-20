@@ -1,6 +1,6 @@
 ﻿namespace LinkAPI.Dtos
 {
-    public class LinkDto 
+    public class LinkDto
     {
         public Guid Id { get; set; }
 
@@ -11,7 +11,7 @@
         public string? ObjectBType { get; set; }
         public bool Deleted { get; set; } = false;
 
-        
+
         public LinkDto() { }
     }
 }

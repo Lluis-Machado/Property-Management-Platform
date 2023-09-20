@@ -1,10 +1,4 @@
-﻿using MassTransit.Internals.GraphValidation;
-using MongoDB.Driver;
-using System.Buffers.Text;
-using System.Numerics;
-using System.Runtime.Intrinsics.X86;
-
-namespace CompanyAPI.Models
+﻿namespace CompanyAPI.Models
 {
     public class CompanyAddress
     {
@@ -16,7 +10,7 @@ namespace CompanyAPI.Models
         public int? Country { get; set; }
         public int? AddressType { get; set; }
         public string? ShortComment { get; set; }
-               
+
     }
-       
+
 }

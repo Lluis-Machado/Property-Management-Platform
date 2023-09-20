@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PropertiesAPI.Dtos;
-using PropertiesAPI.Models;
 
 namespace PropertiesAPI.Services
 {
@@ -8,6 +7,7 @@ namespace PropertiesAPI.Services
     {
         Task<ActionResult<PropertyDetailedDto>> CreateProperty(CreatePropertyDto propertyDto, string lastUser);
         Task<ActionResult<PropertyDetailedDto>> UpdateProperty(UpdatePropertyDto propertyDto, string lastUser, Guid propertyId);
+        Task<IActionResult> UpdatePropertyArchiveIdAsync(Guid propertyId, Guid archiveId, string username);
         Task<ActionResult<PropertyDetailedDto>> GetProperty(Guid propertyId);
         Task<ActionResult<IEnumerable<PropertyDto>>> GetProperties(bool includeDeleted = false);
         Task<IActionResult> DeleteProperty(Guid propertyId, string lastUser);

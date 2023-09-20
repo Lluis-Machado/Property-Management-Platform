@@ -13,7 +13,7 @@ namespace CompanyAPI.Dtos
             CreateMap<CreateCompanyDto, Company>().ReverseMap();
             CreateMap<UpdateCompanyDto, Company>().ReverseMap();
 
-          
+
         }
 
     }

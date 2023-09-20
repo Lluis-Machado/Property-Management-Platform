@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Text.Json;
 
 namespace CoreAPI.Services;
 
@@ -88,6 +87,36 @@ public class PropertyServiceClient
         }
 
         throw new Exception($"Failed to create property. Status code: {response.StatusCode}. {content}");
+    }
+
+    public async Task<string?> UpdatePropertyArchive(string propertyId, string archiveId)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Patch, $"{propertyId}/{archiveId}");
+
+        // Add authorization token to the request headers
+        var _auth = _contextAccessor?.HttpContext?.Request.Headers.Authorization.FirstOrDefault();
+        if (_auth != null)
+        {
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _auth.Split(' ')[1]);
+        }
+
+        var response = await _httpClient.SendAsync(request);
+        if (response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            if (string.IsNullOrEmpty(content))
+            {
+                return null;
+            }
+            return content;
+        }
+
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            return null;
+        }
+
+        throw new Exception($"Failed to update property archive by ID. Status code: {response.StatusCode}");
     }
 
 }

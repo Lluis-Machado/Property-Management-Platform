@@ -75,6 +75,7 @@ namespace ContactsAPI.Services
 
             return contactDto;
         }
+
         public async Task<ContactDetailsDTO> GetWithProperties(Guid id)
         {
             var contact = await _contactsRepo.GetContactByIdAsync(id);
@@ -127,6 +128,15 @@ namespace ContactsAPI.Services
 
             return new OkObjectResult(contactDTO);
         }
+
+        public async Task<IActionResult> UpdateContactArchiveIdAsync(Guid contactId, Guid archiveId, string lastUser)
+        {
+            var updateResult = await _contactsRepo.UpdateContactArchiveIdAsync(contactId, archiveId, lastUser);
+            if (!updateResult.IsAcknowledged) return new NotFoundObjectResult("Contact not found");
+
+            return new NoContentResult();
+        }
+
 
         public async Task<bool> CheckIfNIEUnique(string NIE, Guid? contactId)
         {

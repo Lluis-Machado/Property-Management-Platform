@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System.Net;
-using System.Threading.Tasks;
 using System;
 using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace InvoiceItemAnalyzerAPI.Middlewares
 {

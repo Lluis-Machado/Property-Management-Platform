@@ -1,9 +1,7 @@
-﻿using DocumentsAPI.Models;
-using DocumentsAPI.Services;
+﻿using DocumentsAPI.Services;
 using MassTransit;
 using MessagingContracts;
 using Newtonsoft.Json;
-using System.Dynamic;
 
 namespace DocumentsAPI.Consumers
 {
@@ -43,7 +41,8 @@ namespace DocumentsAPI.Consumers
                         break;
                 }
 
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error consuming Archive message contract");
             }

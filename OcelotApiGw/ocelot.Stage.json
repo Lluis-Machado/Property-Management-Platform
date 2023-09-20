@@ -10,7 +10,7 @@
         }
       ],
       "UpstreamPathTemplate": "/auth/{everything}",
-      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH", "OPTIONS" ],
       "SwaggerKey": "auth"
     },
     {
@@ -23,7 +23,7 @@
         }
       ],
       "UpstreamPathTemplate": "/tax-Management/{everything}",
-      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH", "OPTIONS" ],
       "SwaggerKey": "tax-Management"
     },
     {
@@ -36,8 +36,11 @@
         }
       ],
       "UpstreamPathTemplate": "/documents/{everything}",
-      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
-      "SwaggerKey": "documents"
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH", "OPTIONS" ],
+      "SwaggerKey": "documents",
+      "FileCacheOptions": {
+        "TtlSeconds": 3600
+      }
     },
     {
       "DownstreamPathTemplate": "/{everything}",
@@ -49,7 +52,7 @@
         }
       ],
       "UpstreamPathTemplate": "/logs/{everything}",
-      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH", "OPTIONS" ],
       "SwaggerKey": "logs"
     },
     {
@@ -62,7 +65,7 @@
         }
       ],
       "UpstreamPathTemplate": "/accounting/{everything}",
-      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH", "OPTIONS" ],
       "SwaggerKey": "accounting"
     },
     {
@@ -75,7 +78,7 @@
         }
       ],
       "UpstreamPathTemplate": "/contacts/{everything}",
-      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH", "OPTIONS" ],
       "SwaggerKey": "contacts"
     },
     {
@@ -101,7 +104,7 @@
         }
       ],
       "UpstreamPathTemplate": "/properties/{everything}",
-      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH", "OPTIONS" ],
       "SwaggerKey": "properties"
     },
     {
@@ -114,7 +117,7 @@
         }
       ],
       "UpstreamPathTemplate": "/ownership/{everything}",
-      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH", "OPTIONS" ],
       "SwaggerKey": "ownership"
     },
     {
@@ -127,7 +130,7 @@
         }
       ],
       "UpstreamPathTemplate": "/companies/{everything}",
-      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH", "OPTIONS" ],
       "SwaggerKey": "companies"
     },
     {
@@ -140,7 +143,7 @@
         }
       ],
       "UpstreamPathTemplate": "/audits/{everything}",
-      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH", "OPTIONS" ],
       "SwaggerKey": "audits"
     },
     {
@@ -153,7 +156,7 @@
         }
       ],
       "UpstreamPathTemplate": "/docanalyzer/{everything}",
-      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH", "OPTIONS" ],
       "SwaggerKey": "docanalyzer"
     },
     {
@@ -166,7 +169,7 @@
         }
       ],
       "UpstreamPathTemplate": "/core/{everything}",
-      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH", "OPTIONS" ],
       "SwaggerKey": "core"
     },
     {
@@ -179,7 +182,7 @@
         }
       ],
       "UpstreamPathTemplate": "/invoiceitemanalyzer/{everything}",
-      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH" ],
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH", "OPTIONS" ],
       "SwaggerKey": "invoiceitemanalyzer"
     }
   ],

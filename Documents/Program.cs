@@ -1,22 +1,20 @@
-using DocumentsAPI.Services;
+using DocumentsAPI.Consumers;
+using DocumentsAPI.Contexts;
+using DocumentsAPI.DTOs;
 using DocumentsAPI.Middlewares;
 using DocumentsAPI.Models;
 using DocumentsAPI.Repositories;
+using DocumentsAPI.Services;
 using DocumentsAPI.Services.AzureBlobStorage;
 using DocumentsAPI.Validators;
-using DocumentsAPI.Contexts;
-using DocumentsAPI.DTOs;
 using FluentValidation;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Azure;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Security.Claims;
-using System.Text.Json.Serialization;
-using System.Text.Json;
-using MassTransit;
-using DocumentsAPI.Consumers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -100,14 +98,17 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddMassTransit(config => {
+builder.Services.AddMassTransit(config =>
+{
 
     config.AddConsumer<ArchiveConsumer>();
 
-    config.UsingRabbitMq((ctx, cfg) => {
+    config.UsingRabbitMq((ctx, cfg) =>
+    {
         cfg.Host("amqp://guest:guest@localhost:5672");
 
-        cfg.ReceiveEndpoint("archive", c => {
+        cfg.ReceiveEndpoint("archive", c =>
+        {
             c.ConfigureConsumer<ArchiveConsumer>(ctx);
         });
     });

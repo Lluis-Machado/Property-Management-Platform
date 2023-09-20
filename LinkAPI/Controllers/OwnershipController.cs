@@ -1,10 +1,9 @@
-﻿using System.Net;
-using Microsoft.AspNetCore.Mvc;
+﻿using LinkAPI.Dtos;
 using LinkAPI.Exceptions;
-using LinkAPI.Models;
 using LinkAPI.Services;
 using LinkAPI.Validators;
-using LinkAPI.Dtos;
+using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace LinkAPI.Controllers;
 
@@ -35,7 +34,7 @@ public class LinkController : ControllerBase
 
         return await _ownershipService.UpsertLinkAsync(ownershipDto, lastUser);
     }
-    
+
     [HttpGet]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]

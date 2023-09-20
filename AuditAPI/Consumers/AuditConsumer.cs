@@ -1,11 +1,9 @@
-﻿using MassTransit;
-using MessagingContracts;
-using System.Threading.Tasks;
-using AuditsAPI.Dtos;
+﻿using AuditsAPI.Dtos;
 using AuditsAPI.Models;
-using System;
-using System.Text.Json;
 using AuditsAPI.Repositories;
+using MassTransit;
+using MessagingContracts;
+using System.Text.Json;
 
 namespace AuditsAPI.Consumers
 {

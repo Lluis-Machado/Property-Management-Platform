@@ -1,6 +1,4 @@
-﻿using ContactsAPI.Models;
-
-namespace ContactsAPI.DTOs
+﻿namespace ContactsAPI.DTOs
 {
     public class ContactDTO
     {
@@ -24,7 +22,8 @@ namespace ContactsAPI.DTOs
 
         public Guid Id { get; set; }
 
-
+        public Guid TenantId { get; set; }
+        public Guid? ArchiveId { get; set; }
 
     }
 }

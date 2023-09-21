@@ -37,7 +37,7 @@ namespace AccountingAPI.Controllers
             return Created($"arinvoices/{invoiceDTO.Id}", invoiceDTO);
         }
 
-        // GET: Get AP invoice(s)
+        // GET: Get AR invoice(s)
         [HttpGet]
         [Route("tenants/{tenantId}/arinvoices")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -45,6 +45,17 @@ namespace AccountingAPI.Controllers
         public async Task<ActionResult<IEnumerable<ARInvoiceDTO>>> GetARInvoicesAsync(Guid tenantId, [FromQuery] bool includeDeleted = false, [FromQuery] int? page = null, [FromQuery] int? pageSize = null)
         {
             return Ok(await _arInvoiceService.GetARInvoicesAsync(tenantId, includeDeleted, page, pageSize));
+        }
+
+        // GET: Get AR invoice by Id
+        [HttpGet]
+        [Route("tenants/{tenantId}/arinvoices/{invoiceId}")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<IEnumerable<ARInvoiceDTO>>> GetARInvoiceByIdAsync(Guid tenantId, Guid invoiceId)
+        {
+            return Ok(await _arInvoiceService.GetARInvoiceByIdAsync(tenantId, invoiceId));
         }
 
         // PATCH: update invoice

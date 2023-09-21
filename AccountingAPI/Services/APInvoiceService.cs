@@ -112,7 +112,7 @@ namespace AccountingAPI.Services
             IEnumerable<APInvoiceLineDTO> invoiceLines = await GetAPInvoiceLinesAsync(tenantId);
             Invoice? invoice = await _invoiceRepository.GetAPInvoiceByIdAsync(tenantId, invoiceId);
 
-            if (invoice is null) throw new NotFoundException("AP Invoice");
+            if (invoice is null) throw new NotFoundException("AP Invoice not found");
 
             invoiceDTO = _mapper.Map<APInvoiceDTO>(invoice);
             invoiceDTO.InvoiceLines = invoiceLines.Where(i => i.InvoiceId == invoice.Id).ToList();

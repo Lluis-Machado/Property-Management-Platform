@@ -91,7 +91,7 @@ namespace AccountingAPI.Services
 
             Invoice? invoice = await _invoiceRepository.GetARInvoiceByIdAsync(tenantId, invoiceId);
 
-            if (invoice is null) throw new NotFoundException("AR Invoice");
+            if (invoice is null) throw new NotFoundException("AR Invoice not found");
 
             IEnumerable<ARInvoiceLineDTO> invoiceLines = await GetARInvoiceLinesAsync(tenantId);
 

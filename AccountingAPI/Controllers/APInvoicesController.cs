@@ -48,6 +48,17 @@ namespace AccountingAPI.Controllers
             return Ok(await _apInvoiceService.GetAPInvoicesAsync(tenantId, includeDeleted, page, pageSize));
         }
 
+        // GET: Get AP invoice by Id
+        [HttpGet]
+        [Route("tenants/{tenantId}/apinvoices/{invoiceId}")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<IEnumerable<APInvoiceDTO>>> GetAPInvoiceByIdAsync(Guid tenantId, Guid invoiceId)
+        {
+            return Ok(await _apInvoiceService.GetAPInvoiceByIdAsync(tenantId, invoiceId));
+        }
+
         // PATCH: Update invoice
         [HttpPatch]
         [Route("tenants/{tenantId}/apinvoices/{invoiceId}")]

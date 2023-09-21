@@ -54,7 +54,7 @@ namespace AccountingAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<IEnumerable<APInvoiceDTO>>> GetAPInvoiceByIdAsync(Guid tenantId, Guid invoiceId)
+        public async Task<ActionResult<APInvoiceDTO?>> GetAPInvoiceByIdAsync(Guid tenantId, Guid invoiceId)
         {
             return Ok(await _apInvoiceService.GetAPInvoiceByIdAsync(tenantId, invoiceId));
         }

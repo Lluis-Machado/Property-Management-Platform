@@ -48,6 +48,17 @@ namespace AccountingAPI.Controllers
             return Ok(await _tenantService.GetTenantsAsync(includeDeleted, page, pageSize));
         }
 
+        // GET: Get tenant(s)
+        [HttpGet]
+        [Route("tenants/{tenantId}")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<TenantDTO?>> GetTenantByIdAsync(Guid tenantId)
+        {
+            return Ok(await _tenantService.GetTenantByIdAsync(tenantId));
+        }
+
         // PATCH: Update tenant
         [HttpPatch]
         [Route("tenants/{tenantId}")]

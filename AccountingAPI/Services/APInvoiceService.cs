@@ -192,7 +192,7 @@ namespace AccountingAPI.Services
         public async Task<APInvoiceLineDTO> CreateAPInvoiceLineAsync(Guid tenantId, Guid invoiceId, CreateAPInvoiceLineDTO createInvoiceLineDTO, DateTime invoiceDate, string userName)
         {
             // check if expense category exists
-            if (createInvoiceLineDTO.ExpenseCategoryId is null) throw new Exception("Expense category ID cannot be null");
+            if (createInvoiceLineDTO.ExpenseCategoryId == Guid.Empty) throw new Exception("Expense category ID cannot be null");
             ExpenseCategoryDTO expenseCategoryDTO = await _expenseCategoryService.GetExpenseCategoryByIdAsync((Guid)createInvoiceLineDTO.ExpenseCategoryId);
 
             APInvoiceLine invoiceLine = _mapper.Map<APInvoiceLine>(createInvoiceLineDTO);

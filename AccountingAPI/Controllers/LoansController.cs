@@ -47,6 +47,16 @@ namespace AccountingAPI.Controllers
             return Ok(await _loanService.GetLoansAsync(tenantId, page, pageSize, includeDeleted));
         }
 
+        // GET: Get loan(s)
+        [HttpGet]
+        [Route("tenants/{tenantId}/loans/{loanId}")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<LoanDTO?>> GetLoanByIdAsync(Guid tenantId, Guid loanId)
+        {
+            return Ok(await _loanService.GetLoanByIdAsync(tenantId, loanId));
+        }
+
         // PATCH: update loan
         [HttpPatch]
         [Route("tenants/{tenantId}/loans/{loanId}")]

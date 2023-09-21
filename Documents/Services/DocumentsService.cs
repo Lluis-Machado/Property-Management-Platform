@@ -2,12 +2,10 @@
 using DocumentsAPI.Models;
 using DocumentsAPI.Repositories;
 using iText.Kernel.Pdf;
+using iText.Kernel.Utils;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.StaticFiles;
 using MimeDetective;
 using System.Net;
-using System.Text.Json;
 
 namespace DocumentsAPI.Services
 {
@@ -136,6 +134,7 @@ namespace DocumentsAPI.Services
             return await _blobMetadataRepository.SearchMetadata(displayName, folderId, containerId, includeDeleted);
         }
 
+        [Obsolete("Use SplitBlobAsync instead to directly split an uploaded blob PDF file")]
         public async Task<IEnumerable<FileContentResult>> SplitAsync(IFormFile file, DocSplitInterval[]? pageRanges)
         {
 
@@ -151,6 +150,8 @@ namespace DocumentsAPI.Services
                 // Open the original PDF document
                 using (PdfDocument pdfDocument = new PdfDocument(new PdfReader(memoryStream)))
                 {
+                    if (pdfDocument.GetNumberOfPages() == 1) throw new Exception("Cannot split a 1-page document");
+
                     if (pageRanges == null || pageRanges.Length == 0)
                     {
                         // If the pageRanges array is null or empty, split each page
@@ -237,33 +238,39 @@ namespace DocumentsAPI.Services
                 // Open the original PDF document
                 using (PdfDocument pdfDocument = new PdfDocument(new PdfReader(memoryStream)))
                 {
+
+                    if (pdfDocument.GetNumberOfPages() == 1) throw new Exception("Cannot split a 1-page document");
+
                     if (pageRanges == null || pageRanges.Length == 0)
                     {
                         // If the pageRanges array is null or empty, split each page
                         for (int i = 1; i <= pdfDocument.GetNumberOfPages(); i++)
                         {
-
                             // Create a new MemoryStream to store the split PDF content
                             using (MemoryStream splitMemoryStream = new MemoryStream())
                             {
+
                                 // Create a new PdfDocument for each page
                                 using (PdfDocument splitPdfDocument = new PdfDocument(new PdfWriter(splitMemoryStream)))
                                 {
                                     // Copy the current page to the new PdfDocument
                                     pdfDocument.CopyPagesTo(i, i, splitPdfDocument);
 
-                                    splitMemoryStream.Position = 0;
+                                    splitPdfDocument.Close();
+
+                                    byte[] splitPdf = splitMemoryStream.ToArray();
 
                                     // Upload file
-                                    string docName = (await document)!.Name!;
+                                    string docName = (await document)!.Name!.Replace(".pdf", "", StringComparison.InvariantCultureIgnoreCase);
                                     Guid? folderId = (await document)!.FolderId;
 
-                                    var addedDoc = await _documentsRepository.UploadDocumentAsync(archiveId, $"{docName}_{i}", splitMemoryStream, "application/pdf", folderId);
-                                    await _blobMetadataRepository.InsertAsync(new BlobMetadata() { BlobId = addedDoc.documentId, ContainerId = archiveId, DisplayName = $"{docName}_{i}", FolderId = folderId });
-                                    splitPdfDocument.Close();
+                                    var addedDoc = await _documentsRepository.UploadDocumentAsync(archiveId, $"{docName}_[{i}].pdf", splitPdf, "application/pdf", folderId);
+
+                                    await _blobMetadataRepository.InsertAsync(new BlobMetadata() { BlobId = addedDoc.documentId, ContainerId = archiveId, DisplayName = $"{docName}_[{i}].pdf", FolderId = folderId });
 
                                     docIds.Add(addedDoc.documentId.ToString());
                                 }
+
                             }
                         }
                     }
@@ -284,18 +291,20 @@ namespace DocumentsAPI.Services
                                     // Create a new PdfDocument for the current range
                                     using (PdfDocument splitPdfDocument = new PdfDocument(new PdfWriter(splitMemoryStream)))
                                     {
-                                        // Copy the specified range to the new PdfDocument
+                                        // Copy the current page to the new PdfDocument
                                         pdfDocument.CopyPagesTo(start, end, splitPdfDocument);
 
-                                        splitMemoryStream.Position = 0;
+                                        splitPdfDocument.Close();
+
+                                        byte[] splitPdf = splitMemoryStream.ToArray();
 
                                         // Upload file
-                                        string docName = (await document)!.Name!;
+                                        string docName = (await document)!.Name!.Replace(".pdf", "", StringComparison.InvariantCultureIgnoreCase);
                                         Guid? folderId = (await document)!.FolderId;
 
-                                        var addedDoc = await _documentsRepository.UploadDocumentAsync(archiveId, $"{docName}_{start}-{end}", splitMemoryStream, "application/pdf", folderId);
-                                        await _blobMetadataRepository.InsertAsync(new BlobMetadata() { BlobId = addedDoc.documentId, ContainerId = archiveId, DisplayName = $"{docName}_{start}-{end}", FolderId = folderId });
-                                        splitPdfDocument.Close();
+                                        var addedDoc = await _documentsRepository.UploadDocumentAsync(archiveId, $"{docName}_[{start}-{end}].pdf", splitPdf, "application/pdf", folderId);
+
+                                        await _blobMetadataRepository.InsertAsync(new BlobMetadata() { BlobId = addedDoc.documentId, ContainerId = archiveId, DisplayName = $"{docName}_[{start}-{end}].pdf", FolderId = folderId });
 
                                         docIds.Add(addedDoc.documentId.ToString());
                                     }
@@ -311,5 +320,63 @@ namespace DocumentsAPI.Services
 
         }
 
+        public async Task<string> JoinBlobsAsync(Guid archiveId, string[] documentIds)
+        {
+            string joinedDocId = "";
+            Dictionary<Document, byte[]> docsKeyVals = new();
+
+            foreach (var docId in documentIds)
+            {
+                var document = _documentsRepository.GetDocumentByIdAsync(archiveId, Guid.Parse(docId));
+                var docBytes = _documentsRepository.DownloadDocumentAsync(archiveId, Guid.Parse(docId));
+
+                Task.WaitAll(new Task[] { document, docBytes });
+
+                if (await document is null) throw new Exception($"Could not get details for document {docId}");
+
+                docsKeyVals.Add((await document)!, await docBytes);
+            }
+
+            using (var writerMemoryStream = new MemoryStream())
+            {
+                using (var writer = new PdfWriter(writerMemoryStream))
+                {
+                    using (var mergedDocument = new PdfDocument(writer))
+                    {
+                        var merger = new PdfMerger(mergedDocument);
+
+                        foreach (var pdf in docsKeyVals)
+                        {
+                            using (var copyFromMemoryStream = new MemoryStream(pdf.Value))
+                            {
+                                using (var reader = new PdfReader(copyFromMemoryStream))
+                                {
+                                    using (var copyFromDocument = new PdfDocument(reader))
+                                    {
+                                        merger.Merge(copyFromDocument, 1, copyFromDocument.GetNumberOfPages());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    writer.Close();
+                }
+
+                var joinedDocBytes = writerMemoryStream.ToArray();
+
+                string docName = $"JoinedPDF_{DateTime.Now.ToString("yyyy-MM-dd_hhmmss")}.pdf";
+                Guid? folderId = docsKeyVals.First().Key.FolderId;
+
+                var joinedDoc = await _documentsRepository.UploadDocumentAsync(archiveId, docName, joinedDocBytes, "application/pdf", folderId);
+
+                await _blobMetadataRepository.InsertAsync(new BlobMetadata() { BlobId = joinedDoc.documentId, ContainerId = archiveId, DisplayName = docName, FolderId = folderId });
+
+                joinedDocId = joinedDoc.documentId.ToString();
+
+            }
+
+            return joinedDocId;
+
+        }
     }
 }

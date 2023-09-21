@@ -64,6 +64,7 @@ namespace Documents.Controllers
         }
 
         // POST: Split document
+        [Obsolete("Use SplitBlobAsync to split a PDF document already uploaded to Blob Storage")]
         [HttpPost]
         [Route("split")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -102,10 +103,35 @@ namespace Documents.Controllers
         {
 
             DocSplitInterval[]? intervals = DocSplitInterval.FromRanges(ranges);
+            try
+            {
+                var splitIds = await _documentsService.SplitBlobAsync(archiveId, documentId, intervals);
+                return Ok(splitIds);
 
-            var splitIds = await _documentsService.SplitBlobAsync(archiveId, documentId, intervals);
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("1-page")) return BadRequest(ex.Message);
+                else return StatusCode(500, ex.Message);
+            }
 
-            return Ok(splitIds);
+        }
+
+        // POST: Split document already present in Blob Storage
+        [HttpPost]
+        [Route("{archiveId}/documents/join")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<List<FileContentResult>>> JoinBlobsAsync(Guid archiveId, [FromBody] string[] documentIds)
+        {
+
+            if (documentIds is null || documentIds.Length == 0) return BadRequest();
+            if (documentIds.Length == 1) return BadRequest("Send two or more IDs of documents to join");
+
+            var newBlobId = await _documentsService.JoinBlobsAsync(archiveId, documentIds);
+            return Ok(newBlobId);
+
         }
 
 

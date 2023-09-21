@@ -129,8 +129,16 @@ namespace Documents.Controllers
             if (documentIds is null || documentIds.Length == 0) return BadRequest();
             if (documentIds.Length == 1) return BadRequest("Send two or more IDs of documents to join");
 
-            var newBlobId = await _documentsService.JoinBlobsAsync(archiveId, documentIds);
-            return Ok(newBlobId);
+            try
+            {
+                var newBlobId = await _documentsService.JoinBlobsAsync(archiveId, documentIds);
+                return Ok(newBlobId);
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("not a PDF file")) return BadRequest(ex.Message);
+                else return StatusCode(500, ex.Message);
+            }
 
         }
 

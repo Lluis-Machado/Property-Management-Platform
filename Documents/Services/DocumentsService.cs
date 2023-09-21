@@ -337,6 +337,11 @@ namespace DocumentsAPI.Services
                 docsKeyVals.Add((await document)!, await docBytes);
             }
 
+            foreach (var doc in docsKeyVals)
+            {
+                if (!(doc.Key!.Extension!.Equals(".pdf", StringComparison.OrdinalIgnoreCase))) throw new Exception("One of the documents is not a PDF file");
+            }
+
             using (var writerMemoryStream = new MemoryStream())
             {
                 using (var writer = new PdfWriter(writerMemoryStream))

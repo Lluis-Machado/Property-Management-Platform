@@ -142,7 +142,7 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(" INNER JOIN APInvoices ON APInvoices.Id = APInvoiceLines.InvoiceId");
             queryBuilder.Append(" INNER JOIN BusinessPartners ON BusinessPartners.Id = APInvoices.BusinessPartnerId");
             queryBuilder.Append(" WHERE BusinessPartners.TenantId = @tenantId");
-            queryBuilder.Append(" AND Id = @invoiceLineId");
+            queryBuilder.Append(" AND APInvoiceLines.Id = @invoiceLineId");
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QuerySingleAsync<APInvoiceLine>(queryBuilder.ToString(), parameters);
@@ -160,7 +160,7 @@ namespace AccountingAPI.Repositories
                 invoiceLine.TotalPrice,
                 invoiceLine.ServiceDateFrom,
                 invoiceLine.ServiceDateTo,
-                invoiceLine.ExpenseCategoryId,
+                //invoiceLine.ExpenseCategoryId,
                 invoiceLine.FixedAssetId,
                 invoiceLine.Deleted,
                 invoiceLine.LastModificationAt,
@@ -176,7 +176,7 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",TotalPrice = @TotalPrice");
             queryBuilder.Append(",ServiceDateFrom = @ServiceDateFrom");
             queryBuilder.Append(",ServiceDateTo = @ServiceDateTo");
-            queryBuilder.Append(",ExpenseCategoryId = @ExpenseCategoryId");
+            //queryBuilder.Append(",ExpenseCategoryId = @ExpenseCategoryId");
             queryBuilder.Append(",FixedAssetId = @FixedAssetId");
             queryBuilder.Append(",Deleted = @Deleted");
             queryBuilder.Append(",LastModificationBy = @LastModificationBy");
@@ -197,7 +197,7 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",INSERTED.CreatedBy");
             queryBuilder.Append(",INSERTED.LastModificationAt");
             queryBuilder.Append(",INSERTED.LastModificationBy");
-            queryBuilder.Append(" WHERE Id = @Id");
+            queryBuilder.Append(" WHERE APInvoiceLines.Id = @Id");
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QuerySingleAsync<APInvoiceLine>(queryBuilder.ToString(), parameters);

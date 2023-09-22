@@ -34,6 +34,8 @@ builder.Services.AddScoped<IOwnershipRepository, OwnershipRepository>();
 builder.Services.AddScoped<IOwnershipService, OwnershipService>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+builder.Services.AddScoped<ExecutionTimingFilter>();
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

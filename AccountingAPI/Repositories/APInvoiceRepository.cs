@@ -76,6 +76,8 @@ namespace AccountingAPI.Repositories
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT APInvoices.Id");
             queryBuilder.Append(",APInvoices.BusinessPartnerId");
+            queryBuilder.Append(",BusinessPartners.Name as BusinessPartnerName");
+            queryBuilder.Append(",BusinessPartners.VATNumber");
             queryBuilder.Append(",APInvoices.RefNumber");
             queryBuilder.Append(",APInvoices.Date");
             queryBuilder.Append(",APInvoices.Currency");
@@ -105,7 +107,6 @@ namespace AccountingAPI.Repositories
 
             StringBuilder queryBuilder = new();
             queryBuilder.Append("SELECT APInvoices.Id");
-            queryBuilder.Append(",APInvoices.BusinessPartnerId");
             queryBuilder.Append(",APInvoices.RefNumber");
             queryBuilder.Append(",APInvoices.Date");
             queryBuilder.Append(",APInvoices.Currency");
@@ -116,6 +117,9 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",APInvoices.CreatedBy");
             queryBuilder.Append(",APInvoices.LastModificationAt");
             queryBuilder.Append(",APInvoices.LastModificationBy");
+            queryBuilder.Append(",APInvoices.BusinessPartnerId");
+            queryBuilder.Append(",BusinessPartners.Name as BusinessPartnerName");
+            queryBuilder.Append(",BusinessPartners.VATNumber");
             queryBuilder.Append(" FROM APInvoices ");
             queryBuilder.Append(" INNER JOIN BusinessPartners ON BusinessPartners.Id = APInvoices.BusinessPartnerId");
             queryBuilder.Append(" WHERE BusinessPartners.TenantId = @tenantId");
@@ -151,7 +155,7 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",LastModificationAt = @LastModificationAt");
             queryBuilder.Append(",LastModificationBy = @LastModificationBy");
             queryBuilder.Append(" OUTPUT INSERTED.Id");
-            /*queryBuilder.Append(",INSERTED.BusinessPartnerId");
+            queryBuilder.Append(",INSERTED.BusinessPartnerId");
             queryBuilder.Append(",INSERTED.RefNumber");
             queryBuilder.Append(",INSERTED.Date");
             queryBuilder.Append(",INSERTED.Currency");
@@ -161,8 +165,8 @@ namespace AccountingAPI.Repositories
             queryBuilder.Append(",INSERTED.CreatedAt");
             queryBuilder.Append(",INSERTED.CreatedBy");
             queryBuilder.Append(",INSERTED.LastModificationAt");
-            queryBuilder.Append(",INSERTED.LastModificationBy");*/
-            queryBuilder.Append(" WHERE Id = @Id");
+            queryBuilder.Append(",INSERTED.LastModificationBy");
+            queryBuilder.Append(" WHERE APInvoices.Id = @Id");
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.QuerySingleAsync<APInvoice>(queryBuilder.ToString(), parameters);
@@ -173,7 +177,7 @@ namespace AccountingAPI.Repositories
             var parameters = new
             {
                 id,
-                deleted,
+                deleted = deleted ? 1 : 0,
                 lastModificationAt = DateTime.Now,
                 lastModificationBy = userName,
 
@@ -181,10 +185,11 @@ namespace AccountingAPI.Repositories
 
             StringBuilder queryBuilder = new();
             queryBuilder.Append("UPDATE APInvoices");
-            queryBuilder.Append(" SET Deleted = @deleted");
-            queryBuilder.Append(" SET LastModificationAt = @lastModificationAt");
-            queryBuilder.Append(" SET LastModificationBy = @lastModificationBy");
+            queryBuilder.Append(" SET Deleted = @deleted,");
+            queryBuilder.Append(" LastModificationAt = @lastModificationAt,");
+            queryBuilder.Append(" LastModificationBy = @lastModificationBy");
             queryBuilder.Append(" WHERE Id = @id");
+
 
             using var connection = _context.CreateConnection(); // Create a new connection
             return await connection.ExecuteAsync(queryBuilder.ToString(), parameters);

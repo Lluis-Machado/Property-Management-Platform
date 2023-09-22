@@ -14,6 +14,8 @@ namespace PropertiesAPI.Repositories
         Task<UpdateResult> SetDeleteAsync(Guid propertyId, bool deleted, string lastUser);
         Task<UpdateResult> UpdateParentIdAsync(Guid parentId, Guid childId);
         Task<UpdateResult> UpdateArchiveIdAsync(Guid propertyId, Guid archiveId, string username);
+        Task<UpdateResult> UpdateNameAsync(Guid propertyId, string name, string username);
+
         Task<UpdateResult> SetMainOwner(Guid propertyId, Guid ownerId, string ownerType, string lastUser);
 
     }

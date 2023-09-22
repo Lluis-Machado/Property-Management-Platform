@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OwnershipAPI.DTOs;
 using OwnershipAPI.Exceptions;
+using OwnershipAPI.Middlewares;
 using OwnershipAPI.Services;
 using OwnershipAPI.Validators;
 using System.Net;
@@ -10,6 +11,7 @@ namespace OwnershipAPI.Controllers;
 // [Authorize]
 [ApiController]
 [Route("ownership")]
+[ServiceFilter(typeof(ExecutionTimingFilter))]
 public class OwnershipController : ControllerBase
 {
     private readonly IOwnershipService _ownershipService;
@@ -54,6 +56,7 @@ public class OwnershipController : ControllerBase
         //await _ownershipService.ProcessMultiple(OwnershipOperationDto);
 
         decimal share = ownerships.Where(x => x.Values.Deleted == false).Sum(x => x.Values.Share);
+
         if (share != 100)
             return new BadRequestObjectResult("Share not 100");
         foreach (var ownershipDto in ownerships)

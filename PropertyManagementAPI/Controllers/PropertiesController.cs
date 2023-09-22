@@ -85,6 +85,19 @@ namespace PropertiesAPI.Controllers
             return await _propertiesService.UpdatePropertyArchiveIdAsync(propertyId, archiveId, username);
         }
 
+        // PATCH: Update property archive id
+        [HttpPatch("{propertyId}/name/{name}")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<IActionResult> UpdatePropertyNameAsync(Guid propertyId, string name)
+        {
+            //string username = "user";// UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
+            string username = User?.Identity?.Name ?? "na";
+
+            return await _propertiesService.UpdatePropertyNameAsync(propertyId, name, username);
+        }
+
         // DELETE: Delete property
         [HttpDelete("{propertyId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]

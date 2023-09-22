@@ -14,6 +14,7 @@ namespace DocumentAnalyzerAPI.DTOs
         public decimal? TotalTaxPercentage { get; set; }
 
         public List<APInvoiceLineDTO> InvoiceLines { get; set; }
+ 
 
 
         public APInvoiceDTO()

@@ -6,6 +6,7 @@ namespace DocumentsAPI.Repositories
     public interface IDocumentRepository
     {
         Task<DocumentUploadDTO> UploadDocumentAsync(Guid archiveName, string fileName, Stream pFileContent, string contentType, Guid? folderId = null);
+        Task<DocumentUploadDTO> UploadDocumentAsync(Guid archiveName, string fileName, byte[] pFileContent, string contentType, Guid? folderId = null);
         Task<IEnumerable<Document>> GetDocumentsFlatListingAsync(Guid archiveId, int? pSegmentSize, Guid? folderId = null, bool includeDeleted = false);
         Task<Document?> GetDocumentByIdAsync(Guid archiveId, Guid documentId);
         Task<string?> GetDocumentUrlByIdAsync(Guid archiveId, Guid documentId);

@@ -116,6 +116,9 @@ namespace DocumentsAPI.Services.AzureBlobStorage
 
         #region Documents 
 
+
+        // TODO: Optimize these two methods, maybe make generic -> join
+
         public async Task<DocumentUploadDTO> UploadDocumentAsync(Guid archiveId, string fileName, Stream fileContent, string contentType, Guid? folderId = null)
         {
             Guid docNewGuid = Guid.NewGuid();
@@ -148,6 +151,42 @@ namespace DocumentsAPI.Services.AzureBlobStorage
                 statusCode = (HttpStatusCode)response.Status
             };
         }
+
+
+        public async Task<DocumentUploadDTO> UploadDocumentAsync(Guid archiveId, string fileName, byte[] fileContent, string contentType, Guid? folderId = null)
+        {
+            Guid docNewGuid = Guid.NewGuid();
+            BlobClient blobClient = _context.GetBlobClient(archiveId.ToString(), docNewGuid.ToString());
+
+            Dictionary<string, string> blobMetadata = new()
+            {
+                {"display_name", Uri.EscapeDataString(fileName)},
+                {"folder_id", folderId.ToString() ?? ""},
+            };
+
+            BlobHttpHeaders blobHttpHeaders = new() { ContentType = contentType };
+
+            BlobUploadOptions blobUploadOptions = new()
+            {
+                Metadata = blobMetadata,
+                HttpHeaders = blobHttpHeaders
+            };
+
+            Response<BlobContentInfo> blobContentInfo = await blobClient.UploadAsync(new BinaryData(fileContent), blobUploadOptions);
+
+            Response response = blobContentInfo.GetRawResponse();
+
+
+            _logger.LogInformation($"DEBUG - UploadDocumentAsync - Response for upload of file {fileName} was {response.Status} - {Newtonsoft.Json.JsonConvert.SerializeObject(response.Content)}");
+
+            return new DocumentUploadDTO()
+            {
+                documentId = docNewGuid,
+                statusCode = (HttpStatusCode)response.Status
+            };
+        }
+
+
 
         public async Task<IEnumerable<Document>> GetDocumentsFlatListingAsync(Guid archiveId, int? segmentSize, Guid? folderId = null, bool includeDeleted = false)
         {

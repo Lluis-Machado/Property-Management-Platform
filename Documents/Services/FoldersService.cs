@@ -211,9 +211,10 @@ namespace DocumentsAPI.Services
             List<IFormFile> docBytes = new();
             foreach (var doc in docs)
             {
-                var file = (await _documentsService.DownloadAsync(sourceFolder.ArchiveId, doc.Id)).FileContents;
-                var stream = new MemoryStream(file);
-                IFormFile formfile = new FormFile(stream, 0, file.Length, null, doc.Name);
+                var file = (await _documentsService.DownloadAsync(sourceFolder.ArchiveId, doc.Id));
+                var fileContents = file.FileContents;
+                var stream = new MemoryStream(fileContents);
+                IFormFile formfile = new FormFile(stream, 0, fileContents.Length, null, doc.Name) { Headers = new HeaderDictionary(), ContentType = file.ContentType };
                 docBytes.Add(formfile);
             }
             if (docs.Any()) await _documentsService.UploadAsync(archiveId, docBytes.ToArray(), root2.Id);
@@ -270,10 +271,11 @@ namespace DocumentsAPI.Services
                             foreach (var doc in childDocs)
                             {
                                 log.AppendLine($"\t\t\tProcessing document with name {doc.Name}");
-                                var file = (await _documentsService.DownloadAsync(childFolder.ArchiveId, doc.Id)).FileContents;
-                                var stream = new MemoryStream(file);
+                                var file = (await _documentsService.DownloadAsync(childFolder.ArchiveId, doc.Id));
+                                var fileContents = file.FileContents;
+                                var stream = new MemoryStream(fileContents);
 
-                                IFormFile formfile = new FormFile(stream, 0, file.Length, null, doc.Name);
+                                IFormFile formfile = new FormFile(stream, 0, fileContents.Length, null, doc.Name) { Headers = new HeaderDictionary(), ContentType = file.ContentType};
                                 childDocBytes.Add(formfile);
 
                             }

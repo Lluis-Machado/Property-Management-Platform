@@ -5,6 +5,7 @@ using AccountingAPI.Repositories;
 using AccountingAPI.Utilities;
 using AutoMapper;
 using FluentValidation;
+using Microsoft.JSInterop.Infrastructure;
 using System.Transactions;
 
 namespace AccountingAPI.Services
@@ -60,14 +61,15 @@ namespace AccountingAPI.Services
                 invoice.CreatedBy = userName;
                 invoice.LastModificationBy = userName;
                 invoice.BusinessPartnerId = businessPartnerId;
-
                 invoice = await _invoiceRepository.InsertAPInvoice(invoice);
 
                 APInvoiceDTO invoiceDTO = _mapper.Map<APInvoiceDTO>(invoice);
-                BusinessPartnerDTO businessPartnerDTO = await _businessPartnerService.GetBusinessPartnerByIdAsync(tenantId, businessPartnerId);
-                invoiceDTO.BusinessPartner = _mapper.Map<BasicBusinessPartnerDTO>(businessPartnerDTO);
+                //invoiceDTO.GrossAmount = invoice.GrossAmount;
+                //invoiceDTO.NetAmount = invoice.NetAmount;
+                //BusinessPartnerDTO businessPartnerDTO = await _businessPartnerService.GetBusinessPartnerByIdAsync(tenantId, businessPartnerId);
+                //invoiceDTO.BusinessPartner = _mapper.Map<BasicBusinessPartnerDTO>(businessPartnerDTO);
                 // insert invoice lines
-                Parallel.ForEach(createInvoiceDTO.InvoiceLines, async (createInvoiceLineDTO) =>
+                foreach (var createInvoiceLineDTO in createInvoiceDTO.InvoiceLines)
                 {
                     APInvoiceLineDTO invoiceLineDTO = await CreateAPInvoiceLineAsync(tenantId, invoiceDTO.Id, createInvoiceLineDTO, invoice.Date, userName);
 
@@ -75,7 +77,7 @@ namespace AccountingAPI.Services
                     {
                         invoiceDTO.InvoiceLines.Add(invoiceLineDTO);
                     }
-                });
+                }
 
                 transaction.Complete();
 
@@ -92,12 +94,11 @@ namespace AccountingAPI.Services
 
             IEnumerable<APInvoiceLineDTO> invoiceLinesDTOs = await GetAPInvoiceLinesAsync(tenantId, includeDeleted);
             IEnumerable<BusinessPartnerDTO> businessPartnerDTOs = await _businessPartnerService.GetBusinessPartnersAsync(tenantId, includeDeleted);
-            Parallel.ForEach(invoices, (invoice) =>
+            Parallel.ForEach(invoices, new ParallelOptions() { MaxDegreeOfParallelism = 2 }, (invoice) =>
             {
                 APInvoiceDTO invoiceDTO = _mapper.Map<APInvoiceDTO>(invoice);
                 invoiceDTO.InvoiceLines = invoiceLinesDTOs.Where(i => i.InvoiceId == invoice.Id).ToList();
-                BusinessPartnerDTO businessPartnerDTO = businessPartnerDTOs.First(b => b.Id == invoice.BusinessPartnerId);
-                invoiceDTO.BusinessPartner = _mapper.Map<BasicBusinessPartnerDTO>(businessPartnerDTO);
+
                 lock (invoiceDTOs) // Lock access to the shared collection
                 {
                     invoiceDTOs.Add(invoiceDTO);
@@ -133,9 +134,10 @@ namespace AccountingAPI.Services
                 APInvoice invoice = _mapper.Map<APInvoice>(actualInvoiceDTO);
                 invoice.GrossAmount = updateInvoiceDTO.InvoiceLines.Sum(invoiceLine => invoiceLine.UnitPrice * invoiceLine.Quantity);
                 invoice.NetAmount = updateInvoiceDTO.InvoiceLines.Sum(invoiceLine => invoiceLine.UnitPrice * invoiceLine.Quantity / (1 + invoiceLine.Tax));
-                invoice.CreatedBy = userName;
+                invoice.LastModificationAt = DateTime.UtcNow;
                 invoice.LastModificationBy = userName;
-
+                invoice.RefNumber = updateInvoiceDTO.RefNumber;
+                //invoice.BusinessPartnerId = actualInvoiceDTO.BusinessPartner.Id;
                 invoice = await _invoiceRepository.UpdateAPInvoiceAsync(invoice);
 
                 List<Guid> updateInvoiceLineIds = new();
@@ -191,11 +193,10 @@ namespace AccountingAPI.Services
 
         public async Task<APInvoiceLineDTO> CreateAPInvoiceLineAsync(Guid tenantId, Guid invoiceId, CreateAPInvoiceLineDTO createInvoiceLineDTO, DateTime invoiceDate, string userName)
         {
-            // check if expense category exists
-            if (createInvoiceLineDTO.ExpenseCategoryId == Guid.Empty) throw new Exception("Expense category ID cannot be null");
             ExpenseCategoryDTO expenseCategoryDTO = await _expenseCategoryService.GetExpenseCategoryByIdAsync((Guid)createInvoiceLineDTO.ExpenseCategoryId);
 
             APInvoiceLine invoiceLine = _mapper.Map<APInvoiceLine>(createInvoiceLineDTO);
+            
             invoiceLine.TotalPrice = createInvoiceLineDTO.UnitPrice * createInvoiceLineDTO.Quantity;
             invoiceLine.InvoiceId = invoiceId;
             invoiceLine.CreatedBy = userName;
@@ -204,6 +205,8 @@ namespace AccountingAPI.Services
             invoiceLine = await _invoiceLineRepository.InsertAPInvoiceLineAsync(invoiceLine);
 
             APInvoiceLineDTO invoiceLineDTO = _mapper.Map<APInvoiceLineDTO>(invoiceLine);
+            invoiceLineDTO.TotalPrice = invoiceLine.TotalPrice;
+            invoiceLineDTO.UnitPrice = invoiceLine.UnitPrice;
 
             invoiceLineDTO.ExpenseCategory = _mapper.Map<BasicExpenseCategoryDTO>(expenseCategoryDTO);
 

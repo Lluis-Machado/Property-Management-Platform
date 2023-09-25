@@ -16,10 +16,6 @@ namespace AccountingAPI.Validators
 
             RuleFor(Line => Line.Quantity)
                 .NotNull().WithMessage("{PropertyName} cannot be null");
-
-            RuleFor(Line => Line.UnitPrice)
-                .NotNull().WithMessage("{PropertyName} cannot be null")
-                .GreaterThanOrEqualTo(0).WithMessage("{PropertyName} cannot be negative");
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OwnershipAPI.DTOs;
 using OwnershipAPI.Exceptions;
+using OwnershipAPI.Middlewares;
 using OwnershipAPI.Services;
 using OwnershipAPI.Validators;
 using System.Net;
@@ -10,6 +11,7 @@ namespace OwnershipAPI.Controllers;
 // [Authorize]
 [ApiController]
 [Route("ownership")]
+[ServiceFilter(typeof(ExecutionTimingFilter))]
 public class OwnershipController : ControllerBase
 {
     private readonly IOwnershipService _ownershipService;

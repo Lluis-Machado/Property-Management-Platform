@@ -24,9 +24,9 @@ namespace DocumentAnalyzerAPI.Mappers
             var totalAmount = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "InvoiceTotal");
             var totalTax = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "TotalTax");
             var totalBaseAmount = totalAmount - totalTax;
-            var totalTaxPercentage = (totalAmount * 100) / totalBaseAmount - 100;
-            if (totalTaxPercentage != null)
-                totalTaxPercentage = Math.Round((decimal)totalTaxPercentage, 2);
+            var totalTaxPercentage = (totalAmount *100)/totalBaseAmount -100;
+            if (totalTaxPercentage != null) 
+            totalTaxPercentage = Math.Round((decimal)totalTaxPercentage, 2);
             APInvoiceDTO aPInvoiceDTO = new()
             {
                 BusinessPartner = businessPartnerDTO,

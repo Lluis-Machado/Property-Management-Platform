@@ -19,11 +19,13 @@ builder.Logging.AddSerilog(logger);
 
 // Add services to the container.
 
-builder.Services.AddSingleton<ICoreService, CoreService>();
+builder.Services.AddScoped<ICoreService, CoreService>();
 builder.Services.AddTransient<PropertyServiceClient>();
 builder.Services.AddTransient<CompanyServiceClient>();
 builder.Services.AddTransient<ContactServiceClient>();
-builder.Services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddTransient<OwnershipServiceClient>();
+
+//builder.Services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
 
 //builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 

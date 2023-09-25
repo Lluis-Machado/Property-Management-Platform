@@ -108,6 +108,14 @@ namespace PropertiesAPI.Services
             return new NoContentResult();
         }
 
+        public async Task<IActionResult> UpdatePropertyNameAsync(Guid propertyId, string name, string username)
+        {
+            await PropertyExists(propertyId);
+
+            await _propertiesRepo.UpdateNameAsync(propertyId, name, username);
+            return new NoContentResult();
+        }
+
         public async Task PerformAudit(Property property, Guid propertyId)
         {
             Audit audit = new Audit();

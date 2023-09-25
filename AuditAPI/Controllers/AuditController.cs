@@ -47,7 +47,7 @@ namespace AuditsAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<List<Dictionary<string, Tuple<object, object>>>>> GetByPropertyIdAsync(Guid id)
         {
-            var differences = await _auditService.GetByIdAsync(id);
+            var differences = await _auditService.GetByPropertyIdAsync(id);
             if (differences == null)
             {
                 return NotFound();

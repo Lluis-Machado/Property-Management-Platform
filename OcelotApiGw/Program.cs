@@ -62,6 +62,8 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.Configure<IISOptions>(options => options.ForwardClientCertificate = true);
+
 var app = builder.Build();
 
 #if PRODUCTION == false

@@ -3,7 +3,7 @@ using System.Net.Http.Headers;
 
 namespace CoreAPI.Services;
 
-public class ContactServiceClient
+public class ContactServiceClient : IContactServiceClient
 {
     private readonly HttpClient _httpClient;
     private readonly IHttpContextAccessor _contextAccessor;
@@ -26,7 +26,7 @@ public class ContactServiceClient
 
     public async Task<string?> GetContactByIdAsync(Guid id)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, $"{id}");
+        var request = new HttpRequestMessage(HttpMethod.Get, $"contacts/{id}");
 
         // Add authorization token to the request headers
         var _auth = _contextAccessor?.HttpContext?.Request.Headers.Authorization.FirstOrDefault();
@@ -60,7 +60,7 @@ public class ContactServiceClient
 
     public async Task<string?> UpdateContactArchive(string contactId, string archiveId)
     {
-        var request = new HttpRequestMessage(HttpMethod.Patch, $"{contactId}/{archiveId}");
+        var request = new HttpRequestMessage(HttpMethod.Patch, $"contacts/{contactId}/{archiveId}");
 
         // Add authorization token to the request headers
         var _auth = _contextAccessor?.HttpContext?.Request.Headers.Authorization.FirstOrDefault();

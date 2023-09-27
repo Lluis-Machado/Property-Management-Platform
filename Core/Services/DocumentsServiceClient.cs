@@ -1,37 +1,44 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace CoreAPI.Services;
 
-public class DocumentsServiceClient
+public class DocumentsServiceClient : IDocumentsServiceClient
 {
     private readonly HttpClient _httpClient;
     private readonly IHttpContextAccessor _contextAccessor;
+    private readonly ILogger<DocumentsServiceClient> _logger;
 
-    public DocumentsServiceClient(IHttpContextAccessor contextAccessor)
+    public DocumentsServiceClient(IHttpContextAccessor contextAccessor, ILogger<DocumentsServiceClient> logger)
     {
         _httpClient = new HttpClient();
 #if DEVELOPMENT
-        _httpClient.BaseAddress = new Uri("https://localhost:7142/"); // Replace with the base URL of the ownership service
+        _httpClient.BaseAddress = new Uri("http://localhost:7079/"); // Replace with the base URL of the ownership service
 #elif PRODUCTION
         _httpClient.BaseAddress = new Uri("https://plattesapis.net/documents/"); // Replace with the base URL of the ownership service
 #else
         _httpClient.BaseAddress = new Uri("https://stage.plattesapis.net/documents/"); // Replace with the base URL of the ownership service
 #endif
-        _httpClient.BaseAddress = new Uri("https://stage.plattesapis.net/documents/"); // Replace with the base URL of the ownership service
 
         _httpClient.DefaultRequestHeaders.Accept.Clear();
         _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        _logger = logger;
         _contextAccessor = contextAccessor;
     }
 
 
-    public async Task<string?> CreateArchive(string requestBody, string? type)
+    public async Task<JsonDocument?> CreateArchive(string requestBody, string? type, string? id)
     {
-        string url = string.IsNullOrEmpty(type) ? string.Empty : $"/{type}";
+        _logger.LogInformation($"DocumentServiceClient - CreateArchive - Begin request - BaseAddress: {_httpClient.BaseAddress}");
+
+        string url = string.IsNullOrEmpty(type) ? string.Empty : $"/{type}/{id}";
 
         using var request = new HttpRequestMessage(HttpMethod.Post, "archives" + url);
+
+        _logger.LogInformation($"DocumentServiceClient - CreateArchive - Request URL: archives" + url);
 
         // Add authorization token to the request headers
         var _auth = _contextAccessor?.HttpContext?.Request.Headers.Authorization.FirstOrDefault();
@@ -43,10 +50,13 @@ public class DocumentsServiceClient
 
         var response = await _httpClient.SendAsync(request);
 
+        _logger.LogInformation($"DocumentServiceClient - CreateArchive - Response: Code {(int)response.StatusCode} - {response.Content.ReadAsStringAsync().Result}");
+
+
         if (response.IsSuccessStatusCode)
         {
             var content = await response.Content.ReadAsStringAsync();
-            return string.IsNullOrEmpty(content) ? null : content;
+            return string.IsNullOrEmpty(content) ? null : JsonSerializer.Deserialize<JsonDocument>(content);
         }
 
         if (response.StatusCode == HttpStatusCode.NotFound)

@@ -1,9 +1,10 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
+using System.Text.Json;
 
 namespace CoreAPI.Services;
 
-public class CompanyServiceClient
+public class CompanyServiceClient : ICompanyServiceClient
 {
     private readonly HttpClient _httpClient;
     private readonly IHttpContextAccessor _contextAccessor;
@@ -24,7 +25,7 @@ public class CompanyServiceClient
         _contextAccessor = contextAccessor;
     }
 
-    public async Task<string?> GetCompanyByIdAsync(Guid id)
+    public async Task<JsonDocument?> GetCompanyByIdAsync(Guid id)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"companies/{id}");
 
@@ -43,12 +44,8 @@ public class CompanyServiceClient
             {
                 return null;
             }
-            return content; /*JsonSerializer.Deserialize<string>(content, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });*/
+            return JsonSerializer.Deserialize<JsonDocument>(content);
         }
-
 
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
@@ -60,7 +57,7 @@ public class CompanyServiceClient
 
     public async Task<string?> UpdateCompanyArchive(string companyId, string archiveId)
     {
-        var request = new HttpRequestMessage(HttpMethod.Patch, $"{companyId}/{archiveId}");
+        var request = new HttpRequestMessage(HttpMethod.Patch, $"companies/{companyId}/{archiveId}");
 
         // Add authorization token to the request headers
         var _auth = _contextAccessor?.HttpContext?.Request.Headers.Authorization.FirstOrDefault();
@@ -77,7 +74,7 @@ public class CompanyServiceClient
             {
                 return null;
             }
-            return content;
+            return JsonSerializer.Deserialize<JsonDocument>(content);
         }
 
         if (response.StatusCode == HttpStatusCode.NotFound)

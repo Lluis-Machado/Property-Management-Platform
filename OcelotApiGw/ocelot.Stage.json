@@ -37,10 +37,7 @@
       ],
       "UpstreamPathTemplate": "/documents/{everything}",
       "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE", "PATCH", "OPTIONS" ],
-      "SwaggerKey": "documents",
-      "FileCacheOptions": {
-        "TtlSeconds": 3600
-      }
+      "SwaggerKey": "documents"
     },
     {
       "DownstreamPathTemplate": "/{everything}",

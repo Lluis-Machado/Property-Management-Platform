@@ -20,12 +20,14 @@ namespace PropertiesAPI.Services
         private readonly IValidator<CreatePropertyDto> _createPropertyValidator;
         private readonly IValidator<UpdatePropertyDto> _updatePropertyValidator;
         private readonly IPublishEndpoint _publishEndpoint;
+        private readonly ILogger<PropertiesService> _logger;
 
         public PropertiesService(IPropertiesRepository propertiesRepo,
             IMapper mapper,
             IValidator<CreatePropertyDto> createPropertyValidator,
             IValidator<UpdatePropertyDto> updatePropertyValidator,
-            IPublishEndpoint publishEndpoint
+            IPublishEndpoint publishEndpoint,
+            ILogger<PropertiesService> logger
             )
         {
             _propertiesRepo = propertiesRepo;
@@ -33,6 +35,7 @@ namespace PropertiesAPI.Services
             _createPropertyValidator = createPropertyValidator;
             _updatePropertyValidator = updatePropertyValidator;
             _publishEndpoint = publishEndpoint;
+            _logger = logger;
 
         }
 
@@ -103,7 +106,7 @@ namespace PropertiesAPI.Services
         public async Task<IActionResult> UpdatePropertyArchiveIdAsync(Guid propertyId, Guid archiveId, string username)
         {
             await PropertyExists(propertyId);
-
+            _logger.LogInformation($"PropertiesService - UpdatePropArchiveIdAsync - Property exists, updating...");
             await _propertiesRepo.UpdateArchiveIdAsync(propertyId, archiveId, username);
             return new NoContentResult();
         }
@@ -178,8 +181,15 @@ namespace PropertiesAPI.Services
 
         public async Task<bool> PropertyExists(Guid propertyId)
         {
+
+            _logger.LogInformation($"PropertiesService - Checking if property {propertyId.ToString()} exists...");
+
             Property? property = await _propertiesRepo.GetPropertyByIdAsync(propertyId);
-            if (property is null) throw new NotFoundException("Property");
+            if (property is null)
+            {
+                _logger.LogWarning($"PropertiesService - Property {propertyId.ToString()} not found!");
+                throw new NotFoundException("Property");
+            }
 
             return true;
         }

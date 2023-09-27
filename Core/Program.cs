@@ -1,6 +1,9 @@
+using CoreAPI.Middlewares;
 using CoreAPI.Services;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -19,17 +22,29 @@ builder.Logging.AddSerilog(logger);
 
 // Add services to the container.
 
-builder.Services.AddScoped<ICoreService, CoreService>();
-builder.Services.AddTransient<PropertyServiceClient>();
-builder.Services.AddTransient<CompanyServiceClient>();
-builder.Services.AddTransient<ContactServiceClient>();
-builder.Services.AddTransient<OwnershipServiceClient>();
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddTransient<ICoreService, CoreService>();
+builder.Services.AddTransient<IPropertyServiceClient, PropertyServiceClient>();
+builder.Services.AddTransient<ICompanyServiceClient, CompanyServiceClient>();
+builder.Services.AddTransient<IDocumentsServiceClient, DocumentsServiceClient>();
+builder.Services.AddTransient<IContactServiceClient, ContactServiceClient>();
+builder.Services.AddTransient<IOwnershipServiceClient, OwnershipServiceClient>();
+
+builder.Services.AddSingleton<GlobalErrorHandlingMiddleware>();
+
 
 //builder.Services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
 
 //builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 builder.Services.AddControllers();
+
+builder.Services.AddMvc(options =>
+{
+    options.InputFormatters.Insert(0, new RawJsonBodyInputFormatter());
+});
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opt =>
@@ -74,7 +89,6 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddMassTransit(config =>
 {
@@ -95,6 +109,8 @@ app.UseSwaggerUI(c =>
 {
     c.ConfigObject.AdditionalItems.Add("persistAuthorization", "true");
 });
+
+app.UseMiddleware<GlobalErrorHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 

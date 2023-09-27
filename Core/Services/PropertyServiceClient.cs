@@ -4,13 +4,16 @@ using System.Text;
 
 namespace CoreAPI.Services;
 
-public class PropertyServiceClient
+public class PropertyServiceClient : IPropertyServiceClient
 {
     private readonly HttpClient _httpClient;
     private readonly IHttpContextAccessor _contextAccessor;
+    private readonly ILogger<PropertyServiceClient> _logger;
 
-    public PropertyServiceClient(IHttpContextAccessor contextAccessor)
+    public PropertyServiceClient(IHttpContextAccessor contextAccessor, ILogger<PropertyServiceClient> logger)
     {
+        _logger = logger;
+        _contextAccessor = contextAccessor;
         _httpClient = new HttpClient();
 #if DEVELOPMENT
         _httpClient.BaseAddress = new Uri("https://localhost:7012/"); // Replace with the base URL of the ownership service
@@ -19,11 +22,9 @@ public class PropertyServiceClient
 #else
         _httpClient.BaseAddress = new Uri("https://stage.plattesapis.net/properties/");
 #endif
-        _httpClient.BaseAddress = new Uri("https://stage.plattesapis.net/properties/");
 
         _httpClient.DefaultRequestHeaders.Accept.Clear();
         _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        _contextAccessor = contextAccessor;
     }
 
     public async Task<string?> GetPropertyByIdAsync(Guid id)
@@ -61,6 +62,9 @@ public class PropertyServiceClient
 
     public async Task<string?> CreateProperty(string requestBody)
     {
+        _logger.LogInformation($"PropertyServiceClient - CreateProperty - Begin request - BaseAddress: {_httpClient.BaseAddress}\nBody: {Uri.UnescapeDataString(requestBody)}");
+
+
         using var request = new HttpRequestMessage(HttpMethod.Post, "properties");
 
         // Add authorization token to the request headers
@@ -75,6 +79,7 @@ public class PropertyServiceClient
         var response = await _httpClient.SendAsync(request);
         var content = await response.Content.ReadAsStringAsync();
 
+        _logger.LogDebug($"PropertyServiceClient - Result from CreateProperty API call: {content}");
 
         if (response.IsSuccessStatusCode)
         {
@@ -91,7 +96,10 @@ public class PropertyServiceClient
 
     public async Task<string?> UpdatePropertyArchive(string propertyId, string archiveId)
     {
-        var request = new HttpRequestMessage(HttpMethod.Patch, $"{propertyId}/{archiveId}");
+        var request = new HttpRequestMessage(HttpMethod.Patch, $"properties/{propertyId}/{archiveId}");
+
+        _logger.LogInformation($"PropertyServiceClient - UpdatePropertyArchive - Begin request - PropId: {propertyId} | ArchId: {archiveId} | BaseAddress: {_httpClient.BaseAddress} | Uri: {request.RequestUri}");
+
 
         // Add authorization token to the request headers
         var _auth = _contextAccessor?.HttpContext?.Request.Headers.Authorization.FirstOrDefault();
@@ -101,6 +109,10 @@ public class PropertyServiceClient
         }
 
         var response = await _httpClient.SendAsync(request);
+
+        _logger.LogInformation($"PropertyServiceClient - UpdatePropertyArchive - Response: {response.StatusCode} - Content: {response.Content.ReadAsStringAsync().Result}");
+
+
         if (response.IsSuccessStatusCode)
         {
             var content = await response.Content.ReadAsStringAsync();
@@ -113,6 +125,8 @@ public class PropertyServiceClient
 
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
+            throw new Exception($"Failed to update property archive by ID. Status code: {response.StatusCode}");
+
             return null;
         }
 

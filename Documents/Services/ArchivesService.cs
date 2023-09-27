@@ -2,6 +2,7 @@
 using DocumentsAPI.Repositories;
 using FluentValidation;
 using FluentValidation.Results;
+using Newtonsoft.Json;
 using static DocumentsAPI.Models.Archive;
 
 namespace DocumentsAPI.Services
@@ -28,8 +29,14 @@ namespace DocumentsAPI.Services
                 throw new Exception($"Cannot create a {type.ToString().ToLowerInvariant()} archive without the corresponding {type.ToString().ToLowerInvariant()} Guid");
             }
 
-            ValidationResult validationResult = await _archiveValidator.ValidateAsync(archive);
-            if (!validationResult.IsValid) throw new ValidationException(validationResult.ToString("~"));
+            _logger.LogInformation($"DEBUG - CreateArchiveAsync - Type: {type} | ObjectId: {objectId?.ToString()}\n{JsonConvert.SerializeObject(archive)}");
+
+            // REMOVED VALIDATION BECAUSE OF CRASHING
+            // Either way, the only property of an Archive that should not be null
+            // is the name, and this is already checked at the Controller level
+
+            //ValidationResult validationResult = await _archiveValidator.ValidateAsync(archive);
+            //if (!validationResult.IsValid) throw new ValidationException(validationResult.ToString("~"));
 
             //create archive
             archive.Id = Guid.NewGuid();

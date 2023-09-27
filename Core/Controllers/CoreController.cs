@@ -8,13 +8,15 @@ namespace CoreAPI.Controllers
     public class CoreController : ControllerBase
     {
         private readonly ICoreService _coreService;
-        private readonly IHttpContextAccessor _contextAccessor;
+        private readonly ILogger<CoreController> _logger;
 
-        public CoreController(ICoreService coreService, IHttpContextAccessor contextAccessor)
+        public CoreController(ICoreService coreService, ILogger<CoreController> logger)
         {
             _coreService = coreService;
-            _contextAccessor = contextAccessor;
+            _logger = logger;
         }
+
+        #region GET
 
         [HttpGet]
         [Route("contacts/{Id}")]
@@ -65,33 +67,41 @@ namespace CoreAPI.Controllers
             return Ok(property);
         }
 
+        #endregion
+        #region CREATE
+
         [HttpPost("properties")]
-        public async Task<ActionResult<string>> CreateProperty([FromBody] string requestBody)
+        public async Task<ActionResult<string>> CreateProperty([FromBody] string value)
         {
-            var property = await _coreService.CreateProperty(requestBody);
+
+            _logger.LogDebug($"CORE - CreateProperty - RequestBody:\n{value}");
+
+            var property = await _coreService.CreateProperty(value);
 
             return Ok(property);
         }
 
         [HttpPost("companies")]
-        public async Task<ActionResult<string>> CreateCompany([FromBody] string requestBody)
+        public async Task<ActionResult<string>> CreateCompany([FromBody] string value)
         {
-            var company = await _coreService.CreateCompany(requestBody);
+            var company = await _coreService.CreateCompany(value);
 
             return Ok(company);
         }
 
         [HttpPost("contacts")]
-        public async Task<ActionResult<string>> CreateContact([FromBody] string requestBody)
+        public async Task<ActionResult<string>> CreateContact([FromBody] string value)
         {
-            var contacts = await _coreService.CreateContact(requestBody);
+            var contacts = await _coreService.CreateContact(value);
 
             return Ok(contacts);
         }
+        #endregion
+        #region UPDATE
 
         [HttpPatch]
         [Route("properties/{Id}")]
-        public async Task<ActionResult<string>> UpdateProperty(Guid Id, [FromBody] string requestBody)
+        public async Task<ActionResult<string>> UpdateProperty(Guid Id, [FromBody] string value)
         {
             // TODO: Update property, if name changed then update Archive display_name as well
 
@@ -100,7 +110,7 @@ namespace CoreAPI.Controllers
 
         [HttpPatch]
         [Route("contacts/{Id}")]
-        public async Task<ActionResult<string>> UpdateContact(Guid Id, [FromBody] string requestBody)
+        public async Task<ActionResult<string>> UpdateContact(Guid Id, [FromBody] string value)
         {
             // TODO: Update contact
 
@@ -109,11 +119,19 @@ namespace CoreAPI.Controllers
 
         [HttpPatch]
         [Route("companies/{Id}")]
-        public async Task<ActionResult<string>> UpdateCompanies(Guid Id, [FromBody] string requestBody)
+        public async Task<ActionResult<string>> UpdateCompany(Guid Id, [FromBody] string value)
         {
             // TODO: Update company
 
             return NoContent();
         }
+
+        #endregion
+
+        #region DELETE
+
+        // TODO: Write delete methods for each
+
+        #endregion
     }
 }

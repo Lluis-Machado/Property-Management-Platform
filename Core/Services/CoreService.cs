@@ -7,33 +7,47 @@ namespace CoreAPI.Services
     public class CoreService : ICoreService
     {
         private readonly IBus _bus;
-        private readonly PropertyServiceClient _pClient;
-        private readonly OwnershipServiceClient _oClient;
+        private readonly IPropertyServiceClient _pClient;
+        private readonly IOwnershipServiceClient _oClient;
+        private readonly ICompanyServiceClient _compClient;
+        private readonly IDocumentsServiceClient _docClient;
+        private readonly IContactServiceClient _contClient;
 
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly ILogger<CoreService> _logger;
 
         public CoreService(IBus bus,
-            PropertyServiceClient pClient,
-            OwnershipServiceClient oClient,
+            IPropertyServiceClient pClient,
+            IOwnershipServiceClient oClient,
+            ICompanyServiceClient compClient,
+            IDocumentsServiceClient docClient,
+            IContactServiceClient contClient,
+            ILogger<CoreService> logger,
             IHttpContextAccessor contextAccessor)
         {
             _bus = bus;
-            _pClient = _pClient;
+            _pClient = pClient;
+            _oClient = oClient;
+            _compClient = compClient;
+            _docClient = docClient;
+            _contClient = contClient;
+            _logger = logger;
             _contextAccessor = contextAccessor;
         }
 
         public async Task<string> CreateProperty(string requestBody)
         {
-            string? property = await new PropertyServiceClient(_contextAccessor).CreateProperty(requestBody);
+            string? property = await _pClient.CreateProperty(requestBody);
+
+            _logger.LogInformation($"CoreService - CreateProperty - Response: {property}");
 
             if (string.IsNullOrEmpty(property)) throw new Exception("Property service response is empty");
 
-            var propertyId = GetPropertyFromJson(property,"Id");
-            var propertyName = GetPropertyFromJson(property, "Name");
+            var propertyId = GetPropertyFromJson(property,"id");
+            var propertyName = GetPropertyFromJson(property, "name");
 
-            var ownerType = GetPropertyFromJson(requestBody, "MainOwnerType");
-            var ownerId = GetPropertyFromJson(requestBody, "MainOwnerId");
+            var ownerType = GetPropertyFromJson(requestBody, "mainOwnerType");
+            var ownerId = GetPropertyFromJson(requestBody, "mainOwnerId");
 
             var archivePayload = new
             {
@@ -43,9 +57,10 @@ namespace CoreAPI.Services
             };
             if (!String.IsNullOrEmpty(ownerType))
                 await CreateMainOwnership(ownerId, ownerType, propertyId);
-            /* await SendMessageToArchiveQueue(new MessageContract() { Payload = archivePayload.ToString() });
 
-             var archive = await CreateArchive(JsonSerializer.Serialize(archivePayload), _contextAccessor, "Property");*/
+            //await SendMessageToArchiveQueue(new MessageContract() { Payload = JsonSerializer.Serialize(archivePayload) });
+
+            await CreateArchive(JsonSerializer.Serialize(archivePayload), "Property", propertyId);
 
             return property;
         }
@@ -68,16 +83,12 @@ namespace CoreAPI.Services
             }
         }
 
-        private string GetPropertyFromJson(string json, string property)
-        {
-            JsonDocument jsonDocument = JsonDocument.Parse(json);
-            JsonElement root = jsonDocument.RootElement;
-
-            return root.GetProperty(property).GetString();
-        }
 
         private async Task CreateMainOwnership(string ownerId, string ownerType, string propertyId)
         {
+
+            _logger.LogDebug($"CoreService - CreateMainOwnership | OwnerId: {ownerId} | OwnerType: {ownerType} | PropertyId: {propertyId}");
+
             var ownershipDto = new 
             {
                 OwnerId = ownerId,
@@ -87,7 +98,7 @@ namespace CoreAPI.Services
                 MainOwnership = true
             };
 
-           await _oClient.CreateOwnership(ownershipDto.ToString());
+           await _oClient.CreateOwnership(JsonSerializer.Serialize(ownershipDto));
         }
 
 
@@ -95,31 +106,31 @@ namespace CoreAPI.Services
         [Obsolete("Deprecated, Folder creation is handled automatically in the Documents microservice")]
         public async Task<string> CreateFolder(string requestBody, string archiveId)
         {
-            var client = new DocumentsServiceClient(_contextAccessor);
-            string? document = await client.CreateFolder(requestBody, archiveId);
+            string? document = await _docClient.CreateFolder(requestBody, archiveId);
             return document;
         }
 
-        public async Task<string> CreateArchive(dynamic requestBody, string? type)
+        public async Task<JsonDocument> CreateArchive(string requestBody, string? type, string? id)
         {
             // TODO: Change from REST call to RabbitMQ message
-            var client = new DocumentsServiceClient(_contextAccessor);
-            string? archive = await client.CreateArchive(JsonSerializer.Serialize(requestBody), type);
-            // Update object who caused the creation of the archive
+            _logger.LogInformation($"Sending archive creation request");
+            JsonDocument? archive = await _docClient.CreateArchive(requestBody, type, id);
+            if (archive is null) throw new Exception($"Error creating archive for {type?.ToLower()}");
 
+            // Update object who caused the creation of the archive
             switch (type?.ToLowerInvariant())
             {
                 case "property":
-                    await new PropertyServiceClient(_contextAccessor).UpdatePropertyArchive(requestBody.id, archive);
+                    await _pClient.UpdatePropertyArchive(GetPropertyFromJson(requestBody, "id"), archive.RootElement.GetProperty("id").GetString()!);
                     break;
                 case "contact":
-                    await new ContactServiceClient(_contextAccessor).UpdateContactArchive(requestBody.id, archive);
+                    await _contClient.UpdateContactArchive(GetPropertyFromJson(requestBody, "id"), archive.RootElement.GetProperty("id").GetString()!);
                     break;
                 case "company":
-                    await new CompanyServiceClient(_contextAccessor).UpdateCompanyArchive(requestBody.id, archive);
+                    await _compClient.UpdateCompanyArchive(GetPropertyFromJson(requestBody, "id"), archive.RootElement.GetProperty("id").GetString()!);
                     break;
                 default:
-                    _logger.LogWarning($"Invalid or absent type for archive {archive}!");
+                    _logger.LogWarning($"Invalid or absent type for archive {archive.RootElement.GetProperty("id").GetString()}!");
                     break;
             }
 
@@ -128,8 +139,7 @@ namespace CoreAPI.Services
 
         public async Task<object> GetContact(Guid Id)
         {
-            var clientC = new CompanyServiceClient(_contextAccessor);
-            var company = await clientC.GetCompanyByIdAsync(Id);
+            var company = await _compClient.GetCompanyByIdAsync(Id);
             await SendMessageToAuditQueue(new MessageContract() { Payload = company });
 
             return company;
@@ -137,8 +147,7 @@ namespace CoreAPI.Services
 
         public async Task<object> GetProperty(Guid Id)
         {
-            var client = new PropertyServiceClient(_contextAccessor);
-            var property = await client.GetPropertyByIdAsync(Id);
+            var property = await _pClient.GetPropertyByIdAsync(Id);
             await SendMessageToArchiveQueue(new MessageContract() { Payload = property });
             return property;
         }
@@ -151,6 +160,7 @@ namespace CoreAPI.Services
 
         public async Task SendMessageToArchiveQueue(MessageContract message)
         {
+            _logger.LogInformation($"Sending message to archive queue");
             var sendEndpoint = await _bus.GetSendEndpoint(new Uri("rabbitmq://localhost/archive"));
             await sendEndpoint.Send(message);
         }
@@ -165,10 +175,6 @@ namespace CoreAPI.Services
             throw new NotImplementedException();
         }
 
-        public async Task<string> CreateArchive(string requestBody, string? type)
-        {
-            throw new NotImplementedException();
-        }
 
         public async Task<object> GetCompany(Guid Id)
         {
@@ -204,5 +210,19 @@ namespace CoreAPI.Services
         {
             throw new NotImplementedException();
         }
+
+
+
+
+        private string GetPropertyFromJson(string json, string property)
+        {
+            JsonDocument jsonDocument = JsonDocument.Parse(json);
+            JsonElement root = jsonDocument.RootElement;
+
+            return root.GetProperty(property).GetString();
+        }
+
+
+
     }
 }

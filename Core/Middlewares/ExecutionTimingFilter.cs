@@ -16,13 +16,17 @@ namespace CoreAPI.Middlewares
         public void OnActionExecuting(ActionExecutingContext context)
         {
             _stopwatch = Stopwatch.StartNew();
-            _logger.LogInformation($"Action {context.ActionDescriptor.DisplayName} started at {DateTime.UtcNow:O}");
+            //_logger.LogInformation($"Action {context.ActionDescriptor.DisplayName} started at {DateTime.UtcNow:O}");
         }
 
         public void OnActionExecuted(ActionExecutedContext context)
         {
             _stopwatch.Stop();
-            _logger.LogInformation($"Action {context.ActionDescriptor.DisplayName} ended at {DateTime.UtcNow:O} and took {_stopwatch.ElapsedMilliseconds} ms");
+
+            if (_stopwatch.ElapsedMilliseconds > 3000)
+            {
+                _logger.LogWarning($"Action {context.ActionDescriptor.DisplayName} ended at {DateTime.UtcNow:O} and took {_stopwatch.ElapsedMilliseconds} ms");
+            }
         }
     }
 }

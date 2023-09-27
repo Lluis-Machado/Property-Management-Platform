@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace CoreAPI.Services;
 
-public class OwnershipServiceClient
+public class OwnershipServiceClient : IOwnershipServiceClient
 {
     private readonly HttpClient _httpClient;
     private readonly IHttpContextAccessor _contextAccessor;
@@ -16,20 +16,19 @@ public class OwnershipServiceClient
 #if DEVELOPMENT
         _httpClient.BaseAddress = new Uri("https://localhost:7012/"); // Replace with the base URL of the ownership service
 #elif PRODUCTION
-        _httpClient.BaseAddress = new Uri("https://plattesapis.net/ownerships/"); // Replace with the base URL of the ownership service
+        _httpClient.BaseAddress = new Uri("https://plattesapis.net/ownership/"); // Replace with the base URL of the ownership service
 #else
-        _httpClient.BaseAddress = new Uri("https://stage.plattesapis.net/ownerships/");
+        _httpClient.BaseAddress = new Uri("https://stage.plattesapis.net/ownership/");
 #endif
-        _httpClient.BaseAddress = new Uri("https://stage.plattesapis.net/ownerships/");
 
         _httpClient.DefaultRequestHeaders.Accept.Clear();
         _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         _contextAccessor = contextAccessor;
     }
 
-    public async Task<string?> GetOwnershipByIdAsync(Guid id)
+    public async Task<JsonDocument?> GetOwnershipByIdAsync(Guid id)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, $"ownerships/{id}");
+        var request = new HttpRequestMessage(HttpMethod.Get, $"ownership/{id}");
         // Add authorization token to the request headers
         var _auth = _contextAccessor?.HttpContext?.Request.Headers.Authorization.FirstOrDefault();
         if (_auth != null)
@@ -45,7 +44,7 @@ public class OwnershipServiceClient
             {
                 return null;
             }
-            return content; /*JsonSerializer.Deserialize<string>(content, new JsonSerializerOptions
+            return JsonSerializer.Deserialize<JsonDocument>(content); /*JsonSerializer.Deserialize<string>(content, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });*/
@@ -60,7 +59,7 @@ public class OwnershipServiceClient
         throw new Exception($"Failed to get ownership by ID. Status code: {response.StatusCode}");
     }
 
-    public async Task<string?> CreateOwnership(string requestBody)
+    public async Task<JsonDocument?> CreateOwnership(string requestBody)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, "ownership");
 
@@ -79,7 +78,7 @@ public class OwnershipServiceClient
 
         if (response.IsSuccessStatusCode)
         {
-            return string.IsNullOrEmpty(content) ? null : content;
+            return string.IsNullOrEmpty(content) ? null : JsonSerializer.Deserialize<JsonDocument>(content);
         }
 
         if (response.StatusCode == HttpStatusCode.NotFound)
@@ -90,9 +89,9 @@ public class OwnershipServiceClient
         throw new Exception($"Failed to create ownership. Status code: {response.StatusCode}. {content}");
     }
 
-    public async Task<string?> CreateOwnerships(string requestBody)
+    public async Task<JsonDocument?> CreateOwnerships(string requestBody)
     {
-        using var request = new HttpRequestMessage(HttpMethod.Post, "ownerships");
+        using var request = new HttpRequestMessage(HttpMethod.Post, "ownership");
 
         // Add authorization token to the request headers
         var _auth = _contextAccessor?.HttpContext?.Request.Headers.Authorization.FirstOrDefault();
@@ -106,10 +105,9 @@ public class OwnershipServiceClient
         var response = await _httpClient.SendAsync(request);
         var content = await response.Content.ReadAsStringAsync();
 
-
         if (response.IsSuccessStatusCode)
         {
-            return string.IsNullOrEmpty(content) ? null : content;
+            return string.IsNullOrEmpty(content) ? null : JsonSerializer.Deserialize<JsonDocument>(content);
         }
 
         if (response.StatusCode == HttpStatusCode.NotFound)

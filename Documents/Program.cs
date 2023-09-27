@@ -14,6 +14,7 @@ using Microsoft.Extensions.Azure;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using Serilog.Enrichers.CallerInfo;
 using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +23,7 @@ var builder = WebApplication.CreateBuilder(args);
 var logger = new LoggerConfiguration()
   .ReadFrom.Configuration(builder.Configuration)
   .Enrich.FromLogContext()
+  .Enrich.WithCallerInfo(false, "DocumentsAPI")
   .CreateLogger();
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);

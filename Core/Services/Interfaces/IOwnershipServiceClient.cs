@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace CoreAPI.Services
 {
     public interface IOwnershipServiceClient
     {
-        Task<string?> GetOwnershipByIdAsync(Guid id);
-        Task<string?> CreateOwnership(string requestBody);
-        Task<string?> CreateOwnerships(string requestBody);
+        Task<JsonDocument?> GetOwnershipByIdAsync(Guid id);
+        Task<JsonDocument?> CreateOwnership(string requestBody);
+        Task<JsonDocument?> CreateOwnerships(string requestBody);
     }
 }

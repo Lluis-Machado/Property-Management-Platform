@@ -1,136 +1,63 @@
-﻿using System.Net;
-using System.Net.Http.Headers;
-using System.Text;
+﻿using System.Net.Http.Headers;
+using System.Text.Json;
 
 namespace CoreAPI.Services;
 
 public class PropertyServiceClient : IPropertyServiceClient
 {
-    private readonly HttpClient _httpClient;
     private readonly IHttpContextAccessor _contextAccessor;
     private readonly ILogger<PropertyServiceClient> _logger;
+    private readonly IBaseClientService _baseClient;
 
-    public PropertyServiceClient(IHttpContextAccessor contextAccessor, ILogger<PropertyServiceClient> logger)
+    public PropertyServiceClient(IHttpContextAccessor contextAccessor, ILogger<PropertyServiceClient> logger, IBaseClientService baseClient)
     {
         _logger = logger;
         _contextAccessor = contextAccessor;
-        _httpClient = new HttpClient();
-#if DEVELOPMENT
-        _httpClient.BaseAddress = new Uri("https://localhost:7012/"); // Replace with the base URL of the ownership service
-#elif PRODUCTION
-        _httpClient.BaseAddress = new Uri("https://plattesapis.net/properties/"); // Replace with the base URL of the ownership service
-#else
-        _httpClient.BaseAddress = new Uri("https://stage.plattesapis.net/properties/");
-#endif
-
-        _httpClient.DefaultRequestHeaders.Accept.Clear();
-        _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        _baseClient = baseClient;
     }
 
-    public async Task<string?> GetPropertyByIdAsync(Guid id)
+    public async Task<JsonDocument?> GetPropertyByIdAsync(Guid id)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, $"properties/{id}");
-        // Add authorization token to the request headers
-        var _auth = _contextAccessor?.HttpContext?.Request.Headers.Authorization.FirstOrDefault();
-        if (_auth != null)
-        {
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _auth.Split(' ')[1]);
-        }
-
-        var response = await _httpClient.SendAsync(request);
-        if (response.IsSuccessStatusCode)
-        {
-            var content = await response.Content.ReadAsStringAsync();
-            if (string.IsNullOrEmpty(content))
-            {
-                return null;
-            }
-            return content; /*JsonSerializer.Deserialize<string>(content, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });*/
-        }
-
-
-        if (response.StatusCode == HttpStatusCode.NotFound)
-        {
-            return null;
-        }
-
-        throw new Exception($"Failed to get ownership by ID. Status code: {response.StatusCode}");
+        return await _baseClient.ReadAsync($"properties/{id}");
     }
 
-    public async Task<string?> CreateProperty(string requestBody)
+
+    public async Task<JsonDocument?> CreateProperty(string requestBody)
     {
-        _logger.LogInformation($"PropertyServiceClient - CreateProperty - Begin request - BaseAddress: {_httpClient.BaseAddress}\nBody: {Uri.UnescapeDataString(requestBody)}");
-
-
-        using var request = new HttpRequestMessage(HttpMethod.Post, "properties");
-
-        // Add authorization token to the request headers
-        var _auth = _contextAccessor?.HttpContext?.Request.Headers.Authorization.FirstOrDefault();
-        if (_auth != null)
-        {
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _auth.Split(' ')[1]);
-        }
-
-        request.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");
-
-        var response = await _httpClient.SendAsync(request);
-        var content = await response.Content.ReadAsStringAsync();
-
-        _logger.LogDebug($"PropertyServiceClient - Result from CreateProperty API call: {content}");
-
-        if (response.IsSuccessStatusCode)
-        {
-            return string.IsNullOrEmpty(content) ? null : content;
-        }
-
-        if (response.StatusCode == HttpStatusCode.NotFound)
-        {
-            return null;
-        }
-
-        throw new Exception($"Failed to create property. Status code: {response.StatusCode}. {content}");
+        return await _baseClient.CreateAsync($"properties", requestBody);
     }
 
-    public async Task<string?> UpdatePropertyArchive(string propertyId, string archiveId)
+    public async Task<JsonDocument?> UpdatePropertyArchive(string propertyId, string archiveId)
     {
-        var request = new HttpRequestMessage(HttpMethod.Patch, $"properties/{propertyId}/{archiveId}");
+        return await _baseClient.UpdateAsync($"properties/{propertyId}/{archiveId}");
+    }
 
-        _logger.LogInformation($"PropertyServiceClient - UpdatePropertyArchive - Begin request - PropId: {propertyId} | ArchId: {archiveId} | BaseAddress: {_httpClient.BaseAddress} | Uri: {request.RequestUri}");
+    // Get property, check if updated object has different name
+    // If name is different, update the archive as well
+    public async Task<JsonDocument?> UpdateProperty(Guid propertyId, string requestBody)
+    {
+        // Body validation
+        if (string.IsNullOrEmpty(requestBody)) throw new BadHttpRequestException("Request body format not valid");
 
+        // Get pre-update property information
+        JsonDocument? currentProperty = await GetPropertyByIdAsync(propertyId);
+        if (currentProperty is null) throw new Exception($"Update failed - Property with id {propertyId} not found");
+        string currentName = currentProperty.RootElement.GetProperty("name").GetString() ?? "";
 
-        // Add authorization token to the request headers
-        var _auth = _contextAccessor?.HttpContext?.Request.Headers.Authorization.FirstOrDefault();
-        if (_auth != null)
+        // Get post-update property name
+        JsonDocument body = JsonSerializer.Deserialize<JsonDocument>(requestBody);
+        string requestName = body.RootElement.GetProperty("name").GetString() ?? "";
+
+        // Perform property update
+        var propertyUpdate = await _baseClient.UpdateAsync($"companies/{propertyId}", requestBody);
+
+        // If the name has changed, perform Archive name change
+        if (currentName != requestName)
         {
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _auth.Split(' ')[1]);
+            await _baseClient.UpdateAsync($"archives/{currentProperty.RootElement.GetProperty("archiveId").GetString()}&newName={Uri.EscapeDataString(requestName)}");
         }
 
-        var response = await _httpClient.SendAsync(request);
-
-        _logger.LogInformation($"PropertyServiceClient - UpdatePropertyArchive - Response: {response.StatusCode} - Content: {response.Content.ReadAsStringAsync().Result}");
-
-
-        if (response.IsSuccessStatusCode)
-        {
-            var content = await response.Content.ReadAsStringAsync();
-            if (string.IsNullOrEmpty(content))
-            {
-                return null;
-            }
-            return content;
-        }
-
-        if (response.StatusCode == HttpStatusCode.NotFound)
-        {
-            throw new Exception($"Failed to update property archive by ID. Status code: {response.StatusCode}");
-
-            return null;
-        }
-
-        throw new Exception($"Failed to update property archive by ID. Status code: {response.StatusCode}");
+        return propertyUpdate;
     }
 
 }

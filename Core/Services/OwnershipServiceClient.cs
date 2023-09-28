@@ -9,8 +9,9 @@ public class OwnershipServiceClient : IOwnershipServiceClient
 {
     private readonly HttpClient _httpClient;
     private readonly IHttpContextAccessor _contextAccessor;
+    private readonly IBaseClientService _baseClient;
 
-    public OwnershipServiceClient(IHttpContextAccessor contextAccessor)
+    public OwnershipServiceClient(IHttpContextAccessor contextAccessor, IBaseClientService baseClient)
     {
         _httpClient = new HttpClient();
 #if DEVELOPMENT
@@ -24,6 +25,7 @@ public class OwnershipServiceClient : IOwnershipServiceClient
         _httpClient.DefaultRequestHeaders.Accept.Clear();
         _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         _contextAccessor = contextAccessor;
+        _baseClient = baseClient;
     }
 
     public async Task<JsonDocument?> GetOwnershipByIdAsync(Guid id)

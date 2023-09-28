@@ -35,19 +35,19 @@ namespace CoreAPI.Services
             _contextAccessor = contextAccessor;
         }
 
-        public async Task<string> CreateProperty(string requestBody)
+        public async Task<JsonDocument> CreateProperty(string requestBody)
         {
-            string? property = await _pClient.CreateProperty(requestBody);
+            JsonDocument? property = await _pClient.CreateProperty(requestBody);
 
-            _logger.LogInformation($"CoreService - CreateProperty - Response: {property}");
+            _logger.LogInformation($"CoreService - CreateProperty - Response: {property?.Deserialize<string>()}");
 
-            if (string.IsNullOrEmpty(property)) throw new Exception("Property service response is empty");
+            if (property is null || string.IsNullOrEmpty(property.RootElement.GetProperty("id").GetString())) throw new Exception("Property service response is empty");
 
-            var propertyId = GetPropertyFromJson(property,"id");
-            var propertyName = GetPropertyFromJson(property, "name");
+            var propertyId = property.RootElement.GetProperty("id").GetString();
+            var propertyName = property.RootElement.GetProperty("name").GetString();
 
-            var ownerType = GetPropertyFromJson(requestBody, "mainOwnerType");
-            var ownerId = GetPropertyFromJson(requestBody, "mainOwnerId");
+            var ownerType = property.RootElement.GetProperty("mainOwnerType").GetString();
+            var ownerId = property.RootElement.GetProperty("mainOwnerId").GetString();
 
             var archivePayload = new
             {
@@ -65,31 +65,31 @@ namespace CoreAPI.Services
             return property;
         }
 
-        public void RestoreVersion(string requestBody, string type)
-        {
-            switch (type)
-            {
-                case "Property":
-                    UpdateProperty(requestBody);
-                    break;
-                case "Contact":
-                    UpdateContact(requestBody);
-                    break;
-                case "Company":
-                    UpdateCompany(requestBody);
-                    break;
-                default:
-                    break;
-            }
-        }
+        // TODO: Update so that we can also pass the object Guid
+        //public void RestoreVersion(string requestBody, string type)
+        //{
+        //    switch (type)
+        //    {
+        //        case "Property":
+        //            UpdateProperty(requestBody);
+        //            break;
+        //        case "Contact":
+        //            UpdateContact(requestBody);
+        //            break;
+        //        case "Company":
+        //            UpdateCompany(requestBody);
+        //            break;
+        //        default:
+        //            break;
+        //    }
+        //}
 
 
         private async Task CreateMainOwnership(string ownerId, string ownerType, string propertyId)
         {
-
             _logger.LogDebug($"CoreService - CreateMainOwnership | OwnerId: {ownerId} | OwnerType: {ownerType} | PropertyId: {propertyId}");
 
-            var ownershipDto = new 
+            var ownershipDto = new
             {
                 OwnerId = ownerId,
                 OwnerType = ownerType,
@@ -98,17 +98,17 @@ namespace CoreAPI.Services
                 MainOwnership = true
             };
 
-           await _oClient.CreateOwnership(JsonSerializer.Serialize(ownershipDto));
+            await _oClient.CreateOwnership(JsonSerializer.Serialize(ownershipDto));
         }
 
 
 
-        [Obsolete("Deprecated, Folder creation is handled automatically in the Documents microservice")]
-        public async Task<string> CreateFolder(string requestBody, string archiveId)
-        {
-            string? document = await _docClient.CreateFolder(requestBody, archiveId);
-            return document;
-        }
+        //[Obsolete("Deprecated, Folder creation is handled automatically in the Documents microservice")]
+        //public async Task<string> CreateFolder(string requestBody, string archiveId)
+        //{
+        //    string? document = await _docClient.CreateFolder(requestBody, archiveId);
+        //    return document;
+        //}
 
         public async Task<JsonDocument> CreateArchive(string requestBody, string? type, string? id)
         {
@@ -137,18 +137,18 @@ namespace CoreAPI.Services
             return archive;
         }
 
-        public async Task<object> GetContact(Guid Id)
+        public async Task<JsonDocument?> GetContact(Guid Id)
         {
             var company = await _compClient.GetCompanyByIdAsync(Id);
-            await SendMessageToAuditQueue(new MessageContract() { Payload = company });
+            await SendMessageToAuditQueue(new MessageContract() { Payload = company?.Deserialize<string>() });
 
             return company;
         }
 
-        public async Task<object> GetProperty(Guid Id)
+        public async Task<JsonDocument?> GetProperty(Guid Id)
         {
             var property = await _pClient.GetPropertyByIdAsync(Id);
-            await SendMessageToArchiveQueue(new MessageContract() { Payload = property });
+            await SendMessageToArchiveQueue(new MessageContract() { Payload = property?.Deserialize<string>() });
             return property;
         }
 
@@ -165,50 +165,53 @@ namespace CoreAPI.Services
             await sendEndpoint.Send(message);
         }
 
-        public async Task<string> CreateCompany(string requestBody)
+        public async Task<JsonDocument?> CreateCompany(string requestBody)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<string> CreateContact(string requestBody)
+        public async Task<JsonDocument?> CreateContact(string requestBody)
         {
             throw new NotImplementedException();
         }
 
 
-        public async Task<object> GetCompany(Guid Id)
+        public async Task<JsonDocument?> GetCompany(Guid Id)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<object> GetContacts(bool includeDeleted)
+        public async Task<JsonDocument[]?> GetContacts(bool includeDeleted)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<object> GetProperties(bool includeDeleted)
+        public async Task<JsonDocument[]?> GetProperties(bool includeDeleted)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<object> GetCompanies(bool includeDeleted)
+        public async Task<JsonDocument[]?> GetCompanies(bool includeDeleted)
         {
             throw new NotImplementedException();
         }
 
-        public Task<string> UpdateProperty(string requestBody)
+
+
+
+        public async Task<JsonDocument?> UpdateProperty(Guid propertyId, string requestBody)
         {
-            throw new NotImplementedException();
+            return await _pClient.UpdateProperty(propertyId, requestBody);
         }
 
-        public Task<string> UpdateCompany(string requestBody)
+        public async Task<JsonDocument?> UpdateCompany(Guid companyId, string requestBody)
         {
-            throw new NotImplementedException();
+            return await _compClient.UpdateCompany(companyId, requestBody);
         }
 
-        public Task<string> UpdateContact(string requestBody)
+        public async Task<JsonDocument?> UpdateContact(Guid contactId, string requestBody)
         {
-            throw new NotImplementedException();
+            return await _contClient.UpdateContact(contactId, requestBody);
         }
 
 
@@ -219,7 +222,7 @@ namespace CoreAPI.Services
             JsonDocument jsonDocument = JsonDocument.Parse(json);
             JsonElement root = jsonDocument.RootElement;
 
-            return root.GetProperty(property).GetString();
+            return root.GetProperty(property).GetString() ?? "";
         }
 
 

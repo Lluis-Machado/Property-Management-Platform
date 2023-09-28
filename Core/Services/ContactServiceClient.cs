@@ -17,12 +17,12 @@ public class ContactServiceClient : IContactServiceClient
 
     public async Task<JsonDocument?> GetContactByIdAsync(Guid id)
     {
-        return await _baseClient.ReadAsync($"contacts/{id}");
+        return await _baseClient.ReadAsync($"contacts/contacts/{id}");
     }
 
     public async Task<JsonDocument?> UpdateContactArchive(string contactId, string archiveId)
     {
-        return await _baseClient.UpdateAsync($"contacts/{contactId}/{archiveId}");
+        return await _baseClient.UpdateAsync($"contacts/contacts/{contactId}/{archiveId}");
     }
 
     // Get contact, check if updated object has different name/surname
@@ -46,12 +46,12 @@ public class ContactServiceClient : IContactServiceClient
         string requestName = requestFirstName != "" && requestLastName != "" ? $"{requestLastName}, {requestFirstName}" : "";
 
         // Perform company update
-        var contactUpdate = await _baseClient.UpdateAsync($"contacts/{contactId}", requestBody);
+        var contactUpdate = await _baseClient.UpdateAsync($"contacts/contacts/{contactId}", requestBody);
 
         // If the name has changed, perform Archive name change
         if (currentName != requestName && currentName != "")
         {
-            await _baseClient.UpdateAsync($"archives/{currentContact.RootElement.GetProperty("archiveId").GetString()}&newName={Uri.EscapeDataString(requestName)}");
+            await _baseClient.UpdateAsync($"documents/archives/{currentContact.RootElement.GetProperty("archiveId").GetString()}&newName={Uri.EscapeDataString(requestName)}");
         }
 
         return contactUpdate;

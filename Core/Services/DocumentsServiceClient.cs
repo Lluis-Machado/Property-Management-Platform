@@ -22,7 +22,7 @@ public class DocumentsServiceClient : IDocumentsServiceClient
 
     public async Task<JsonDocument?> CreateArchive(string requestBody, string? type, string? id)
     {
-        return await _baseClient.CreateAsync($"archives/{type}/{id}", requestBody);
+        return await _baseClient.CreateAsync($"documents/archives/{type}/{id}", requestBody);
     }
 
     //[Obsolete]

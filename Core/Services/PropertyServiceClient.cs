@@ -18,18 +18,18 @@ public class PropertyServiceClient : IPropertyServiceClient
 
     public async Task<JsonDocument?> GetPropertyByIdAsync(Guid id)
     {
-        return await _baseClient.ReadAsync($"properties/{id}");
+        return await _baseClient.ReadAsync($"properties/properties/{id}");
     }
 
 
     public async Task<JsonDocument?> CreateProperty(string requestBody)
     {
-        return await _baseClient.CreateAsync($"properties", requestBody);
+        return await _baseClient.CreateAsync($"properties/properties", requestBody);
     }
 
     public async Task<JsonDocument?> UpdatePropertyArchive(string propertyId, string archiveId)
     {
-        return await _baseClient.UpdateAsync($"properties/{propertyId}/{archiveId}");
+        return await _baseClient.UpdateAsync($"properties/properties/{propertyId}/{archiveId}");
     }
 
     // Get property, check if updated object has different name
@@ -49,12 +49,12 @@ public class PropertyServiceClient : IPropertyServiceClient
         string requestName = body.RootElement.GetProperty("name").GetString() ?? "";
 
         // Perform property update
-        var propertyUpdate = await _baseClient.UpdateAsync($"companies/{propertyId}", requestBody);
+        var propertyUpdate = await _baseClient.UpdateAsync($"companies/companies/{propertyId}", requestBody);
 
         // If the name has changed, perform Archive name change
         if (currentName != requestName)
         {
-            await _baseClient.UpdateAsync($"archives/{currentProperty.RootElement.GetProperty("archiveId").GetString()}&newName={Uri.EscapeDataString(requestName)}");
+            await _baseClient.UpdateAsync($"documents/archives/{currentProperty.RootElement.GetProperty("archiveId").GetString()}&newName={Uri.EscapeDataString(requestName)}");
         }
 
         return propertyUpdate;

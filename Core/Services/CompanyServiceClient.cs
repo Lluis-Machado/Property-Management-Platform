@@ -18,13 +18,13 @@ public class CompanyServiceClient : ICompanyServiceClient
 
     public async Task<JsonDocument?> GetCompanyByIdAsync(Guid id)
     {
-        return await _baseClient.ReadAsync($"companies/{id}");
+        return await _baseClient.ReadAsync($"companies/companies/{id}");
     }
 
     public async Task<JsonDocument?> UpdateCompanyArchive(string companyId, string archiveId)
     {
 
-        return await _baseClient.UpdateAsync($"companies/{companyId}/{archiveId}");
+        return await _baseClient.UpdateAsync($"companies/companies/{companyId}/{archiveId}");
     }
 
     // Get company, check if updated object has different name
@@ -44,12 +44,12 @@ public class CompanyServiceClient : ICompanyServiceClient
         string requestName = body.RootElement.GetProperty("name").GetString() ?? "";
 
         // Perform company update
-        var companyUpdate = await _baseClient.UpdateAsync($"companies/{companyId}", requestBody);
+        var companyUpdate = await _baseClient.UpdateAsync($"companies/companies/{companyId}", requestBody);
 
         // If the name has changed, perform Archive name change
         if (currentName != requestName)
         {
-            await _baseClient.UpdateAsync($"archives/{currentCompany.RootElement.GetProperty("archiveId").GetString()}&newName={Uri.EscapeDataString(requestName)}");
+            await _baseClient.UpdateAsync($"documents/archives/{currentCompany.RootElement.GetProperty("archiveId").GetString()}&newName={Uri.EscapeDataString(requestName)}");
         }
 
         return companyUpdate;

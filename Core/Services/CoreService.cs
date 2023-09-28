@@ -1,5 +1,6 @@
 ﻿using MassTransit;
 using MessagingContracts;
+using System;
 using System.Text.Json;
 
 namespace CoreAPI.Services
@@ -39,16 +40,19 @@ namespace CoreAPI.Services
         {
             JsonDocument? property = await _pClient.CreateProperty(requestBody);
 
-            _logger.LogInformation($"CoreService - CreateProperty - Response: {property?.Deserialize<string>()}");
+            _logger.LogInformation($"CoreService - CreateProperty - Response: {property?.RootElement.ToString()}");
 
             if (property is null || string.IsNullOrEmpty(property.RootElement.GetProperty("id").GetString())) throw new Exception("Property service response is empty");
 
-            var propertyId = property.RootElement.GetProperty("id").GetString();
-            var propertyName = property.RootElement.GetProperty("name").GetString();
 
-            var ownerType = property.RootElement.GetProperty("mainOwnerType").GetString();
-            var ownerId = property.RootElement.GetProperty("mainOwnerId").GetString();
+            string? propertyId, propertyName, ownerType, ownerId;
 
+            propertyId = GetPropertyFromJson(property, "id");
+            propertyName = GetPropertyFromJson(property, "name");
+            ownerType = GetPropertyFromJson(property, "mainOwnerType");
+            ownerId = GetPropertyFromJson(property, "mainOwnerId");
+
+            
             var archivePayload = new
             {
                 name = propertyName,
@@ -140,7 +144,7 @@ namespace CoreAPI.Services
         public async Task<JsonDocument?> GetContact(Guid Id)
         {
             var company = await _compClient.GetCompanyByIdAsync(Id);
-            await SendMessageToAuditQueue(new MessageContract() { Payload = company?.Deserialize<string>() });
+            await SendMessageToAuditQueue(new MessageContract() { Payload = company?.RootElement.ToString() });
 
             return company;
         }
@@ -148,7 +152,7 @@ namespace CoreAPI.Services
         public async Task<JsonDocument?> GetProperty(Guid Id)
         {
             var property = await _pClient.GetPropertyByIdAsync(Id);
-            await SendMessageToArchiveQueue(new MessageContract() { Payload = property?.Deserialize<string>() });
+            await SendMessageToArchiveQueue(new MessageContract() { Payload = property?.RootElement.ToString() });
             return property;
         }
 
@@ -223,6 +227,18 @@ namespace CoreAPI.Services
             JsonElement root = jsonDocument.RootElement;
 
             return root.GetProperty(property).GetString() ?? "";
+        }
+
+        private string? GetPropertyFromJson(JsonDocument json, string property)
+        {
+            try
+            {
+                return json.RootElement.GetProperty(property).GetString();
+            }
+            catch (KeyNotFoundException)
+            {
+                return null;
+            }
         }
 
 

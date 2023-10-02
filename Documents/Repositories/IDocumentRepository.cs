@@ -1,4 +1,6 @@
-﻿using DocumentsAPI.DTOs;
+﻿using Azure;
+using Azure.Storage.Blobs.Models;
+using DocumentsAPI.DTOs;
 using DocumentsAPI.Models;
 
 namespace DocumentsAPI.Repositories
@@ -13,6 +15,7 @@ namespace DocumentsAPI.Repositories
         Task<IEnumerable<Document>> SearchDocumentsTagsAsync(string query, bool includeDeleted = false);
         Task<bool> DocumentExistsAsync(Guid archiveName, Guid documentId);
         Task<byte[]> DownloadDocumentAsync(Guid archiveName, Guid documentId);
+        Task<Response<BlobDownloadResult>> DownloadDocumentRawAsync(Guid archiveId, Guid documentId);
         Task DeleteDocumentAsync(Guid archiveName, Guid documentId);
         Task UndeleteDocumentAsync(Guid archiveName, Guid documentId);
         Task RenameDocumentAsync(Guid archiveName, Guid documentId, string newDocumentName);

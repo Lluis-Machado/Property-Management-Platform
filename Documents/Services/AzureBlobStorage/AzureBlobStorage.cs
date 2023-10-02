@@ -301,6 +301,16 @@ namespace DocumentsAPI.Services.AzureBlobStorage
             return blobDownloadResponse.Value.Content.ToArray();
         }
 
+        public async Task<Response<BlobDownloadResult>> DownloadDocumentRawAsync(Guid archiveId, Guid documentId)
+        {
+            BlobClient blobClient = _context.GetBlobClient(archiveId.ToString(), documentId.ToString());
+
+            Response<BlobDownloadResult> blobDownloadResponse = await blobClient.DownloadContentAsync();
+            Response response = blobDownloadResponse.GetRawResponse();
+            _context.CheckResponse(response);
+            return blobDownloadResponse;
+        }
+
         public async Task DeleteDocumentAsync(Guid archiveId, Guid documentId)
         {
             //BlobClient blobClient = _context.GetBlobClient(archiveId.ToString(), documentId.ToString());

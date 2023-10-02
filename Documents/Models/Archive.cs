@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace DocumentsAPI.Models
 {
@@ -7,13 +8,16 @@ namespace DocumentsAPI.Models
 
         public enum ARCHIVE_TYPE
         {
-            CONTACT,
-            COMPANY,
-            PROPERTY,
-            NONE
+            CONTACT,    // 0
+            COMPANY,    // 1
+            PROPERTY,   // 2
+            NONE        // 3
         }
 
         public string? Name { get; set; }
+
+        // Serialize as string instead of INT
+        [JsonConverter(typeof(StringEnumConverter))]
         public ARCHIVE_TYPE ArchiveType { get; set; }
         public Guid? RelatedItemId { get; set; }
 

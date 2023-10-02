@@ -60,4 +60,11 @@ public class PropertyServiceClient : IPropertyServiceClient
         return propertyUpdate;
     }
 
+    public async Task DeleteProperty(Guid propertyId)
+    {
+        bool res = await _baseClient.DeleteAsync($"properties/properties/{propertyId}");
+        if (!res) throw new Exception($"Unknown error deleting property {propertyId}");
+    }
+
+
 }

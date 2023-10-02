@@ -57,6 +57,12 @@ public class ContactServiceClient : IContactServiceClient
         return contactUpdate;
     }
 
+    public async Task DeleteContact(Guid contactId)
+    {
+        bool res = await _baseClient.DeleteAsync($"contacts/contacts/{contactId}");
+        if (!res) throw new Exception($"Unknown error deleting contact {contactId}");
+    }
+
 
 
 }

@@ -219,6 +219,42 @@ namespace CoreAPI.Services
         }
 
 
+        public async Task DeleteProperty(Guid propertyId)
+        {
+            // TODO: Check related/child properties
+            JsonDocument? property = await _pClient.GetPropertyByIdAsync(propertyId);
+
+
+            if (property is null) throw new Exception($"Property with ID {propertyId} not found");
+
+            string? archiveIdstr = GetPropertyFromJson(property, "archiveId");
+            if (string.IsNullOrEmpty(archiveIdstr)) throw new Exception($"Archive ID not found in property {propertyId} {GetPropertyFromJson(property, "name")}");
+
+            Guid archiveId = Guid.Parse(archiveIdstr);
+            if (archiveId == Guid.Empty) throw new Exception($"Invalid Guid for Archive ID - Property {propertyId} {GetPropertyFromJson(property, "name")}");
+
+            Task[] tasks = { _pClient.DeleteProperty(propertyId), _docClient.DeleteArchive(archiveId) };
+
+            // TODO: Delete ownerships with propertyId
+
+
+            Task.WaitAll(tasks);
+        }
+
+        public async Task DeleteContact(Guid contactId) {
+            // TODO: Check if any ownerships exist
+        
+
+
+        }
+
+        public async Task DeleteCompany(Guid companyId) {
+            // TODO: Check if any ownerships exist
+        
+        }
+
+
+
 
 
         private string GetPropertyFromJson(string json, string property)

@@ -10,5 +10,6 @@ namespace CoreAPI.Services
         Task<JsonDocument?> CreateProperty(string requestBody);
         Task<JsonDocument?> UpdatePropertyArchive(string propertyId, string archiveId);
         Task<JsonDocument?> UpdateProperty(Guid propertyId, string requestBody);
+        Task DeleteProperty(Guid propertyId);
     }
 }

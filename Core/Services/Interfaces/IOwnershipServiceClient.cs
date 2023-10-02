@@ -9,5 +9,7 @@ namespace CoreAPI.Services
         Task<JsonDocument?> GetOwnershipByIdAsync(Guid id);
         Task<JsonDocument?> CreateOwnership(string requestBody);
         Task<JsonDocument?> CreateOwnerships(string requestBody);
+
+        Task DeleteOwnerships(Guid propertyId);
     }
 }

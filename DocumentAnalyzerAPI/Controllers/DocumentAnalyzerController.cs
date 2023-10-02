@@ -1,4 +1,5 @@
-﻿using DocumentAnalyzerAPI.DTOs;
+﻿using AccountingAPI.DTOs;
+using DocumentAnalyzerAPI.DTOs;
 using DocumentAnalyzerAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;

@@ -130,7 +130,29 @@ namespace CoreAPI.Controllers
 
         #region DELETE
 
-        // TODO: Write delete methods for each
+        [HttpDelete]
+        [Route("properties/{Id}")]
+        public async Task<IActionResult> DeleteProperty(Guid Id)
+        {
+            await _coreService.DeleteProperty(Id);
+            return NoContent();
+        }
+
+        [HttpDelete]
+        [Route("companies/{Id}")]
+        public async Task<IActionResult> DeleteCompany(Guid Id)
+        {
+            await _coreService.DeleteCompany(Id);
+            return NoContent();
+        }
+
+        [HttpDelete]
+        [Route("contacts/{Id}")]
+        public async Task<IActionResult> DeleteContact(Guid Id)
+        {
+            await _coreService.DeleteContact(Id);
+            return NoContent();
+        }
 
         #endregion
     }

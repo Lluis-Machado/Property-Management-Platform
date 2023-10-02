@@ -1,6 +1,8 @@
 ﻿using Azure.AI.FormRecognizer.DocumentAnalysis;
 using DocumentAnalyzerAPI.DTOs;
 using DocumentAnalyzerAPI.Utilities;
+using AccountingAPI.DTOs;
+
 
 namespace DocumentAnalyzerAPI.Mappers
 {
@@ -56,9 +58,9 @@ namespace DocumentAnalyzerAPI.Mappers
             {
                 ARInvoiceLineDTO aRInvoiceLineDTO = new()
                 {
-                    Tax = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "TotalTax"),
+                    Tax = (decimal)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "TotalTax"),
                     Quantity = 1,
-                    UnitPrice = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "InvoiceTotal")
+                    UnitPrice = (decimal)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "InvoiceTotal")
                 };
                 aPInvoiceDTO.InvoiceLines.Add(aRInvoiceLineDTO);
             };

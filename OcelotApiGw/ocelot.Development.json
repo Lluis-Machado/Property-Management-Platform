@@ -120,6 +120,16 @@
   ],
   "SwaggerEndPoints": [
     {
+      "Key": "accounting",
+      "Config": [
+        {
+          "Name": "Accounting API",
+          "Version": "v1",
+          "Url": "http://localhost:7292/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
       "Key": "auth",
       "Config": [
         {
@@ -130,12 +140,22 @@
       ]
     },
     {
-      "Key": "tax-Management",
+      "Key": "countries",
       "Config": [
         {
-          "Name": "tax-Management API",
+          "Name": "Countries API",
           "Version": "v1",
-          "Url": "http://localhost:7256/swagger/v1/swagger.json"
+          "Url": "http://localhost:7286/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "docanalyzer",
+      "Config": [
+        {
+          "Name": "DocAnalyzer API",
+          "Version": "v1",
+          "Url": "http://localhost:7255/swagger/v1/swagger.json"
         }
       ]
     },
@@ -160,22 +180,12 @@
       ]
     },
     {
-      "Key": "accounting",
+      "Key": "ownership",
       "Config": [
         {
-          "Name": "Accounting API",
+          "Name": "Ownership API",
           "Version": "v1",
-          "Url": "http://localhost:7292/swagger/v1/swagger.json"
-        }
-      ]
-    },
-    {
-      "Key": "countries",
-      "Config": [
-        {
-          "Name": "Countries API",
-          "Version": "v1",
-          "Url": "http://localhost:7286/swagger/v1/swagger.json"
+          "Url": "http://localhost:7007/swagger/v1/swagger.json"
         }
       ]
     },
@@ -190,22 +200,12 @@
       ]
     },
     {
-      "Key": "ownership",
+      "Key": "tax-Management",
       "Config": [
         {
-          "Name": "Ownership API",
+          "Name": "tax-Management API",
           "Version": "v1",
-          "Url": "http://localhost:7007/swagger/v1/swagger.json"
-        }
-      ]
-    },
-    {
-      "Key": "docanalyzer",
-      "Config": [
-        {
-          "Name": "DocAnalyzer API",
-          "Version": "v1",
-          "Url": "http://localhost:7255/swagger/v1/swagger.json"
+          "Url": "http://localhost:7256/swagger/v1/swagger.json"
         }
       ]
     }

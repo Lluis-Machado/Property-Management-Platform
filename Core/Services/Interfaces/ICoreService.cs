@@ -13,6 +13,10 @@ namespace CoreAPI.Services
         Task<JsonDocument?> UpdateCompany(Guid companyId, string requestBody);
         Task<JsonDocument?> UpdateContact(Guid contactId, string requestBody);
 
+        Task DeleteProperty(Guid propertyId);
+        Task DeleteCompany(Guid companyId);
+        Task DeleteContact(Guid contactId);
+
 
         Task<JsonDocument?> GetContact(Guid Id);
         Task<JsonDocument?> GetProperty(Guid Id);

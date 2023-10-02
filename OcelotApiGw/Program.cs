@@ -22,7 +22,7 @@ builder.Services.AddEndpointsApiExplorer();
 #if PRODUCTION == false
 builder.Services.AddSwaggerGen(opt =>
 {
-    opt.SwaggerDoc("v1", new OpenApiInfo { Title = "MyAPI", Version = "v1" });
+    opt.SwaggerDoc("v1", new OpenApiInfo { Title = "Ocelot API Gateway", Version = "v1" });
 });
 
 builder.Services.AddSwaggerForOcelot(builder.Configuration);

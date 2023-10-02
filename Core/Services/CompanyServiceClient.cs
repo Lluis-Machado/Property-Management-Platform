@@ -54,4 +54,11 @@ public class CompanyServiceClient : ICompanyServiceClient
 
         return companyUpdate;
     }
+
+    public async Task DeleteCompany(Guid companyId)
+    {
+        bool res = await _baseClient.DeleteAsync($"companies/companies/{companyId}");
+        if (!res) throw new Exception($"Unknown error deleting company {companyId}");
+    }
+
 }

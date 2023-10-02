@@ -45,6 +45,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AccountingAPI\AccountingAPI.csproj" />
     <ProjectReference Include="..\AuthorizeAPI\AuthorizeAPI.csproj" />
   </ItemGroup>
 

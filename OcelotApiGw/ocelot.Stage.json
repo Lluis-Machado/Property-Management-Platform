@@ -185,102 +185,12 @@
   ],
   "SwaggerEndPoints": [
     {
-      "Key": "auth",
-      "Config": [
-        {
-          "Name": "Authentication API",
-          "Version": "v1",
-          "Url": "http://localhost:10002/swagger/v1/swagger.json"
-        }
-      ]
-    },
-    {
-      "Key": "tax-Management",
-      "Config": [
-        {
-          "Name": "Tax-Management API",
-          "Version": "v1",
-          "Url": "http://localhost:10013/swagger/v1/swagger.json"
-        }
-      ]
-    },
-    {
-      "Key": "documents",
-      "Config": [
-        {
-          "Name": "Documents API",
-          "Version": "v1",
-          "Url": "http://localhost:10006/swagger/v1/swagger.json"
-        }
-      ]
-    },
-    {
-      "Key": "logs",
-      "Config": [
-        {
-          "Name": "Logs API",
-          "Version": "v1",
-          "Url": "http://localhost:10009/swagger/v1/swagger.json"
-        }
-      ]
-    },
-    {
       "Key": "accounting",
       "Config": [
         {
           "Name": "Accounting API",
           "Version": "v1",
           "Url": "http://localhost:10001/swagger/v1/swagger.json"
-        }
-      ]
-    },
-    {
-      "Key": "contacts",
-      "Config": [
-        {
-          "Name": "Contacts API",
-          "Version": "v1",
-          "Url": "http://localhost:10004/swagger/v1/swagger.json"
-        }
-      ]
-    },
-    {
-      "Key": "countries",
-      "Config": [
-        {
-          "Name": "Countries API",
-          "Version": "v1",
-          "Url": "http://localhost:10014/swagger/v1/swagger.json"
-        }
-      ]
-    },
-    {
-      "Key": "properties",
-      "Config": [
-        {
-          "Name": "Properties API",
-          "Version": "v1",
-          "Url": "http://localhost:10012/swagger/v1/swagger.json"
-        }
-      ]
-    },
-    {
-      "Key": "ownership",
-      "Config": [
-        {
-          "Name": "Ownership API",
-          "Version": "v1",
-          "Url": "http://localhost:10011/swagger/v1/swagger.json"
-        }
-      ]
-    },
-    {
-      "Key": "companies",
-      "Config": [
-        {
-          "Name": "Companies API",
-          "Version": "v1",
-          "Url": "http://localhost:10003/swagger/v1/swagger.json"
         }
       ]
     },
@@ -295,12 +205,32 @@
       ]
     },
     {
-      "Key": "docanalyzer",
+      "Key": "auth",
       "Config": [
         {
-          "Name": "DocAnalyzer API",
+          "Name": "Authentication API",
           "Version": "v1",
-          "Url": "http://localhost:10005/swagger/v1/swagger.json"
+          "Url": "http://localhost:10002/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "companies",
+      "Config": [
+        {
+          "Name": "Companies API",
+          "Version": "v1",
+          "Url": "http://localhost:10003/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "contacts",
+      "Config": [
+        {
+          "Name": "Contacts API",
+          "Version": "v1",
+          "Url": "http://localhost:10004/swagger/v1/swagger.json"
         }
       ]
     },
@@ -315,12 +245,82 @@
       ]
     },
     {
+      "Key": "countries",
+      "Config": [
+        {
+          "Name": "Countries API",
+          "Version": "v1",
+          "Url": "http://localhost:10014/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "docanalyzer",
+      "Config": [
+        {
+          "Name": "DocAnalyzer API",
+          "Version": "v1",
+          "Url": "http://localhost:10005/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "documents",
+      "Config": [
+        {
+          "Name": "Documents API",
+          "Version": "v1",
+          "Url": "http://localhost:10006/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
       "Key": "invoiceitemanalyzer",
       "Config": [
         {
           "Name": "InvoiceItemAnalyzer API",
           "Version": "v1",
           "Url": "http://localhost:10007/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "logs",
+      "Config": [
+        {
+          "Name": "Logs API",
+          "Version": "v1",
+          "Url": "http://localhost:10009/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "ownership",
+      "Config": [
+        {
+          "Name": "Ownership API",
+          "Version": "v1",
+          "Url": "http://localhost:10011/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "properties",
+      "Config": [
+        {
+          "Name": "Properties API",
+          "Version": "v1",
+          "Url": "http://localhost:10012/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "tax-Management",
+      "Config": [
+        {
+          "Name": "Tax-Management API",
+          "Version": "v1",
+          "Url": "http://localhost:10013/swagger/v1/swagger.json"
         }
       ]
     }

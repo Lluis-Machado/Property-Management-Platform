@@ -50,4 +50,9 @@ public class DocumentsServiceClient : IDocumentsServiceClient
     //    throw new Exception($"Failed to create property. Status code: {response.StatusCode}");
     //}
 
+    public async Task DeleteArchive(Guid archiveId)
+    {
+        bool res = await _baseClient.DeleteAsync($"documents/archives/{archiveId}");
+        if (!res) throw new Exception($"Unknown error deleting archive {archiveId}");
+    }
 }

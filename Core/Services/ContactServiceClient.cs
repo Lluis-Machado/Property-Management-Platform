@@ -25,6 +25,14 @@ public class ContactServiceClient : IContactServiceClient
         return await _baseClient.UpdateAsync($"contacts/contacts/{contactId}/{archiveId}");
     }
 
+    public async Task<JsonDocument> CreateContactAsync(string requestBody)
+    {
+        JsonDocument? contact = await _baseClient.CreateAsync($"contacts/contacts", requestBody);
+        if (contact is null) throw new Exception("Error creating contact!");
+
+        return contact;
+    }
+
     // Get contact, check if updated object has different name/surname
     // If name is different, update the archive as well
     public async Task<JsonDocument?> UpdateContact(Guid contactId, string requestBody)

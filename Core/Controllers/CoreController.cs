@@ -1,9 +1,13 @@
 ﻿using CoreAPI.Services;
+using CoreAPI.Utils;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace CoreAPI.Controllers
 {
     [ApiController]
+    // TODO: Remove duplicated route indication - Api Gw already adds service name
+    // Must be done throughout all services!
     [Route("core")]
     public class CoreController : ControllerBase
     {
@@ -16,58 +20,7 @@ namespace CoreAPI.Controllers
             _logger = logger;
         }
 
-        #region GET
-
-        [HttpGet]
-        [Route("contacts/{Id}")]
-        public async Task<ActionResult<string>> GetContact(Guid Id)
-        {
-            var contact = await _coreService.GetContact(Id);
-            return Ok(contact);
-        }
-
-        [HttpGet]
-        [Route("companies/{Id}")]
-        public async Task<ActionResult<string>> GetCompany(Guid Id)
-        {
-            var contact = await _coreService.GetCompany(Id);
-            return Ok(contact);
-        }
-
-        [HttpGet]
-        [Route("properties/{Id}")]
-        public async Task<ActionResult<string>> GetProperty(Guid Id)
-        {
-            var property = await _coreService.GetProperty(Id);
-            return Ok(property);
-        }
-
-
-        [HttpGet]
-        [Route("contacts")]
-        public async Task<ActionResult<string>> GetContacts(bool includeDeleted = false)
-        {
-            var contact = await _coreService.GetContacts(includeDeleted);
-            return Ok(contact);
-        }
-
-        [HttpGet]
-        [Route("companies")]
-        public async Task<ActionResult<string>> GetCompanies(bool includeDeleted = false)
-        {
-            var contact = await _coreService.GetCompanies(includeDeleted);
-            return Ok(contact);
-        }
-
-        [HttpGet]
-        [Route("properties")]
-        public async Task<ActionResult<string>> GetProperties(bool includeDeleted = false)
-        {
-            var property = await _coreService.GetProperties(includeDeleted);
-            return Ok(property);
-        }
-
-        #endregion
+        
         #region CREATE
 
         [HttpPost("properties")]
@@ -99,31 +52,27 @@ namespace CoreAPI.Controllers
         #endregion
         #region UPDATE
 
+        // TODO: Return object on update or just NoContent()?
+
         [HttpPatch]
         [Route("properties/{Id}")]
         public async Task<ActionResult<string>> UpdateProperty(Guid Id, [FromBody] string value)
         {
-            // TODO: Update property, if name changed then update Archive display_name as well
-
-            return NoContent();
+            return Ok(await _coreService.UpdateProperty(Id, value));
         }
 
         [HttpPatch]
         [Route("contacts/{Id}")]
         public async Task<ActionResult<string>> UpdateContact(Guid Id, [FromBody] string value)
         {
-            // TODO: Update contact
-
-            return NoContent();
+            return Ok(await _coreService.UpdateContact(Id, value));
         }
 
         [HttpPatch]
         [Route("companies/{Id}")]
         public async Task<ActionResult<string>> UpdateCompany(Guid Id, [FromBody] string value)
         {
-            // TODO: Update company
-
-            return NoContent();
+            return Ok(await _coreService.UpdateCompany(Id, value));
         }
 
         #endregion
@@ -134,7 +83,14 @@ namespace CoreAPI.Controllers
         [Route("properties/{Id}")]
         public async Task<IActionResult> DeleteProperty(Guid Id)
         {
-            await _coreService.DeleteProperty(Id);
+            try
+            {
+                await _coreService.DeleteProperty(Id);
+            }
+            catch (OwnershipExistsException ex)
+            {
+                return UnprocessableEntity(ex.Message);
+            }
             return NoContent();
         }
 

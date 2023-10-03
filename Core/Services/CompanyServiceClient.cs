@@ -21,6 +21,14 @@ public class CompanyServiceClient : ICompanyServiceClient
         return await _baseClient.ReadAsync($"companies/companies/{id}");
     }
 
+    public async Task<JsonDocument> CreateCompanyAsync(string requestBody)
+    {
+        JsonDocument? company = await _baseClient.CreateAsync($"companies/companies", requestBody);
+        if (company is null) throw new Exception("Error creating company!");
+
+        return company;
+    }
+
     public async Task<JsonDocument?> UpdateCompanyArchive(string companyId, string archiveId)
     {
 

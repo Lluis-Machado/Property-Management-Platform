@@ -28,9 +28,12 @@ public class OwnershipServiceClient : IOwnershipServiceClient
         _baseClient = baseClient;
     }
 
-    public async Task<JsonDocument?> GetOwnershipByIdAsync(Guid id)
+    public async Task<JsonDocument?> GetOwnershipByIdAsync(Guid id, string? type)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, $"ownership/{id}");
+        string url = $"ownership/{id}";
+        if (!string.IsNullOrEmpty(type)) url += $"/{type.ToLowerInvariant()}";
+
+        var request = new HttpRequestMessage(HttpMethod.Get, url);
         // Add authorization token to the request headers
         var _auth = _contextAccessor?.HttpContext?.Request.Headers.Authorization.FirstOrDefault();
         if (_auth != null)
@@ -118,6 +121,13 @@ public class OwnershipServiceClient : IOwnershipServiceClient
         }
 
         throw new Exception($"Failed to create ownerships. Status code: {response.StatusCode}. {content}");
+    }
+
+    public async Task DeleteOwnerships(Guid propertyId)
+    {
+        // TODO
+
+        return;
     }
 
 }

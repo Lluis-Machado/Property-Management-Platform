@@ -18,14 +18,5 @@ namespace CoreAPI.Services
         Task DeleteContact(Guid contactId);
 
 
-        Task<JsonDocument?> GetContact(Guid Id);
-        Task<JsonDocument?> GetProperty(Guid Id);
-        Task<JsonDocument?> GetCompany(Guid Id);
-        Task<JsonDocument[]?> GetContacts(bool includeDeleted = false);
-        Task<JsonDocument[]?> GetProperties(bool includeDeleted = false);
-        Task<JsonDocument[]?> GetCompanies(bool includeDeleted = false);
-
-        // TODO: Delete methods
-
     }
 }

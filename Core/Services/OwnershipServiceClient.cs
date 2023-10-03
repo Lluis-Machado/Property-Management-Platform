@@ -10,8 +10,9 @@ public class OwnershipServiceClient : IOwnershipServiceClient
     private readonly HttpClient _httpClient;
     private readonly IHttpContextAccessor _contextAccessor;
     private readonly IBaseClientService _baseClient;
+    private readonly ILogger<OwnershipServiceClient> _logger;
 
-    public OwnershipServiceClient(IHttpContextAccessor contextAccessor, IBaseClientService baseClient)
+    public OwnershipServiceClient(IHttpContextAccessor contextAccessor, ILogger<OwnershipServiceClient> logger, IBaseClientService baseClient)
     {
         _httpClient = new HttpClient();
 #if DEVELOPMENT
@@ -25,6 +26,7 @@ public class OwnershipServiceClient : IOwnershipServiceClient
         _httpClient.DefaultRequestHeaders.Accept.Clear();
         _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         _contextAccessor = contextAccessor;
+        _logger = logger;
         _baseClient = baseClient;
     }
 
@@ -125,8 +127,23 @@ public class OwnershipServiceClient : IOwnershipServiceClient
 
     public async Task DeleteOwnershipsAsync(Guid propertyId)
     {
-        // TODO
 
+        _logger.LogInformation($"Deleting ownership information for property {propertyId}");
+
+        JsonDocument? ownerships = await _baseClient.ReadAsync($"ownership/{propertyId}/property");
+
+        if (ownerships is null || ownerships.RootElement.GetArrayLength() == 0)
+        {
+            _logger.LogInformation($"No ownership information found for property {propertyId}");
+            return;
+        }
+
+        foreach (var ownership in ownerships.RootElement.EnumerateArray())
+        {
+            await _baseClient.DeleteAsync($"ownership/{ownership.GetProperty("id").GetString()}");
+        }
+
+        _logger.LogInformation($"Successfully deleted ownership information for property {propertyId}");
         return;
     }
 

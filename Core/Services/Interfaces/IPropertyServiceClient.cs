@@ -7,9 +7,9 @@ namespace CoreAPI.Services
     public interface IPropertyServiceClient
     {
         Task<JsonDocument?> GetPropertyByIdAsync(Guid id);
-        Task<JsonDocument?> CreateProperty(string requestBody);
-        Task<JsonDocument?> UpdatePropertyArchive(string propertyId, string archiveId);
-        Task<JsonDocument?> UpdateProperty(Guid propertyId, string requestBody);
-        Task DeleteProperty(Guid propertyId);
+        Task<JsonDocument?> CreatePropertyAsync(string requestBody);
+        Task<JsonDocument?> UpdatePropertyArchiveAsync(string propertyId, string archiveId);
+        Task<JsonDocument?> UpdatePropertyAsync(Guid propertyId, string requestBody);
+        Task DeletePropertyAsync(Guid propertyId);
     }
 }

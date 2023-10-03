@@ -38,7 +38,7 @@ namespace CoreAPI.Services
 
         public async Task<JsonDocument> CreateProperty(string requestBody)
         {
-            JsonDocument? property = await _pClient.CreateProperty(requestBody);
+            JsonDocument? property = await _pClient.CreatePropertyAsync(requestBody);
 
             _logger.LogInformation($"CoreService - CreateProperty - Response: {property?.RootElement.ToString()}");
 
@@ -163,7 +163,7 @@ namespace CoreAPI.Services
                 MainOwnership = true
             };
 
-            await _oClient.CreateOwnership(JsonSerializer.Serialize(ownershipDto));
+            await _oClient.CreateOwnershipAsync(JsonSerializer.Serialize(ownershipDto));
         }
 
 
@@ -179,20 +179,20 @@ namespace CoreAPI.Services
         {
             // TODO: Change from REST call to RabbitMQ message
             _logger.LogInformation($"Sending archive creation request");
-            JsonDocument? archive = await _docClient.CreateArchive(requestBody, type, id);
+            JsonDocument? archive = await _docClient.CreateArchiveAsync(requestBody, type, id);
             if (archive is null) throw new Exception($"Error creating archive for {type?.ToLower()}");
 
             // Update object who caused the creation of the archive
             switch (type?.ToLowerInvariant())
             {
                 case "property":
-                    await _pClient.UpdatePropertyArchive(GetPropertyFromJson(requestBody, "id"), archive.RootElement.GetProperty("id").GetString()!);
+                    await _pClient.UpdatePropertyArchiveAsync(GetPropertyFromJson(requestBody, "id"), archive.RootElement.GetProperty("id").GetString()!);
                     break;
                 case "contact":
-                    await _contClient.UpdateContactArchive(GetPropertyFromJson(requestBody, "id"), archive.RootElement.GetProperty("id").GetString()!);
+                    await _contClient.UpdateContactArchiveAsync(GetPropertyFromJson(requestBody, "id"), archive.RootElement.GetProperty("id").GetString()!);
                     break;
                 case "company":
-                    await _compClient.UpdateCompanyArchive(GetPropertyFromJson(requestBody, "id"), archive.RootElement.GetProperty("id").GetString()!);
+                    await _compClient.UpdateCompanyArchiveAsync(GetPropertyFromJson(requestBody, "id"), archive.RootElement.GetProperty("id").GetString()!);
                     break;
                 default:
                     _logger.LogWarning($"Invalid or absent type for archive {archive.RootElement.GetProperty("id").GetString()}!");
@@ -233,17 +233,17 @@ namespace CoreAPI.Services
 
         public async Task<JsonDocument?> UpdateProperty(Guid propertyId, string requestBody)
         {
-            return await _pClient.UpdateProperty(propertyId, requestBody);
+            return await _pClient.UpdatePropertyAsync(propertyId, requestBody);
         }
 
         public async Task<JsonDocument?> UpdateCompany(Guid companyId, string requestBody)
         {
-            return await _compClient.UpdateCompany(companyId, requestBody);
+            return await _compClient.UpdateCompanyAsync(companyId, requestBody);
         }
 
         public async Task<JsonDocument?> UpdateContact(Guid contactId, string requestBody)
         {
-            return await _contClient.UpdateContact(contactId, requestBody);
+            return await _contClient.UpdateContactAsync(contactId, requestBody);
         }
 
 
@@ -283,7 +283,7 @@ namespace CoreAPI.Services
             Guid archiveId = Guid.Parse(archiveIdstr);
             if (archiveId == Guid.Empty) throw new Exception($"Invalid Guid for Archive ID - Property {propertyId} {GetPropertyFromJson(property, "name")}");
 
-            Task[] tasks = { _pClient.DeleteProperty(propertyId), _docClient.DeleteArchive(archiveId) };
+            Task[] tasks = { _pClient.DeletePropertyAsync(propertyId), _docClient.DeleteArchiveAsync(archiveId) };
 
             Task.WaitAll(tasks);
         }
@@ -315,7 +315,7 @@ namespace CoreAPI.Services
             Guid archiveId = Guid.Parse(archiveIdstr);
             if (archiveId == Guid.Empty) throw new Exception($"Invalid Guid for Archive ID - Contact {contactId} {GetPropertyFromJson(contact, "name")}");
 
-            Task[] tasks = { _contClient.DeleteContact(contactId), _docClient.DeleteArchive(archiveId) };
+            Task[] tasks = { _contClient.DeleteContactAsync(contactId), _docClient.DeleteArchiveAsync(archiveId) };
 
             Task.WaitAll(tasks);
         }
@@ -347,7 +347,7 @@ namespace CoreAPI.Services
             Guid archiveId = Guid.Parse(archiveIdstr);
             if (archiveId == Guid.Empty) throw new Exception($"Invalid Guid for Archive ID - Company {companyId} {GetPropertyFromJson(company, "name")}");
 
-            Task[] tasks = { _compClient.DeleteCompany(companyId), _docClient.DeleteArchive(archiveId) };
+            Task[] tasks = { _compClient.DeleteCompanyAsync(companyId), _docClient.DeleteArchiveAsync(archiveId) };
 
             Task.WaitAll(tasks);
 

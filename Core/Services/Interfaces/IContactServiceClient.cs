@@ -9,8 +9,8 @@ namespace CoreAPI.Services
 
         Task<JsonDocument> CreateContactAsync(string requestBody);
         Task<JsonDocument?> GetContactByIdAsync(Guid id);
-        Task<JsonDocument?> UpdateContactArchive(string contactId, string archiveId);
-        Task<JsonDocument?> UpdateContact(Guid contactId, string requestBody);
-        Task DeleteContact(Guid contactId);
+        Task<JsonDocument?> UpdateContactArchiveAsync(string contactId, string archiveId);
+        Task<JsonDocument?> UpdateContactAsync(Guid contactId, string requestBody);
+        Task DeleteContactAsync(Guid contactId);
     }
 }

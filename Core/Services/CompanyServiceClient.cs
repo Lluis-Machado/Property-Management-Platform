@@ -29,7 +29,7 @@ public class CompanyServiceClient : ICompanyServiceClient
         return company;
     }
 
-    public async Task<JsonDocument?> UpdateCompanyArchive(string companyId, string archiveId)
+    public async Task<JsonDocument?> UpdateCompanyArchiveAsync(string companyId, string archiveId)
     {
 
         return await _baseClient.UpdateAsync($"companies/companies/{companyId}/{archiveId}");
@@ -37,7 +37,7 @@ public class CompanyServiceClient : ICompanyServiceClient
 
     // Get company, check if updated object has different name
     // If name is different, update the archive as well
-    public async Task<JsonDocument?> UpdateCompany(Guid companyId, string requestBody)
+    public async Task<JsonDocument?> UpdateCompanyAsync(Guid companyId, string requestBody)
     {
         // Body validation
         if (string.IsNullOrEmpty(requestBody)) throw new BadHttpRequestException("Request body format not valid");
@@ -63,7 +63,7 @@ public class CompanyServiceClient : ICompanyServiceClient
         return companyUpdate;
     }
 
-    public async Task DeleteCompany(Guid companyId)
+    public async Task DeleteCompanyAsync(Guid companyId)
     {
         bool res = await _baseClient.DeleteAsync($"companies/companies/{companyId}");
         if (!res) throw new Exception($"Unknown error deleting company {companyId}");

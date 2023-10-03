@@ -22,19 +22,19 @@ public class PropertyServiceClient : IPropertyServiceClient
     }
 
 
-    public async Task<JsonDocument?> CreateProperty(string requestBody)
+    public async Task<JsonDocument?> CreatePropertyAsync(string requestBody)
     {
         return await _baseClient.CreateAsync($"properties/properties", requestBody);
     }
 
-    public async Task<JsonDocument?> UpdatePropertyArchive(string propertyId, string archiveId)
+    public async Task<JsonDocument?> UpdatePropertyArchiveAsync(string propertyId, string archiveId)
     {
         return await _baseClient.UpdateAsync($"properties/properties/{propertyId}/{archiveId}");
     }
 
     // Get property, check if updated object has different name
     // If name is different, update the archive as well
-    public async Task<JsonDocument?> UpdateProperty(Guid propertyId, string requestBody)
+    public async Task<JsonDocument?> UpdatePropertyAsync(Guid propertyId, string requestBody)
     {
         // Body validation
         if (string.IsNullOrEmpty(requestBody)) throw new BadHttpRequestException("Request body format not valid");
@@ -60,7 +60,7 @@ public class PropertyServiceClient : IPropertyServiceClient
         return propertyUpdate;
     }
 
-    public async Task DeleteProperty(Guid propertyId)
+    public async Task DeletePropertyAsync(Guid propertyId)
     {
         bool res = await _baseClient.DeleteAsync($"properties/properties/{propertyId}");
         if (!res) throw new Exception($"Unknown error deleting property {propertyId}");

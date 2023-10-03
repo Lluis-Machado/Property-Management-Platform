@@ -64,7 +64,7 @@ public class OwnershipServiceClient : IOwnershipServiceClient
         throw new Exception($"Failed to get ownership by ID. Status code: {response.StatusCode}");
     }
 
-    public async Task<JsonDocument?> CreateOwnership(string requestBody)
+    public async Task<JsonDocument?> CreateOwnershipAsync(string requestBody)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, "ownership");
 
@@ -94,7 +94,7 @@ public class OwnershipServiceClient : IOwnershipServiceClient
         throw new Exception($"Failed to create ownership. Status code: {response.StatusCode}. {content}");
     }
 
-    public async Task<JsonDocument?> CreateOwnerships(string requestBody)
+    public async Task<JsonDocument?> CreateOwnershipsAsync(string requestBody)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, "ownership");
 
@@ -123,7 +123,7 @@ public class OwnershipServiceClient : IOwnershipServiceClient
         throw new Exception($"Failed to create ownerships. Status code: {response.StatusCode}. {content}");
     }
 
-    public async Task DeleteOwnerships(Guid propertyId)
+    public async Task DeleteOwnershipsAsync(Guid propertyId)
     {
         // TODO
 

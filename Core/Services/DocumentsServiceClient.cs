@@ -20,7 +20,7 @@ public class DocumentsServiceClient : IDocumentsServiceClient
     }
 
 
-    public async Task<JsonDocument?> CreateArchive(string requestBody, string? type, string? id)
+    public async Task<JsonDocument?> CreateArchiveAsync(string requestBody, string? type, string? id)
     {
         return await _baseClient.CreateAsync($"documents/archives/{type}/{id}", requestBody);
     }
@@ -50,7 +50,7 @@ public class DocumentsServiceClient : IDocumentsServiceClient
     //    throw new Exception($"Failed to create property. Status code: {response.StatusCode}");
     //}
 
-    public async Task DeleteArchive(Guid archiveId)
+    public async Task DeleteArchiveAsync(Guid archiveId)
     {
         bool res = await _baseClient.DeleteAsync($"documents/archives/{archiveId}");
         if (!res) throw new Exception($"Unknown error deleting archive {archiveId}");

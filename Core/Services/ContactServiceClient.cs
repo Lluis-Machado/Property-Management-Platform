@@ -20,7 +20,7 @@ public class ContactServiceClient : IContactServiceClient
         return await _baseClient.ReadAsync($"contacts/contacts/{id}");
     }
 
-    public async Task<JsonDocument?> UpdateContactArchive(string contactId, string archiveId)
+    public async Task<JsonDocument?> UpdateContactArchiveAsync(string contactId, string archiveId)
     {
         return await _baseClient.UpdateAsync($"contacts/contacts/{contactId}/{archiveId}");
     }
@@ -35,7 +35,7 @@ public class ContactServiceClient : IContactServiceClient
 
     // Get contact, check if updated object has different name/surname
     // If name is different, update the archive as well
-    public async Task<JsonDocument?> UpdateContact(Guid contactId, string requestBody)
+    public async Task<JsonDocument?> UpdateContactAsync(Guid contactId, string requestBody)
     {
         // Body validation
         if (string.IsNullOrEmpty(requestBody)) throw new BadHttpRequestException("Request body format not valid");
@@ -65,7 +65,7 @@ public class ContactServiceClient : IContactServiceClient
         return contactUpdate;
     }
 
-    public async Task DeleteContact(Guid contactId)
+    public async Task DeleteContactAsync(Guid contactId)
     {
         bool res = await _baseClient.DeleteAsync($"contacts/contacts/{contactId}");
         if (!res) throw new Exception($"Unknown error deleting contact {contactId}");

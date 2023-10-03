@@ -4,11 +4,11 @@ namespace CoreAPI.Services
 {
     public interface ICompanyServiceClient
     {
-        Task<JsonDocument> CreateCompany(string requestBody);
+        Task<JsonDocument> CreateCompanyASync(string requestBody);
         Task<JsonDocument?> GetCompanyByIdAsync(Guid id);
-        Task<JsonDocument?> UpdateCompanyArchive(string companyId, string archiveId);
-        Task<JsonDocument?> UpdateCompany(Guid companyId, string requestBody);
-        Task DeleteCompany(Guid companyId);
+        Task<JsonDocument?> UpdateCompanyArchiveAsync(string companyId, string archiveId);
+        Task<JsonDocument?> UpdateCompanyAsync(Guid companyId, string requestBody);
+        Task DeleteCompanyAsync(Guid companyId);
     }
 }
 

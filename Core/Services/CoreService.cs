@@ -101,7 +101,7 @@ namespace CoreAPI.Services
 
         public async Task<JsonDocument> CreateCompany(string requestBody)
         {
-            JsonDocument? company = await _compClient.CreateCompany(requestBody);
+            JsonDocument? company = await _compClient.CreateCompanyAsync(requestBody);
 
             _logger.LogInformation($"CoreService - CreateCompany - Response: {company?.RootElement.ToString()}");
 

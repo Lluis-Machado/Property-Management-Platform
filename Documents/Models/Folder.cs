@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace DocumentsAPI.Models
 {
@@ -9,6 +10,7 @@ namespace DocumentsAPI.Models
         private static readonly string[] COMPANY_DEFAULT_FOLDERS = { "A/P Invoices", "A/R Invoices", "Contracts", "Others" };
         private static readonly string[] PROPERTY_DEFAULT_FOLDERS = { "Expenses", "Incomes", "Proceedings", "Others" };
 
+        [JsonConverter(typeof(StringEnumConverter))]
         public enum ArchiveFolderType
         {
             CONTACT,

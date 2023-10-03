@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Azure;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Serilog;
 using Serilog.Enrichers.CallerInfo;
 using System.Security.Claims;
@@ -117,7 +119,8 @@ builder.Services.AddMassTransit(config =>
 });
 
 // Other services
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddNewtonsoftJson(options => options.SerializerSettings.Converters.Add(new StringEnumConverter()));
+
 builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();

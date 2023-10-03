@@ -1,10 +1,12 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using System.Runtime.Serialization;
 
 namespace DocumentsAPI.Models
 {
     public class Archive : BaseModel
     {
-
+        [JsonConverter(typeof(StringEnumConverter))]
         public enum ARCHIVE_TYPE
         {
             CONTACT,

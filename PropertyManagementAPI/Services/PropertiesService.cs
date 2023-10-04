@@ -260,6 +260,9 @@ namespace PropertiesAPI.Services
 
         private async Task<string> CreateCatastreURL(string refCatastre)
         {
+            try
+            {
+
             Uri uri = new Uri($"http://ovc.catastro.meh.es/OVCServWeb/OVCWcfCallejero/COVCCallejero.svc/rest/Consulta_DNPRC?RefCat={refCatastre}");
             using (var client = new HttpClient())
             {
@@ -282,6 +285,11 @@ namespace PropertiesAPI.Services
                 var mun = munNode.InnerText;
 
                 return $"https://www1.sedecatastro.gob.es/CYCBienInmueble/OVCConCiud.aspx?del={del}&mun={mun}&RefC={refCatastre}";
+            }
+            } catch (Exception ex)
+            {
+                _logger.LogError($"Error while creating Catastre URL with ref. {refCatastre} - Website might be under maintenance.\nException:{ex.Message}\n{ex.StackTrace}");
+                return "";
             }
 
 

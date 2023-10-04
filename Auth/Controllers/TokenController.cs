@@ -1,3 +1,4 @@
+using AuthenticationAPI.Models;
 using AuthenticationAPI.Services.Auth0.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
@@ -40,12 +41,11 @@ namespace Authentication.Controllers
         {
             string[] allowedRoles = { "admin", "backoffice" };
 
-            var tokenInfo = (System.Text.Json.JsonElement)await _publicTokenApi.GetTokenAsync(username, password);
+            TokenResponse tokenInfo = (TokenResponse)await _publicTokenApi.GetTokenAsync(username, password);
 
-            string? token = tokenInfo.GetProperty("access_token").ToString().Replace("bearer", "", StringComparison.OrdinalIgnoreCase)?.Trim();
-            if (string.IsNullOrEmpty(token)) return BadRequest("Token is empty, check credentials");
+            if (string.IsNullOrEmpty(tokenInfo.access_token)) return BadRequest("Token is empty, check credentials");
             var handler = new JwtSecurityTokenHandler();
-            var jwtSecurityToken = handler.ReadJwtToken(token);
+            var jwtSecurityToken = handler.ReadJwtToken(tokenInfo.access_token);
 
             // Extrae los permisos del usuario desde el token
             var permissions = jwtSecurityToken.Claims.Where(claim => claim.Type == "permissions").Select(e => e.Value.ToLowerInvariant()).ToArray();

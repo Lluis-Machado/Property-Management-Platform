@@ -64,6 +64,8 @@ builder.Services.AddSingleton(provider =>
     return auth0Settings;
 });
 
+builder.Services.AddHttpContextAccessor();
+
 // Add the CORS policy
 builder.Services.AddCors(options =>
 {

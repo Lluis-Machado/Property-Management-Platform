@@ -178,24 +178,25 @@ namespace CoreAPI.Services
         public async Task<JsonDocument> CreateArchive(string requestBody, string? type, string? id)
         {
             // TODO: Change from REST call to RabbitMQ message
-            _logger.LogInformation($"Sending archive creation request");
+            _logger.LogInformation($"Sending archive creation request - Type: {type ?? "null"} - Id: {id ?? "null"}");
             JsonDocument? archive = await _docClient.CreateArchiveAsync(requestBody, type, id);
+            _logger.LogInformation($"Testing get capability: {GetPropertyFromJson(archive, "id")}");
             if (archive is null) throw new Exception($"Error creating archive for {type?.ToLower()}");
 
             // Update object who caused the creation of the archive
             switch (type?.ToLowerInvariant())
             {
                 case "property":
-                    await _pClient.UpdatePropertyArchiveAsync(GetPropertyFromJson(requestBody, "id"), archive.RootElement.GetProperty("id").GetString()!);
+                    await _pClient.UpdatePropertyArchiveAsync(id!, GetPropertyFromJson(archive, "id")!);
                     break;
                 case "contact":
-                    await _contClient.UpdateContactArchiveAsync(GetPropertyFromJson(requestBody, "id"), archive.RootElement.GetProperty("id").GetString()!);
+                    await _contClient.UpdateContactArchiveAsync(id!, GetPropertyFromJson(archive, "id")!);
                     break;
                 case "company":
-                    await _compClient.UpdateCompanyArchiveAsync(GetPropertyFromJson(requestBody, "id"), archive.RootElement.GetProperty("id").GetString()!);
+                    await _compClient.UpdateCompanyArchiveAsync(id!, GetPropertyFromJson(archive, "id")!);
                     break;
                 default:
-                    _logger.LogWarning($"Invalid or absent type for archive {archive.RootElement.GetProperty("id").GetString()}!");
+                    _logger.LogWarning($"Invalid or absent type for archive {GetPropertyFromJson(archive, "id")}!");
                     break;
             }
 
@@ -358,12 +359,20 @@ namespace CoreAPI.Services
 
 
 
-        private string GetPropertyFromJson(string json, string property)
+        private string? GetPropertyFromJson(string json, string property)
         {
             JsonDocument jsonDocument = JsonDocument.Parse(json);
             JsonElement root = jsonDocument.RootElement;
 
-            return root.GetProperty(property).GetString() ?? "";
+            try
+            {
+                return root.GetProperty(property).GetString();
+
+            } catch (Exception)
+            {
+                _logger.LogError($"Could not retrieve prop {property} from json.\n{json}");
+                return null;
+            }
         }
 
         public static string? GetPropertyFromJson(JsonDocument json, string property)
@@ -372,8 +381,7 @@ namespace CoreAPI.Services
             {
                 var prop = json.RootElement.GetProperty(property);
 
-                if (prop.ValueKind == JsonValueKind.Array) return prop.ToString();
-                else return prop.GetString();
+                return prop.ToString();
             }
             catch (KeyNotFoundException)
             {

@@ -71,6 +71,15 @@ namespace DocumentsAPI.Services
             return await _documentsRepository.GetDocumentUrlByIdAsync(archiveId, documentId);
         }
 
+        //public async Task<FileContentResult> DownloadAsync(Guid archiveId, Guid documentId)
+        //{
+        //    var file = await _documentsRepository.DownloadDocumentRawAsync(archiveId, documentId);
+
+        //    _logger.LogInformation($"ContentType: {file.Value.Details.ContentType}");
+
+        //    return new FileContentResult(file.Value.Content.ToArray(), file.Value.Details.ContentType ?? "application/pdf");
+        //}
+
         public async Task<FileContentResult> DownloadAsync(Guid archiveId, Guid documentId)
         {
             byte[] byteArray = await _documentsRepository.DownloadDocumentAsync(archiveId, documentId);
@@ -85,7 +94,7 @@ namespace DocumentsAPI.Services
 
             var results = Inspector.Inspect(byteArray).ByMimeType();
 
-            return new FileContentResult(byteArray, results.FirstOrDefault()?.MimeType ?? "application/pdf");
+            return new FileContentResult(byteArray, results.MaxBy(e => e.MimeType.Length)?.MimeType?.ToString() ?? "application/octet-stream");
         }
 
         public async Task<IActionResult> DeleteAsync(Guid archiveId, Guid documentId)

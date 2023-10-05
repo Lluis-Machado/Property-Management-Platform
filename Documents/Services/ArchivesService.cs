@@ -51,7 +51,7 @@ namespace DocumentsAPI.Services
 
         public async Task<IEnumerable<Archive>> GetArchivesAsync(bool includeDeleted = false)
         {
-            return await _archiveRepository.GetArchivesAsync(100, includeDeleted);
+            return await _archiveRepository.GetArchivesAsync(null, includeDeleted);
         }
 
         public async Task UpdateArchiveAsync(Guid archiveId, string newName)

@@ -2,6 +2,8 @@
 using DocumentAnalyzerAPI.DTOs;
 using DocumentAnalyzerAPI.Mappers;
 using System.Text.RegularExpressions;
+using AccountingAPI.DTOs;
+
 
 namespace DocumentAnalyzerAPI.Services
 {

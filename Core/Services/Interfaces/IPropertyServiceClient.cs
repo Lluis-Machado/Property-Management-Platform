@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace CoreAPI.Services
 {
     public interface IPropertyServiceClient
     {
-        Task<string?> GetPropertyByIdAsync(Guid id);
-        Task<string?> CreateProperty(string requestBody);
-        Task<string?> UpdatePropertyArchive(string propertyId, string archiveId);
+        Task<JsonDocument?> GetPropertyByIdAsync(Guid id);
+        Task<JsonDocument?> CreatePropertyAsync(string requestBody);
+        Task<JsonDocument?> UpdatePropertyArchiveAsync(string propertyId, string archiveId);
+        Task<JsonDocument?> UpdatePropertyAsync(Guid propertyId, string requestBody);
+        Task DeletePropertyAsync(Guid propertyId);
     }
 }

@@ -9,8 +9,10 @@ public class OwnershipServiceClient : IOwnershipServiceClient
 {
     private readonly HttpClient _httpClient;
     private readonly IHttpContextAccessor _contextAccessor;
+    private readonly IBaseClientService _baseClient;
+    private readonly ILogger<OwnershipServiceClient> _logger;
 
-    public OwnershipServiceClient(IHttpContextAccessor contextAccessor)
+    public OwnershipServiceClient(IHttpContextAccessor contextAccessor, ILogger<OwnershipServiceClient> logger, IBaseClientService baseClient)
     {
         _httpClient = new HttpClient();
 #if DEVELOPMENT
@@ -24,11 +26,16 @@ public class OwnershipServiceClient : IOwnershipServiceClient
         _httpClient.DefaultRequestHeaders.Accept.Clear();
         _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         _contextAccessor = contextAccessor;
+        _logger = logger;
+        _baseClient = baseClient;
     }
 
-    public async Task<JsonDocument?> GetOwnershipByIdAsync(Guid id)
+    public async Task<JsonDocument?> GetOwnershipByIdAsync(Guid id, string? type)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, $"ownership/{id}");
+        string url = $"ownership/{id}";
+        if (!string.IsNullOrEmpty(type)) url += $"/{type.ToLowerInvariant()}";
+
+        var request = new HttpRequestMessage(HttpMethod.Get, url);
         // Add authorization token to the request headers
         var _auth = _contextAccessor?.HttpContext?.Request.Headers.Authorization.FirstOrDefault();
         if (_auth != null)
@@ -59,7 +66,7 @@ public class OwnershipServiceClient : IOwnershipServiceClient
         throw new Exception($"Failed to get ownership by ID. Status code: {response.StatusCode}");
     }
 
-    public async Task<JsonDocument?> CreateOwnership(string requestBody)
+    public async Task<JsonDocument?> CreateOwnershipAsync(string requestBody)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, "ownership");
 
@@ -89,7 +96,7 @@ public class OwnershipServiceClient : IOwnershipServiceClient
         throw new Exception($"Failed to create ownership. Status code: {response.StatusCode}. {content}");
     }
 
-    public async Task<JsonDocument?> CreateOwnerships(string requestBody)
+    public async Task<JsonDocument?> CreateOwnershipsAsync(string requestBody)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, "ownership");
 
@@ -116,6 +123,28 @@ public class OwnershipServiceClient : IOwnershipServiceClient
         }
 
         throw new Exception($"Failed to create ownerships. Status code: {response.StatusCode}. {content}");
+    }
+
+    public async Task DeleteOwnershipsAsync(Guid propertyId)
+    {
+
+        _logger.LogInformation($"Deleting ownership information for property {propertyId}");
+
+        JsonDocument? ownerships = await _baseClient.ReadAsync($"ownership/{propertyId}/property");
+
+        if (ownerships is null || ownerships.RootElement.GetArrayLength() == 0)
+        {
+            _logger.LogInformation($"No ownership information found for property {propertyId}");
+            return;
+        }
+
+        foreach (var ownership in ownerships.RootElement.EnumerateArray())
+        {
+            await _baseClient.DeleteAsync($"ownership/{ownership.GetProperty("id").GetString()}");
+        }
+
+        _logger.LogInformation($"Successfully deleted ownership information for property {propertyId}");
+        return;
     }
 
 }

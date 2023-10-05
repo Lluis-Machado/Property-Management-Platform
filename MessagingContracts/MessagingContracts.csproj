@@ -7,4 +7,8 @@
     <Configurations>Development;Production;Stage</Configurations>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+  </ItemGroup>
+
 </Project>

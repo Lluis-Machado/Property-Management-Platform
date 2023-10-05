@@ -1,4 +1,5 @@
-﻿using MassTransit;
+﻿using CoreAPI.Utils;
+using MassTransit;
 using MessagingContracts;
 using System.Text.Json;
 
@@ -35,26 +36,28 @@ namespace CoreAPI.Services
             _contextAccessor = contextAccessor;
         }
 
-        public async Task<string> CreateProperty(string requestBody)
+        public async Task<JsonDocument> CreateProperty(string requestBody)
         {
-            string? property = await _pClient.CreateProperty(requestBody);
+            JsonDocument? property = await _pClient.CreatePropertyAsync(requestBody);
 
-            _logger.LogInformation($"CoreService - CreateProperty - Response: {property}");
+            _logger.LogInformation($"CoreService - CreateProperty - Response: {property?.RootElement.ToString()}");
 
-            if (string.IsNullOrEmpty(property)) throw new Exception("Property service response is empty");
+            if (property is null || string.IsNullOrEmpty(property.RootElement.GetProperty("id").GetString())) throw new Exception("Property service response is empty");
 
-            var propertyId = GetPropertyFromJson(property,"id");
-            var propertyName = GetPropertyFromJson(property, "name");
 
-            var ownerType = GetPropertyFromJson(requestBody, "mainOwnerType");
-            var ownerId = GetPropertyFromJson(requestBody, "mainOwnerId");
+            string? propertyId, propertyName, ownerType, ownerId;
+
+            propertyId = GetPropertyFromJson(property, "id");
+            propertyName = GetPropertyFromJson(property, "name");
+            ownerType = GetPropertyFromJson(property, "mainOwnerType");
+            ownerId = GetPropertyFromJson(property, "mainOwnerId");
+
 
             var archivePayload = new
             {
-                name = propertyName,
-                id = propertyId,
-                type = "property"
+                Name = propertyName
             };
+
             if (!String.IsNullOrEmpty(ownerType))
                 await CreateMainOwnership(ownerId, ownerType, propertyId);
 
@@ -65,31 +68,93 @@ namespace CoreAPI.Services
             return property;
         }
 
-        public void RestoreVersion(string requestBody, string type)
+        public async Task<JsonDocument> CreateContact(string requestBody)
         {
-            switch (type)
+            JsonDocument? contact = await _contClient.CreateContactAsync(requestBody);
+
+            _logger.LogInformation($"CoreService - CreateContact - Response: {contact?.RootElement.ToString()}");
+
+            if (contact is null || string.IsNullOrEmpty(contact.RootElement.GetProperty("id").GetString())) throw new Exception("Contact service response is empty");
+
+
+            string? contactId, contactName, ownerType, ownerId;
+
+            contactId = GetPropertyFromJson(contact, "id");
+            contactName = GetPropertyFromJson(contact, "lastName") + ", " + GetPropertyFromJson(contact, "firstName");
+            ownerType = GetPropertyFromJson(contact, "mainOwnerType");
+            ownerId = GetPropertyFromJson(contact, "mainOwnerId");
+
+
+            var archivePayload = new
             {
-                case "Property":
-                    UpdateProperty(requestBody);
-                    break;
-                case "Contact":
-                    UpdateContact(requestBody);
-                    break;
-                case "Company":
-                    UpdateCompany(requestBody);
-                    break;
-                default:
-                    break;
-            }
+                Name = contactName
+            };
+            if (!String.IsNullOrEmpty(ownerType))
+                await CreateMainOwnership(ownerId, ownerType, contactId);
+
+            //await SendMessageToArchiveQueue(new MessageContract() { Payload = JsonSerializer.Serialize(archivePayload) });
+
+            await CreateArchive(JsonSerializer.Serialize(archivePayload), "Contact", contactId);
+
+            return contact;
         }
+
+        public async Task<JsonDocument> CreateCompany(string requestBody)
+        {
+            JsonDocument? company = await _compClient.CreateCompanyAsync(requestBody);
+
+            _logger.LogInformation($"CoreService - CreateCompany - Response: {company?.RootElement.ToString()}");
+
+            if (company is null || string.IsNullOrEmpty(company.RootElement.GetProperty("id").GetString())) throw new Exception("Company service response is empty");
+
+
+            string? companyId, companyName, ownerType, ownerId;
+
+            companyId = GetPropertyFromJson(company, "id");
+            companyName = GetPropertyFromJson(company, "name");
+            ownerType = GetPropertyFromJson(company, "mainOwnerType");
+            ownerId = GetPropertyFromJson(company, "mainOwnerId");
+
+
+            var archivePayload = new
+            {
+                Name = companyName
+            };
+            if (!String.IsNullOrEmpty(ownerType))
+                await CreateMainOwnership(ownerId, ownerType, companyId);
+
+            //await SendMessageToArchiveQueue(new MessageContract() { Payload = JsonSerializer.Serialize(archivePayload) });
+
+            await CreateArchive(JsonSerializer.Serialize(archivePayload), "Company", companyId);
+
+            return company;
+        }
+
+        // TODO: Update so that we can also pass the object Guid
+        //public void RestoreVersion(string requestBody, string type)
+        //{
+        //    switch (type)
+        //    {
+        //        case "Property":
+        //            UpdateProperty(requestBody);
+        //            break;
+        //        case "Contact":
+        //            UpdateContact(requestBody);
+        //            break;
+        //        case "Company":
+        //            UpdateCompany(requestBody);
+        //            break;
+        //        default:
+        //            break;
+        //    }
+        //}
 
 
         private async Task CreateMainOwnership(string ownerId, string ownerType, string propertyId)
         {
-
             _logger.LogDebug($"CoreService - CreateMainOwnership | OwnerId: {ownerId} | OwnerType: {ownerType} | PropertyId: {propertyId}");
 
-            var ownershipDto = new 
+            var ownershipDto = new
             {
                 OwnerId = ownerId,
                 OwnerType = ownerType,
@@ -98,57 +163,58 @@ namespace CoreAPI.Services
                 MainOwnership = true
             };
 
-           await _oClient.CreateOwnership(JsonSerializer.Serialize(ownershipDto));
+            await _oClient.CreateOwnershipAsync(JsonSerializer.Serialize(ownershipDto));
         }
 
 
 
-        [Obsolete("Deprecated, Folder creation is handled automatically in the Documents microservice")]
-        public async Task<string> CreateFolder(string requestBody, string archiveId)
-        {
-            string? document = await _docClient.CreateFolder(requestBody, archiveId);
-            return document;
-        }
+        //[Obsolete("Deprecated, Folder creation is handled automatically in the Documents microservice")]
+        //public async Task<string> CreateFolder(string requestBody, string archiveId)
+        //{
+        //    string? document = await _docClient.CreateFolder(requestBody, archiveId);
+        //    return document;
+        //}
 
         public async Task<JsonDocument> CreateArchive(string requestBody, string? type, string? id)
         {
             // TODO: Change from REST call to RabbitMQ message
-            _logger.LogInformation($"Sending archive creation request");
-            JsonDocument? archive = await _docClient.CreateArchive(requestBody, type, id);
+            _logger.LogInformation($"Sending archive creation request - Type: {type ?? "null"} - Id: {id ?? "null"}");
+            JsonDocument? archive = await _docClient.CreateArchiveAsync(requestBody, type, id);
+            _logger.LogInformation($"Testing get capability: {GetPropertyFromJson(archive, "id")}");
             if (archive is null) throw new Exception($"Error creating archive for {type?.ToLower()}");
 
             // Update object who caused the creation of the archive
             switch (type?.ToLowerInvariant())
             {
                 case "property":
-                    await _pClient.UpdatePropertyArchive(GetPropertyFromJson(requestBody, "id"), archive.RootElement.GetProperty("id").GetString()!);
+                    await _pClient.UpdatePropertyArchiveAsync(id!, GetPropertyFromJson(archive, "id")!);
                     break;
                 case "contact":
-                    await _contClient.UpdateContactArchive(GetPropertyFromJson(requestBody, "id"), archive.RootElement.GetProperty("id").GetString()!);
+                    await _contClient.UpdateContactArchiveAsync(id!, GetPropertyFromJson(archive, "id")!);
                     break;
                 case "company":
-                    await _compClient.UpdateCompanyArchive(GetPropertyFromJson(requestBody, "id"), archive.RootElement.GetProperty("id").GetString()!);
+                    await _compClient.UpdateCompanyArchiveAsync(id!, GetPropertyFromJson(archive, "id")!);
                     break;
                 default:
-                    _logger.LogWarning($"Invalid or absent type for archive {archive.RootElement.GetProperty("id").GetString()}!");
+                    _logger.LogWarning($"Invalid or absent type for archive {GetPropertyFromJson(archive, "id")}!");
                     break;
             }
 
             return archive;
         }
 
-        public async Task<object> GetContact(Guid Id)
+        public async Task<JsonDocument?> GetContact(Guid Id)
         {
             var company = await _compClient.GetCompanyByIdAsync(Id);
-            await SendMessageToAuditQueue(new MessageContract() { Payload = company });
+            await SendMessageToAuditQueue(new MessageContract() { Payload = company?.RootElement.ToString() });
 
             return company;
         }
 
-        public async Task<object> GetProperty(Guid Id)
+        public async Task<JsonDocument?> GetProperty(Guid Id)
         {
             var property = await _pClient.GetPropertyByIdAsync(Id);
-            await SendMessageToArchiveQueue(new MessageContract() { Payload = property });
+            await SendMessageToArchiveQueue(new MessageContract() { Payload = property?.RootElement.ToString() });
             return property;
         }
 
@@ -165,61 +231,162 @@ namespace CoreAPI.Services
             await sendEndpoint.Send(message);
         }
 
-        public async Task<string> CreateCompany(string requestBody)
+
+        public async Task<JsonDocument?> UpdateProperty(Guid propertyId, string requestBody)
         {
-            throw new NotImplementedException();
+            return await _pClient.UpdatePropertyAsync(propertyId, requestBody);
         }
 
-        public async Task<string> CreateContact(string requestBody)
+        public async Task<JsonDocument?> UpdateCompany(Guid companyId, string requestBody)
         {
-            throw new NotImplementedException();
+            return await _compClient.UpdateCompanyAsync(companyId, requestBody);
         }
 
-
-        public async Task<object> GetCompany(Guid Id)
+        public async Task<JsonDocument?> UpdateContact(Guid contactId, string requestBody)
         {
-            throw new NotImplementedException();
-        }
-
-        public async Task<object> GetContacts(bool includeDeleted)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<object> GetProperties(bool includeDeleted)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<object> GetCompanies(bool includeDeleted)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> UpdateProperty(string requestBody)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> UpdateCompany(string requestBody)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> UpdateContact(string requestBody)
-        {
-            throw new NotImplementedException();
+            return await _contClient.UpdateContactAsync(contactId, requestBody);
         }
 
 
+        public async Task DeleteProperty(Guid propertyId)
+        {
+            _logger.LogInformation($"CoreService - Beginning delete of property {propertyId}");
+
+            // Check if there are any ownerships left
+
+            JsonDocument? ownerships = await _oClient.GetOwnershipByIdAsync(propertyId, "property");
+
+            _logger.LogInformation($"Got ownership information: {JsonSerializer.Serialize(ownerships)} - IsNull? {ownerships is null} - ArrLength? {ownerships?.RootElement.GetArrayLength()} || ArrLength is 0? {ownerships?.RootElement.GetArrayLength() == 0}");
+
+            if (ownerships?.RootElement.GetArrayLength() != 0)
+            {
+                _logger.LogError($"CoreService - Found Ownerships for property {propertyId}! | {JsonSerializer.Serialize(ownerships)}");
+                throw new OwnershipExistsException(ownerships!);
+            }
+
+            // Check if there are child properties
+
+            JsonDocument? property = await _pClient.GetPropertyByIdAsync(propertyId);
+
+            if (property is null) throw new Exception($"Property with ID {propertyId} not found");
+
+            string? childProps = GetPropertyFromJson(property, "childProperties");
+
+            if (!string.IsNullOrEmpty(childProps))
+            {
+                _logger.LogError($"CoreService - Found child properties for property {propertyId}! | {childProps}");
+                throw new ChildPropertiesExistException(property.RootElement.GetProperty("childProperties"));
+            }
+
+            string? archiveIdstr = GetPropertyFromJson(property, "archiveId");
+            if (string.IsNullOrEmpty(archiveIdstr)) throw new Exception($"Archive ID not found in property {propertyId} {GetPropertyFromJson(property, "name")}");
+
+            Guid archiveId = Guid.Parse(archiveIdstr);
+            if (archiveId == Guid.Empty) throw new Exception($"Invalid Guid for Archive ID - Property {propertyId} {GetPropertyFromJson(property, "name")}");
+
+            Task[] tasks = { _pClient.DeletePropertyAsync(propertyId), _docClient.DeleteArchiveAsync(archiveId) };
+
+            Task.WaitAll(tasks);
+        }
+
+        public async Task DeleteContact(Guid contactId)
+        {
+
+            _logger.LogInformation($"CoreService - Beginning delete of contact {contactId}");
+
+            // Check if there are any ownerships left
+
+            JsonDocument? ownerships = await _oClient.GetOwnershipByIdAsync(contactId, "contact");
+
+            _logger.LogInformation($"Got ownership information: {JsonSerializer.Serialize(ownerships)} - IsNull? {ownerships is null} - ArrLength? {ownerships?.RootElement.GetArrayLength()} || ArrLength is 0? {ownerships?.RootElement.GetArrayLength() == 0}");
+
+            if (ownerships?.RootElement.GetArrayLength() != 0)
+            {
+                _logger.LogError($"CoreService - Found Ownerships for contact {contactId}! | {JsonSerializer.Serialize(ownerships)}");
+                throw new OwnershipExistsException(ownerships!);
+            }
+
+            JsonDocument? contact = await _contClient.GetContactByIdAsync(contactId);
+
+            if (contact is null) throw new Exception($"Contact with ID {contactId} not found");
+
+            string? archiveIdstr = GetPropertyFromJson(contact, "archiveId");
+            if (string.IsNullOrEmpty(archiveIdstr)) throw new Exception($"Archive ID not found in contact {contactId} {GetPropertyFromJson(contact, "name")}");
+
+            Guid archiveId = Guid.Parse(archiveIdstr);
+            if (archiveId == Guid.Empty) throw new Exception($"Invalid Guid for Archive ID - Contact {contactId} {GetPropertyFromJson(contact, "name")}");
+
+            Task[] tasks = { _contClient.DeleteContactAsync(contactId), _docClient.DeleteArchiveAsync(archiveId) };
+
+            Task.WaitAll(tasks);
+        }
+
+        public async Task DeleteCompany(Guid companyId)
+        {
+
+            _logger.LogInformation($"CoreService - Beginning delete of company {companyId}");
+
+            // Check if there are any ownerships left
+
+            JsonDocument? ownerships = await _oClient.GetOwnershipByIdAsync(companyId, "company");
+
+            _logger.LogInformation($"Got ownership information: {JsonSerializer.Serialize(ownerships)} - IsNull? {ownerships is null} - ArrLength? {ownerships?.RootElement.GetArrayLength()} || ArrLength is 0? {ownerships?.RootElement.GetArrayLength() == 0}");
+
+            if (ownerships?.RootElement.GetArrayLength() != 0)
+            {
+                _logger.LogError($"CoreService - Found Ownerships for company {companyId}! | {JsonSerializer.Serialize(ownerships)}");
+                throw new OwnershipExistsException(ownerships!);
+            }
+
+            JsonDocument? company = await _compClient.GetCompanyByIdAsync(companyId);
+
+            if (company is null) throw new Exception($"Company with ID {companyId} not found");
+
+            string? archiveIdstr = GetPropertyFromJson(company, "archiveId");
+            if (string.IsNullOrEmpty(archiveIdstr)) throw new Exception($"Archive ID not found in company {companyId} {GetPropertyFromJson(company, "name")}");
+
+            Guid archiveId = Guid.Parse(archiveIdstr);
+            if (archiveId == Guid.Empty) throw new Exception($"Invalid Guid for Archive ID - Company {companyId} {GetPropertyFromJson(company, "name")}");
+
+            Task[] tasks = { _compClient.DeleteCompanyAsync(companyId), _docClient.DeleteArchiveAsync(archiveId) };
+
+            Task.WaitAll(tasks);
 
 
-        private string GetPropertyFromJson(string json, string property)
+        }
+
+
+
+
+
+        private string? GetPropertyFromJson(string json, string property)
         {
             JsonDocument jsonDocument = JsonDocument.Parse(json);
             JsonElement root = jsonDocument.RootElement;
 
-            return root.GetProperty(property).GetString();
+            try
+            {
+                return root.GetProperty(property).GetString();
+
+            } catch (Exception)
+            {
+                _logger.LogError($"Could not retrieve prop {property} from json.\n{json}");
+                return null;
+            }
+        }
+
+        public static string? GetPropertyFromJson(JsonDocument json, string property)
+        {
+            try
+            {
+                var prop = json.RootElement.GetProperty(property);
+
+                return prop.ToString();
+            }
+            catch (KeyNotFoundException)
+            {
+                return null;
+            }
         }
 
 

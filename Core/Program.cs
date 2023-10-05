@@ -31,6 +31,8 @@ builder.Services.AddTransient<IDocumentsServiceClient, DocumentsServiceClient>()
 builder.Services.AddTransient<IContactServiceClient, ContactServiceClient>();
 builder.Services.AddTransient<IOwnershipServiceClient, OwnershipServiceClient>();
 
+builder.Services.AddTransient<IBaseClientService, BaseClientService>();
+
 builder.Services.AddSingleton<GlobalErrorHandlingMiddleware>();
 
 

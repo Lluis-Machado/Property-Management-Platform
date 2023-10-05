@@ -1,5 +1,6 @@
 ﻿using Azure.AI.FormRecognizer.DocumentAnalysis;
 using DocumentAnalyzerAPI.DTOs;
+using AccountingAPI.DTOs;
 using DocumentAnalyzerAPI.Utilities;
 using System.Text.RegularExpressions;
 
@@ -28,11 +29,12 @@ namespace DocumentAnalyzerAPI.Mappers
             }
             Decimal.TryParse(taxStringClean, out tax);
             var totalPrice = unitPrice * (decimal)quantity;
+            // TODO: Change quantity to decimal type
             APInvoiceLineDTO aPInvoiceLineDTO = new()
             {
-                UnitPrice = unitPrice,
-                Quantity = quantity,
-                TotalPrice = totalPrice,
+                UnitPrice = unitPrice ?? 0,
+                Quantity = (int)quantity,
+                TotalPrice = totalPrice ?? 0,
                 Tax = tax,
                 Description = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "Description"),
             };

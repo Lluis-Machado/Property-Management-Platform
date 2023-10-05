@@ -334,8 +334,8 @@ namespace CoreAPI.Services
 
             if (ownerships?.RootElement.GetArrayLength() != 0)
             {
-                _logger.LogError($"CoreService - Found Ownerships for company {companyId}! | {JsonSerializer.Serialize(ownerships)}");
-                throw new OwnershipExistsException(ownerships!);
+                await _oClient.DeleteOwnershipsAsync(companyId);
+                _logger.LogInformation($"Ownership information deleted.");
             }
 
             JsonDocument? company = await _compClient.GetCompanyByIdAsync(companyId);
@@ -359,21 +359,21 @@ namespace CoreAPI.Services
 
 
 
-        private string? GetPropertyFromJson(string json, string property)
-        {
-            JsonDocument jsonDocument = JsonDocument.Parse(json);
-            JsonElement root = jsonDocument.RootElement;
+        //private string? GetPropertyFromJson(string json, string property)
+        //{
+        //    JsonDocument jsonDocument = JsonDocument.Parse(json);
+        //    JsonElement root = jsonDocument.RootElement;
 
-            try
-            {
-                return root.GetProperty(property).GetString();
+        //    try
+        //    {
+        //        return root.GetProperty(property).GetString();
 
-            } catch (Exception)
-            {
-                _logger.LogError($"Could not retrieve prop {property} from json.\n{json}");
-                return null;
-            }
-        }
+        //    } catch (Exception)
+        //    {
+        //        _logger.LogError($"Could not retrieve prop {property} from json.\n{json}");
+        //        return null;
+        //    }
+        //}
 
         public static string? GetPropertyFromJson(JsonDocument json, string property)
         {

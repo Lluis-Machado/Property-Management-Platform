@@ -43,23 +43,23 @@ public class ContactServiceClient : IContactServiceClient
         // Get pre-update contact information
         JsonDocument? currentContact = await GetContactByIdAsync(contactId);
         if (currentContact is null) throw new Exception($"Update failed - Contact with id {contactId} not found");
-        string currentFirstName = currentContact.RootElement.GetProperty("firstName").GetString() ?? "";
-        string currentLastName = currentContact.RootElement.GetProperty("lastName").GetString() ?? "";
+        string currentFirstName = CoreService.GetPropertyFromJson(currentContact, "firstName") ?? "";
+        string currentLastName = CoreService.GetPropertyFromJson(currentContact, "lastName") ?? "";
         string currentName = currentFirstName != "" && currentLastName != "" ? $"{currentLastName}, {currentFirstName}" : "";
 
         // Get post-update contact name
         JsonDocument body = JsonSerializer.Deserialize<JsonDocument>(requestBody);
-        string requestFirstName = body.RootElement.GetProperty("firstName").GetString() ?? "";
-        string requestLastName = body.RootElement.GetProperty("lastName").GetString() ?? "";
+        string requestFirstName = CoreService.GetPropertyFromJson(body, "firstName") ?? "";
+        string requestLastName = CoreService.GetPropertyFromJson(body, "lastName") ?? "";
         string requestName = requestFirstName != "" && requestLastName != "" ? $"{requestLastName}, {requestFirstName}" : "";
 
-        // Perform company update
-        var contactUpdate = await _baseClient.UpdateAsync($"contacts/contacts/{contactId}", requestBody);
+        // Perform contact update
+        var contactUpdate = await _baseClient.UpdateAsync<string>($"contacts/contacts/{contactId}", requestBody);
 
         // If the name has changed, perform Archive name change
         if (currentName != requestName && currentName != "")
         {
-            await _baseClient.UpdateAsync($"documents/archives/{currentContact.RootElement.GetProperty("archiveId").GetString()}&newName={Uri.EscapeDataString(requestName)}");
+            await _baseClient.UpdateAsync($"documents/archives/{CoreService.GetPropertyFromJson(currentContact, "archiveId")}?newName={Uri.EscapeDataString(requestName)}");
         }
 
         return contactUpdate;

@@ -46,15 +46,15 @@ public class PropertyServiceClient : IPropertyServiceClient
 
         // Get post-update property name
         JsonDocument body = JsonSerializer.Deserialize<JsonDocument>(requestBody);
-        string requestName = body.RootElement.GetProperty("name").GetString() ?? "";
+        string requestName = CoreService.GetPropertyFromJson(body, "name") ?? "";
 
         // Perform property update
-        var propertyUpdate = await _baseClient.UpdateAsync($"companies/companies/{propertyId}", requestBody);
+        var propertyUpdate = await _baseClient.UpdateAsync<string>($"properties/properties/{propertyId}", requestBody);
 
         // If the name has changed, perform Archive name change
         if (currentName != requestName)
         {
-            await _baseClient.UpdateAsync($"documents/archives/{currentProperty.RootElement.GetProperty("archiveId").GetString()}&newName={Uri.EscapeDataString(requestName)}");
+            await _baseClient.UpdateAsync($"documents/archives/{CoreService.GetPropertyFromJson(currentProperty, "archiveId")}?newName={Uri.EscapeDataString(requestName)}");
         }
 
         return propertyUpdate;

@@ -45,19 +45,20 @@ public class CompanyServiceClient : ICompanyServiceClient
         // Get pre-update company information
         JsonDocument? currentCompany = await GetCompanyByIdAsync(companyId);
         if (currentCompany is null) throw new Exception($"Update failed - Company with id {companyId} not found");
-        string currentName = currentCompany.RootElement.GetProperty("name").GetString() ?? "";
+        string currentName = CoreService.GetPropertyFromJson(currentCompany, "name") ?? "";
         
         // Get post-update company name
         JsonDocument body = JsonSerializer.Deserialize<JsonDocument>(requestBody);
-        string requestName = body.RootElement.GetProperty("name").GetString() ?? "";
+        string requestName = CoreService.GetPropertyFromJson(body, "name") ?? "";
+
 
         // Perform company update
-        var companyUpdate = await _baseClient.UpdateAsync($"companies/companies/{companyId}", requestBody);
+        var companyUpdate = await _baseClient.UpdateAsync<string>($"companies/companies/{companyId}", requestBody);
 
         // If the name has changed, perform Archive name change
         if (currentName != requestName)
         {
-            await _baseClient.UpdateAsync($"documents/archives/{currentCompany.RootElement.GetProperty("archiveId").GetString()}&newName={Uri.EscapeDataString(requestName)}");
+            await _baseClient.UpdateAsync($"documents/archives/{CoreService.GetPropertyFromJson(currentCompany, "archiveId")}?newName={Uri.EscapeDataString(requestName)}");
         }
 
         return companyUpdate;

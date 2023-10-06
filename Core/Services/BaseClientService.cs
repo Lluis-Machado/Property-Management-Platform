@@ -49,14 +49,14 @@ namespace CoreAPI.Services
 
             if (!response.IsSuccessStatusCode)
             {
-                if ((int)response.StatusCode >= 500) throw new Exception($"Internal server error - {content}");
-                if ((int)response.StatusCode >= 400) throw new Exception($"Bad Request - {content}");
+                if ((int)response.StatusCode >= 400) throw new Exception($"{response.StatusCode} - {content}");
                 throw new Exception($"Request unsuccessful - {content}");
             }
             else
             {
                 try
                 {
+                    _logger.LogInformation($"BaseClientService - GET request returned {response.StatusCode} ({(int)response.StatusCode})");
                     return JsonSerializer.Deserialize<JsonDocument>(content);
                 }
                 catch (JsonException ex)
@@ -77,14 +77,14 @@ namespace CoreAPI.Services
 
             if (!response.IsSuccessStatusCode)
             {
-                if ((int)response.StatusCode >= 500) throw new Exception($"Internal server error - {content}");
-                if ((int)response.StatusCode >= 400) throw new Exception($"Bad Request - {content}");
+                if ((int)response.StatusCode >= 400) throw new Exception($"{response.StatusCode} - {content}");
                 throw new Exception($"Request unsuccessful - {content}");
             }
             else
             {
                 try
                 {
+                    _logger.LogInformation($"BaseClientService - POST request returned {response.StatusCode} ({(int)response.StatusCode})");
                     return JsonSerializer.Deserialize<JsonDocument>(content);
                 }
                 catch (JsonException ex)
@@ -105,14 +105,15 @@ namespace CoreAPI.Services
 
             if (!response.IsSuccessStatusCode)
             {
-                if ((int)response.StatusCode >= 500) throw new Exception($"Internal server error - {content}");
-                if ((int)response.StatusCode >= 400) throw new Exception($"Bad Request - {content}");
+                if ((int)response.StatusCode >= 400) throw new Exception($"{response.StatusCode} - {content}");
                 throw new Exception($"Request unsuccessful - {content}");
             }
             else
             {
                 try
                 {
+                    _logger.LogInformation($"BaseClientService - PATCH request returned {response.StatusCode} ({(int)response.StatusCode})");
+
                     if (response.StatusCode == System.Net.HttpStatusCode.NoContent) return JsonSerializer.Deserialize<JsonDocument>(@"{""status"": ""OK""}");
 
                     return JsonSerializer.Deserialize<JsonDocument>(content);
@@ -133,14 +134,15 @@ namespace CoreAPI.Services
 
             if (!response.IsSuccessStatusCode)
             {
-                if ((int)response.StatusCode >= 500) throw new Exception($"Internal server error - {content}");
-                if ((int)response.StatusCode >= 400) throw new Exception($"Bad Request - {content}");
+                if ((int)response.StatusCode >= 400) throw new Exception($"{response.StatusCode} - {content}");
                 throw new Exception($"Request unsuccessful - {content}");
             }
             else
             {
                 try
                 {
+                    _logger.LogInformation($"BaseClientService - PATCH request returned {response.StatusCode} ({(int)response.StatusCode})");
+
                     if (response.StatusCode == System.Net.HttpStatusCode.NoContent) return JsonSerializer.Deserialize<JsonDocument>(@"{""status"": ""OK""}");
 
                     return JsonSerializer.Deserialize<JsonDocument>(content);
@@ -161,12 +163,13 @@ namespace CoreAPI.Services
 
             if (!response.IsSuccessStatusCode)
             {
-                if ((int)response.StatusCode >= 500) throw new Exception($"Internal server error - {content}");
-                if ((int)response.StatusCode >= 400) throw new Exception($"Bad Request - {content}");
+                if ((int)response.StatusCode >= 400) throw new Exception($"{response.StatusCode} - {content}");
                 return false;
             }
             else
             {
+                _logger.LogInformation($"BaseClientService - DELETE request returned {response.StatusCode} ({(int)response.StatusCode})");
+
                 return true;
             }
         }
@@ -179,12 +182,13 @@ namespace CoreAPI.Services
 
             if (!response.IsSuccessStatusCode)
             {
-                if ((int)response.StatusCode >= 500) throw new Exception($"Internal server error - {content}");
-                if ((int)response.StatusCode >= 400) throw new Exception($"Bad Request - {content}");
+                if ((int)response.StatusCode >= 400) throw new Exception($"{response.StatusCode} - {content}");
                 return false;
             }
             else
             {
+                _logger.LogInformation($"BaseClientService - UNDELETE request returned {response.StatusCode} ({(int)response.StatusCode})");
+
                 return true;
             }
         }

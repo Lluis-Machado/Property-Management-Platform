@@ -37,14 +37,14 @@ namespace DocumentsAPI.Services
                 fileStream.Position = 0;
                 var uploadedDoc = await _documentsRepository.UploadDocumentAsync(archiveId, file.FileName, fileStream, file.ContentType, folderId);
                 fileStream.Flush();
-                documents.Add(new CreateDocumentStatus(file.FileName, uploadedDoc.statusCode));
+                documents.Add(new CreateDocumentStatus(file.FileName, (int)uploadedDoc.statusCode));
                 fileStream.Dispose();
                 //_logger.LogInformation($"**Documents - Uploaded file {file.FileName} - Status: {(int)status}");
                 // Add metadata
                 await _blobMetadataRepository.InsertAsync(new BlobMetadata() { BlobId = uploadedDoc.documentId, ContainerId = archiveId, DisplayName = file.FileName, FolderId = folderId });
             });
 
-            _logger.LogInformation($"Documents - Upload completed, {documents.FindAll(d => d.Status == HttpStatusCode.Created).Count}/{files.Length} files OK");
+            _logger.LogInformation($"Documents - Upload completed, {documents.FindAll(d => d.Status == (int)HttpStatusCode.Created).Count}/{files.Length} files OK");
 
 
             return documents;

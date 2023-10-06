@@ -29,6 +29,8 @@ namespace DocumentsAPI.Consumers
 
             _logger.LogInformation($"Documents Message Consumer - Received message - Source: {context.SourceAddress}\t{context.Message.Payload}");
 
+            return;
+
             if (string.IsNullOrEmpty(context.Message.Destination) || (bool)!context.Message?.Destination?.Contains("documents")) { return; }
 
             try

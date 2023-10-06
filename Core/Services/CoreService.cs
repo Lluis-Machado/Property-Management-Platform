@@ -252,37 +252,41 @@ namespace CoreAPI.Services
         {
             _logger.LogInformation($"CoreService - Beginning delete of property {propertyId}");
 
-            // Check if there are any ownerships left
-
-            JsonDocument? ownerships = await _oClient.GetOwnershipByIdAsync(propertyId, "property");
-
-            _logger.LogInformation($"Got ownership information: {JsonSerializer.Serialize(ownerships)} - IsNull? {ownerships is null} - ArrLength? {ownerships?.RootElement.GetArrayLength()} || ArrLength is 0? {ownerships?.RootElement.GetArrayLength() == 0}");
-
-            if (ownerships?.RootElement.GetArrayLength() != 0)
-            {
-                _logger.LogError($"CoreService - Found Ownerships for property {propertyId}! | {JsonSerializer.Serialize(ownerships)}");
-                throw new OwnershipExistsException(ownerships!);
-            }
-
             // Check if there are child properties
 
             JsonDocument? property = await _pClient.GetPropertyByIdAsync(propertyId);
 
             if (property is null) throw new Exception($"Property with ID {propertyId} not found");
 
-            string? childProps = GetPropertyFromJson(property, "childProperties");
 
-            if (!string.IsNullOrEmpty(childProps))
+            if (!property.RootElement.TryGetProperty("childProperties", out _) || property.RootElement.GetProperty("childProperties").GetArrayLength() != 0)
             {
-                _logger.LogError($"CoreService - Found child properties for property {propertyId}! | {childProps}");
+                _logger.LogError($"CoreService - Found child properties for property {propertyId}! | {JsonSerializer.Serialize(property.RootElement.GetProperty("childProperties"))}");
                 throw new ChildPropertiesExistException(property.RootElement.GetProperty("childProperties"));
             }
 
-            string? archiveIdstr = GetPropertyFromJson(property, "archiveId");
-            if (string.IsNullOrEmpty(archiveIdstr)) throw new Exception($"Archive ID not found in property {propertyId} {GetPropertyFromJson(property, "name")}");
+            // Check if there are any ownerships left
 
+            JsonDocument? ownerships = await _oClient.GetOwnershipByPropertyIdAsync(propertyId);
+
+            _logger.LogInformation($"Got ownership information: {JsonSerializer.Serialize(ownerships)} - IsNull? {ownerships is null} - ArrLength? {ownerships?.RootElement.GetArrayLength()} || ArrLength is 0? {ownerships?.RootElement.GetArrayLength() == 0}");
+
+            if (ownerships?.RootElement.GetArrayLength() != 0)
+            {
+                _logger.LogInformation($"CoreService - Found Ownerships for property {propertyId}! | {JsonSerializer.Serialize(ownerships)}");
+                await _oClient.DeleteOwnershipsAsync(propertyId);
+            }
+
+            string? archiveIdstr = GetPropertyFromJson(property, "archiveId");
+            _logger.LogInformation($"Archive Id str {archiveIdstr}");
             Guid archiveId = Guid.Parse(archiveIdstr);
-            if (archiveId == Guid.Empty) throw new Exception($"Invalid Guid for Archive ID - Property {propertyId} {GetPropertyFromJson(property, "name")}");
+
+            if (string.IsNullOrEmpty(archiveIdstr) || archiveId == Guid.Empty)
+            {
+                _logger.LogError($"ERROR - No archive ID found for property {propertyId} ({GetPropertyFromJson(property, "name")})! Deleting property only");
+                await _pClient.DeletePropertyAsync(propertyId);
+                return;
+            }
 
             Task[] tasks = { _pClient.DeletePropertyAsync(propertyId), _docClient.DeleteArchiveAsync(archiveId) };
 

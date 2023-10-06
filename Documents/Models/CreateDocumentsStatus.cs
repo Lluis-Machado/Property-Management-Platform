@@ -6,9 +6,9 @@ namespace DocumentsAPI.Models
     public class CreateDocumentStatus
     {
         public string FileName { get; set; }
-        public HttpStatusCode Status { get; set; }
+        public int Status { get; set; }
 
-        public CreateDocumentStatus(string fileName, HttpStatusCode status)
+        public CreateDocumentStatus(string fileName, int status)
         {
             FileName = fileName;
             Status = status;

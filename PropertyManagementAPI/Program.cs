@@ -10,6 +10,7 @@ using PropertiesAPI.Repositories;
 using PropertiesAPI.Services;
 using PropertiesAPI.Validators;
 using Serilog;
+using Serilog.Events;
 using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,8 @@ var builder = WebApplication.CreateBuilder(args);
 var logger = new LoggerConfiguration()
   .ReadFrom.Configuration(builder.Configuration)
   .Enrich.FromLogContext()
+  .MinimumLevel.Override("MassTransit", LogEventLevel.Warning)
+  .MinimumLevel.Override("RabbitMQ.Client", LogEventLevel.Warning)
   .CreateLogger();
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);

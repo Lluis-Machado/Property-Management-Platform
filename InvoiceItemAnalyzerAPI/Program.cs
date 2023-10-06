@@ -11,6 +11,7 @@ using Microsoft.Extensions.ML;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using Serilog.Events;
 using System;
 using System.Security.Claims;
 
@@ -21,6 +22,8 @@ var builder = WebApplication.CreateBuilder(args);
 var logger = new LoggerConfiguration()
   .ReadFrom.Configuration(builder.Configuration)
   .Enrich.FromLogContext()
+  .MinimumLevel.Override("MassTransit", LogEventLevel.Warning)
+  .MinimumLevel.Override("RabbitMQ.Client", LogEventLevel.Warning)
   .CreateLogger();
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);

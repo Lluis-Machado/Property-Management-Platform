@@ -6,6 +6,6 @@ namespace DocumentAnalyzerAPI.Mappers
 {
     public interface IAPInvoiceLineDTOMapper
     {
-        APInvoiceLineDTO MapToAPInvoiceLineDTO(IReadOnlyDictionary<string, DocumentField> dictionary);
+        APInvoiceLineDTO MapToAPInvoiceLineDTO(IReadOnlyDictionary<string, DocumentField> dictionary, decimal mainTax);
     }
 }

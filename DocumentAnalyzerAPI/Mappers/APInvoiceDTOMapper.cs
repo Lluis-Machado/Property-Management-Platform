@@ -16,7 +16,7 @@ namespace DocumentAnalyzerAPI.Mappers
 
         public APInvoiceDTO MapToAPInvoiceAndLinesDTO(IReadOnlyDictionary<string, DocumentField> documentFields)
         {
-            BusinessPartnerDTO businessPartnerDTO = new()
+            BasicBusinessPartnerDTO businessPartnerDTO = new()
             {
                 VATNumber = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "VendorTaxId"),
                 Name = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "VendorName")
@@ -32,12 +32,12 @@ namespace DocumentAnalyzerAPI.Mappers
             {
                 BusinessPartner = businessPartnerDTO,
                 RefNumber = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "InvoiceId"),
-                Date = AzureFormRecgonizerUtilities.MapFieldValue<DateTimeOffset?>(documentFields, "InvoiceDate")?.DateTime,
+                Date = AzureFormRecgonizerUtilities.MapFieldValue<DateTime>(documentFields, "InvoiceDate"),
                 Currency = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "InvoiceTotal"),
-                TotalAmount = totalAmount,
-                TotalTax = totalTax,
-                TotalBaseAmount = totalBaseAmount,
-                TotalTaxPercentage = totalTaxPercentage
+                NetAmount = (decimal)totalAmount,
+                TotalTax = (decimal)totalTax,
+                GrossAmount = (decimal)totalBaseAmount,
+                //TotalTaxPercentage = totalTaxPercentage,
             };
 
             DateTime? serviceDateFrom = AzureFormRecgonizerUtilities.MapFieldValue<DateTimeOffset?>(documentFields, "ServiceStartDate")?.DateTime;
@@ -50,7 +50,7 @@ namespace DocumentAnalyzerAPI.Mappers
                     foreach (DocumentField itemField in itemsField.Value.AsList())
                     {
                         IReadOnlyDictionary<string, DocumentField>? itemFields = itemField.Value.AsDictionary();
-                        APInvoiceLineDTO aPInvoiceLineDTO = _aPInvoiceLineDTOMapper.MapToAPInvoiceLineDTO(itemFields);
+                        APInvoiceLineDTO aPInvoiceLineDTO = _aPInvoiceLineDTOMapper.MapToAPInvoiceLineDTO(itemFields, (decimal)totalTaxPercentage);
                         aPInvoiceLineDTO.ServiceDateFrom = serviceDateFrom;
                         aPInvoiceLineDTO.ServiceDateTo = serviceDateTo;
                         aPInvoiceDTO.InvoiceLines.Add(aPInvoiceLineDTO);
@@ -63,9 +63,9 @@ namespace DocumentAnalyzerAPI.Mappers
             {
                 APInvoiceLineDTO aPInvoiceLineDTO = new()
                 {
-                    Tax = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "TotalTax"),
+                    Tax = (decimal)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "TotalTax"),
                     Quantity = 1,
-                    UnitPrice = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "InvoiceTotal")
+                    UnitPrice = (decimal)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "InvoiceTotal")
                 };
                 aPInvoiceDTO.InvoiceLines.Add(aPInvoiceLineDTO);
             };

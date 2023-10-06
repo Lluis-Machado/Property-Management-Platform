@@ -255,7 +255,7 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> RenameAsync(Guid archiveId, Guid documentId, [FromForm] string documentName)
+        public async Task<IActionResult> RenameAsync(Guid archiveId, Guid documentId, [FromBody] string documentName)
         {
             await _documentsService.RenameAsync(archiveId, documentId, documentName);
             return NoContent();
@@ -267,10 +267,10 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> CopyAsync(Guid archiveId, Guid documentId, [FromForm] Guid destinationArchive, [FromForm] string documentName, [FromForm] Guid? folderId = null)
+        public async Task<IActionResult> CopyAsync(Guid archiveId, Guid documentId, [FromBody] DocumentCopyMoveDTO copyDTO)
         {
-            var newDocGuid = await _documentsService.CopyAsync(sourceArchive: archiveId, destinationArchive: destinationArchive, documentId, documentName, folderId);
-            if (folderId != null) await _foldersService.UpdateFolderHasDocuments((Guid)folderId, true);
+            var newDocGuid = await _documentsService.CopyAsync(sourceArchive: archiveId, destinationArchive: copyDTO.destinationArchive, documentId, copyDTO.documentName, copyDTO.folderId);
+            if (copyDTO.folderId is not null) await _foldersService.UpdateFolderHasDocuments((Guid)copyDTO.folderId, true);
 
             return Created($"{archiveId}/documents/{newDocGuid}", newDocGuid);
         }
@@ -281,17 +281,17 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> MoveAsync(Guid archiveId, Guid documentId, [FromForm] Guid destinationArchive, [FromForm] string documentName, [FromForm] Guid? folderId = null)
+        public async Task<IActionResult> MoveAsync(Guid archiveId, Guid documentId, [FromBody] DocumentCopyMoveDTO moveDTO)
         {
             // Check if user is trying to move a document to the same folder it's currently in
-            if (folderId != null && (archiveId == destinationArchive))
+            if (moveDTO.folderId is not null && (archiveId == moveDTO.destinationArchive))
             {
-                var doc = await _documentsService.GetDocumentByIdAsync((Guid)archiveId, documentId);
-                if (doc.FolderId == folderId) return UnprocessableEntity("Cannot move document to the same folder and archive it's currently in");
+                var doc = await _documentsService.GetDocumentByIdAsync(archiveId, documentId);
+                if (doc?.FolderId == moveDTO.folderId) return UnprocessableEntity("Cannot move document to the same folder and archive it's currently in");
             }
 
-            await _documentsService.MoveAsync(sourceArchive: archiveId, destinationArchive: destinationArchive, documentId, documentName, folderId);
-            if (folderId != null) await _foldersService.UpdateFolderHasDocuments((Guid)folderId, true);
+            await _documentsService.MoveAsync(sourceArchive: archiveId, destinationArchive: moveDTO.destinationArchive, documentId, moveDTO.documentName, moveDTO.folderId);
+            if (moveDTO.folderId is not null) await _foldersService.UpdateFolderHasDocuments((Guid)moveDTO.folderId, true);
 
             return Created($"{archiveId}/documents/{documentId}", documentId);
         }

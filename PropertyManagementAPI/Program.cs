@@ -10,6 +10,7 @@ using PropertiesAPI.Repositories;
 using PropertiesAPI.Services;
 using PropertiesAPI.Validators;
 using Serilog;
+using Serilog.Events;
 using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);

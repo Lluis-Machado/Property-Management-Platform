@@ -255,9 +255,9 @@ namespace Documents.Controllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> RenameAsync(Guid archiveId, Guid documentId, [FromBody] string documentName)
+        public async Task<IActionResult> RenameAsync(Guid archiveId, Guid documentId, [FromQuery] string newName)
         {
-            await _documentsService.RenameAsync(archiveId, documentId, documentName);
+            await _documentsService.RenameAsync(archiveId, documentId, newName);
             return NoContent();
         }
 

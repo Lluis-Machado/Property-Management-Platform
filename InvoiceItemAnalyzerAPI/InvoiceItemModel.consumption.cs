@@ -2,7 +2,9 @@
 using Microsoft.ML;
 using Microsoft.ML.Data;
 using System;
+using System.Linq;
 using System.IO;
+using System.Collections.Generic;
 namespace InvoiceItemAnalyzerAPI
 {
     public partial class InvoiceItemModel
@@ -13,23 +15,17 @@ namespace InvoiceItemAnalyzerAPI
         #region model input class
         public class ModelInput
         {
-            [ColumnName(@"Id")]
+            [ColumnName(@"id")]
             public float Id { get; set; }
 
-            [ColumnName(@"VendorName")]
-            public string VendorName { get; set; }
+            [ColumnName(@"Description")]
+            public string Description { get; set; }
 
-            [ColumnName(@"VendorTaxId")]
-            public string VendorTaxId { get; set; }
+            [ColumnName(@"BusinessPartner")]
+            public string BusinessPartner { get; set; }
 
-            [ColumnName(@"ItemDescription")]
-            public string ItemDescription { get; set; }
-
-            [ColumnName(@"HasPeriod")]
-            public bool HasPeriod { get; set; }
-
-            [ColumnName(@"CategoryId")]
-            public float CategoryId { get; set; }
+            [ColumnName(@"ExpenseCategory")]
+            public string ExpenseCategory { get; set; }
 
         }
 
@@ -41,29 +37,23 @@ namespace InvoiceItemAnalyzerAPI
         #region model output class
         public class ModelOutput
         {
-            [ColumnName(@"Id")]
+            [ColumnName(@"id")]
             public float Id { get; set; }
 
-            [ColumnName(@"VendorName")]
-            public float[] VendorName { get; set; }
+            [ColumnName(@"Description")]
+            public float[] Description { get; set; }
 
-            [ColumnName(@"VendorTaxId")]
-            public float[] VendorTaxId { get; set; }
+            [ColumnName(@"BusinessPartner")]
+            public float[] BusinessPartner { get; set; }
 
-            [ColumnName(@"ItemDescription")]
-            public float[] ItemDescription { get; set; }
-
-            [ColumnName(@"HasPeriod")]
-            public float HasPeriod { get; set; }
-
-            [ColumnName(@"CategoryId")]
-            public uint CategoryId { get; set; }
+            [ColumnName(@"ExpenseCategory")]
+            public uint ExpenseCategory { get; set; }
 
             [ColumnName(@"Features")]
             public float[] Features { get; set; }
 
             [ColumnName(@"PredictedLabel")]
-            public float PredictedLabel { get; set; }
+            public string PredictedLabel { get; set; }
 
             [ColumnName(@"Score")]
             public float[] Score { get; set; }

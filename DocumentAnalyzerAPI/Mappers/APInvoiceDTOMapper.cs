@@ -32,7 +32,7 @@ namespace DocumentAnalyzerAPI.Mappers
             {
                 BusinessPartner = businessPartnerDTO,
                 RefNumber = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "InvoiceId"),
-                Date = AzureFormRecgonizerUtilities.MapFieldValue<DateTime>(documentFields, "InvoiceDate"),
+                Date = AzureFormRecgonizerUtilities.MapFieldValue<DateTimeOffset>(documentFields, "InvoiceDate").DateTime,
                 Currency = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "InvoiceTotal"),
                 NetAmount = (decimal)totalAmount,
                 TotalTax = (decimal)totalTax,

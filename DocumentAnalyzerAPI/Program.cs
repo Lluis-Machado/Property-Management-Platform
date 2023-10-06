@@ -2,6 +2,8 @@ using DocumentAnalyzerAPI.Contexts;
 using DocumentAnalyzerAPI.Mappers;
 using DocumentAnalyzerAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -60,6 +62,18 @@ builder.Services.AddSwaggerGen(opt =>
             },
             Array.Empty<string>()
         }
+    });
+    opt.DocInclusionPredicate((docName, apiDesc) =>
+    {
+        // Check if the controller belongs to the "Accounting" namespace
+        if (apiDesc.ActionDescriptor is ControllerActionDescriptor controllerActionDescriptor)
+        {
+            if (controllerActionDescriptor.ControllerTypeInfo.Namespace.StartsWith("Accounting"))
+            {
+                return false; // Exclude from Swagger
+            }
+        }
+        return true; // Include in Swagger
     });
 });
 

@@ -7,7 +7,7 @@ using System.Net;
 
 namespace InvoiceItemAnalyzerAPI.Controllers
 {
-    [Authorize]
+    //[Authorize]
     public class InvoiceItemAnalyzerController : Controller
     {
         private IItemAnalyzerService _itemClassifierService;

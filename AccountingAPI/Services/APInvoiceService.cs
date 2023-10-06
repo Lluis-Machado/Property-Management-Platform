@@ -57,7 +57,7 @@ namespace AccountingAPI.Services
                 APInvoice invoice = _mapper.Map<APInvoice>(createInvoiceDTO);
 
                 invoice.GrossAmount = createInvoiceDTO.InvoiceLines.Sum(invoiceLine => invoiceLine.UnitPrice * invoiceLine.Quantity);
-                invoice.NetAmount = createInvoiceDTO.InvoiceLines.Sum(invoiceLine => invoiceLine.UnitPrice * invoiceLine.Quantity / (1 + invoiceLine.Tax));
+                invoice.NetAmount = createInvoiceDTO.InvoiceLines.Sum(invoiceLine => invoiceLine.UnitPrice * invoiceLine.Quantity * (100 + invoiceLine.Tax)/100);
                 invoice.CreatedBy = userName;
                 invoice.LastModificationBy = userName;
                 invoice.BusinessPartnerId = businessPartnerId;

@@ -1,4 +1,5 @@
-﻿using Azure.AI.FormRecognizer.DocumentAnalysis;
+﻿using AccountingAPI.DTOs;
+using Azure.AI.FormRecognizer.DocumentAnalysis;
 using DocumentAnalyzerAPI.DTOs;
 
 namespace DocumentAnalyzerAPI.Mappers

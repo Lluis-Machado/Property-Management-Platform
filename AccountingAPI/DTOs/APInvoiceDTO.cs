@@ -10,12 +10,14 @@ namespace AccountingAPI.DTOs
         public string BusinessPartnerName { get; set; }
         public string VATNumber { get; set; }
 
-        //private BasicBusinessPartnerDTO BusinessPartner { get; set; }
+        public BasicBusinessPartnerDTO BusinessPartner { get; set; }
 
         public string RefNumber { get; set; }
         public DateTime Date { get; set; }
         public string Currency { get; set; }
+        public decimal TotalTax { get; set; }
         public decimal GrossAmount { get; set; }
+
         public decimal NetAmount { get; set; }
         public List<APInvoiceLineDTO> InvoiceLines { get; set; }
         public bool Deleted { get; set; }

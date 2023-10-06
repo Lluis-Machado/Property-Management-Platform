@@ -9,7 +9,7 @@ namespace DocumentAnalyzerAPI.Mappers
     public class APInvoiceLineDTOMapper : IAPInvoiceLineDTOMapper
     {
 
-        public APInvoiceLineDTO MapToAPInvoiceLineDTO(IReadOnlyDictionary<string, DocumentField> documentFields)
+        public APInvoiceLineDTO MapToAPInvoiceLineDTO(IReadOnlyDictionary<string, DocumentField> documentFields, decimal mainTax)
         {
             decimal? unitPrice = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "UnitPrice");
             double? quantity = AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "Quantity");
@@ -25,9 +25,12 @@ namespace DocumentAnalyzerAPI.Mappers
             if (!String.IsNullOrEmpty(taxString))
             {
                 Regex.Replace(taxString, @"[^\d]", "");
-
+                Decimal.TryParse(taxStringClean, out tax);
             }
-            Decimal.TryParse(taxStringClean, out tax);
+            else
+            {
+                tax = mainTax;
+            }
             var totalPrice = unitPrice * (decimal)quantity;
             // TODO: Change quantity to decimal type
             APInvoiceLineDTO aPInvoiceLineDTO = new()

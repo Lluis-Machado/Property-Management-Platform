@@ -25,15 +25,15 @@ namespace DocumentAnalyzerAPI.Mappers
 
             ARInvoiceDTO aPInvoiceDTO = new()
             {
-                BusinessPartner = businessPartnerDTO,
+                //BusinessPartner = businessPartnerDTO,
                 RefNumber = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "InvoiceId"),
-                Date = AzureFormRecgonizerUtilities.MapFieldValue<DateTimeOffset?>(documentFields, "InvoiceDate")?.DateTime,
+                Date = AzureFormRecgonizerUtilities.MapFieldValue<DateTimeOffset>(documentFields, "InvoiceDate").DateTime,
                 Currency = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "InvoiceTotal"),
-                TotalAmount = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "InvoiceTotal")
+                NetAmount = (decimal)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "InvoiceTotal")
             };
 
-            DateTime? serviceDateFrom = AzureFormRecgonizerUtilities.MapFieldValue<DateTimeOffset?>(documentFields, "ServiceStartDate")?.DateTime;
-            DateTime? serviceDateTo = AzureFormRecgonizerUtilities.MapFieldValue<DateTimeOffset?>(documentFields, "ServiceEndDate")?.DateTime;
+            DateTime serviceDateFrom = AzureFormRecgonizerUtilities.MapFieldValue<DateTime>(documentFields, "ServiceStartDate");
+            DateTime serviceDateTo = AzureFormRecgonizerUtilities.MapFieldValue<DateTime>(documentFields, "ServiceEndDate");
 
             if (documentFields.TryGetValue("Items", out var itemsField))
             {

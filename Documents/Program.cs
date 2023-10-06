@@ -17,6 +17,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Serilog;
 using Serilog.Enrichers.CallerInfo;
+using Serilog.Events;
 using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +27,8 @@ var logger = new LoggerConfiguration()
   .ReadFrom.Configuration(builder.Configuration)
   .Enrich.FromLogContext()
   .Enrich.WithCallerInfo(false, "DocumentsAPI")
+  .MinimumLevel.Override("MassTransit", LogEventLevel.Warning)
+  .MinimumLevel.Override("RabbitMQ.Client", LogEventLevel.Warning)
   .CreateLogger();
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);

@@ -2,11 +2,10 @@ using CoreAPI.Middlewares;
 using CoreAPI.Services;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc.Formatters;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using Serilog.Events;
 using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,10 +14,11 @@ var builder = WebApplication.CreateBuilder(args);
 var logger = new LoggerConfiguration()
   .ReadFrom.Configuration(builder.Configuration)
   .Enrich.FromLogContext()
+    .MinimumLevel.Override("MassTransit", LogEventLevel.Warning)
+    .MinimumLevel.Override("RabbitMQ.Client", LogEventLevel.Warning)
   .CreateLogger();
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);
-
 
 // Add services to the container.
 
@@ -34,7 +34,6 @@ builder.Services.AddTransient<IOwnershipServiceClient, OwnershipServiceClient>()
 builder.Services.AddTransient<IBaseClientService, BaseClientService>();
 
 builder.Services.AddSingleton<GlobalErrorHandlingMiddleware>();
-
 
 //builder.Services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -91,7 +90,6 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-
 builder.Services.AddMassTransit(config =>
 {
     config.UsingRabbitMq((ctx, cfg) =>
@@ -100,7 +98,6 @@ builder.Services.AddMassTransit(config =>
 
         // Configure retry policy
         cfg.UseMessageRetry(r => r.Intervals(TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(10)));
-
     });
 });
 

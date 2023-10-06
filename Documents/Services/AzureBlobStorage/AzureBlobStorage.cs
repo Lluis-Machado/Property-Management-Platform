@@ -82,7 +82,7 @@ namespace DocumentsAPI.Services.AzureBlobStorage
 
             BlobContainerProperties props = await blobContainerClient.GetPropertiesAsync();
             var metadata = props.Metadata;
-            metadata["display_name"] = newName;
+            metadata["display_name"] = Uri.EscapeDataString(newName);
 
             var response = await blobContainerClient.SetMetadataAsync(metadata);
             _context.CheckResponse(response.GetRawResponse());

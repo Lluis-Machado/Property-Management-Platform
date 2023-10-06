@@ -42,6 +42,7 @@ namespace Archives.Controllers
             if (archiveDTO.Name is null) return BadRequest("Archive Name is empty");
 
             var archive = _mapper.Map<CreateArchiveDTO, Archive>(archiveDTO);
+            archive.ArchiveType = ARCHIVE_TYPE.NONE;
 
             Archive createdArchive = await _archivesService.CreateArchiveAsync(archive);
             return Created($"archives/{createdArchive.Name}", createdArchive);
@@ -60,6 +61,7 @@ namespace Archives.Controllers
             if (archiveDTO.Name is null) return BadRequest("Archive Name is empty");
 
             var archive = _mapper.Map<CreateArchiveDTO, Archive>(archiveDTO);
+            archive.ArchiveType = ARCHIVE_TYPE.PROPERTY;
 
             Archive createdArchive = await _archivesService.CreateArchiveAsync(archive, ARCHIVE_TYPE.PROPERTY, propertyId);
             return Created($"archives/property/{createdArchive.Name}", createdArchive);
@@ -78,6 +80,7 @@ namespace Archives.Controllers
             if (archiveDTO.Name == null) return BadRequest("Archive Name is empty");
 
             var archive = _mapper.Map<CreateArchiveDTO, Archive>(archiveDTO);
+            archive.ArchiveType = ARCHIVE_TYPE.CONTACT;
 
             Archive createdArchive = await _archivesService.CreateArchiveAsync(archive, ARCHIVE_TYPE.CONTACT, contactId);
             return Created($"archives/property/{createdArchive.Name}", createdArchive);
@@ -96,6 +99,8 @@ namespace Archives.Controllers
             if (archiveDTO.Name == null) return BadRequest("Archive Name is empty");
 
             var archive = _mapper.Map<CreateArchiveDTO, Archive>(archiveDTO);
+            archive.ArchiveType = ARCHIVE_TYPE.COMPANY;
+
 
             Archive createdArchive = await _archivesService.CreateArchiveAsync(archive, ARCHIVE_TYPE.COMPANY, companyId);
             return Created($"archives/property/{createdArchive.Name}", createdArchive);

@@ -49,8 +49,7 @@ namespace CoreAPI.Services
 
             if (!response.IsSuccessStatusCode)
             {
-                if ((int)response.StatusCode >= 500) throw new Exception($"Internal server error - {content}");
-                if ((int)response.StatusCode >= 400) throw new Exception($"Bad Request - {content}");
+                if ((int)response.StatusCode >= 400) throw new Exception($"{response.StatusCode} - {content}");
                 throw new Exception($"Request unsuccessful - {content}");
             }
             else
@@ -77,8 +76,7 @@ namespace CoreAPI.Services
 
             if (!response.IsSuccessStatusCode)
             {
-                if ((int)response.StatusCode >= 500) throw new Exception($"Internal server error - {content}");
-                if ((int)response.StatusCode >= 400) throw new Exception($"Bad Request - {content}");
+                if ((int)response.StatusCode >= 400) throw new Exception($"{response.StatusCode} - {content}");
                 throw new Exception($"Request unsuccessful - {content}");
             }
             else
@@ -105,8 +103,7 @@ namespace CoreAPI.Services
 
             if (!response.IsSuccessStatusCode)
             {
-                if ((int)response.StatusCode >= 500) throw new Exception($"Internal server error - {content}");
-                if ((int)response.StatusCode >= 400) throw new Exception($"Bad Request - {content}");
+                if ((int)response.StatusCode >= 400) throw new Exception($"{response.StatusCode} - {content}");
                 throw new Exception($"Request unsuccessful - {content}");
             }
             else
@@ -133,8 +130,7 @@ namespace CoreAPI.Services
 
             if (!response.IsSuccessStatusCode)
             {
-                if ((int)response.StatusCode >= 500) throw new Exception($"Internal server error - {content}");
-                if ((int)response.StatusCode >= 400) throw new Exception($"Bad Request - {content}");
+                if ((int)response.StatusCode >= 400) throw new Exception($"{response.StatusCode} - {content}");
                 throw new Exception($"Request unsuccessful - {content}");
             }
             else
@@ -161,8 +157,7 @@ namespace CoreAPI.Services
 
             if (!response.IsSuccessStatusCode)
             {
-                if ((int)response.StatusCode >= 500) throw new Exception($"Internal server error - {content}");
-                if ((int)response.StatusCode >= 400) throw new Exception($"Bad Request - {content}");
+                if ((int)response.StatusCode >= 400) throw new Exception($"{response.StatusCode} - {content}");
                 return false;
             }
             else
@@ -179,8 +174,7 @@ namespace CoreAPI.Services
 
             if (!response.IsSuccessStatusCode)
             {
-                if ((int)response.StatusCode >= 500) throw new Exception($"Internal server error - {content}");
-                if ((int)response.StatusCode >= 400) throw new Exception($"Bad Request - {content}");
+                if ((int)response.StatusCode >= 400) throw new Exception($"{response.StatusCode} - {content}");
                 return false;
             }
             else

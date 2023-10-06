@@ -7,6 +7,7 @@ namespace CoreAPI.Services
     public interface IOwnershipServiceClient
     {
         Task<JsonDocument?> GetOwnershipByIdAsync(Guid id, string? type);
+        Task<JsonDocument?> GetOwnershipByPropertyIdAsync(Guid propertyId);
         Task<JsonDocument?> CreateOwnershipAsync(string requestBody);
         Task<JsonDocument?> CreateOwnershipsAsync(string requestBody);
 

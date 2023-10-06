@@ -12,6 +12,9 @@ public class OwnershipServiceClient : IOwnershipServiceClient
     private readonly IBaseClientService _baseClient;
     private readonly ILogger<OwnershipServiceClient> _logger;
 
+
+    // TODO: Implement BaseClient
+
     public OwnershipServiceClient(IHttpContextAccessor contextAccessor, ILogger<OwnershipServiceClient> logger, IBaseClientService baseClient)
     {
         _httpClient = new HttpClient();
@@ -34,6 +37,41 @@ public class OwnershipServiceClient : IOwnershipServiceClient
     {
         string url = $"ownership/{id}";
         if (!string.IsNullOrEmpty(type)) url += $"/{type.ToLowerInvariant()}";
+
+        var request = new HttpRequestMessage(HttpMethod.Get, url);
+        // Add authorization token to the request headers
+        var _auth = _contextAccessor?.HttpContext?.Request.Headers.Authorization.FirstOrDefault();
+        if (_auth != null)
+        {
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _auth.Split(' ')[1]);
+        }
+
+        var response = await _httpClient.SendAsync(request);
+        if (response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            if (string.IsNullOrEmpty(content))
+            {
+                return null;
+            }
+            return JsonSerializer.Deserialize<JsonDocument>(content); /*JsonSerializer.Deserialize<string>(content, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });*/
+        }
+
+
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            return null;
+        }
+
+        throw new Exception($"Failed to get ownership by ID. Status code: {response.StatusCode}");
+    }
+
+    public async Task<JsonDocument?> GetOwnershipByPropertyIdAsync(Guid propertyId)
+    {
+        string url = $"ownership/{propertyId}/property";
 
         var request = new HttpRequestMessage(HttpMethod.Get, url);
         // Add authorization token to the request headers
@@ -130,7 +168,7 @@ public class OwnershipServiceClient : IOwnershipServiceClient
 
         _logger.LogInformation($"Deleting ownership information for property {propertyId}");
 
-        JsonDocument? ownerships = await _baseClient.ReadAsync($"ownership/{propertyId}/property");
+        JsonDocument? ownerships = await _baseClient.ReadAsync($"ownership/ownership/{propertyId}/property");
 
         if (ownerships is null || ownerships.RootElement.GetArrayLength() == 0)
         {
@@ -138,9 +176,10 @@ public class OwnershipServiceClient : IOwnershipServiceClient
             return;
         }
 
+        // TODO: Create delete ownerships by propertyId endpoint in OwnershipsAPI?
         foreach (var ownership in ownerships.RootElement.EnumerateArray())
         {
-            await _baseClient.DeleteAsync($"ownership/{ownership.GetProperty("id").GetString()}");
+            await _baseClient.DeleteAsync($"ownership/ownership/{ownership.GetProperty("id").GetString()}");
         }
 
         _logger.LogInformation($"Successfully deleted ownership information for property {propertyId}");

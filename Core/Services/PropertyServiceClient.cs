@@ -54,6 +54,7 @@ public class PropertyServiceClient : IPropertyServiceClient
         // If the name has changed, perform Archive name change
         if (currentName != requestName)
         {
+            _logger.LogInformation($"DEBUG - Detected property name change! Changing name for archive {CoreService.GetPropertyFromJson(currentProperty, "archiveId")}");
             await _baseClient.UpdateAsync($"documents/archives/{CoreService.GetPropertyFromJson(currentProperty, "archiveId")}?newName={Uri.EscapeDataString(requestName)}");
         }
 

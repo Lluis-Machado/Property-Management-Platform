@@ -105,8 +105,8 @@ namespace PropertiesAPI.Services
 
         public async Task<IActionResult> UpdatePropertyArchiveIdAsync(Guid propertyId, Guid archiveId, string username)
         {
-            await PropertyExists(propertyId);
-            _logger.LogInformation($"PropertiesService - UpdatePropArchiveIdAsync - Property exists, updating...");
+            if(!await PropertyExists(propertyId)) throw new Exception($"Property {propertyId} not found");
+            _logger.LogInformation($"PropertiesService - UpdatePropArchiveIdAsync - Property exists, updating archive Id to {archiveId}");
             await _propertiesRepo.UpdateArchiveIdAsync(propertyId, archiveId, username);
             return new NoContentResult();
         }

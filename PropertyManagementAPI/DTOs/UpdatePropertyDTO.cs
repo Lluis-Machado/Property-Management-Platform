@@ -73,6 +73,7 @@ namespace PropertiesAPI.Dtos
         public Guid? MainPropertyId { get; set; }
         public Guid ContactPersonId { get; set; }
         public Guid MainOwnerId { get; set; }
+        public Guid ArchiveId { get; set; }
 
         public Guid? BillingContactId { get; set; }
 

@@ -19,7 +19,15 @@ namespace DocumentsAPI.Repositories
 
         public async Task CreateDefaultFolders(Archive archive)
         {
-            // TODO
+            Folder[] folders = Folder.CreateDefaultFolders(archive.Id, archive.ArchiveType);
+
+            foreach (var f in folders)
+            {
+                await InsertFolderAsync(f);
+            }
+
+            _logger.LogInformation($"Created default folders for archive {archive.Id} ({archive.ArchiveType})");
+
         }
 
         public async Task<bool> CheckFolderExists(Guid folderId)

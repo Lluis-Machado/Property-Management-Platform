@@ -10,14 +10,6 @@ namespace DocumentsAPI.Models
         private static readonly string[] COMPANY_DEFAULT_FOLDERS = { "A/P Invoices", "A/R Invoices", "Contracts", "Others" };
         private static readonly string[] PROPERTY_DEFAULT_FOLDERS = { "Expenses", "Incomes", "Proceedings", "Others" };
 
-        [JsonConverter(typeof(StringEnumConverter))]
-        public enum ArchiveFolderType
-        {
-            CONTACT,
-            COMPANY,
-            PROPERTY
-        };
-
 
         public Guid ArchiveId { get; set; }
         public string? Name { get; set; }
@@ -29,12 +21,12 @@ namespace DocumentsAPI.Models
         public Folder() { }
 
 
-        public static Folder[] CreateDefaultFolders(Guid ArchiveId, ArchiveFolderType type)
+        public static Folder[] CreateDefaultFolders(Guid ArchiveId, Archive.ARCHIVE_TYPE type)
         {
             Folder[] folders;
             switch (type)
             {
-                case ArchiveFolderType.CONTACT:
+                case Archive.ARCHIVE_TYPE.CONTACT:
                     folders = new Folder[CONTACT_DEFAULT_FOLDERS.Length];
                     for (int i = 0; i < CONTACT_DEFAULT_FOLDERS.Length; i++)
                     {
@@ -46,7 +38,7 @@ namespace DocumentsAPI.Models
                         };
                     }
                     break;
-                case ArchiveFolderType.COMPANY:
+                case Archive.ARCHIVE_TYPE.COMPANY:
                     folders = new Folder[COMPANY_DEFAULT_FOLDERS.Length];
                     for (int i = 0; i < COMPANY_DEFAULT_FOLDERS.Length; i++)
                     {
@@ -58,7 +50,7 @@ namespace DocumentsAPI.Models
                         };
                     }
                     break;
-                case ArchiveFolderType.PROPERTY:
+                case Archive.ARCHIVE_TYPE.PROPERTY:
                     folders = new Folder[PROPERTY_DEFAULT_FOLDERS.Length];
                     for (int i = 0; i < PROPERTY_DEFAULT_FOLDERS.Length; i++)
                     {

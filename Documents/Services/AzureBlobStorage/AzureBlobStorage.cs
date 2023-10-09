@@ -56,7 +56,7 @@ namespace DocumentsAPI.Services.AzureBlobStorage
                     archives.Add(archive);
                 }
             }
-            return archives;
+            return archives.OrderBy(elem => elem.Name).ToList();
         }
 
         public async Task<bool> ArchiveExistsAsync(Guid archiveId)

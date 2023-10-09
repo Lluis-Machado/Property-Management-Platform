@@ -278,8 +278,8 @@ namespace CoreAPI.Services
             }
 
             string? archiveIdstr = GetPropertyFromJson(property, "archiveId");
-            _logger.LogInformation($"Archive Id str {archiveIdstr}");
-            Guid archiveId = Guid.Parse(archiveIdstr);
+            _logger.LogInformation($"Archive Id str is: {archiveIdstr}");
+            Guid archiveId = string.IsNullOrEmpty(archiveIdstr) ? Guid.Empty : Guid.Parse(archiveIdstr);
 
             if (string.IsNullOrEmpty(archiveIdstr) || archiveId == Guid.Empty)
             {
@@ -315,10 +315,15 @@ namespace CoreAPI.Services
             if (contact is null) throw new Exception($"Contact with ID {contactId} not found");
 
             string? archiveIdstr = GetPropertyFromJson(contact, "archiveId");
-            if (string.IsNullOrEmpty(archiveIdstr)) throw new Exception($"Archive ID not found in contact {contactId} {GetPropertyFromJson(contact, "name")}");
+            _logger.LogInformation($"Archive Id str: {archiveIdstr}");
+            Guid archiveId = string.IsNullOrEmpty(archiveIdstr) ? Guid.Empty : Guid.Parse(archiveIdstr);
 
-            Guid archiveId = Guid.Parse(archiveIdstr);
-            if (archiveId == Guid.Empty) throw new Exception($"Invalid Guid for Archive ID - Contact {contactId} {GetPropertyFromJson(contact, "name")}");
+            if (string.IsNullOrEmpty(archiveIdstr) || archiveId == Guid.Empty)
+            {
+                _logger.LogError($"ERROR - No archive ID found for contact {contactId} ({GetPropertyFromJson(contact, "name")})! Deleting contact only");
+                await _contClient.DeleteContactAsync(contactId);
+                return;
+            }
 
             Task[] tasks = { _contClient.DeleteContactAsync(contactId), _docClient.DeleteArchiveAsync(archiveId) };
 
@@ -347,10 +352,15 @@ namespace CoreAPI.Services
             if (company is null) throw new Exception($"Company with ID {companyId} not found");
 
             string? archiveIdstr = GetPropertyFromJson(company, "archiveId");
-            if (string.IsNullOrEmpty(archiveIdstr)) throw new Exception($"Archive ID not found in company {companyId} {GetPropertyFromJson(company, "name")}");
+            _logger.LogInformation($"Archive Id str: {archiveIdstr}");
+            Guid archiveId = string.IsNullOrEmpty(archiveIdstr) ? Guid.Empty : Guid.Parse(archiveIdstr);
 
-            Guid archiveId = Guid.Parse(archiveIdstr);
-            if (archiveId == Guid.Empty) throw new Exception($"Invalid Guid for Archive ID - Company {companyId} {GetPropertyFromJson(company, "name")}");
+            if (string.IsNullOrEmpty(archiveIdstr) || archiveId == Guid.Empty)
+            {
+                _logger.LogError($"ERROR - No archive ID found for company {companyId} ({GetPropertyFromJson(company, "name")})! Deleting company only");
+                await _compClient.DeleteCompanyAsync(companyId);
+                return;
+            }
 
             Task[] tasks = { _compClient.DeleteCompanyAsync(companyId), _docClient.DeleteArchiveAsync(archiveId) };
 

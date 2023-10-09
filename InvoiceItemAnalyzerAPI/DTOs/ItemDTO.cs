@@ -2,12 +2,11 @@
 {
     public class ItemDTO
     {
-        public string VendorName { get; set; }
+        public string BusinessPartner { get; set; }
 
-        public string VendorTaxId { get; set; }
 
-        public string InvoiceLineDescription { get; set; }
+        public string Description { get; set; }
 
-        public bool HasPeriod { get; set; }
+  //      public bool HasPeriod { get; set; }
     }
 }

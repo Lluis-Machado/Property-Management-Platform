@@ -20,6 +20,7 @@ namespace AccountingAPI.Repositories
                 invoiceLine.InvoiceId,
                 invoiceLine.Description,
                 invoiceLine.Tax,
+                
                 invoiceLine.Quantity,
                 invoiceLine.UnitPrice,
                 invoiceLine.TotalPrice,

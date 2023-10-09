@@ -15,9 +15,6 @@ namespace InvoiceItemAnalyzerAPI
         #region model input class
         public class ModelInput
         {
-            [ColumnName(@"id")]
-            public float Id { get; set; }
-
             [ColumnName(@"Description")]
             public string Description { get; set; }
 
@@ -37,9 +34,6 @@ namespace InvoiceItemAnalyzerAPI
         #region model output class
         public class ModelOutput
         {
-            [ColumnName(@"id")]
-            public float Id { get; set; }
-
             [ColumnName(@"Description")]
             public float[] Description { get; set; }
 

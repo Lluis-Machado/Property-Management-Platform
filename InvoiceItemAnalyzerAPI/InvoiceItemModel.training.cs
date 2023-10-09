@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.ML.Data;
+using Microsoft.ML.Trainers.FastTree;
 using Microsoft.ML.Trainers;
 using Microsoft.ML;
 
@@ -34,13 +35,11 @@ namespace InvoiceItemAnalyzerAPI
         public static IEstimator<ITransformer> BuildPipeline(MLContext mlContext)
         {
             // Data process configuration with pipeline data transformations
-            var pipeline = mlContext.Transforms.ReplaceMissingValues(@"id", @"id")      
-                                    .Append(mlContext.Transforms.Text.FeaturizeText(inputColumnName:@"Description",outputColumnName:@"Description"))      
+            var pipeline = mlContext.Transforms.Text.FeaturizeText(inputColumnName:@"Description",outputColumnName:@"Description")      
                                     .Append(mlContext.Transforms.Text.FeaturizeText(inputColumnName:@"BusinessPartner",outputColumnName:@"BusinessPartner"))      
-                                    .Append(mlContext.Transforms.Concatenate(@"Features", new []{@"id",@"Description",@"BusinessPartner"}))      
+                                    .Append(mlContext.Transforms.Concatenate(@"Features", new []{@"Description",@"BusinessPartner"}))      
                                     .Append(mlContext.Transforms.Conversion.MapValueToKey(outputColumnName:@"ExpenseCategory",inputColumnName:@"ExpenseCategory"))      
-                                    .Append(mlContext.Transforms.NormalizeMinMax(@"Features", @"Features"))      
-                                    .Append(mlContext.MulticlassClassification.Trainers.SdcaMaximumEntropy(new SdcaMaximumEntropyMulticlassTrainer.Options(){L1Regularization=0.03125F,L2Regularization=0.1717996F,LabelColumnName=@"ExpenseCategory",FeatureColumnName=@"Features"}))      
+                                    .Append(mlContext.MulticlassClassification.Trainers.OneVersusAll(binaryEstimator:mlContext.BinaryClassification.Trainers.FastTree(new FastTreeBinaryTrainer.Options(){NumberOfLeaves=23,MinimumExampleCountPerLeaf=2,NumberOfTrees=117,MaximumBinCountPerFeature=175,FeatureFraction=0.99999999,LearningRate=0.0623166425255509,LabelColumnName=@"ExpenseCategory",FeatureColumnName=@"Features"}),labelColumnName: @"ExpenseCategory"))      
                                     .Append(mlContext.Transforms.Conversion.MapKeyToValue(outputColumnName:@"PredictedLabel",inputColumnName:@"PredictedLabel"));
 
             return pipeline;

@@ -1,7 +1,6 @@
 ﻿using CoreAPI.Services;
 using CoreAPI.Utils;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 
 namespace CoreAPI.Controllers
 {
@@ -20,7 +19,7 @@ namespace CoreAPI.Controllers
             _logger = logger;
         }
 
-        
+
         #region CREATE
 
         [HttpPost("properties")]
@@ -98,7 +97,14 @@ namespace CoreAPI.Controllers
         [Route("companies/{Id}")]
         public async Task<IActionResult> DeleteCompany(Guid Id)
         {
-            await _coreService.DeleteCompany(Id);
+            try
+            {
+                await _coreService.DeleteCompany(Id);
+            }
+            catch (OwnershipExistsException ex)
+            {
+                return UnprocessableEntity(ex.Message);
+            }
             return NoContent();
         }
 
@@ -106,7 +112,14 @@ namespace CoreAPI.Controllers
         [Route("contacts/{Id}")]
         public async Task<IActionResult> DeleteContact(Guid Id)
         {
-            await _coreService.DeleteContact(Id);
+            try
+            {
+                await _coreService.DeleteContact(Id);
+            }
+            catch (OwnershipExistsException ex)
+            {
+                return UnprocessableEntity(ex.Message);
+            }
             return NoContent();
         }
 

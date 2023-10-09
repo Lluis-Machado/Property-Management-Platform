@@ -14,9 +14,6 @@ namespace CompanyAPI.Validators
             RuleFor(company => company.Nif)
                 .Length(9).WithMessage("NIF length should be 9 characters.")
                 .Matches(@"^[XYZ]?\d{7}[A-Z\d]$").WithMessage("Invalid NIF format.");
-
-
-
         }
     }
 }

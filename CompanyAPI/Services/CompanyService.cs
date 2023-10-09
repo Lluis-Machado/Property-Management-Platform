@@ -6,7 +6,11 @@ using FluentValidation;
 using MassTransit;
 using MessagingContracts;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace CompanyAPI.Services
 {
@@ -17,7 +21,6 @@ namespace CompanyAPI.Services
         private readonly IValidator<UpdateCompanyDto> _updateCompanyValidator;
         private readonly IMapper _mapper;
         private readonly IPublishEndpoint _publishEndpoint;
-
 
         public CompanyService(ICompanyRepository companyRepo,
             IValidator<CreateCompanyDto> createCompanyValidator,
@@ -34,73 +37,47 @@ namespace CompanyAPI.Services
 
         public async Task<ActionResult<CompanyDetailedDto>> CreateAsync(CreateCompanyDto createCompanyDto, string lastUser)
         {
-            createCompanyDto = TrimListItems(createCompanyDto);
+            await _createCompanyValidator.ValidateAndThrowAsync(createCompanyDto);
 
-            var company = _mapper.Map<CreateCompanyDto, Company>(createCompanyDto);
+            var company = _mapper.Map<CreateCompanyDto, Company>(TrimListItems(createCompanyDto));
+            company.LastUpdateByUser = company.CreatedByUser = lastUser;
+            company.CreatedAt = company.LastUpdateAt = DateTime.UtcNow;
 
-            company.LastUpdateByUser = lastUser;
-            company.CreatedByUser = lastUser;
-            company.CreatedAt = DateTime.UtcNow;
-            company.LastUpdateAt = DateTime.UtcNow;
+            await _companyRepo.InsertOneAsync(company);
+            await PerformAudit(company, company.Id);
 
-            company = await _companyRepo.InsertOneAsync(company);
-            _ = PerformAudit(company, company.Id);
-
-            var companyDto = _mapper.Map<Company, CompanyDetailedDto>(company);
-            return new CreatedResult($"company/{companyDto.Id}", companyDto);
+            return new CreatedResult($"company/{company.Id}", _mapper.Map<Company, CompanyDetailedDto>(company));
         }
 
         private CreateCompanyDto TrimListItems(CreateCompanyDto createCompanyDto)
         {
-            CompanyAddress emptyAddress = new();
-            emptyAddress.AddressLine1 = "";
-            emptyAddress.AddressLine2 = "";
-            emptyAddress.ShortComment = null;
-            emptyAddress.City = "";
-            emptyAddress.PostalCode = "";
-
-            List<CompanyAddress> emptyAddresses = new List<CompanyAddress>();
-
-            foreach (var address in createCompanyDto.Addresses)
-            {
-                if (JsonSerializer.Serialize(address) != JsonSerializer.Serialize(emptyAddress))
-                    emptyAddresses.Add(address);
-            }
-            createCompanyDto.Addresses = emptyAddresses;
+            var emptyAddress = new CompanyAddress { AddressLine1 = "", AddressLine2 = "", City = "", PostalCode = "" };
+            createCompanyDto.Addresses = createCompanyDto.Addresses
+                .Where(address => !AreAddressesEqual(address, emptyAddress))
+                .ToList();
             return createCompanyDto;
-
         }
 
-        public async Task<ActionResult<IEnumerable<CompanyDto>>> GetAsync(bool includeDeleted = false)
-        {
-            var companies = await _companyRepo.GetAsync(includeDeleted);
+        private bool AreAddressesEqual(CompanyAddress a1, CompanyAddress a2) => JsonSerializer.Serialize(a1) == JsonSerializer.Serialize(a2);
 
-            return new OkObjectResult(companies);
-        }
+        public async Task<ActionResult<IEnumerable<CompanyDto>>> GetAsync(bool includeDeleted = false) => new OkObjectResult(await _companyRepo.GetAsync(includeDeleted));
 
-        public async Task<CompanyDetailedDto> GetByIdAsync(Guid id)
-        {
-            var company = await _companyRepo.GetByIdAsync(id);
-
-            var companyDTO = _mapper.Map<Company, CompanyDetailedDto>(company);
-
-            return companyDTO;
-        }
+        public async Task<CompanyDetailedDto> GetByIdAsync(Guid id) => _mapper.Map<Company, CompanyDetailedDto>(await _companyRepo.GetByIdAsync(id));
 
         public async Task<ActionResult<CompanyDetailedDto>> UpdateAsync(Guid companyId, UpdateCompanyDto updateCompanyDto, string lastUser)
         {
+            await _updateCompanyValidator.ValidateAndThrowAsync(updateCompanyDto);
+
             var company = _mapper.Map<UpdateCompanyDto, Company>(updateCompanyDto);
 
             company.LastUpdateByUser = lastUser;
             company.LastUpdateAt = DateTime.UtcNow;
             company.Id = companyId;
 
-            company = await _companyRepo.UpdateAsync(company);
+            await _companyRepo.UpdateAsync(company);
             await PerformAudit(company, company.Id);
 
-            var companyDTO = _mapper.Map<Company, CompanyDetailedDto>(company);
-
-            return new OkObjectResult(companyDTO);
+            return new OkObjectResult(_mapper.Map<Company, CompanyDetailedDto>(company));
         }
 
         public async Task<IActionResult> UpdateCompanyArchiveIdAsync(Guid companyId, Guid archiveId, string lastUser)
@@ -109,34 +86,28 @@ namespace CompanyAPI.Services
             return new NoContentResult();
         }
 
-        public async Task<IActionResult> DeleteAsync(Guid companyId, string lastUser)
+        public async Task<IActionResult> SetDeleteStatusAsync(Guid companyId, bool isDeleted, string lastUser)
         {
-            var updateResult = await _companyRepo.SetDeleteAsync(companyId, true, lastUser);
-            if (!updateResult.IsAcknowledged) return new NotFoundObjectResult("Company not found");
-
-            return new NoContentResult();
+            var updateResult = await _companyRepo.SetDeleteAsync(companyId, isDeleted, lastUser);
+            return updateResult.IsAcknowledged ? new NoContentResult() : new NotFoundObjectResult("Company not found");
         }
 
-        public async Task<IActionResult> UndeleteAsync(Guid companyId, string lastUser)
-        {
-            var updateResult = await _companyRepo.SetDeleteAsync(companyId, false, lastUser);
-            if (!updateResult.IsAcknowledged) return new NotFoundObjectResult("Company not found");
+        public Task<IActionResult> DeleteAsync(Guid companyId, string lastUser) => SetDeleteStatusAsync(companyId, true, lastUser);
 
-            return new NoContentResult();
-        }
+        public Task<IActionResult> UndeleteAsync(Guid companyId, string lastUser) => SetDeleteStatusAsync(companyId, false, lastUser);
 
         public async Task PerformAudit(Company company, Guid id)
         {
-            Audit audit = new Audit();
-            audit.Object = JsonSerializer.Serialize(company);
-            audit.Id = id;
-            audit.ObjectType = "Company";
+            var audit = new Audit
+            {
+                Object = Serialize(company),
+                Id = id,
+                ObjectType = "Company"
+            };
 
-            string serializedAudit = JsonSerializer.Serialize(audit);
-            MessageContract m = new MessageContract();
-            m.Payload = serializedAudit;
-
-            await _publishEndpoint.Publish<MessageContract>(m);
+            await _publishEndpoint.Publish(new MessageContract { Payload = Serialize(audit) });
         }
+
+        private string Serialize<T>(T obj) => JsonSerializer.Serialize(obj);
     }
 }

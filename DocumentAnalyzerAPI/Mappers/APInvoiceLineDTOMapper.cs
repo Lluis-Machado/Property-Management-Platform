@@ -11,16 +11,16 @@ namespace DocumentAnalyzerAPI.Mappers
 
         public APInvoiceLineDTO MapToAPInvoiceLineDTO(IReadOnlyDictionary<string, DocumentField> documentFields, decimal mainTax)
         {
-            decimal? unitPrice = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "UnitPrice");
+            decimal? unitPrice = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "UnitPrice") ;
             double? quantity = AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "Quantity");
 
             if (unitPrice is null || quantity is null)
             {
-                unitPrice = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "Amount");
+                unitPrice = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "Amount") ?? 0 ;
                 quantity = 1;
             }
             decimal tax;
-            string taxString = (string?)AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "TaxRate");
+            string taxString = (string?)AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "TaxRate") ?? "0";
             string taxStringClean = "";
             if (!String.IsNullOrEmpty(taxString))
             {
@@ -39,7 +39,7 @@ namespace DocumentAnalyzerAPI.Mappers
                 Quantity = (int)quantity,
                 TotalPrice = totalPrice ?? 0,
                 Tax = tax,
-                Description = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "Description"),
+                Description = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "Description") ?? "", 
             };
 
 

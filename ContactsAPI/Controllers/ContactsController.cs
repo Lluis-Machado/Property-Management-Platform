@@ -1,5 +1,6 @@
 ﻿using ContactsAPI.DTOs;
 using ContactsAPI.Services;
+using ContactsAPI.Validators;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
@@ -36,13 +37,10 @@ namespace ContactsAPI.Controllers
         {
             // validations
             if (contactDTO == null) return new BadRequestObjectResult("Incorrect body format");
-            // contact validation
-            ValidationResult validationResult = await _createContactValidator.ValidateAsync(contactDTO);
-            if (!validationResult.IsValid) return new BadRequestObjectResult(validationResult.ToString("~"));
 
-            var lastUser = User?.Identity?.Name ?? "sa";
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            return await _contactsService.CreateAsync(contactDTO, lastUser);
+            return await _contactsService.CreateAsync(contactDTO, userName);
         }
 
         [HttpPatch]
@@ -55,13 +53,9 @@ namespace ContactsAPI.Controllers
             // validations
             if (contactDTO == null) return new BadRequestObjectResult("Incorrect body format");
 
-            // contact validation
-            ValidationResult validationResult = await _updateContactValidator.ValidateAsync(contactDTO);
-            if (!validationResult.IsValid) return new BadRequestObjectResult(validationResult.ToString("~"));
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            var lastUser = User?.Identity?.Name ?? "sa";
-
-            return await _contactsService.UpdateContactAsync(contactId, contactDTO, lastUser);
+            return await _contactsService.UpdateContactAsync(contactId, contactDTO, userName);
         }
 
         [HttpPatch]
@@ -71,8 +65,8 @@ namespace ContactsAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UpdateArchiveIdAsync(Guid contactId, Guid archiveId)
         {
-            var lastUser = User?.Identity?.Name ?? "sa";
-            return await _contactsService.UpdateContactArchiveIdAsync(contactId, archiveId, lastUser);
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
+            return await _contactsService.UpdateContactArchiveIdAsync(contactId, archiveId, userName);
         }
 
         [HttpGet]
@@ -130,9 +124,9 @@ namespace ContactsAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteAsync(Guid contactId)
         {
-            var lastUser = "test";
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            return await _contactsService.DeleteContactAsync(contactId, lastUser);
+            return await _contactsService.DeleteContactAsync(contactId, userName);
         }
 
         [HttpPatch]
@@ -141,9 +135,9 @@ namespace ContactsAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UndeleteAsync(Guid contactId)
         {
-            var lastUser = "test";
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            return await _contactsService.UndeleteContactAsync(contactId, lastUser);
+            return await _contactsService.UndeleteContactAsync(contactId, userName);
         }
     }
 }

@@ -18,12 +18,12 @@ namespace DocumentAnalyzerAPI.Mappers
         {
             BasicBusinessPartnerDTO businessPartnerDTO = new()
             {
-                VATNumber = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "VendorTaxId"),
-                Name = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "VendorName")
+                VATNumber = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "VendorTaxId") ?? "",
+                Name = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "VendorName") ?? ""
             };
 
-            var totalAmount = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "InvoiceTotal");
-            var totalTax = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "TotalTax");
+            var totalAmount = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "InvoiceTotal") ?? 0;
+            var totalTax = (decimal?)AzureFormRecgonizerUtilities.MapFieldValue<double?>(documentFields, "TotalTax") ?? 0;
             var totalBaseAmount = totalAmount - totalTax;
             var totalTaxPercentage = (totalAmount *100)/totalBaseAmount -100;
             if (totalTaxPercentage != null) 
@@ -31,9 +31,9 @@ namespace DocumentAnalyzerAPI.Mappers
             APInvoiceDTO aPInvoiceDTO = new()
             {
                 BusinessPartner = businessPartnerDTO,
-                RefNumber = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "InvoiceId"),
+                RefNumber = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "InvoiceId") ?? "",
                 Date = AzureFormRecgonizerUtilities.MapFieldValue<DateTimeOffset>(documentFields, "InvoiceDate").DateTime,
-                Currency = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "InvoiceTotal"),
+                Currency = AzureFormRecgonizerUtilities.MapFieldValue<string?>(documentFields, "InvoiceTotal") ?? "",
                 NetAmount = (decimal)totalAmount,
                 TotalTax = (decimal)totalTax,
                 GrossAmount = (decimal)totalBaseAmount,

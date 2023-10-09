@@ -1,4 +1,5 @@
-﻿using CompanyAPI.Dtos;
+﻿using CompaniesAPI.Validators;
+using CompanyAPI.Dtos;
 using CompanyAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -27,9 +28,9 @@ namespace CompanyAPI.Controllers
             // validations
             if (companyDto == null) return new BadRequestObjectResult("Incorrect body format");
 
-            var lastUser = User?.Identity?.Name ?? "na";
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            return await _companyService.CreateAsync(companyDto, lastUser!);
+            return await _companyService.CreateAsync(companyDto, userName);
         }
 
         [HttpPatch]
@@ -42,9 +43,9 @@ namespace CompanyAPI.Controllers
             // validations
             if (companyDto == null) return new BadRequestObjectResult("Incorrect body format");
 
-            string lastUser = User?.Identity?.Name ?? "na";
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            return await _companyService.UpdateAsync(companyId, companyDto, lastUser!);
+            return await _companyService.UpdateAsync(companyId, companyDto, userName!);
         }
 
         [HttpPatch]
@@ -54,9 +55,9 @@ namespace CompanyAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UpdateArchiveIdAsync(Guid companyId, Guid archiveId)
         {
-            string lastUser = User?.Identity?.Name ?? "na";
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            return await _companyService.UpdateCompanyArchiveIdAsync(companyId, archiveId, lastUser);
+            return await _companyService.UpdateCompanyArchiveIdAsync(companyId, archiveId, userName);
         }
 
         [HttpGet]
@@ -81,17 +82,6 @@ namespace CompanyAPI.Controllers
 
             return contact;
         }
-        /*
-        [HttpGet("{companyId}/properties")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        public async Task<ActionResult<CompanyDetailedDto>> GetWithProperties(Guid companyId)
-        {
-            var company = await _companyService.GetWithProperties(companyId);
-
-            return company;
-        }*/
 
         [HttpDelete]
         [Route("{companyId}")]
@@ -99,9 +89,9 @@ namespace CompanyAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteAsync(Guid companyId)
         {
-            var lastUser = "test";
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            return await _companyService.DeleteAsync(companyId, lastUser);
+            return await _companyService.DeleteAsync(companyId, userName);
         }
 
         [HttpPatch]
@@ -110,9 +100,9 @@ namespace CompanyAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UndeleteAsync(Guid companyId)
         {
-            var lastUser = "test";
+            string userName = UserNameValidator.GetValidatedUserName(User?.Identity?.Name);
 
-            return await _companyService.UndeleteAsync(companyId, lastUser);
+            return await _companyService.UndeleteAsync(companyId, userName);
         }
     }
 }

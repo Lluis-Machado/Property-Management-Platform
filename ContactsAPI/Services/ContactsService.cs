@@ -37,6 +37,9 @@ namespace ContactsAPI.Services
 
         public async Task<ActionResult<ContactDetailedDto>> CreateAsync(CreateContactDto createContactDto, string lastUser)
         {
+
+            await _createContactValidator.ValidateAndThrowAsync(createContactDto);
+
             var contact = _mapper.Map<CreateContactDto, Contact>(createContactDto);
 
             contact.LastUpdateByUser = lastUser;
@@ -112,7 +115,7 @@ namespace ContactsAPI.Services
 
         public async Task<ActionResult<ContactDetailedDto>> UpdateContactAsync(Guid contactId, UpdateContactDTO updateContactDTO, string lastUser)
         {
-            var oldContact = await _contactsRepo.GetContactByIdAsync(contactId);
+            await _updateContactValidator.ValidateAndThrowAsync(updateContactDTO);
 
             var contact = _mapper.Map<UpdateContactDTO, Contact>(updateContactDTO);
 
@@ -147,12 +150,6 @@ namespace ContactsAPI.Services
 
         public async Task<IActionResult> DeleteContactAsync(Guid contactId, string lastUser)
         {
-            /*var clientO = new OwnershipServiceClient();
-            var ownerships = await clientO.GetOwnershipByIdAsync(contactId);
-
-            if (ownerships.Any() && ownerships.Any(x => x.MainOwnership == true))
-                return new BadRequestObjectResult("Contact has properties where they are the main owner.");*/
-
             var updateResult = await _contactsRepo.SetDeleteAsync(contactId, true, lastUser);
             if (!updateResult.IsAcknowledged) return new NotFoundObjectResult("Contact not found");
 
